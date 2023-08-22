@@ -54,10 +54,10 @@
 <li>
 <p>What topics are taught in CS 110?</p>
 <ul class="checklist">
-<li><label><input type="checkbox" data-question="0" data-content="1" /> Lists</label></li>
+<li><label><input type="checkbox" data-question="0" data-content="1" /> Lists </label></li>
 <li><label><input type="checkbox" data-question="0" data-content="1" /> Functions</label></li>
 <li><label><input type="checkbox" data-question="1" data-content="0" /> Classes</label></li>
-<li><label><input type="checkbox" data-question="1" data-content="0" /> Recursion</label></li>
+<li><label><input type="checkbox" data-question="1" data-content="0" /> <code>import random</code></label></li>
 </ul>
 </li>
 <li>
@@ -67,21 +67,29 @@
 </ul>
 </li>
 </ol>
-<p><Quiz></p>
-<p><question>
-This is a text question
-<right>Yes</right>
-</question></p>
-<p>just some text</p>
-<p><question>
-<right>Blue</right>
-Question 1:
-This is the question part
-<right>Blue</right>
-<wrong>Green</wrong>
-<wrong>Purple</wrong>
-</question></p>
-<p></Quiz></p>
+<hr>
+<ol>
+<li>
+<p>This is a text question</p>
+</li>
+<li>
+<p>This is the question part</p>
+<ul class="radio-list">
+<li><label><input type="radio" data-question="0" data-content="1" />  Blue Red Orange </label></li>
+<li><label><input type="radio" data-question="1" data-content="0" /> Green</label></li>
+<li><label><input type="radio" data-question="1" data-content="0" /> Purple</label></li>
+</ul>
+</li>
+<li>
+<p>This is another question</p>
+<ul class="checklist">
+<li><label><input type="checkbox" data-question="0" data-content="1" /> 5</label></li>
+<li><label><input type="checkbox" data-question="0" data-content="1" /> 6</label></li>
+<li><label><input type="checkbox" data-question="1" data-content="0" /> This is a very long multiline answer That could be displayed improperly; I can see how Multiline coding answers could potentially be problematic for parsing And displaying as html </label></li>
+<li><label><input type="checkbox" data-question="1" data-content="0" />   <code>python import random  def give_me_100():     return random.random() * 100</code>  </label></li>
+</ul>
+</li>
+</ol>
         </div>
     </div>
     <div id="tg-msg" class="alert" role="alert" style="display: none">
