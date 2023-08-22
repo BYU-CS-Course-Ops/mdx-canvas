@@ -1,6 +1,27 @@
 # Sample Quiz
 
+<settings>
+title: Final
+due_at: Dec 21, 2023, 11:59 PM
+available_from: Dec 16, 2023, 12:00 AM
+available_to: Dec 21, 2023, 11:59 PM
+points_possible: 40
+assignment_group: Final
+shuffle_answers: True
+time_limit: 240
+allowed_attempts: 1
+show_correct_answers_at: Dec 21, 2023, 11:59 PM
+access_code: start-final
+</settings>
+
+<instructions>
+These instructions are seen before taking the quiz.
+</instructions>
+
 ---
+This is the original format from Github, 
+looks more like markdown
+
 1. CS 110 is taught by Dr. Gordon Bean.
     - (x) True
     - ( ) False
@@ -19,39 +40,25 @@
     - R:= C. Shane Reese
 
 ---
-<question>
-This is a text question
+<question type="text">
+**This is closer to html format**
 </question>
 
-
-<question>
+<question type = "multiple-choice">
 This is the question part
 
 <right>
-Blue
-Red
-Orange
+This is a correct answer
 </right>
 
-<wrong>Green</wrong>
-<wrong>Purple</wrong>
+<wrong>
+This is a multiline answer, 
+which we can process fine
+</wrong>
 </question>
 
-
-<question>
+<question type="multiple-answers">
 This is another question
-
-<right>5</right>
-<right>6</right>
-
-<wrong>This is a very long
-multiline answer
-That could be displayed improperly;
-I can see how
-Multiline coding answers could potentially
-be problematic for parsing
-And displaying as html </wrong>
-
 <wrong>
 
 ```python
@@ -62,6 +69,16 @@ def give_me_100():
 ```
 
 </wrong>
+
+<right>5</right>
+<right>6</right>
+
+<wrong>
+This is 
+incorrect
+</wrong>
+
+
 </question>
 
 

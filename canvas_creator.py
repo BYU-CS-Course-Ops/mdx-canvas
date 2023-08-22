@@ -1,7 +1,6 @@
-import argparse
-import importlib
 import os
 import pathlib
+import re
 
 import update_canvas as updater
 
@@ -11,9 +10,10 @@ from canvasapi.course import Course
 from datetime import datetime
 
 import markdown as md
-import re
 from pathlib import Path
 from bs4 import BeautifulSoup
+
+LOOKUP_FOLDER = './markdown-quiz-files'
 
 question_types = [
     'calculated_question',
@@ -37,30 +37,66 @@ def readfile(filepath: Path):
 
 
 class QuizCreator:
-    files_folder = Path("")
+    markdown = ""
+    image_folder = Path(__file__).parent / "images"
+    files_folder = Path(__file__).parent / "markdown-quiz-files"
     course = None
     quiz: Quiz = None
-    false_regex = ""
-    true_regex = ""
 
-    def __init__(self, course: Course, files_folder: Path, false_regex='', true_regex=''):
-        self.files_folder = files_folder
+    def __init__(self, course: Course, markdown: str, image_folder: Path = None, files_folder: Path = None):
+        self.markdown = markdown
+        self.image_folder = image_folder if image_folder else self.image_folder
+        self.files_folder = files_folder if files_folder else self.image_folder
         self.course = course
-        self.false_regex = false_regex
-        self.true_regex = true_regex
 
-    def create_quiz(self, title: str, description: str, time_limit: int, shuffle_answers: bool, access_code: str,
-                    quiz_due_date: datetime, published: bool):
+    def  create_quiz(self, title: str, description: str = "", quiz_type: str = "assignment", assignment_group: str = None,
+                    time_limit: int = None, shuffle_answers: bool = True, points_possible: int = 1,
+                    due_at: datetime = None, show_correct_answers_at: datetime = None, allowed_attempts: int = 1,
+                    scoring_policy: str = "keep_highest", one_question_at_a_time: bool = False, cant_go_back: bool = False,
+                    access_code: str = None, available_to: datetime = None, available_from: datetime = None, published: bool = True,
+                    one_time_results: bool = False):
+
         self.quiz = self.course.create_quiz(quiz={
             "title": title,
             "description": self.get_fancy_html(description),
-            "quiz_type": "assignment",
+            "quiz_type": quiz_type,
+            "assignment_group_id": self.get_group_index(assignment_group),
             "time_limit": time_limit,
             "shuffle_answers": shuffle_answers,
+            "points_possible": points_possible,
+            "hide_results": None,
+            "show_correct_answers": True,
+            "show_correct_answers_at": self.make_iso(show_correct_answers_at),
+            "allowed_attempts": allowed_attempts,
+            "scoring_policy": scoring_policy,
+            "one_question_at_a_time": one_question_at_a_time,
+            "cant_go_back": cant_go_back,
             "access_code": access_code,
-            "due_at": datetime.isoformat(quiz_due_date),
-            "published": published
+            "due_at": self.make_iso(due_at),
+            "lock_at": self.make_iso(available_to),
+            "unlock_at": self.make_iso(available_from),
+            "published": published,
+            "one_time_results": one_time_results
         })
+
+    def make_iso(self, date: datetime | str | None):
+        input_format = "%b %d, %Y, %I:%M %p"
+
+        if date is None:
+            return None
+        if isinstance(date, str):
+            date = datetime.strptime(date, input_format)
+        return datetime.isoformat(date)
+
+    def get_group_index(self, group: str):
+        groups = self.course.get_assignment_groups()
+        group_index = 0
+        if group:
+            if not any(g.name == group for g in groups):
+                print("Created Assignment Group: " + group)
+                self.course.create_assignment_group(name=group)
+            group_index = [g.name for g in groups].index(group)
+        return group_index
 
     @staticmethod
     def delete_if_exception(function):
@@ -86,7 +122,7 @@ class QuizCreator:
                                                       hidden=True)
         else:
             folder_object = [f for f in folders if f.name == self.quiz.title][0]
-        file_object_id = folder_object.upload(self.files_folder / image_name)[1]["id"]
+        file_object_id = folder_object.upload(self.image_folder / image_name)[1]["id"]
         html_text = f'<p><img id="{image_name}" src="/courses/{self.course.id}/files/{file_object_id}/preview" alt="{alt_text}" /></p>'
         return html_text
 
@@ -140,19 +176,6 @@ class QuizCreator:
         for file, is_true in questions:
             self.create_true_false_question(file, is_true)
 
-    @delete_if_exception
-    def regex_create_true_false_series(self, preamble: str, questions: list[str]):
-        """
-        :param preamble: The common text to the series of true/false questions
-        :param questions: A list of the markdown files with the questions, names formatted to match the regex if False
-        """
-        if self.true_regex:
-            is_true_tuples = [(question, re.match(self.true_regex, question) != []) for question in questions]
-        elif self.false_regex:
-            is_true_tuples = [(question, re.match(self.false_regex, question) == []) for question in questions]
-        else:
-            raise Exception("No regexes defined")
-        self.create_true_false_series(preamble, is_true_tuples)
 
     @delete_if_exception
     def create_true_false_question(self, description: str, is_true: bool):
@@ -179,19 +202,6 @@ class QuizCreator:
         print("Created true/false question: " + description)
 
     @delete_if_exception
-    def regex_create_true_false_question(self, description: str):
-        """
-        :param description: The file with the question, name formatted to match the regex
-        """
-        if self.true_regex:
-            is_true = re.findall(self.true_regex, description) != []
-        elif self.false_regex:
-            is_true = re.findall(self.false_regex, description) == []
-        else:
-            raise Exception("No regexes defined")
-        self.create_true_false_question(description, is_true)
-
-    @delete_if_exception
     def create_multiple_answers_question(self, description: str, answers: list[str], correct_answers: list[int]):
         """
         :param description: The file with the question
@@ -212,19 +222,6 @@ class QuizCreator:
         })
         print("Created multiple-answers question: " + description)
 
-    @delete_if_exception
-    def regex_create_multiple_answers_question(self, description: str, answers: list[str]):
-        """
-        :param description: The file with the question
-        :param answers: The list of answer filenames, names formatted to match the regex
-        """
-        if self.true_regex:
-            is_true_indexes = [i for i, answer in enumerate(answers) if re.findall(self.true_regex, answer) != []]
-        elif self.false_regex:
-            is_true_indexes = [i for i, answer in enumerate(answers) if re.findall(self.false_regex, answer) == []]
-        else:
-            raise Exception("No regexes defined")
-        self.create_multiple_answers_question(description, answers, is_true_indexes)
 
     @delete_if_exception
     def create_multiple_choice_question(self, description: str, answers: list[str], correct_answer: int):
@@ -247,30 +244,14 @@ class QuizCreator:
         })
         print("Created multiple-choice question: " + description)
 
-    @delete_if_exception
-    def regex_create_multiple_choice_question(self, description: str, answers: list[str]):
-        """
-        :param description: The file with the question
-        :param answers: The list of answer filenames, names formatted to match the regex
-        """
-        if self.true_regex:
-            is_true_indexes = [i for i, answer in enumerate(answers) if re.findall(self.true_regex, answer) != []]
-        elif self.false_regex:
-            is_true_indexes = [i for i, answer in enumerate(answers) if re.findall(self.false_regex, answer) == []]
-        else:
-            raise Exception("No regexes defined")
-        # Assert there is exactly one correct answer for a multiple choice question
-        if __debug__:
-            if not len(is_true_indexes) == 1: raise AssertionError
-        self.create_multiple_choice_question(description, answers, is_true_indexes[0])
 
     @delete_if_exception
-    def create_text_question(self, file_with_text):
+    def create_text_question(self, file_or_text):
         self.quiz.create_question(question={
-            "question_text": self.get_fancy_html(file_with_text),
+            "question_text": self.get_fancy_html(file_or_text),
             "question_type": 'text_only_question'
         })
-        print("Created text question for " + file_with_text)
+        print("Created text question for " + file_or_text)
 
 
 
@@ -296,7 +277,7 @@ def update_quiz(quiz_to_edit: Quiz, quiz_to_copy: Quiz):
         "published": quiz_to_copy.published,
         "questions": quiz_to_copy.get_questions()
     })
-    for quiz_question in quiz_to_copy.get_questions():
+    for quiz_question in quiz_to_edit.get_questions():
         quiz_question.delete()
     for quiz_question in quiz_to_copy.get_questions():
         answers = []
@@ -314,32 +295,87 @@ def update_quiz(quiz_to_edit: Quiz, quiz_to_copy: Quiz):
             "points_possible": quiz_question.points_possible,
             "answers": answers
         })
-    print(quiz_to_edit)
-    print(quiz_to_copy)
+    quiz_to_copy.delete()
+    print("Updated quiz " + quiz_to_edit.title
+          + " by copying from " + quiz_to_copy.title)
 
 
-def create_clone_delete_edit(quiz_script: str, package:str, clone=None, delete=None, edit=None):
+class Parser:
+    def __init__(self, creator: QuizCreator, text: str):
+        self.creator = creator
+        self.text = text
+        self.settings = {}
+        self.instructions = ""
+        self.questions = []
+
+    def parse_quiz(self):
+        soup = BeautifulSoup(self.text, "html.parser")
+
+        settings = soup.find("settings")
+        if settings:
+            for line in settings.string.split("\n"):
+                if line:
+                    key, value = line.split(": ")
+                    self.settings[key.strip()] = value.strip()
+
+        instructions = soup.find("instructions")
+        if instructions:
+            self.instructions = instructions.string
+
+        questions = soup.find_all('question')
+        index = 1
+
+        for question in questions:
+            new_question = {}
+            rights = question.css.filter('right')
+            wrongs = question.css.filter('wrong')
+
+            if question["type"] == "multiple-choice":
+                new_question["function"] = QuizCreator.create_multiple_choice_question
+                new_question["args"] = [
+                    question.contents[0],
+                    [answer.string for answer in rights + wrongs],
+                    rights[0]
+                ]
+            elif question["type"] == "multiple-answers":
+                new_question["function"] = QuizCreator.create_multiple_answers_question
+                new_question["args"] = [
+                    question.contents[0],
+                    [answer.string for answer in rights + wrongs],
+                    [range(len(rights))]
+                ]
+            elif question["type"] == "text":
+                new_question["function"] = QuizCreator.create_text_question
+                new_question["args"] = [question.string]
+
+            self.questions.append(new_question)
+            index += 1
+
+    def create_quiz(self):
+        self.settings["description"] = self.instructions
+        self.creator.create_quiz(**self.settings)
+        for question in self.questions:
+            print(*question["args"])
+            question["function"](self.creator, *question["args"])
+        return self.creator.quiz
+
+
+def create_edit(quiz_markdown: str):
     # Use the quiz script to create a quiz and get the quiz object
     # The main function in quiz script returns a quiz object
 
     canvas = updater.get_canvas_from_secrets()
     course = updater.get_course_via_prompt(canvas)
 
-    # If cloning, we don't need to create a new quiz. Just get the quiz object, and then clone it
-    if clone:
-        return updater.prompt_to_clone_quiz(course)
-
-    if delete:
-        return updater.delete_quizzes(course)
-
     # Else we need to run the create_quiz function from the quiz script
-    quiz = importlib.import_module(quiz_script.strip("."), package=package).create_quiz(course)
+    creator = QuizCreator(course, quiz_markdown)
+    parser = Parser(creator, quiz_markdown)
+    parser.parse_quiz()
 
-    if quiz_from_canvas := updater.get_quiz(course, quiz.title):
-        updater.update_quiz(quiz_from_canvas, quiz)
-        print("Updated quiz " + quiz.title)
-        return
+    if quiz_from_canvas := updater.get_quiz(course, parser.settings['title']):
+        quiz_from_canvas.delete()
 
+    quiz = parser.create_quiz()
     print("Created quiz " + quiz.title)
 
 
@@ -358,21 +394,13 @@ def get_quiz_path():
     return str(path)
 
 
-if __name__ == '__main__':
-    # Parse arguments for quiz creation, cloning, editing, or deletion
-    # Quiz script is the only required argument
-    parser = argparse.ArgumentParser(description='Create, clone, delete, or edit quizzes.')
-    # Create, clone, and edit require a quiz script, but delete does not
-    parser.add_argument('quiz_script', nargs='?', help='Path to quiz script')
-    parser.add_argument('--clone', action='store_true', help='Clone quizzes')
-    parser.add_argument('--delete', action='store_true', help='Delete quizzes')
-    parser.add_argument('--edit', action='store_true', help='Edit quizzes')
-    args = parser.parse_args()
+if __name__ == "__main__":
+    # Post all the .md (markdown) files inside the [markdown-quiz-files] folder
+    print("-" * 50 + "\nCanvas Quiz Generator\n" + "-" * 50)
 
-    if args.quiz_script is None:
-        args.quiz_script = get_quiz_path()
+    for file_name in os.listdir(LOOKUP_FOLDER):
+        if file_name.endswith('.md'):
+            with open(os.path.join(LOOKUP_FOLDER, file_name), "r") as f:
+                print(f"Posting to Canvas ({file_name}) ...")
+                create_edit(f.read())
 
-    # Assert that the quiz script exists
-    elif not os.path.exists(args.quiz_script): raise AssertionError
-
-    create_clone_delete_edit(args.quiz_script, str(Path(__file__).parent.parent), args.clone, args.delete, args.edit)

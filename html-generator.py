@@ -14,21 +14,6 @@ LOOKUP_FOLDER = './markdown-quiz-files'
 OUTPUT_FOLDER = 'generated-quizzes'
 
 
-# def get_fancy_html(self, markdown_or_file: str):
-#     if markdown_or_file.endswith('.md'):
-#         text = readfile(self.files_folder / markdown_or_file)
-#
-#         html = md.markdown(text, extensions=['fenced_code'])
-#         soup = BeautifulSoup(html, "html.parser")
-#         for img in soup.find_all('img'):
-#             basic_image_html = self.get_img_html(img["src"], img["alt"])
-#             img.replace_with(BeautifulSoup(basic_image_html, "html.parser"))
-#         html = str(soup)
-#
-#         return html
-#     else:
-#         return md.markdown(markdown_or_file, extensions=['fenced_code'])
-
 def render_test(file_name: str, markdown_content: str) -> None:
     """Render quiz in Markdown format to HTML."""
 
