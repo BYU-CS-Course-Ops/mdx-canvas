@@ -9,6 +9,7 @@ from canvasapi.quiz import Quiz
 from canvasapi.submission import Submission
 from canvasapi import Canvas
 from canvas_creator import update_quiz
+import os
 
 this_directory = Path(__file__).parent
 
@@ -270,46 +271,6 @@ def get_canvas_id_to_sorted_name(course):
     return canvas_id_to_sorted_name
 
 
-
-def prompt_to_update_quiz(course: Course, quiz_to_copy: Quiz):
-    response = "Do you want to use this quiz to update an existing quiz? (y/n): "
-    if input(response) == "y":
-        quiz_to_update = get_quiz_via_prompt(course)
-        update_quiz(quiz_to_update, quiz_to_copy)
-    response = "Do you want to delete this quiz? (y/n): "
-    if input(response) == "y":
-        quiz_to_copy.delete()
-
-
-def clone_quiz(course, quiz_to_copy):
-    # Create a new quiz, then use update quiz to copy over the questions
-    new_quiz = course.create_quiz(quiz={"title": "any"})
-    update_quiz(new_quiz, quiz_to_copy)
-
-def prompt_to_clone_quiz(course):
-    quiz = get_quiz_via_prompt(course)
-    clone_quiz(course, quiz)
-    print("Cloned quiz " + quiz.title)
-    return
-
-def delete_quiz(quiz):
-    quiz.delete()
-
-
-def delete_quizzes(course):
-    quiz = get_quiz_via_prompt(course)
-    delete_quiz(quiz)
-    print("Deleted quiz " + quiz.title)
-
-    while True:
-        quiz = get_quiz_via_prompt(course)
-        delete_quiz(quiz)
-        print("Deleted quiz " + quiz.title + "\n")
-        if input("Continue deleting quizzes? (y/n) ").lower() == 'n':
-            break
-    return
-
-
 def get_quiz(course: Course, title: str):
     quizzes = course.get_quizzes()
     for quiz in quizzes:
@@ -317,3 +278,17 @@ def get_quiz(course: Course, title: str):
             return quiz
 
     return None
+
+def get_quiz_path():
+    path = Path(__file__).parent / "markdown-quiz-files"
+    while os.path.isdir(path):
+        files = os.listdir(path)
+        for i, f in enumerate(files):
+            print(f"{i}: {f}")
+        index = input("Select file: ")
+        try:
+            index = int(index)
+            path = path / files[index]
+        except Exception:
+            print(f"Enter a number in the range {len(files)}")
+    return path

@@ -4,7 +4,6 @@ from pathlib import Path
 from datetime import datetime
 
 
-
 def readfile(filepath: Path):
     with open(filepath) as file:
         return file.read()
@@ -39,15 +38,15 @@ class TFConverter:
             "question_type": 'true_false_question',
             "points_possible": 1,
             "answers": [
-                    {
-                        "answer_text": "True",
-                        "answer_weight": 100 if is_true else 0
-                    },
-                    {
-                        "answer_text": "False",
-                        "answer_weight": 0 if is_true else 100
-                    }
-                ]
+                {
+                    "answer_text": "True",
+                    "answer_weight": 100 if is_true else 0
+                },
+                {
+                    "answer_text": "False",
+                    "answer_weight": 0 if is_true else 100
+                }
+            ]
         }
         return question
 
@@ -59,7 +58,6 @@ class TrueFalseProcessor:
             raise Exception("True false questions must have one right or wrong answer")
 
         return TFConverter().process(answers[0])
-
 
 
 class MultipleTrueFalseProcessor:
@@ -108,6 +106,7 @@ class MultipleAnswersProcessor:
         }
         return question
 
+
 class MatchingProcessor:
     def process(self, question_tag):
         lefts = question_tag.css.filter('left')
@@ -130,8 +129,6 @@ class MatchingProcessor:
             "matching_answer_incorrect_matches": '\n'.join(distractors)
         }
         return question
-
-
 
 
 class TextProcessor:
@@ -183,7 +180,6 @@ class Parser:
                     quiz["questions"].append(question)
         return quiz
 
-
     def get_group_index(self, group: str):
         groups = self.course.get_assignment_groups()
         group_index = 0
@@ -207,21 +203,21 @@ class Parser:
     def parse_settings(self, settings_tag):
         settings = {
             "title": settings_tag["title"],
-            "quiz_type": "assignment",
-            "assignment_group_id": self.get_group_index(settings_tag["assignment_group"]),
-            "time_limit": settings_tag["time_limit"],
-            "shuffle_answers": settings_tag["shuffle_answers"],
+            "quiz_type": settings_tag.get("quiz_type", "assignment"),
+            "assignment_group_id": self.get_group_index(settings_tag.get("assignment_group", None)),
+            "time_limit": settings_tag.get("time_limit", None),
+            "shuffle_answers": settings_tag.get("shuffle_answers", False),
             "hide_results": None,
             "show_correct_answers": True,
-            "show_correct_answers_at": self.make_iso(settings_tag["show_correct_answers_at"]),
-            "allowed_attempts": settings_tag["allowed_attempts"],
+            "show_correct_answers_at": self.make_iso(settings_tag.get("show_correct_answers_at", None)),
+            "allowed_attempts": settings_tag.get("allowed_attempts", 1),
             "scoring_policy": settings_tag.get("scoring_policy", "keep_highest"),
             "one_question_at_a_time": settings_tag.get("one_question_at_a_time", False),
             "cant_go_back": settings_tag.get("cant_go_back", False),
-            "access_code": settings_tag["access_code"],
-            "due_at": self.make_iso(settings_tag["due_at"]),
-            "lock_at": self.make_iso(settings_tag["available_to"]),
-            "unlock_at": self.make_iso(settings_tag["available_from"]),
+            "access_code": settings_tag.get("access_code", None),
+            "due_at": self.make_iso(settings_tag.get("due_at", None)),
+            "lock_at": self.make_iso(settings_tag.get("available_to", None)),
+            "unlock_at": self.make_iso(settings_tag.get("available_from", None)),
             "published": settings_tag.get("published", True),
             "one_time_results": settings_tag.get("one_time_results", False),
         }

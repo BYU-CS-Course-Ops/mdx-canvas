@@ -1,6 +1,5 @@
 import json
 import os
-import pathlib
 
 import update_canvas as updater
 
@@ -37,7 +36,6 @@ def readfile(filepath: Path):
         return file.read()
 
 
-
 def get_fancy_html(markdown_or_file: str, files_folder=None):
     if markdown_or_file.endswith('.md'):
         text = readfile(files_folder / markdown_or_file)
@@ -46,6 +44,7 @@ def get_fancy_html(markdown_or_file: str, files_folder=None):
         return html
     else:
         return md.markdown(markdown_or_file, extensions=['fenced_code'])
+
 
 def get_img_html(image_name, alt_text, course: Course, quiz_title: str, image_folder):
     folders = course.get_folders()
@@ -64,7 +63,7 @@ def get_img_html(image_name, alt_text, course: Course, quiz_title: str, image_fo
     return html_text
 
 
-def link_images_in_canvas(html, quiz, files_folder):
+def link_images_in_canvas(html, quiz, course: Course, files_folder):
     soup = BeautifulSoup(html, "html.parser")
     for img in soup.find_all('img'):
         basic_image_html = get_img_html(img["src"], img["alt"], course, quiz, files_folder)
@@ -134,7 +133,7 @@ def create_quiz(quiz: dict, course: Course):
     return canvas_quiz
 
 
-def delete_others(course:Course, quiz_from_canvas):
+def delete_others(course: Course, quiz_from_canvas):
     for quiz in course.get_quizzes():
         if quiz.title == quiz_from_canvas.title and quiz.id != quiz_from_canvas.id:
             quiz.delete()
@@ -160,31 +159,15 @@ def create_edit(course: Course, quiz_markdown: str, json_folder):
         print("Created quiz " + quiz.title)
 
 
-
-def get_quiz_path():
-    path = pathlib.Path(__file__).parent / "markdown-quiz-files"
-    while os.path.isdir(path):
-        files = os.listdir(path)
-        for i, f in enumerate(files):
-            print(f"{i}: {f}")
-        index = input("Select file: ")
-        try:
-            index = int(index)
-            path = path / files[index]
-        except Exception:
-            print(f"Enter a number in the range {len(files)}")
-    return str(path)
-
-
 if __name__ == "__main__":
     # Post all the .md (markdown) files inside the [markdown-quiz-files] folder
     print("-" * 50 + "\nCanvas Quiz Generator\n" + "-" * 50)
 
     canvas = updater.get_canvas_from_secrets()
-    course = updater.get_course_via_prompt(canvas)
+    canvas_course = updater.get_course_via_prompt(canvas)
 
     for file_name in os.listdir(LOOKUP_FOLDER):
         if file_name.endswith('.md'):
             with open(os.path.join(LOOKUP_FOLDER, file_name), "r") as f:
                 print(f"Posting to Canvas ({file_name}) ...")
-                create_edit(course, f.read(), Path(JSON_FOLDER))
+                create_edit(canvas_course, f.read(), Path(JSON_FOLDER))
