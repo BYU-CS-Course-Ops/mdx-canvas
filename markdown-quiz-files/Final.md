@@ -1,3 +1,4 @@
+<quiz>
 <settings title="Final" due_at="Dec 21, 2023, 11:59 PM" available_from="Dec 16, 2023, 12:00 AM" available_to="Dec 21, 2023, 11:59 PM" points_possible="40" assignment_group="Final" shuffle_answers="True" time_limit="240" allowed_attempts="1" show_correct_answers_at="Dec 21, 2023, 11:59 PM" access_code="start-final">
 ### Before taking the exam
 Please take the course completion survey: Course Completion Survey
@@ -137,6 +138,15 @@ def main():
 ```
 </wrong>
 </question>
+
+<question type = "true-false">
+<right>
+```python
+def main():
+    print('Hello, world!')
+```
+</right>
+</quiz>
 
 
 

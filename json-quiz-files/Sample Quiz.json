@@ -1,0 +1,66 @@
+{
+    "questions": [
+        {
+            "question_text": "<p><strong>This is closer to html format</strong></p>",
+            "question_type": "text_only_question"
+        },
+        {
+            "question_text": "<p>This is the question part</p>",
+            "question_type": "multiple_choice_question",
+            "points_possible": 1,
+            "answers": [
+                {
+                    "answer_text": "\nThis is a correct answer\n",
+                    "answer_weight": 100
+                },
+                {
+                    "answer_text": "\nThis is a multiline answer, \nwhich we can process fine\n",
+                    "answer_weight": 0
+                }
+            ]
+        },
+        {
+            "question_text": "<p>This is another question</p>",
+            "question_type": "multiple_answers_question",
+            "points_possible": 1,
+            "answers": [
+                {
+                    "answer_text": "5",
+                    "answer_weight": 100
+                },
+                {
+                    "answer_text": "6",
+                    "answer_weight": 100
+                },
+                {
+                    "answer_text": "\n\n```python\nimport random\n\ndef give_me_100():\n    return random.random() * 100\n```\n\n",
+                    "answer_weight": 0
+                },
+                {
+                    "answer_text": "\nThis is \nincorrect\n",
+                    "answer_weight": 0
+                }
+            ]
+        }
+    ],
+    "settings": {
+        "title": "Sample Quiz",
+        "quiz_type": "assignment",
+        "assignment_group_id": 1,
+        "time_limit": "240",
+        "shuffle_answers": "True",
+        "hide_results": null,
+        "show_correct_answers": true,
+        "show_correct_answers_at": "2023-12-21T23:59:00",
+        "allowed_attempts": "1",
+        "scoring_policy": "keep_highest",
+        "one_question_at_a_time": false,
+        "cant_go_back": false,
+        "access_code": "start-final",
+        "due_at": "2023-12-21T23:59:00",
+        "lock_at": "2023-12-21T23:59:00",
+        "unlock_at": "2023-12-16T00:00:00",
+        "published": true,
+        "one_time_results": false
+    }
+}
