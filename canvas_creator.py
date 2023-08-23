@@ -49,11 +49,14 @@ class QuizCreator:
         self.files_folder = files_folder if files_folder else self.image_folder
         self.course = course
 
-    def  create_quiz(self, title: str, description: str = "", quiz_type: str = "assignment", assignment_group: str = None,
-                    time_limit: int = None, shuffle_answers: bool = True, points_possible: int = 1,
+    def create_quiz(self, title: str, description: str = "", quiz_type: str = "assignment",
+                    assignment_group: str = None,
+                    time_limit: int = None, shuffle_answers: bool = True, points_possible: int = 40,
                     due_at: datetime = None, show_correct_answers_at: datetime = None, allowed_attempts: int = 1,
-                    scoring_policy: str = "keep_highest", one_question_at_a_time: bool = False, cant_go_back: bool = False,
-                    access_code: str = None, available_to: datetime = None, available_from: datetime = None, published: bool = True,
+                    scoring_policy: str = "keep_highest", one_question_at_a_time: bool = False,
+                    cant_go_back: bool = False,
+                    access_code: str = None, available_to: datetime = None, available_from: datetime = None,
+                    published: bool = True,
                     one_time_results: bool = False):
 
         self.quiz = self.course.create_quiz(quiz={
@@ -63,7 +66,6 @@ class QuizCreator:
             "assignment_group_id": self.get_group_index(assignment_group),
             "time_limit": time_limit,
             "shuffle_answers": shuffle_answers,
-            "points_possible": points_possible,
             "hide_results": None,
             "show_correct_answers": True,
             "show_correct_answers_at": self.make_iso(show_correct_answers_at),
@@ -176,7 +178,6 @@ class QuizCreator:
         for file, is_true in questions:
             self.create_true_false_question(file, is_true)
 
-
     @delete_if_exception
     def create_true_false_question(self, description: str, is_true: bool):
         """
@@ -199,7 +200,7 @@ class QuizCreator:
                 }
             ]
         })
-        print("Created true/false question: " + description)
+        print(f"Created true/false question which is {is_true}: {description}")
 
     @delete_if_exception
     def create_multiple_answers_question(self, description: str, answers: list[str], correct_answers: list[int]):
@@ -222,7 +223,6 @@ class QuizCreator:
         })
         print("Created multiple-answers question: " + description)
 
-
     @delete_if_exception
     def create_multiple_choice_question(self, description: str, answers: list[str], correct_answer: int):
         """
@@ -244,7 +244,6 @@ class QuizCreator:
         })
         print("Created multiple-choice question: " + description)
 
-
     @delete_if_exception
     def create_text_question(self, file_or_text):
         self.quiz.create_question(question={
@@ -252,7 +251,6 @@ class QuizCreator:
             "question_type": 'text_only_question'
         })
         print("Created text question for " + file_or_text)
-
 
 
 answer_mapping = {
@@ -265,7 +263,10 @@ answer_mapping = {
     "weight": "answer_weight",
 }
 
+
 def update_quiz(quiz_to_edit: Quiz, quiz_to_copy: Quiz):
+    for quiz_question in quiz_to_edit.get_questions():
+        quiz_question.delete()
     quiz_to_edit.edit(quiz={
         "title": quiz_to_copy.title,
         "description": quiz_to_copy.description,
@@ -277,9 +278,10 @@ def update_quiz(quiz_to_edit: Quiz, quiz_to_copy: Quiz):
         "published": quiz_to_copy.published,
         "questions": quiz_to_copy.get_questions()
     })
-    for quiz_question in quiz_to_edit.get_questions():
-        quiz_question.delete()
-    for quiz_question in quiz_to_copy.get_questions():
+    questions_to_copy = quiz_to_copy.get_questions()
+    
+
+    for quiz_question in questions_to_copy:
         answers = []
         for answer in quiz_question.answers:
             new_answer = {}
@@ -288,7 +290,7 @@ def update_quiz(quiz_to_edit: Quiz, quiz_to_copy: Quiz):
                     new_answer[answer_mapping[key]] = value
             answers.append(new_answer)
 
-        quiz_to_copy.create_question(question={
+        quiz_to_edit.create_question(question={
             "question_name": quiz_question.question_name,
             "question_text": quiz_question.question_text,
             "question_type": quiz_question.question_type,
@@ -313,14 +315,9 @@ class Parser:
 
         settings = soup.find("settings")
         if settings:
-            for line in settings.string.split("\n"):
-                if line:
-                    key, value = line.split(": ")
-                    self.settings[key.strip()] = value.strip()
-
-        instructions = soup.find("instructions")
-        if instructions:
-            self.instructions = instructions.string
+            # settings are stored as attributes in the settings tag
+            self.settings = dict(settings.attrs)
+            self.instructions = settings.string
 
         questions = soup.find_all('question')
         index = 1
@@ -329,6 +326,11 @@ class Parser:
             new_question = {}
             rights = question.css.filter('right')
             wrongs = question.css.filter('wrong')
+
+            # question_processor.process(question)
+            #
+            # processor = get_quiz_processor[question["type"]]
+            # processor.process(question)
 
             if question["type"] == "multiple-choice":
                 new_question["function"] = QuizCreator.create_multiple_choice_question
@@ -343,6 +345,18 @@ class Parser:
                     question.contents[0],
                     [answer.string for answer in rights + wrongs],
                     [range(len(rights))]
+                ]
+            elif question["type"] == "true-false":
+                new_question["function"] = QuizCreator.create_true_false_question
+                new_question["args"] = [
+                    question.contents[0],
+                    rights[0] == "true"
+                ]
+            elif question["type"] == "multiple-tf":
+                new_question["function"] = QuizCreator.create_true_false_series
+                new_question["args"] = [
+                    question.contents[0],
+                    [(right.string, True) for right in rights] + [(wrong.string, False) for wrong in wrongs]
                 ]
             elif question["type"] == "text":
                 new_question["function"] = QuizCreator.create_text_question
@@ -360,20 +374,17 @@ class Parser:
         return self.creator.quiz
 
 
-def create_edit(quiz_markdown: str):
-    # Use the quiz script to create a quiz and get the quiz object
-    # The main function in quiz script returns a quiz object
-
-    canvas = updater.get_canvas_from_secrets()
-    course = updater.get_course_via_prompt(canvas)
-
-    # Else we need to run the create_quiz function from the quiz script
+def create_edit(course: Course, quiz_markdown: str):
     creator = QuizCreator(course, quiz_markdown)
     parser = Parser(creator, quiz_markdown)
     parser.parse_quiz()
 
     if quiz_from_canvas := updater.get_quiz(course, parser.settings['title']):
-        quiz_from_canvas.delete()
+        update_quiz(quiz_from_canvas, parser.create_quiz())
+        print("Updated quiz " + quiz_from_canvas.title)
+        return
+        # quiz_from_canvas.delete()
+        # print("Deleted quiz " + quiz_from_canvas.title)
 
     quiz = parser.create_quiz()
     print("Created quiz " + quiz.title)
@@ -398,9 +409,11 @@ if __name__ == "__main__":
     # Post all the .md (markdown) files inside the [markdown-quiz-files] folder
     print("-" * 50 + "\nCanvas Quiz Generator\n" + "-" * 50)
 
+    canvas = updater.get_canvas_from_secrets()
+    course = updater.get_course_via_prompt(canvas)
+
     for file_name in os.listdir(LOOKUP_FOLDER):
         if file_name.endswith('.md'):
             with open(os.path.join(LOOKUP_FOLDER, file_name), "r") as f:
                 print(f"Posting to Canvas ({file_name}) ...")
-                create_edit(f.read())
-
+                create_edit(course, f.read())

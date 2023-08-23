@@ -1,48 +1,16 @@
 # Sample Quiz
-
-<settings>
-title: Final
-due_at: Dec 21, 2023, 11:59 PM
-available_from: Dec 16, 2023, 12:00 AM
-available_to: Dec 21, 2023, 11:59 PM
-points_possible: 40
-assignment_group: Final
-shuffle_answers: True
-time_limit: 240
-allowed_attempts: 1
-show_correct_answers_at: Dec 21, 2023, 11:59 PM
-access_code: start-final
+<quiz>
+<settings title="Sample Quiz" due_at="Dec 21, 2023, 11:59 PM" available_from="Dec 16, 2023, 12:00 AM" available_to="Dec 21, 2023, 11:59 PM" points_possible="40" assignment_group="Final" shuffle_answers="True" time_limit="240" allowed_attempts="1" show_correct_answers_at="Dec 21, 2023, 11:59 PM" access_code="start-final">
+These instructions are seen before taking the quiz.
 </settings>
 
-<instructions>
-These instructions are seen before taking the quiz.
-</instructions>
 
----
-This is the original format from Github, 
-looks more like markdown
-
-1. CS 110 is taught by Dr. Gordon Bean.
-    - (x) True
-    - ( ) False
-
-2. CS 110 replaced CS 142.
-    - (x) True
-    - ( ) False 
-
-3. What topics are taught in CS 110?
-    - [x] Lists 
-    - [x] Functions
-    - [ ] Classes
-	- [ ] ```import random```
-
-4. Who is the president of BYU?
-    - R:= C. Shane Reese
-
----
 <question type="text">
 **This is closer to html format**
 </question>
+
+
+This comment
 
 <question type = "multiple-choice">
 This is the question part
@@ -81,4 +49,5 @@ incorrect
 
 </question>
 
+</quiz>
 
