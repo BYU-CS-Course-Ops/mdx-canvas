@@ -1,9 +1,9 @@
 <quiz>
 <settings title="Final" due_at="Dec 21, 2023, 11:59 PM" available_from="Dec 16, 2023, 12:00 AM" available_to="Dec 21, 2023, 11:59 PM" points_possible="40" assignment_group="Final" shuffle_answers="True" time_limit="240" allowed_attempts="1" show_correct_answers_at="Dec 21, 2023, 11:59 PM" access_code="start-final">
+
 ### Before taking the exam
 Please take the course completion survey: Course Completion Survey
 
- 
 
 ## Final Exam Instructions
 **Please read and understand the following instructions before taking the final exam (scroll down).**
@@ -28,6 +28,7 @@ Good luck!
 
 
 <question type="text">
+
 ## Instructions
 
 The questions on this exam are divided into 8 sections.
@@ -41,6 +42,7 @@ You can think of each section as a single select-all-that-apply problem, where y
 </question>
 
 <question type = "multiple-tf">
+
 # Questions 1-4
 
 Given the program `counting.py`, where the number of uppercase, lowercase, and digits are printed, which implementation(s) of `count_characters` correctly produce the following execution?
@@ -68,7 +70,9 @@ python counting.py
 Input: I LOVE pie (not 3.14)
 (5, 6, 3)
 ```
+
 <right>
+
 ```python
 def count_characters(input_string):
     upper_count, lower_count, digit_count = 0, 0, 0
@@ -82,7 +86,9 @@ def count_characters(input_string):
     return (upper_count, lower_count, digit_count)
 ```
 </right>
+
 <wrong>
+
 ```python
 def count_characters(input_string):
     upper_count = input_string.count('isupper')
@@ -92,6 +98,7 @@ def count_characters(input_string):
 ```
 </wrong>
 <wrong>
+
 ```python
 def count_characters(input_string):
     upper_count, lower_count, digit_count = 0, 0, 0
@@ -106,6 +113,7 @@ def count_characters(input_string):
 ```
 </wrong>
 <wrong>
+
 ```python
 def count_characters(input_string):
     upper_count, lower_count, digit_count = 0, 0, 0
@@ -124,14 +132,17 @@ def count_characters(input_string):
 <question type = "multiple-tf">
 # Questions 5-8
 <right>
+
 ```python
 def 
 ```
 </right>
 <wrong>
+
 trees
 </wrong>
 <wrong>
+
 ```python
 def main():
     print('Hello, world!')
@@ -141,6 +152,7 @@ def main():
 
 <question type = "true-false">
 <right>
+
 ```python
 def main():
     print('Hello, world!')
@@ -150,6 +162,7 @@ def main():
 
 <question type = "matching">
 <left>
+
 1 + 2
 </left>
 <right>

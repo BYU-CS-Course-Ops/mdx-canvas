@@ -7,6 +7,7 @@ These instructions are seen before taking the quiz.
 
 <question type="text">
 **This is closer to html format**
+![alt text](image-test.jpg)
 </question>
 
 
@@ -20,8 +21,7 @@ This is a correct answer
 </right>
 
 <wrong>
-This is a multiline answer, 
-which we can process fine
+![alt text](image-test.jpg)
 </wrong>
 </question>
 
@@ -47,6 +47,29 @@ incorrect
 </wrong>
 
 
+</question>
+
+<question type = "matching">
+![alt text](image-test.jpg)
+<left>
+
+1 + 2
+</left>
+<right>
+3
+</right>
+<left>
+2 + 2
+</left>
+<right>
+4
+</right>
+<left>
+3 + 2
+</left>
+<right>
+5
+</right>
 </question>
 
 </quiz>

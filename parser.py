@@ -30,6 +30,32 @@ def get_fancy_html(markdown_or_file: str, files_folder=None):
         return md.markdown(markdown_or_file, extensions=['fenced_code'])
 
 
+def get_img_html(image_name, alt_text, course, quiz_title: str, image_folder):
+    folders = course.get_folders()
+    if not any(f.name == "Generated-Quizzes" for f in folders):
+        print("Created Quizzes Folder")
+        course.create_folder(name="Generated-Quizzes", parent_folder_path="", hidden=True)
+
+    if not any(f.name == quiz_title for f in folders):
+        print(f"Created {quiz_title} folder")
+        folder_object = course.create_folder(name=quiz_title, parent_folder_path="Generated-Quizzes",
+                                             hidden=True)
+    else:
+        folder_object = [f for f in folders if f.name == quiz_title][0]
+    file_object_id = folder_object.upload(image_folder / image_name)[1]["id"]
+    html_text = f'<p><img id="{image_name}" src="/courses/{course.id}/files/{file_object_id}/preview" alt="{alt_text}" /></p>'
+    return html_text
+
+
+def link_images_in_canvas(html, quiz, course, files_folder):
+    soup = BeautifulSoup(html, "html.parser")
+    for img in soup.find_all('img'):
+        basic_image_html = get_img_html(img["src"], img["alt"], course, quiz, files_folder)
+        img.replace_with(BeautifulSoup(basic_image_html, "html.parser"))
+    html = str(soup)
+    return html
+
+
 class TFConverter:
     def process(self, right_wrong_tag):
         is_true = right_wrong_tag.name == "right"
@@ -82,7 +108,7 @@ class MultipleChoiceProcessor:
             "points_possible": 1,
             "answers": [
                 {
-                    "answer_text": answer.string,
+                    "answer_html": get_fancy_html(answer.string),
                     "answer_weight": 100 if answer in rights else 0
                 } for answer in rights + wrongs
             ]
@@ -99,7 +125,7 @@ class MultipleAnswersProcessor:
             "points_possible": 1,
             "answers": [
                 {
-                    "answer_text": answer.string,
+                    "answer_html": get_fancy_html(answer.string),
                     "answer_weight": 100 if answer in rights else 0
                 } for answer in rights + wrongs
             ]

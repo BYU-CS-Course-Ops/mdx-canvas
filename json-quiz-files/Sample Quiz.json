@@ -1,7 +1,7 @@
 {
     "questions": [
         {
-            "question_text": "<p><strong>This is closer to html format</strong></p>",
+            "question_text": "<p><strong>This is closer to html format</strong>\n<p><img id=\"image-test.jpg\" src=\"/courses/20736/files/7178950/preview\" alt=\"alt text\" /></p></p>",
             "question_type": "text_only_question"
         },
         {
@@ -10,11 +10,11 @@
             "points_possible": 1,
             "answers": [
                 {
-                    "answer_text": "\nThis is a correct answer\n",
+                    "answer_html": "<p>This is a correct answer</p>",
                     "answer_weight": 100
                 },
                 {
-                    "answer_text": "\nThis is a multiline answer, \nwhich we can process fine\n",
+                    "answer_html": "<p><p><img id=\"image-test.jpg\" src=\"/courses/20736/files/7178950/preview\" alt=\"alt text\" /></p></p>",
                     "answer_weight": 0
                 }
             ]
@@ -25,22 +25,45 @@
             "points_possible": 1,
             "answers": [
                 {
-                    "answer_text": "5",
+                    "answer_html": "<p>5</p>",
                     "answer_weight": 100
                 },
                 {
-                    "answer_text": "6",
+                    "answer_html": "<p>6</p>",
                     "answer_weight": 100
                 },
                 {
-                    "answer_text": "\n\n```python\nimport random\n\ndef give_me_100():\n    return random.random() * 100\n```\n\n",
+                    "answer_html": "<pre><code class=\"python\">import random\n\ndef give_me_100():\n    return random.random() * 100\n</code></pre>",
                     "answer_weight": 0
                 },
                 {
-                    "answer_text": "\nThis is \nincorrect\n",
+                    "answer_html": "<p>This is \nincorrect</p>",
                     "answer_weight": 0
                 }
             ]
+        },
+        {
+            "question_text": "<p><p><img id=\"image-test.jpg\" src=\"/courses/20736/files/7178950/preview\" alt=\"alt text\" /></p></p>",
+            "question_type": "matching_question",
+            "points_possible": 1,
+            "answers": [
+                {
+                    "answer_match_left": "\n\n1 + 2\n",
+                    "answer_match_right": "\n3\n",
+                    "answer_weight": 100
+                },
+                {
+                    "answer_match_left": "\n2 + 2\n",
+                    "answer_match_right": "\n4\n",
+                    "answer_weight": 100
+                },
+                {
+                    "answer_match_left": "\n3 + 2\n",
+                    "answer_match_right": "\n5\n",
+                    "answer_weight": 100
+                }
+            ],
+            "matching_answer_incorrect_matches": ""
         }
     ],
     "settings": {

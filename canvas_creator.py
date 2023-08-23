@@ -9,11 +9,13 @@ from canvasapi.course import Course
 import markdown as md
 from pathlib import Path
 from bs4 import BeautifulSoup
+import re
 
 from parser import Parser
 
 LOOKUP_FOLDER = './markdown-quiz-files'
 JSON_FOLDER = './json-quiz-files'
+IMAGE_FOLDER = './images'
 
 question_types = [
     'calculated_question',
@@ -59,17 +61,20 @@ def get_img_html(image_name, alt_text, course: Course, quiz_title: str, image_fo
     else:
         folder_object = [f for f in folders if f.name == quiz_title][0]
     file_object_id = folder_object.upload(image_folder / image_name)[1]["id"]
-    html_text = f'<p><img id="{image_name}" src="/courses/{course.id}/files/{file_object_id}/preview" alt="{alt_text}" /></p>'
+    html_text = r'<p><img id=\"' + image_name + r'\" src=\"/courses/' + str(course.id) + r'/files/' + str(
+        file_object_id) + r'/preview\" alt=\"' + alt_text + r'\" /></p>'
     return html_text
 
 
-def link_images_in_canvas(html, quiz, course: Course, files_folder):
-    soup = BeautifulSoup(html, "html.parser")
-    for img in soup.find_all('img'):
-        basic_image_html = get_img_html(img["src"], img["alt"], course, quiz, files_folder)
-        img.replace_with(BeautifulSoup(basic_image_html, "html.parser"))
-    html = str(soup)
-    return html
+def link_images_in_canvas(json, quiz, course: Course, files_folder):
+    # use regex to find all the images in the json
+    # <img alt=\"alt text\" src=\"image-test.jpg\" />
+    matches = re.findall(r'<img alt=\\\"(.*?)\\\" src=\\\"(.*?)\\\" />', json)
+    for img in matches:
+        alt, src = img
+        basic_image_html = get_img_html(src, alt, course, quiz, files_folder)
+        json = json.replace(r'<img alt=\"' + alt + r'\" src=\"' + src + r'\" />', basic_image_html)
+    return json
 
 
 answer_mapping = {
@@ -146,8 +151,15 @@ def create_edit(course: Course, quiz_markdown: str, json_folder):
 
     for quiz_json in document_object:
         quiz_name = quiz_json["settings"]["title"]
+
+        json_string = json.dumps(quiz_json, indent=4)
+        json_string = link_images_in_canvas(json_string, quiz_name, course, Path(IMAGE_FOLDER))
+
         with open(json_folder / f"{quiz_name}.json", "w") as f:
-            json.dump(quiz_json, f, indent=4)
+            f.write(json_string)
+
+        quiz_json = json.loads(json_string)
+
         print(f"Creating quiz {quiz_name} ...")
         if quiz_from_canvas := updater.get_quiz(course, quiz_name):
             delete_others(course, quiz_from_canvas)

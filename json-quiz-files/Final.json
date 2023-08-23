@@ -5,11 +5,11 @@
             "question_type": "text_only_question"
         },
         {
-            "question_text": "<h1>Questions 1-4</h1>\n<p>Given the program <code>counting.py</code>, where the number of uppercase, lowercase, and digits are printed, which implementation(s) of <code>count_characters</code> correctly produce the following execution?</p>\n<p><strong><code>counting.py</code></strong></p>\n<pre><code class=\"python\">def count_characters(input_string): ...\n\n\ndef main():\n    input_string = input('Input: ')\n    counts = count_characters(input_string)\n    print(counts)\n\n\nif __name__ == '__main__':\n    main()\n\n</code></pre>\n\n<p><strong>Execution</strong></p>\n<pre><code class=\"text\">python counting.py\nInput: I LOVE pie (not 3.14)\n(5, 6, 3)\n</code></pre>",
+            "question_text": "<h1>Questions 1-4</h1>\n<p>Given the program <code>counting.py</code>, where the number of uppercase, lowercase, and digits are printed, which implementation(s) of <code>count_characters</code> correctly produce the following execution?</p>\n<p><strong><code>counting.py</code></strong></p>\n<pre><code class='\"python\"'>def count_characters(input_string): ...\n\n\ndef main():\n    input_string = input('Input: ')\n    counts = count_characters(input_string)\n    print(counts)\n\n\nif __name__ == '__main__':\n    main()\n\n</code></pre>\n\n<p><strong>Execution</strong></p>\n<pre><code class='\"text\"'>python counting.py\nInput: I LOVE pie (not 3.14)\n(5, 6, 3)\n</code></pre>",
             "question_type": "text_only_question"
         },
         {
-            "question_text": "<pre><code class=\"python\">def count_characters(input_string):\n    upper_count, lower_count, digit_count = 0, 0, 0\n    for char in input_string:\n        if char.isupper():\n            upper_count += 1\n        elif char.islower():\n            lower_count += 1\n        elif char.isdigit():\n            digit_count += 1\n    return (upper_count, lower_count, digit_count)\n</code></pre>",
+            "question_text": "<pre><code class='\"python\"'>def count_characters(input_string):\n    upper_count, lower_count, digit_count = 0, 0, 0\n    for char in input_string:\n        if char.isupper():\n            upper_count += 1\n        elif char.islower():\n            lower_count += 1\n        elif char.isdigit():\n            digit_count += 1\n    return (upper_count, lower_count, digit_count)\n</code></pre>",
             "question_type": "true_false_question",
             "points_possible": 1,
             "answers": [
@@ -24,7 +24,7 @@
             ]
         },
         {
-            "question_text": "<pre><code class=\"python\">def count_characters(input_string):\n    upper_count = input_string.count('isupper')\n    lower_count = input_string.count('islower')\n    digit_count = input_string.count('isdigit')\n    return (upper_count, lower_count, digit_count)\n</code></pre>",
+            "question_text": "<pre><code class='\"python\"'>def count_characters(input_string):\n    upper_count = input_string.count('isupper')\n    lower_count = input_string.count('islower')\n    digit_count = input_string.count('isdigit')\n    return (upper_count, lower_count, digit_count)\n</code></pre>",
             "question_type": "true_false_question",
             "points_possible": 1,
             "answers": [
@@ -39,7 +39,7 @@
             ]
         },
         {
-            "question_text": "<pre><code class=\"python\">def count_characters(input_string):\n    upper_count, lower_count, digit_count = 0, 0, 0\n    for char in input_string:\n        if char.upper():\n            upper_count += 1\n        if char.lower():\n            lower_count += 1\n        if char.isdigit():\n            digit_count += 1\n    return (upper_count, lower_count, digit_count)\n</code></pre>",
+            "question_text": "<pre><code class='\"python\"'>def count_characters(input_string):\n    upper_count, lower_count, digit_count = 0, 0, 0\n    for char in input_string:\n        if char.upper():\n            upper_count += 1\n        if char.lower():\n            lower_count += 1\n        if char.isdigit():\n            digit_count += 1\n    return (upper_count, lower_count, digit_count)\n</code></pre>",
             "question_type": "true_false_question",
             "points_possible": 1,
             "answers": [
@@ -54,7 +54,7 @@
             ]
         },
         {
-            "question_text": "<pre><code class=\"python\">def count_characters(input_string):\n    upper_count, lower_count, digit_count = 0, 0, 0\n    for word in input_string.split():\n        if word.isupper():\n            upper_count += 1\n        elif word.islower():\n            lower_count += 1\n        elif word.isdigit():\n            digit_count += 1\n    return (upper_count, lower_count, digit_count)\n</code></pre>",
+            "question_text": "<pre><code class='\"python\"'>def count_characters(input_string):\n    upper_count, lower_count, digit_count = 0, 0, 0\n    for word in input_string.split():\n        if word.isupper():\n            upper_count += 1\n        elif word.islower():\n            lower_count += 1\n        elif word.isdigit():\n            digit_count += 1\n    return (upper_count, lower_count, digit_count)\n</code></pre>",
             "question_type": "true_false_question",
             "points_possible": 1,
             "answers": [
@@ -73,7 +73,7 @@
             "question_type": "text_only_question"
         },
         {
-            "question_text": "<pre><code class=\"python\">def \n</code></pre>",
+            "question_text": "<pre><code class='\"python\"'>def \n</code></pre>",
             "question_type": "true_false_question",
             "points_possible": 1,
             "answers": [
@@ -103,7 +103,7 @@
             ]
         },
         {
-            "question_text": "<pre><code class=\"python\">def main():\n    print('Hello, world!')\n</code></pre>",
+            "question_text": "<pre><code class='\"python\"'>def main():\n    print('Hello, world!')\n</code></pre>",
             "question_type": "true_false_question",
             "points_possible": 1,
             "answers": [
@@ -118,7 +118,7 @@
             ]
         },
         {
-            "question_text": "<pre><code class=\"python\">def main():\n    print('Hello, world!')\n</code></pre>",
+            "question_text": "<pre><code class='\"python\"'>def main():\n    print('Hello, world!')\n</code></pre>",
             "question_type": "true_false_question",
             "points_possible": 1,
             "answers": [
@@ -138,18 +138,18 @@
             "points_possible": 1,
             "answers": [
                 {
-                    "answer_match_left": "\n1 + 2\n",
-                    "answer_match_right": "\n3\n",
+                    "answer_match_left": "<p>1 + 2</p>",
+                    "answer_match_right": "<p>3</p>",
                     "answer_weight": 100
                 },
                 {
-                    "answer_match_left": "\n2 + 2\n",
-                    "answer_match_right": "\n4\n",
+                    "answer_match_left": "<p>2 + 2</p>",
+                    "answer_match_right": "<p>4</p>",
                     "answer_weight": 100
                 },
                 {
-                    "answer_match_left": "\n3 + 2\n",
-                    "answer_match_right": "\n5\n",
+                    "answer_match_left": "<p>3 + 2</p>",
+                    "answer_match_right": "<p>5</p>",
                     "answer_weight": 100
                 }
             ],
