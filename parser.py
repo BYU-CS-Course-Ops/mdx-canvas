@@ -108,6 +108,31 @@ class MultipleAnswersProcessor:
         }
         return question
 
+class MatchingProcessor:
+    def process(self, question_tag):
+        lefts = question_tag.css.filter('left')
+        rights = question_tag.css.filter('right')
+        if len(lefts) < len(rights):
+            raise Exception("Matching questions must have at least as many lefts as rights")
+        matches = zip(lefts, rights)
+        distractors = rights[len(lefts):]
+        question = {
+            "question_text": get_fancy_html(question_tag.contents[0]),
+            "question_type": 'matching_question',
+            "points_possible": 1,
+            "answers": [
+                {
+                    "answer_match_left": answer_left.string,
+                    "answer_match_right": answer_right.string,
+                    "answer_weight": 100
+                } for answer_left, answer_right in matches
+            ],
+            "matching_answer_incorrect_matches": '\n'.join(distractors)
+        }
+        return question
+
+
+
 
 class TextProcessor:
     def process(self, question_tag):
@@ -123,6 +148,7 @@ question_processors = {
     "multiple-answers": MultipleAnswersProcessor(),
     "true-false": TrueFalseProcessor(),
     "multiple-tf": MultipleTrueFalseProcessor(),
+    "matching": MatchingProcessor(),
     "text": TextProcessor()
 }
 

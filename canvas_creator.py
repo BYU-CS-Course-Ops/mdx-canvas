@@ -1,14 +1,11 @@
 import json
 import os
 import pathlib
-import re
 
 import update_canvas as updater
 
 from canvasapi.quiz import Quiz
 from canvasapi.course import Course
-
-from datetime import datetime
 
 import markdown as md
 from pathlib import Path
@@ -74,45 +71,6 @@ def link_images_in_canvas(html, quiz, files_folder):
         img.replace_with(BeautifulSoup(basic_image_html, "html.parser"))
     html = str(soup)
     return html
-
-
-class QuizCreator:
-    markdown = ""
-    image_folder = Path(__file__).parent / "images"
-    files_folder = Path(__file__).parent / "markdown-quiz-files"
-    course = None
-    quiz: Quiz = None
-
-    def __init__(self, course: Course, markdown: str, image_folder: Path = None, files_folder: Path = None):
-        self.markdown = markdown
-        self.image_folder = image_folder if image_folder else self.image_folder
-        self.files_folder = files_folder if files_folder else self.image_folder
-        self.course = course
-
-
-
-
-
-
-
-    def create_matching_question(self, description: str, matches: list[tuple[str, str]], distractors: list[str] = []):
-        """
-        :param description: The question text
-        :param matches: A list of tuples of the form (answer_left, answer_right)
-        :param distractors: A list of distractors, strings that are not in the list of matches
-        """
-        self.quiz.create_question(question={
-            "question_text": self.get_fancy_html(description),
-            "question_type": 'matching_question',
-            "answers": [
-                {
-                    "answer_match_left": answer_left,
-                    "answer_match_right": answer_right,
-                } for answer_left, answer_right in matches
-            ],
-            "matching_answer_incorrect_matches": '\n'.join(distractors)
-        })
-        print(f"Created matching question: {description}")
 
 
 answer_mapping = {

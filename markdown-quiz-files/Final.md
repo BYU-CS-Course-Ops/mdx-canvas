@@ -146,6 +146,28 @@ def main():
     print('Hello, world!')
 ```
 </right>
+</question>
+
+<question type = "matching">
+<left>
+1 + 2
+</left>
+<right>
+3
+</right>
+<left>
+2 + 2
+</left>
+<right>
+4
+</right>
+<left>
+3 + 2
+</left>
+<right>
+5
+</right>
+</question>
 </quiz>
 
 

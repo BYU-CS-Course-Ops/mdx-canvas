@@ -131,6 +131,29 @@
                     "answer_weight": 0
                 }
             ]
+        },
+        {
+            "question_text": "",
+            "question_type": "matching_question",
+            "points_possible": 1,
+            "answers": [
+                {
+                    "answer_match_left": "\n1 + 2\n",
+                    "answer_match_right": "\n3\n",
+                    "answer_weight": 100
+                },
+                {
+                    "answer_match_left": "\n2 + 2\n",
+                    "answer_match_right": "\n4\n",
+                    "answer_weight": 100
+                },
+                {
+                    "answer_match_left": "\n3 + 2\n",
+                    "answer_match_right": "\n5\n",
+                    "answer_weight": 100
+                }
+            ],
+            "matching_answer_incorrect_matches": ""
         }
     ],
     "settings": {
