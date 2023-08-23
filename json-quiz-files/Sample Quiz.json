@@ -1,7 +1,7 @@
 {
     "questions": [
         {
-            "question_text": "<p><strong>This is closer to html format</strong>\n<p><img id=\"image-test.jpg\" src=\"/courses/20736/files/7178950/preview\" alt=\"alt text\" /></p></p>",
+            "question_text": "<p><strong>This is closer to html format</strong>\n<p><img alt=\"alt text\" id=\"image-test.jpg\" src=\"/courses/20736/files/7179617/preview\"/></p></p>",
             "question_type": "text_only_question"
         },
         {
@@ -14,7 +14,7 @@
                     "answer_weight": 100
                 },
                 {
-                    "answer_html": "<p><p><img id=\"image-test.jpg\" src=\"/courses/20736/files/7178950/preview\" alt=\"alt text\" /></p></p>",
+                    "answer_html": "<p><p><img alt=\"alt text\" id=\"image-test.jpg\" src=\"/courses/20736/files/7179618/preview\"/></p></p>",
                     "answer_weight": 0
                 }
             ]
@@ -43,7 +43,7 @@
             ]
         },
         {
-            "question_text": "<p><p><img id=\"image-test.jpg\" src=\"/courses/20736/files/7178950/preview\" alt=\"alt text\" /></p></p>",
+            "question_text": "<p><p><img alt=\"alt text\" id=\"image-test.jpg\" src=\"/courses/20736/files/7179619/preview\"/></p></p>",
             "question_type": "matching_question",
             "points_possible": 1,
             "answers": [

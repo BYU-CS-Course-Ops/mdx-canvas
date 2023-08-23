@@ -38,6 +38,7 @@ def readfile(filepath: Path):
         return file.read()
 
 
+
 def get_fancy_html(markdown_or_file: str, files_folder=None):
     if markdown_or_file.endswith('.md'):
         text = readfile(files_folder / markdown_or_file)
@@ -48,7 +49,7 @@ def get_fancy_html(markdown_or_file: str, files_folder=None):
         return md.markdown(markdown_or_file, extensions=['fenced_code'])
 
 
-def get_img_html(image_name, alt_text, course: Course, quiz_title: str, image_folder):
+def get_img_html(image_name, alt_text, course, quiz_title: str, image_folder):
     folders = course.get_folders()
     if not any(f.name == "Generated-Quizzes" for f in folders):
         print("Created Quizzes Folder")
@@ -61,20 +62,35 @@ def get_img_html(image_name, alt_text, course: Course, quiz_title: str, image_fo
     else:
         folder_object = [f for f in folders if f.name == quiz_title][0]
     file_object_id = folder_object.upload(image_folder / image_name)[1]["id"]
-    html_text = r'<p><img id=\"' + image_name + r'\" src=\"/courses/' + str(course.id) + r'/files/' + str(
-        file_object_id) + r'/preview\" alt=\"' + alt_text + r'\" /></p>'
+    html_text = f'<p><img id="{image_name}" src="/courses/{course.id}/files/{file_object_id}/preview" alt="{alt_text}" /></p>'
     return html_text
 
 
-def link_images_in_canvas(json, quiz, course: Course, files_folder):
-    # use regex to find all the images in the json
-    # <img alt=\"alt text\" src=\"image-test.jpg\" />
-    matches = re.findall(r'<img alt=\\\"(.*?)\\\" src=\\\"(.*?)\\\" />', json)
+def link_images_in_canvas(html, quiz_title: str, course: Course, image_folder):
+    soup = BeautifulSoup(html, "html.parser")
+    matches = soup.find_all('img')
     for img in matches:
-        alt, src = img
-        basic_image_html = get_img_html(src, alt, course, quiz, files_folder)
-        json = json.replace(r'<img alt=\"' + alt + r'\" src=\"' + src + r'\" />', basic_image_html)
-    return json
+        basic_image_html = get_img_html(img["src"], img["alt"], course, quiz_title, image_folder)
+        img.replace_with(BeautifulSoup(basic_image_html, "html.parser"))
+    html = str(soup)
+    return html
+
+
+def get_html_and_link_images(markdown_or_file: str, quiz_title: str, course: Course, image_folder, files_folder=None, ):
+    html = get_fancy_html(markdown_or_file, files_folder)
+    html = link_images_in_canvas(html, quiz_title, course, image_folder)
+    return html
+
+
+def get_group_index(course: Course, group: str):
+    groups = course.get_assignment_groups()
+    group_index = 0
+    if group:
+        if not any(g.name == group for g in groups):
+            print("Created Assignment Group: " + group)
+            course.create_assignment_group(name=group)
+        group_index = [g.name for g in groups].index(group)
+    return group_index
 
 
 answer_mapping = {
@@ -145,15 +161,18 @@ def delete_others(course: Course, quiz_from_canvas):
             print("Deleted quiz " + quiz.title)
 
 
-def create_edit(course: Course, quiz_markdown: str, json_folder):
-    parser = Parser(quiz_markdown, course)
-    document_object = parser.parse_document()
+def create_edit(course: Course, quiz_markdown: str, quiz_name, json_folder):
+    # Provide processing functions, so that the parser needs no access to a canvas course
+    parser = Parser(
+        lambda md: get_html_and_link_images(md, quiz_name, course, Path(IMAGE_FOLDER)),
+        lambda group_name: get_group_index(course, group_name)
+    )
+    document_object = parser.parse_document(quiz_markdown)
 
     for quiz_json in document_object:
         quiz_name = quiz_json["settings"]["title"]
 
         json_string = json.dumps(quiz_json, indent=4)
-        json_string = link_images_in_canvas(json_string, quiz_name, course, Path(IMAGE_FOLDER))
 
         with open(json_folder / f"{quiz_name}.json", "w") as f:
             f.write(json_string)
@@ -182,4 +201,4 @@ if __name__ == "__main__":
         if file_name.endswith('.md'):
             with open(os.path.join(LOOKUP_FOLDER, file_name), "r") as f:
                 print(f"Posting to Canvas ({file_name}) ...")
-                create_edit(canvas_course, f.read(), Path(JSON_FOLDER))
+                create_edit(canvas_course, f.read(), file_name, Path(JSON_FOLDER))

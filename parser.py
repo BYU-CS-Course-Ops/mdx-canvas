@@ -1,5 +1,4 @@
 from bs4 import BeautifulSoup
-import markdown as md
 from pathlib import Path
 from datetime import datetime
 
@@ -20,47 +19,13 @@ def get_answers(question_tag):
     return rights + wrongs
 
 
-def get_fancy_html(markdown_or_file: str, files_folder=None):
-    if markdown_or_file.endswith('.md'):
-        text = readfile(files_folder / markdown_or_file)
-
-        html = md.markdown(text, extensions=['fenced_code'])
-        return html
-    else:
-        return md.markdown(markdown_or_file, extensions=['fenced_code'])
-
-
-def get_img_html(image_name, alt_text, course, quiz_title: str, image_folder):
-    folders = course.get_folders()
-    if not any(f.name == "Generated-Quizzes" for f in folders):
-        print("Created Quizzes Folder")
-        course.create_folder(name="Generated-Quizzes", parent_folder_path="", hidden=True)
-
-    if not any(f.name == quiz_title for f in folders):
-        print(f"Created {quiz_title} folder")
-        folder_object = course.create_folder(name=quiz_title, parent_folder_path="Generated-Quizzes",
-                                             hidden=True)
-    else:
-        folder_object = [f for f in folders if f.name == quiz_title][0]
-    file_object_id = folder_object.upload(image_folder / image_name)[1]["id"]
-    html_text = f'<p><img id="{image_name}" src="/courses/{course.id}/files/{file_object_id}/preview" alt="{alt_text}" /></p>'
-    return html_text
-
-
-def link_images_in_canvas(html, quiz, course, files_folder):
-    soup = BeautifulSoup(html, "html.parser")
-    for img in soup.find_all('img'):
-        basic_image_html = get_img_html(img["src"], img["alt"], course, quiz, files_folder)
-        img.replace_with(BeautifulSoup(basic_image_html, "html.parser"))
-    html = str(soup)
-    return html
 
 
 class TFConverter:
-    def process(self, right_wrong_tag):
+    def process(self, right_wrong_tag, html_processor=lambda x: x):
         is_true = right_wrong_tag.name == "right"
         question = {
-            "question_text": get_fancy_html(right_wrong_tag.contents[0]),
+            "question_text": html_processor(right_wrong_tag.contents[0]),
             "question_type": 'true_false_question',
             "points_possible": 1,
             "answers": [
@@ -78,37 +43,37 @@ class TFConverter:
 
 
 class TrueFalseProcessor:
-    def process(self, question_tag):
+    def process(self, question_tag, html_processor=lambda x: x):
         answers = get_answers(question_tag)
         if len(answers) != 1:
             raise Exception("True false questions must have one right or wrong answer")
 
-        return TFConverter().process(answers[0])
+        return TFConverter().process(answers[0], html_processor)
 
 
 class MultipleTrueFalseProcessor:
-    def process(self, question_tag):
+    def process(self, question_tag, html_processor=lambda x: x):
         questions = [
             TextProcessor().process(question_tag)
         ]
         for answer in get_answers(question_tag):
-            questions.append(TFConverter().process(answer))
+            questions.append(TFConverter().process(answer, html_processor))
         return questions
 
 
 class MultipleChoiceProcessor:
-    def process(self, question_tag):
+    def process(self, question_tag, html_processor=lambda x: x):
         rights, wrongs = get_rights_and_wrongs(question_tag)
         if len(rights) != 1:
             raise Exception("Multiple choice questions must have exactly one right answer")
 
         question = {
-            "question_text": get_fancy_html(question_tag.contents[0]),
+            "question_text": html_processor(question_tag.contents[0]),
             "question_type": 'multiple_choice_question',
             "points_possible": 1,
             "answers": [
                 {
-                    "answer_html": get_fancy_html(answer.string),
+                    "answer_html": html_processor(answer.string),
                     "answer_weight": 100 if answer in rights else 0
                 } for answer in rights + wrongs
             ]
@@ -117,15 +82,15 @@ class MultipleChoiceProcessor:
 
 
 class MultipleAnswersProcessor:
-    def process(self, question_tag):
+    def process(self, question_tag, html_processor=lambda x: x):
         rights, wrongs = get_rights_and_wrongs(question_tag)
         question = {
-            "question_text": get_fancy_html(question_tag.contents[0]),
+            "question_text": html_processor(question_tag.contents[0]),
             "question_type": 'multiple_answers_question',
             "points_possible": 1,
             "answers": [
                 {
-                    "answer_html": get_fancy_html(answer.string),
+                    "answer_html": html_processor(answer.string),
                     "answer_weight": 100 if answer in rights else 0
                 } for answer in rights + wrongs
             ]
@@ -134,7 +99,7 @@ class MultipleAnswersProcessor:
 
 
 class MatchingProcessor:
-    def process(self, question_tag):
+    def process(self, question_tag, html_processor=lambda x: x):
         lefts = question_tag.css.filter('left')
         rights = question_tag.css.filter('right')
         if len(lefts) < len(rights):
@@ -142,7 +107,7 @@ class MatchingProcessor:
         matches = zip(lefts, rights)
         distractors = rights[len(lefts):]
         question = {
-            "question_text": get_fancy_html(question_tag.contents[0]),
+            "question_text": html_processor(question_tag.contents[0]),
             "question_type": 'matching_question',
             "points_possible": 1,
             "answers": [
@@ -158,9 +123,9 @@ class MatchingProcessor:
 
 
 class TextProcessor:
-    def process(self, question_tag):
+    def process(self, question_tag, html_processor=lambda x: x):
         question = {
-            "question_text": get_fancy_html(question_tag.contents[0]),
+            "question_text": html_processor(question_tag.contents[0]),
             "question_type": 'text_only_question',
         }
         return question
@@ -177,15 +142,12 @@ question_processors = {
 
 
 class Parser:
-    def __init__(self, text: str, course):
-        self.text = text
-        self.course = course
-        self.settings = {}
-        self.instructions = ""
-        self.questions = []
+    def __init__(self, html_processor=lambda x: x, group_indexer=lambda x: 0):
+        self.html_processor = html_processor
+        self.group_indexer = group_indexer
 
-    def parse_document(self):
-        soup = BeautifulSoup(self.text, "html.parser")
+    def parse_document(self, text):
+        soup = BeautifulSoup(text, "html.parser")
         document = []
         for tag in soup.children:
             if tag.name == "quiz":
@@ -206,16 +168,6 @@ class Parser:
                     quiz["questions"].append(question)
         return quiz
 
-    def get_group_index(self, group: str):
-        groups = self.course.get_assignment_groups()
-        group_index = 0
-        if group:
-            if not any(g.name == group for g in groups):
-                print("Created Assignment Group: " + group)
-                self.course.create_assignment_group(name=group)
-            group_index = [g.name for g in groups].index(group)
-        return group_index
-
     @staticmethod
     def make_iso(date: datetime | str | None):
         input_format = "%b %d, %Y, %I:%M %p"
@@ -230,7 +182,7 @@ class Parser:
         settings = {
             "title": settings_tag["title"],
             "quiz_type": settings_tag.get("quiz_type", "assignment"),
-            "assignment_group_id": self.get_group_index(settings_tag.get("assignment_group", None)),
+            "assignment_group_id": self.group_indexer(settings_tag.get("assignment_group", None)),
             "time_limit": settings_tag.get("time_limit", None),
             "shuffle_answers": settings_tag.get("shuffle_answers", False),
             "hide_results": None,
@@ -251,4 +203,4 @@ class Parser:
 
     def parse_question(self, question_tag):
         processor = question_processors[question_tag["type"]]
-        return processor.process(question_tag)
+        return processor.process(question_tag, self.html_processor)
