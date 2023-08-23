@@ -22,6 +22,7 @@ Turn off your phone. Close all applications except your browser, and close all t
 Only start the test once you intend to take and complete it. To start the test, you will need the passcode: **start-final**. 
 
 Good luck!
+
 </settings>
 
 
@@ -35,13 +36,13 @@ Each section begins with a section header that presents a programming question, 
 **There may be more than one valid solution in each section.**
 
 You can think of each section as a single select-all-that-apply problem, where you get a point for each item you identify correctly as being a valid or invalid solution to the problem.
+
 </question>
 
 <question type = "multiple-tf">
 # Questions 1-4
 
-Given the program `counting.py`, where the number of uppercase, lowercase, and digits are printed,
- which implementation(s) of `count_characters` correctly produce the following execution?
+Given the program `counting.py`, where the number of uppercase, lowercase, and digits are printed, which implementation(s) of `count_characters` correctly produce the following execution?
 
 **`counting.py`**
 
@@ -124,6 +125,18 @@ def count_characters(input_string):
 <right>
 ```python
 def 
+```
 </right>
+<wrong>
+trees
+</wrong>
+<wrong>
+```python
+def main():
+    print('Hello, world!')
+```
+</wrong>
+</question>
+
 
 

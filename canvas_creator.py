@@ -151,7 +151,6 @@ class QuizCreator:
         :param distractors: A list of distractors, strings that are not in the list of matches
         """
         self.quiz.create_question(question={
-            "question_name": description,
             "question_text": self.get_fancy_html(description),
             "question_type": 'matching_question',
             "answers": [
@@ -171,7 +170,6 @@ class QuizCreator:
         :param questions: A list of tuples of the form (description, is_true)
         """
         self.quiz.create_question(question={
-            "question_name": preamble,
             "question_text": self.get_fancy_html(preamble),
             "question_type": 'text_only_question'
         })
@@ -185,7 +183,6 @@ class QuizCreator:
         :param is_true: True if the answer is true, False if the answer is false
         """
         self.quiz.create_question(question={
-            "question_name": description,
             "question_text": self.get_fancy_html(description),
             "question_type": 'true_false_question',
             "points_possible": 1,
@@ -200,7 +197,7 @@ class QuizCreator:
                 }
             ]
         })
-        print(f"Created true/false question which is {is_true}: {description}")
+        print(f"Created true/false question which is {is_true}: {self.get_fancy_html(description)}")
 
     @delete_if_exception
     def create_multiple_answers_question(self, description: str, answers: list[str], correct_answers: list[int]):
@@ -210,7 +207,6 @@ class QuizCreator:
         :param correct_answers: The list of indices of the correct answers
         """
         self.quiz.create_question(question={
-            "question_name": description,
             "question_text": self.get_fancy_html(description),
             "question_type": 'multiple_answers_question',
             "points_possible": 1,
@@ -231,7 +227,6 @@ class QuizCreator:
         :param correct_answer: The index of the correct answer
         """
         self.quiz.create_question(question={
-            "question_name": description,
             "question_text": self.get_fancy_html(description),
             "question_type": 'multiple_choice_question',
             "points_possible": 1,
@@ -374,17 +369,23 @@ class Parser:
         return self.creator.quiz
 
 
+def delete_others(course, quiz_from_canvas):
+    for quiz in course.get_quizzes():
+        if quiz.title == quiz_from_canvas.title and quiz.id != quiz_from_canvas.id:
+            quiz.delete()
+            print("Deleted quiz " + quiz.title)
+
+
 def create_edit(course: Course, quiz_markdown: str):
     creator = QuizCreator(course, quiz_markdown)
     parser = Parser(creator, quiz_markdown)
     parser.parse_quiz()
 
     if quiz_from_canvas := updater.get_quiz(course, parser.settings['title']):
+        delete_others(course, quiz_from_canvas)
         update_quiz(quiz_from_canvas, parser.create_quiz())
         print("Updated quiz " + quiz_from_canvas.title)
         return
-        # quiz_from_canvas.delete()
-        # print("Deleted quiz " + quiz_from_canvas.title)
 
     quiz = parser.create_quiz()
     print("Created quiz " + quiz.title)
