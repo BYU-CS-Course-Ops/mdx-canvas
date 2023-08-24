@@ -56,7 +56,7 @@ class Processor(Protocol):
       returning question(s) and a list of resources
     """
     @staticmethod
-    def process(question_tag, markdown_processor: Callable[[str], tuple[str, list]]) -> Union[(list[dict], list), (dict, list)]:
+    def process(question_tag, markdown_processor: Callable[[str], tuple[str, list]]) -> Union[tuple[list[dict], list], tuple[dict, list]]:
         ...
 
 
@@ -129,10 +129,14 @@ class MatchingProcessor:
         pairs = question_tag.css.filter('pair')
         matches = []
         for pair in pairs:
-            answer_left, answer_correct = pair.css.filter('left')[0], pair.css.filter('right')[0]
-            matches.append((answer_left, answer_correct))
+            answer_left, answer_right = pair.css.filter('left')[0], pair.css.filter('right')[0]
+            matches.append((answer_left.string.strip(), answer_right.string.strip()))
 
-        distractors = question_tag.css.filter('distractors')[0]
+        for match in matches:
+            print(match)
+
+        distractors = question_tag.css.filter('distractors')
+        distractor_text = distractors[0].contents[0].strip() if len(distractors) > 0 else None
         question_text, resources = markdown_processor(question_tag.contents[0])
         question = {
             "question_text": question_text,
@@ -140,12 +144,12 @@ class MatchingProcessor:
             "points_possible": 1,
             "answers": [
                 {
-                    "answer_match_left": answer_left.string,
-                    "answer_match_correct": answer_correct.string,
+                    "answer_match_left": answer_left,
+                    "answer_match_right": answer_right,
                     "answer_weight": 100
-                } for answer_left, answer_correct in matches
+                } for answer_left, answer_right in matches
             ],
-            "matching_answer_incorrect_matches": '\n'.join(distractors.contents[0])
+            "matching_answer_incorrect_matches": distractor_text
         }
         return question, resources
 

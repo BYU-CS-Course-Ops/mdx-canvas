@@ -1,5 +1,6 @@
 import json
 import os
+import textwrap
 
 import uuid
 import argparse
@@ -51,8 +52,9 @@ def get_fancy_html(markdown_or_file: str, files_folder=None):
     if markdown_or_file.endswith('.md'):
         markdown_or_file = readfile(files_folder / markdown_or_file)
 
-    return md.markdown(markdown_or_file, extensions=['fenced_code'])
-
+    dedented = textwrap.dedent(markdown_or_file)
+    fenced = md.markdown(dedented, extensions=['fenced_code'])
+    return fenced
 
 def get_canvas_folder(course: Course, folder_name: str, parent_folder_path=""):
     folders = list(course.get_folders())
@@ -64,13 +66,14 @@ def get_canvas_folder(course: Course, folder_name: str, parent_folder_path=""):
 
 def create_resource_folder(course, quiz_title: str):
     folders = list(course.get_folders())
-    if not any(f.name == "Generated-Content" for f in folders):
+    generated_folder_name = "Generated-Content"
+    if not any(f.name == generated_folder_name for f in folders):
         print("Created Content Folder")
-        course.create_folder(name="Generated-Content", parent_folder_path="", hidden=True)
+        course.create_folder(name=generated_folder_name, parent_folder_path="", hidden=True)
 
     if not any(f.name == quiz_title for f in folders):
         print(f"Created {quiz_title} folder")
-        course.create_folder(name=quiz_title, parent_folder_path="Generated-Content",
+        course.create_folder(name=quiz_title, parent_folder_path=generated_folder_name,
                                                   hidden=True)
 
 def get_img_html(image_name, alt_text, course, image_folder: Path):

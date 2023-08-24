@@ -59,12 +59,12 @@ def give_me_100():
     </right>
 </pair>
 <pair>
-    <left>
-    2 + 2
-    </left>
-    <right>
-    4
-    </right>
+<left>
+2 + 2
+</left>
+<right>
+4
+</right>
 </pair>
 <distractors>
     7
