@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Callable, Union
 
 from bs4 import BeautifulSoup
 from datetime import datetime
@@ -51,8 +51,12 @@ class TFConverter:
 
 
 class Processor(Protocol):
+    """
+    A processor takes a question tag and a Markdown processor
+      returning question(s) and a list of resources
+    """
     @staticmethod
-    def process(question_tag, markdown_processor: Callable[[str], tuple[str, list]]) -> (dict, list):
+    def process(question_tag, markdown_processor: Callable[[str], tuple[str, list]]) -> Union[(list[dict], list), (dict, list)]:
         ...
 
 
