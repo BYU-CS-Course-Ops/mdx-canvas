@@ -10,24 +10,23 @@ These instructions are seen before taking the quiz.
 ![alt text](image-test.jpg)
 </question>
 
-
-This comment
+This is a comment
 
 <question type = "multiple-choice">
 This is the question part
 
-<right>
+<correct>
 This is a correct answer
-</right>
+</correct>
 
-<wrong>
+<incorrect>
 ![alt text](image-test.jpg)
-</wrong>
+</incorrect>
 </question>
 
 <question type="multiple-answers">
 This is another question
-<wrong>
+<incorrect>
 
 ```python
 import random
@@ -36,40 +35,42 @@ def give_me_100():
     return random.random() * 100
 ```
 
-</wrong>
+</incorrect>
 
-<right>5</right>
-<right>6</right>
+<correct>5</correct>
+<correct>6</correct>
 
-<wrong>
-This is 
-incorrect
-</wrong>
+<incorrect>
+    This is 
+    incorrect
+</incorrect>
 
 
 </question>
 
 <question type = "matching">
 ![alt text](image-test.jpg)
-<left>
+<pair>
+    <left>
+    1 + 2
+    </left>
+    <right>
+    3
+    </right>
+</pair>
+<pair>
+    <left>
+    2 + 2
+    </left>
+    <right>
+    4
+    </right>
+</pair>
+<distractors>
+    7
+    9
+</distractors>
 
-1 + 2
-</left>
-<right>
-3
-</right>
-<left>
-2 + 2
-</left>
-<right>
-4
-</right>
-<left>
-3 + 2
-</left>
-<right>
-5
-</right>
 </question>
 
 </quiz>

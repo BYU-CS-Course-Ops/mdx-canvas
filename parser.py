@@ -1,25 +1,39 @@
+from typing import Callable
+
 from bs4 import BeautifulSoup
 from datetime import datetime
 from bs4.element import Tag
+from typing import Protocol
 
 
-def get_rights_and_wrongs(question_tag):
-    rights = question_tag.css.filter('right')
-    wrongs = question_tag.css.filter('wrong')
-    return rights, wrongs
+def get_corrects_and_incorrects(question_tag):
+    corrects = question_tag.css.filter('correct')
+    incorrects = question_tag.css.filter('incorrect')
+    return corrects, incorrects
 
 
 def get_answers(question_tag):
-    rights, wrongs = get_rights_and_wrongs(question_tag)
-    return rights + wrongs
+    corrects, incorrects = get_corrects_and_incorrects(question_tag)
+    return corrects + incorrects
+
+
+def make_iso(date: datetime | str | None):
+    input_format = "%b %d, %Y, %I:%M %p"
+
+    if date is None:
+        return None
+    if isinstance(date, str):
+        date = datetime.strptime(date, input_format)
+    return datetime.isoformat(date)
 
 
 class TFConverter:
     @staticmethod
-    def process(right_wrong_tag, html_processor=lambda x: x):
-        is_true = right_wrong_tag.name == "right"
+    def process(correct_incorrect_tag, markdown_processor: Callable[[str], tuple[str, list]]):
+        is_true = correct_incorrect_tag.name == "correct"
+        question_text, resources = markdown_processor(correct_incorrect_tag.contents[0])
         question = {
-            "question_text": html_processor(right_wrong_tag.contents[0]),
+            "question_text": question_text,
             "question_type": 'true_false_question',
             "points_possible": 1,
             "answers": [
@@ -33,134 +47,141 @@ class TFConverter:
                 }
             ]
         }
-        return question
+        return question, resources
+
+
+class Processor(Protocol):
+    @staticmethod
+    def process(question_tag, markdown_processor: Callable[[str], tuple[str, list]]) -> (dict, list):
+        ...
+
+
+def process(processor: Processor, question_tag, markdown_processor: Callable[[str], tuple[str, list]]):
+    question, resources = processor.process(question_tag, markdown_processor)
+    return question, resources
 
 
 class TrueFalseProcessor:
     @staticmethod
-    def process(question_tag, html_processor=lambda x: x):
+    def process(question_tag, markdown_processor: Callable[[str], tuple[str, list]]):
         answers = get_answers(question_tag)
         if len(answers) != 1:
-            raise Exception("True false questions must have one right or wrong answer")
+            raise Exception("True false questions must have one correct or incorrect answer")
 
-        return TFConverter().process(answers[0], html_processor)
+        return process(TFConverter(), answers[0], markdown_processor)
 
 
 class MultipleTrueFalseProcessor:
     @staticmethod
-    def process(question_tag, html_processor=lambda x: x):
-        questions = [
-            TextProcessor().process(question_tag)
-        ]
+    def process(question_tag, markdown_processor: Callable[[str], tuple[str, list]]):
+        heading_question, resources = process(TextQuestionProcessor(), question_tag, markdown_processor)
+        questions = [heading_question]
         for answer in get_answers(question_tag):
-            questions.append(TFConverter().process(answer, html_processor))
-        return questions
+            tf_question, res = process(TFConverter(), answer, markdown_processor)
+            questions.append(tf_question)
+            resources.extend(res)
+        return questions, resources
 
 
 class MultipleChoiceProcessor:
     @staticmethod
-    def process(question_tag, html_processor=lambda x: x):
-        rights, wrongs = get_rights_and_wrongs(question_tag)
-        if len(rights) != 1:
-            raise Exception("Multiple choice questions must have exactly one right answer")
+    def process(question_tag, markdown_processor: Callable[[str], tuple[str, list]]):
+        corrects, incorrects = get_corrects_and_incorrects(question_tag)
+        if len(corrects) != 1:
+            raise Exception("Multiple choice questions must have exactly one correct answer")
 
-        question = {
-            "question_text": html_processor(question_tag.contents[0]),
-            "question_type": 'multiple_choice_question',
-            "points_possible": 1,
-            "answers": [
-                {
-                    "answer_html": html_processor(answer.string),
-                    "answer_weight": 100 if answer in rights else 0
-                } for answer in rights + wrongs
-            ]
-        }
-        return question
+        return process(MultipleAnswersProcessor(), question_tag, markdown_processor)
 
 
 class MultipleAnswersProcessor:
     @staticmethod
-    def process(question_tag, html_processor=lambda x: x):
-        rights, wrongs = get_rights_and_wrongs(question_tag)
+    def process(question_tag, markdown_processor: Callable[[str], tuple[str, list]]):
+        corrects, incorrects = get_corrects_and_incorrects(question_tag)
+
+        question_text, resources = markdown_processor(question_tag.contents[0])
+        answers = []
+        for answer in corrects + incorrects:
+            answer_html, res = markdown_processor(answer.string)
+            answers.append((True if answer in corrects else False, answer_html))
+            resources.extend(res)
+
         question = {
-            "question_text": html_processor(question_tag.contents[0]),
-            "question_type": 'multiple_answers_question',
+            "question_text": question_text,
+            "question_type": 'multiple_choice_question',
             "points_possible": 1,
             "answers": [
                 {
-                    "answer_html": html_processor(answer.string),
-                    "answer_weight": 100 if answer in rights else 0
-                } for answer in rights + wrongs
+                    "answer_html": answer_html,
+                    "answer_weight": 100 if correct else 0
+                } for correct, answer_html in answers
             ]
         }
-        return question
+        return question, resources
 
 
 class MatchingProcessor:
     @staticmethod
-    def process(question_tag, html_processor=lambda x: x):
-        lefts = question_tag.css.filter('left')
-        rights = question_tag.css.filter('right')
-        if len(lefts) < len(rights):
-            raise Exception("Matching questions must have at least as many lefts as rights")
-        matches = zip(lefts, rights)
-        distractions = rights[len(lefts):]
+    def process(question_tag, markdown_processor: Callable[[str], tuple[str, list]]):
+        pairs = question_tag.css.filter('pair')
+        matches = []
+        for pair in pairs:
+            answer_left, answer_correct = pair.css.filter('left')[0], pair.css.filter('right')[0]
+            matches.append((answer_left, answer_correct))
+
+        distractors = question_tag.css.filter('distractors')[0]
+        question_text, resources = markdown_processor(question_tag.contents[0])
         question = {
-            "question_text": html_processor(question_tag.contents[0]),
+            "question_text": question_text,
             "question_type": 'matching_question',
             "points_possible": 1,
             "answers": [
                 {
                     "answer_match_left": answer_left.string,
-                    "answer_match_right": answer_right.string,
+                    "answer_match_correct": answer_correct.string,
                     "answer_weight": 100
-                } for answer_left, answer_right in matches
+                } for answer_left, answer_correct in matches
             ],
-            "matching_answer_incorrect_matches": '\n'.join(distractions)
+            "matching_answer_incorrect_matches": '\n'.join(distractors.contents[0])
         }
-        return question
+        return question, resources
 
 
-class TextProcessor:
+class TextQuestionProcessor:
     @staticmethod
-    def process(question_tag, html_processor=lambda x: x):
+    def process(question_tag, markdown_processor: Callable[[str], tuple[str, list]]):
+        question_text, resources = markdown_processor(question_tag.contents[0])
         question = {
-            "question_text": html_processor(question_tag.contents[0]),
+            "question_text": question_text,
             "question_type": 'text_only_question',
         }
-        return question
+        return question, resources
 
 
-question_processors = {
-    "multiple-choice": MultipleChoiceProcessor(),
-    "multiple-answers": MultipleAnswersProcessor(),
-    "true-false": TrueFalseProcessor(),
-    "multiple-tf": MultipleTrueFalseProcessor(),
-    "matching": MatchingProcessor(),
-    "text": TextProcessor()
-}
+class QuizParser:
+    question_processors = {
+        "multiple-choice": MultipleChoiceProcessor(),
+        "multiple-answers": MultipleAnswersProcessor(),
+        "true-false": TrueFalseProcessor(),
+        "multiple-tf": MultipleTrueFalseProcessor(),
+        "matching": MatchingProcessor(),
+        "text": TextQuestionProcessor()
+    }
 
-
-class Parser:
-    def __init__(self, html_processor=lambda x: x, group_indexer=lambda x: 0):
-        self.html_processor = html_processor
+    def __init__(self, markdown_processor: Callable[[str], tuple[str, list]], group_indexer):
+        self.markdown_processor = markdown_processor
         self.group_indexer = group_indexer
 
-    def parse_document(self, text):
-        soup = BeautifulSoup(text, "html.parser")
-        document = []
-        for tag in soup.find_all():
-            if tag.name == "quiz":
-                document.append(self.parse_quiz(tag))
-        return document
-
-    def parse_quiz(self, quiz_tag: Tag):
-        quiz = {"questions": []}
+    def parse(self, quiz_tag: Tag):
+        quiz = {
+            "questions": [],
+            "resources": [],
+        }
         for tag in quiz_tag.find_all():
             if tag.name == "settings":
-                quiz["settings"] = self.parse_settings(tag)
+                quiz["settings"] = self.parse_quiz_settings(tag)
             elif tag.name == "question":
-                question = self.parse_question(tag)
+                question, res = self.parse_question(tag)
+                quiz["resources"].extend(res)
                 # if question is a  list of questions, add them all
                 if isinstance(question, list):
                     quiz["questions"].extend(question)
@@ -168,17 +189,7 @@ class Parser:
                     quiz["questions"].append(question)
         return quiz
 
-    @staticmethod
-    def make_iso(date: datetime | str | None):
-        input_format = "%b %d, %Y, %I:%M %p"
-
-        if date is None:
-            return None
-        if isinstance(date, str):
-            date = datetime.strptime(date, input_format)
-        return datetime.isoformat(date)
-
-    def parse_settings(self, settings_tag):
+    def parse_quiz_settings(self, settings_tag):
         settings = {
             "title": settings_tag["title"],
             "quiz_type": settings_tag.get("quiz_type", "assignment"),
@@ -187,20 +198,43 @@ class Parser:
             "shuffle_answers": settings_tag.get("shuffle_answers", False),
             "hide_results": None,
             "show_correct_answers": True,
-            "show_correct_answers_at": self.make_iso(settings_tag.get("show_correct_answers_at", None)),
+            "show_correct_answers_at": make_iso(settings_tag.get("show_correct_answers_at", None)),
             "allowed_attempts": settings_tag.get("allowed_attempts", 1),
             "scoring_policy": settings_tag.get("scoring_policy", "keep_highest"),
             "one_question_at_a_time": settings_tag.get("one_question_at_a_time", False),
             "cant_go_back": settings_tag.get("cant_go_back", False),
             "access_code": settings_tag.get("access_code", None),
-            "due_at": self.make_iso(settings_tag.get("due_at", None)),
-            "lock_at": self.make_iso(settings_tag.get("available_to", None)),
-            "unlock_at": self.make_iso(settings_tag.get("available_from", None)),
+            "due_at": make_iso(settings_tag.get("due_at", None)),
+            "lock_at": make_iso(settings_tag.get("available_to", None)),
+            "unlock_at": make_iso(settings_tag.get("available_from", None)),
             "published": settings_tag.get("published", True),
             "one_time_results": settings_tag.get("one_time_results", False),
         }
         return settings
 
     def parse_question(self, question_tag: Tag):
-        processor = question_processors[question_tag["type"]]
-        return processor.process(question_tag, self.html_processor)
+        processor = self.question_processors[question_tag["type"]]
+        return processor.process(question_tag, self.markdown_processor)
+
+
+class DocumentParser:
+    def __init__(self, path_to_resources, markdown_processor: Callable[[str], tuple[str, list]],
+                 group_indexer=lambda x: 0):
+        self.path_to_resources = path_to_resources
+        self.markdown_processor = markdown_processor
+        self.element_processors = {
+            "quiz": QuizParser(self.markdown_processor, group_indexer),
+        }
+
+    def parse(self, text):
+        soup = BeautifulSoup(text, "html.parser")
+        document = []
+        for tag in soup.find_all():
+            parser = self.element_processors.get(tag.name, None)
+            if parser:
+                element = parser.parse(tag)
+                if isinstance(element, list):
+                    document.extend(element)
+                else:
+                    document.append(element)
+        return document
