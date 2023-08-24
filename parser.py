@@ -1,11 +1,6 @@
 from bs4 import BeautifulSoup
-from pathlib import Path
 from datetime import datetime
-
-
-def readfile(filepath: Path):
-    with open(filepath) as file:
-        return file.read()
+from bs4.element import Tag
 
 
 def get_rights_and_wrongs(question_tag):
@@ -19,10 +14,9 @@ def get_answers(question_tag):
     return rights + wrongs
 
 
-
-
 class TFConverter:
-    def process(self, right_wrong_tag, html_processor=lambda x: x):
+    @staticmethod
+    def process(right_wrong_tag, html_processor=lambda x: x):
         is_true = right_wrong_tag.name == "right"
         question = {
             "question_text": html_processor(right_wrong_tag.contents[0]),
@@ -43,7 +37,8 @@ class TFConverter:
 
 
 class TrueFalseProcessor:
-    def process(self, question_tag, html_processor=lambda x: x):
+    @staticmethod
+    def process(question_tag, html_processor=lambda x: x):
         answers = get_answers(question_tag)
         if len(answers) != 1:
             raise Exception("True false questions must have one right or wrong answer")
@@ -52,7 +47,8 @@ class TrueFalseProcessor:
 
 
 class MultipleTrueFalseProcessor:
-    def process(self, question_tag, html_processor=lambda x: x):
+    @staticmethod
+    def process(question_tag, html_processor=lambda x: x):
         questions = [
             TextProcessor().process(question_tag)
         ]
@@ -62,7 +58,8 @@ class MultipleTrueFalseProcessor:
 
 
 class MultipleChoiceProcessor:
-    def process(self, question_tag, html_processor=lambda x: x):
+    @staticmethod
+    def process(question_tag, html_processor=lambda x: x):
         rights, wrongs = get_rights_and_wrongs(question_tag)
         if len(rights) != 1:
             raise Exception("Multiple choice questions must have exactly one right answer")
@@ -82,7 +79,8 @@ class MultipleChoiceProcessor:
 
 
 class MultipleAnswersProcessor:
-    def process(self, question_tag, html_processor=lambda x: x):
+    @staticmethod
+    def process(question_tag, html_processor=lambda x: x):
         rights, wrongs = get_rights_and_wrongs(question_tag)
         question = {
             "question_text": html_processor(question_tag.contents[0]),
@@ -99,13 +97,14 @@ class MultipleAnswersProcessor:
 
 
 class MatchingProcessor:
-    def process(self, question_tag, html_processor=lambda x: x):
+    @staticmethod
+    def process(question_tag, html_processor=lambda x: x):
         lefts = question_tag.css.filter('left')
         rights = question_tag.css.filter('right')
         if len(lefts) < len(rights):
             raise Exception("Matching questions must have at least as many lefts as rights")
         matches = zip(lefts, rights)
-        distractors = rights[len(lefts):]
+        distractions = rights[len(lefts):]
         question = {
             "question_text": html_processor(question_tag.contents[0]),
             "question_type": 'matching_question',
@@ -117,13 +116,14 @@ class MatchingProcessor:
                     "answer_weight": 100
                 } for answer_left, answer_right in matches
             ],
-            "matching_answer_incorrect_matches": '\n'.join(distractors)
+            "matching_answer_incorrect_matches": '\n'.join(distractions)
         }
         return question
 
 
 class TextProcessor:
-    def process(self, question_tag, html_processor=lambda x: x):
+    @staticmethod
+    def process(question_tag, html_processor=lambda x: x):
         question = {
             "question_text": html_processor(question_tag.contents[0]),
             "question_type": 'text_only_question',
@@ -149,14 +149,14 @@ class Parser:
     def parse_document(self, text):
         soup = BeautifulSoup(text, "html.parser")
         document = []
-        for tag in soup.children:
+        for tag in soup.find_all():
             if tag.name == "quiz":
                 document.append(self.parse_quiz(tag))
         return document
 
-    def parse_quiz(self, quiz_tag):
+    def parse_quiz(self, quiz_tag: Tag):
         quiz = {"questions": []}
-        for tag in quiz_tag.children:
+        for tag in quiz_tag.find_all():
             if tag.name == "settings":
                 quiz["settings"] = self.parse_settings(tag)
             elif tag.name == "question":
@@ -201,6 +201,6 @@ class Parser:
         }
         return settings
 
-    def parse_question(self, question_tag):
+    def parse_question(self, question_tag: Tag):
         processor = question_processors[question_tag["type"]]
         return processor.process(question_tag, self.html_processor)

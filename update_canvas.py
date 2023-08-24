@@ -8,10 +8,42 @@ from canvasapi.course import Course
 from canvasapi.quiz import Quiz
 from canvasapi.submission import Submission
 from canvasapi import Canvas
-from canvas_creator import update_quiz
 import os
 
 this_directory = Path(__file__).parent
+
+answer_mapping = {
+    "text": "answer_text",
+    "left": "answer_match_left",
+    "right": "answer_match_right",
+    "comments": "answer_comments",
+    "comments_html": "answer_comments_html",
+    "html": "answer_html",
+    "weight": "answer_weight",
+}
+
+
+def convert_answer(answer: dict):
+    new_answer = {
+        answer_mapping[key]: value for key, value in answer.items() if key in answer_mapping
+    }
+    return new_answer
+
+
+def transplant_questions(quiz_to_edit: Quiz, quiz_to_copy: Quiz):
+    for quiz_question in quiz_to_copy.get_questions():
+        new_question = quiz_question.__dict__
+        new_question["answers"] = [convert_answer(answer.__dict__) for answer in quiz_question.answers]
+        quiz_to_edit.create_question(question=new_question)
+
+
+def transplant_quiz(quiz_to_edit: Quiz, quiz_to_copy: Quiz):
+    for quiz_question in quiz_to_edit.get_questions():
+        quiz_question.delete()
+
+    quiz_to_edit.edit(quiz=quiz_to_copy.__dict__)
+    transplant_questions(quiz_to_edit, quiz_to_copy)
+    print(f"\nUpdated quiz {quiz_to_edit.title} by copying from {quiz_to_copy.title}")
 
 
 def get_canvas_from_secrets():
@@ -278,6 +310,7 @@ def get_quiz(course: Course, title: str):
             return quiz
 
     return None
+
 
 def get_quiz_path():
     path = Path(__file__).parent / "markdown-quiz-files"
