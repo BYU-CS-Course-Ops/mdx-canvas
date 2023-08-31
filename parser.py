@@ -1,3 +1,4 @@
+import pandas as pandas
 from typing import Callable, Union
 
 from bs4 import BeautifulSoup
@@ -12,6 +13,11 @@ def get_corrects_and_incorrects(question_tag):
     return corrects, incorrects
 
 
+def get_points(question_tag):
+    points = question_tag.css.filter('points')
+    return points[0].contents[0].strip() if len(points) > 0 else 1
+
+
 def get_answers(question_tag):
     corrects, incorrects = get_corrects_and_incorrects(question_tag)
     return corrects + incorrects
@@ -23,8 +29,24 @@ def make_iso(date: datetime | str | None):
     if date is None:
         return None
     if isinstance(date, str):
+        # For templating
+        if date.startswith("{"):
+            return date
         date = datetime.strptime(date, input_format)
     return datetime.isoformat(date)
+
+
+def parse_placeholder_data(placeholders_tag):
+    data = []
+    lines = placeholders_tag.contents[0].strip().split('\n')
+    headers = lines[0].split('|')
+    headers = [h.strip() for h in headers if h.strip()]
+    for line in lines[2:]:
+        line = line.split('|')
+        line = [l.strip() for l in line if l.strip()]
+        data.append(dict(zip(headers, line)))
+    return data
+
 
 
 class TFConverter:
@@ -35,7 +57,7 @@ class TFConverter:
         question = {
             "question_text": question_text,
             "question_type": 'true_false_question',
-            "points_possible": 1,
+            "points_possible": get_points(correct_incorrect_tag),
             "answers": [
                 {
                     "answer_text": "True",
@@ -112,7 +134,7 @@ class MultipleAnswersProcessor:
         question = {
             "question_text": question_text,
             "question_type": 'multiple_choice_question',
-            "points_possible": 1,
+            "points_possible": get_points(question_tag),
             "answers": [
                 {
                     "answer_html": answer_html,
@@ -141,7 +163,7 @@ class MatchingProcessor:
         question = {
             "question_text": question_text,
             "question_type": 'matching_question',
-            "points_possible": 1,
+            "points_possible": get_points(question_tag),
             "answers": [
                 {
                     "answer_match_left": answer_left,
@@ -183,10 +205,13 @@ class QuizParser:
         quiz = {
             "questions": [],
             "resources": [],
+            "replacements": []
         }
         for tag in quiz_tag.find_all():
             if tag.name == "settings":
                 quiz["settings"] = self.parse_quiz_settings(tag)
+            elif tag.name == "placeholder-values":
+                quiz["replacements"] = parse_placeholder_data(tag)
             elif tag.name == "question":
                 question, res = self.parse_question(tag)
                 quiz["resources"].extend(res)
@@ -231,7 +256,7 @@ class DocumentParser:
         self.path_to_resources = path_to_resources
         self.markdown_processor = markdown_processor
         self.element_processors = {
-            "quiz": QuizParser(self.markdown_processor, group_indexer),
+            "quiz": QuizParser(self.markdown_processor, group_indexer)
         }
 
     def parse(self, text):

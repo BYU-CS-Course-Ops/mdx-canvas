@@ -106,6 +106,7 @@ def get_group_index(course: Course, group: str):
         if not any(g.name == group for g in groups):
             print("Created Assignment Group: " + group)
             course.create_assignment_group(name=group)
+        groups = course.get_assignment_groups()
         group_index = [g.name for g in groups].index(group)
     return group_index
 
@@ -142,13 +143,24 @@ def save_quiz_to_json(quiz, json_folder):
         f.write(json_string)
 
 
-def link_resources(document_object, course, resources: list[tuple]):
+def upload_and_link_files(document_object, course, resources: list[tuple]):
     create_resource_folder(course, document_object["settings"]["title"])
     text = json.dumps(document_object, indent=4)
     for fake_id, full_path in resources:
         resource_id = str(course.upload(full_path)[1]["id"])
         text = text.replace(fake_id, resource_id)
     return json.loads(text)
+
+
+def create_elements_from_template(element_template, all_replacements):
+    template_text = json.dumps(element_template, indent=4)
+    for dictionary in all_replacements:
+        text = template_text
+        for placeholder, replacement in dictionary.items():
+            text = text.replace("{" + placeholder + "}", replacement)
+        yield json.loads(text)
+    else:
+        yield element_template
 
 
 def create_elements_from_document(course: Course, quiz_markdown: str, path_to_resources: Path):
@@ -160,9 +172,12 @@ def create_elements_from_document(course: Course, quiz_markdown: str, path_to_re
     )
     document_object = parser.parse(quiz_markdown)
 
-    for element in document_object:
-        element = link_resources(element, course, element["resources"])
-        create_or_edit_quiz(course, element)
+    # Create multiple quizzes or assignments from the document object
+    for template in document_object:
+        # Create multiple elements from the element template
+        for element in create_elements_from_template(template, template["replacements"]):
+            element = upload_and_link_files(element, course, element["resources"])
+            create_or_edit_quiz(course, element)
 
 
 def main(api_url, api_token, course_id, file_path: Path, path_to_resources: Path):
