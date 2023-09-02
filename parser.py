@@ -36,13 +36,35 @@ def make_iso(date: datetime | str | None):
     return datetime.isoformat(date)
 
 
-def parse_placeholder_data(placeholders_tag):
+def parse_template_data(template_tag):
+    """
+    Parses a template tag into a list of dictionaries
+    Converts the following:
+    | header1 | header2    |
+    |---------|------------|
+    | first   | quiz       |
+    | second  | assignment |
+    into
+    [
+        {
+            "header1": "first",
+            "header2": "quiz"
+        },
+        {
+            "header1": "second",
+            "header2": "assignment"
+        }
+    ]
+    """
     data = []
-    lines = placeholders_tag.contents[0].strip().split('\n')
+    lines = template_tag.contents[0].strip().split('\n')
+    # Grab the headers from the table, removing whitespace and empty headers
     headers = lines[0].split('|')
     headers = [h.strip() for h in headers if h.strip()]
+    # The lines with data start at index 2, after the header and the separator
     for line in lines[2:]:
         line = line.split('|')
+        # Splitting on | leaves empty strings at the beginning and end
         line = [l.strip() for l in line][1:-1]
         data.append(dict(zip(headers, line)))
     return data
@@ -188,6 +210,29 @@ class TextQuestionProcessor:
         return question, resources
 
 
+class OverrideParser:
+    def __init__(self):
+        pass
+
+    def parse(self, override_tag: Tag):
+        override = {
+            "type": "override",
+            "settings": {},
+            "sections": [],
+            "students": [],
+            "assignments": []
+        }
+        for tag in override_tag.find_all():
+            if tag.name == "section":
+                override["sections"].append(tag.contents[0])
+            elif tag.name == "student":
+                override["students"].append(tag.contents[0])
+            elif tag.name == "assignments":
+                lines = tag.contents[0].strip().split('\n')
+                override["assignments"] = [l.strip() for l in lines if l.strip()]
+        return override
+
+
 class ModuleParser:
     def __init__(self):
         pass
@@ -259,8 +304,8 @@ class QuizParser:
             if tag.name == "settings":
                 quiz["settings"] = self.parse_quiz_settings(tag)
                 quiz["name"] = quiz["settings"]["title"]
-            elif tag.name == "placeholder-values":
-                quiz["replacements"] = parse_placeholder_data(tag)
+            elif tag.name == "template-arguments":
+                quiz["replacements"] = parse_template_data(tag)
             elif tag.name == "question":
                 question, res = self.parse_question(tag)
                 quiz["resources"].extend(res)
@@ -317,7 +362,7 @@ class AssignmentParser:
                 settings = self.parse_assignment_settings(tag)
                 assignment["settings"].update(settings)
             elif tag.name == "placeholder-values":
-                assignment["replacements"] = parse_placeholder_data(tag)
+                assignment["replacements"] = parse_template_data(tag)
             elif tag.name == "description":
                 contents = "".join([str(c) for c in tag.contents])
                 description, res = self.markdown_processor(contents)
@@ -369,6 +414,32 @@ class AssignmentParser:
         return settings
 
 
+class PageParser:
+    def __init__(self, markdown_processor: Callable[[str], tuple[str, list]]):
+        self.markdown_processor = markdown_processor
+
+    def parse(self, page_tag):
+        page = {
+            "type": "page",
+            "name": page_tag["title"],
+            "settings": {
+                "title": page_tag["title"],
+                "body": "",
+                "editing_roles": page_tag.get("editing_roles", "teachers"),
+                "notify_of_update": page_tag.get("notify_of_update", False),
+                "published": page_tag.get("published", True),
+                "front_page": page_tag.get("front_page", False),
+                "publish_at": make_iso(page_tag.get("publish_at", None)),
+            },
+            "resources": []
+        }
+        contents = "".join([str(c) for c in page_tag.contents])
+        body, res = self.markdown_processor(contents)
+        page["settings"]["body"] = body
+        page["resources"].extend(res)
+        return page
+
+
 class DocumentParser:
     def __init__(self, path_to_resources, markdown_processor: Callable[[str], tuple[str, list]],
                  group_indexer=lambda x: 0):
@@ -377,7 +448,9 @@ class DocumentParser:
         self.element_processors = {
             "quiz": QuizParser(self.markdown_processor, group_indexer),
             "assignment": AssignmentParser(self.markdown_processor, group_indexer),
-            "module": ModuleParser()
+            "page": PageParser(self.markdown_processor),
+            "module": ModuleParser(),
+            "override": OverrideParser()
         }
 
     def parse(self, text):

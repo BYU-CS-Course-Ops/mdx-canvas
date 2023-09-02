@@ -5,9 +5,9 @@ import textwrap
 
 import uuid
 import argparse
-from typing import List, Any
 
 from canvasapi import Canvas
+from canvasapi.assignment import Assignment
 
 from canvasapi.quiz import Quiz
 from canvasapi.course import Course
@@ -59,7 +59,11 @@ def get_fancy_html(markdown_or_file: str, files_folder=None):
     fenced = md.markdown(dedented, extensions=['fenced_code'])
     return fenced
 
+
 def get_canvas_folder(course: Course, folder_name: str, parent_folder_path=""):
+    """
+    Retrieves an object representing a digital folder in Canvas. If the folder does not exist, it is created.
+    """
     folders = list(course.get_folders())
     if not any(f.name == folder_name for f in folders):
         print(f"Created {folder_name} folder")
@@ -68,6 +72,9 @@ def get_canvas_folder(course: Course, folder_name: str, parent_folder_path=""):
 
 
 def create_resource_folder(course, quiz_title: str):
+    """
+    Creates a folder in Canvas to store images and other resources.
+    """
     folders = list(course.get_folders())
     generated_folder_name = "Generated-Content"
     if not any(f.name == generated_folder_name for f in folders):
@@ -80,6 +87,10 @@ def create_resource_folder(course, quiz_title: str):
                                                   hidden=True)
 
 def get_img_html(image_name, alt_text, course, image_folder: Path):
+    """
+    Returns the html for an image, and the path to the resource so it can later be uploaded to Canvas.
+    After uploading, the correct resource id must be substituted for the fake id using a text replace.
+    """
     fake_object_id = str(uuid.uuid4())
     html_text = f'<p><img id="{image_name}" src="/courses/{course.id}/files/{fake_object_id}/preview" alt="{alt_text}" /></p>'
     resource = (fake_object_id, str(image_folder / image_name))
@@ -87,6 +98,11 @@ def get_img_html(image_name, alt_text, course, image_folder: Path):
 
 
 def process_images(html, course: Course, image_folder):
+    """
+    Finds all the images in the html, and replaces them with html that links to the image in Canvas.
+    Returns the new html, and a list of resources that need to be uploaded.
+    After uploading, the correct object id must be substituted for the fake ids, which are returned in the resources.
+    """
     soup = BeautifulSoup(html, "html.parser")
     matches = soup.find_all('img')
     resources = []
@@ -103,6 +119,10 @@ def process_markdown(markdown_or_file: str, course: Course, image_folder, files_
 
 
 def get_group_index(course: Course, group: str):
+    """
+    Group indexes are numbers that stand for groups like Labs, Projects, etc.
+    Since users will provide names for groups, this method is necessary to find indexes.
+    """
     groups = course.get_assignment_groups()
     if not group:
         return None
@@ -122,11 +142,22 @@ def replace_questions(quiz: Quiz, questions: list[dict]):
         quiz.create_question(question=question)
 
 
-def get_student_ids_by_section(course: Course, section: str):
+def get_section_id(course: Course, section_name: str):
     sections = course.get_sections()
-    section_id = [s.id for s in sections if s.name == section][0]
-    students = course.get_section(section_id).get_users(enrollment_type="student")
-    return [s.id for s in students]
+    for section in sections:
+        if section.name == section_name:
+            return section.id
+    print(f"Valid section names: {[s.name for s in sections]}")
+    return None
+
+
+def get_page_url(course: Course, page_name: str):
+    pages = course.get_pages()
+    for page in pages:
+        if page.title == page_name:
+            return page.url
+    print(f"Could not find page {page_name}")
+    return None
 
 
 def get_quiz(course: Course, title: str):
@@ -142,6 +173,14 @@ def get_assignment(course: Course, assignment_name):
     for assignment in assignments:
         if assignment.name == assignment_name:
             return assignment
+    return None
+
+
+def get_page(course: Course, name):
+    pages = course.get_pages()
+    for page in pages:
+        if page.title == name:
+            return page
     return None
 
 
@@ -172,6 +211,9 @@ def get_object_id_from_element(course: Course, item):
         if not assignment:
             return None
         return assignment.id
+    elif item["type"] == "Page":
+        page_url = get_page_url(course, item["title"])
+        item["page_url"] = page_url
 
 
 def create_or_edit_assignment(course, element):
@@ -256,7 +298,7 @@ def delete_module_item_if_exists(module, name):
             item.delete()
 
 
-def create_module_item_without_id(module:Module, element):
+def create_module_item_without_id(module: Module, element):
     if element["type"] not in ["ExternalUrl", "SubHeader", "Page"]:
         print(f"Could not find object id for {element['title']}")
         return
@@ -268,14 +310,15 @@ def create_module_item_without_id(module:Module, element):
     elif element["type"] == "SubHeader":
         module.create_module_item(module_item=element)
     elif element["type"] == "Page":
-        pass
-        # page = module.create_module_item(module_item=element)
-        # id = page.content_id
-        # create_or_update_module_item(module, element, id, element["position"])
+        if not element["page_url"]:
+            print(f"Could not find page url for {element['title']}")
+            return
+        module.create_module_item(module_item=element)
 
 
 def create_or_edit_module_item(module: Module, element, object_id, position):
     element["position"] = position
+    element["published"] = True
     if not object_id:
         create_module_item_without_id(module, element)
         return
@@ -320,6 +363,62 @@ def create_or_update_module(course, element):
     return canvas_module
 
 
+def get_assignments(course, names):
+    assignments = course.get_assignments()
+    return [a for a in assignments if a.name in names]
+
+
+def create_or_update_override(course, element):
+    students = element["students"]
+    sections = element["sections"]
+    assignments = get_assignments(course, element["assignments"])
+    if not assignments:
+        raise ValueError(f"Could not find assignment {element['assignments']}")
+    if not students and not sections:
+        raise ValueError("Must provide either students or sections")
+    if students:
+        create_student_overrides(course, students)
+    if sections:
+        create_section_overrides(course, sections, assignments)
+
+
+def create_student_overrides(course, students):
+    for student in students:
+        if not course.get_user(student):
+            raise ValueError(f"Could not find student {student}")
+
+
+def get_section_ids(course, names):
+    sections = course.get_sections()
+    return [s.id for s in sections if s.name in names]
+
+
+def create_section_overrides(course: Course, sections, assignments):
+    section_ids = get_section_ids(course, sections)
+    if not section_ids:
+        raise ValueError(f"Could not find sections {sections}")
+    for section_id in section_ids:
+        print(f"Creating overrides for section {section_id} ...")
+        for assignment in assignments:
+            print(f"Creating override for assignment {assignment.name} ...")
+            try:
+                assignment.create_override(assignment_override={"course_section_id": section_id})
+            except:
+                print("Override already exists")
+            assignment.edit(assignment={"only_visible_to_overrides": True})
+
+
+def create_or_edit_page(course: Course, element):
+    name = element["name"]
+    if canvas_page := get_page(course, name):
+        print(f"Editing page {name} ...")
+        canvas_page.edit(wiki_page=element["settings"])
+    else:
+        print(f"Creating page {name} ...")
+        canvas_page = course.create_page(wiki_page=element["settings"])
+    return canvas_page
+
+
 def create_elements_from_document(course: Course, quiz_markdown: str, path_to_resources: Path):
     # Provide processing functions, so that the parser needs no access to a canvas course
     parser = DocumentParser(
@@ -340,8 +439,12 @@ def create_elements_from_document(course: Course, quiz_markdown: str, path_to_re
                 create_or_edit_quiz(course, element)
             elif element["type"] == "assignment":
                 create_or_edit_assignment(course, element)
+            elif element["type"] == "page":
+                create_or_edit_page(course, element)
             elif element["type"] == "module":
                 create_or_update_module(course, element)
+            elif element["type"] == "override":
+                create_or_update_override(course, element)
             else:
                 raise ValueError(f"Unknown type {element['type']}")
 
