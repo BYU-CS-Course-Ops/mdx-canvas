@@ -43,10 +43,9 @@ def parse_placeholder_data(placeholders_tag):
     headers = [h.strip() for h in headers if h.strip()]
     for line in lines[2:]:
         line = line.split('|')
-        line = [l.strip() for l in line if l.strip()]
+        line = [l.strip() for l in line][1:-1]
         data.append(dict(zip(headers, line)))
     return data
-
 
 
 class TFConverter:
@@ -77,8 +76,10 @@ class Processor(Protocol):
     A processor takes a question tag and a Markdown processor
       returning question(s) and a list of resources
     """
+
     @staticmethod
-    def process(question_tag, markdown_processor: Callable[[str], tuple[str, list]]) -> Union[tuple[list[dict], list], tuple[dict, list]]:
+    def process(question_tag, markdown_processor: Callable[[str], tuple[str, list]]) -> Union[
+        tuple[list[dict], list], tuple[dict, list]]:
         ...
 
 
@@ -187,6 +188,52 @@ class TextQuestionProcessor:
         return question, resources
 
 
+class ModuleParser:
+    def __init__(self):
+        pass
+
+    def parse(self, module_tag: Tag):
+        module = {
+            "type": "module",
+            "name": module_tag["title"],
+            "settings": {
+                "name": module_tag["title"],
+                "position": module_tag["position"],
+                "published": module_tag.get("published", True),
+            },
+            "items": []
+        }
+        for item_tag in module_tag.find_all():
+            module["items"].append(self.parse_module_item(item_tag))
+        return module
+
+    casing = {
+        "file": "File",
+        "page": "Page",
+        "discussion": "Discussion",
+        "assignment": "Assignment",
+        "quiz": "Quiz",
+        "subheader": "SubHeader",
+        "externalurl": "ExternalUrl",
+        "externaltool": "ExternalTool"
+    }
+
+    def parse_module_item(self, tag: Tag):
+        item = {
+            "title": tag["title"],
+            "type": self.casing[tag.name],
+            "position": tag.get("position", None),
+            "indent": tag.get("indent", None),
+            "page_url": tag.get("page_url", None),
+            "external_url": tag.get("url", None),
+            "new_tab": tag.get("new_tab", True),
+            "completion_requirement": tag.get("completion_requirement", None),
+            "iframe": tag.get("iframe", None),
+        }
+        return item
+
+
+
 class QuizParser:
     question_processors = {
         "multiple-choice": MultipleChoiceProcessor(),
@@ -203,6 +250,7 @@ class QuizParser:
 
     def parse(self, quiz_tag: Tag):
         quiz = {
+            "type": "quiz",
             "questions": [],
             "resources": [],
             "replacements": []
@@ -210,6 +258,7 @@ class QuizParser:
         for tag in quiz_tag.find_all():
             if tag.name == "settings":
                 quiz["settings"] = self.parse_quiz_settings(tag)
+                quiz["name"] = quiz["settings"]["title"]
             elif tag.name == "placeholder-values":
                 quiz["replacements"] = parse_placeholder_data(tag)
             elif tag.name == "question":
@@ -250,19 +299,91 @@ class QuizParser:
         return processor.process(question_tag, self.markdown_processor)
 
 
+class AssignmentParser:
+    def __init__(self, markdown_processor: Callable[[str], tuple[str, list]], group_indexer):
+        self.markdown_processor = markdown_processor
+        self.group_indexer = group_indexer
+
+    def parse(self, assignment_tag):
+        assignment = {
+            "name": "",
+            "type": "assignment",
+            "resources": [],
+            "replacements": [],
+            "settings": {}
+        }
+        for tag in assignment_tag.find_all():
+            if tag.name == "settings":
+                settings = self.parse_assignment_settings(tag)
+                assignment["settings"].update(settings)
+            elif tag.name == "placeholder-values":
+                assignment["replacements"] = parse_placeholder_data(tag)
+            elif tag.name == "description":
+                contents = "".join([str(c) for c in tag.contents])
+                description, res = self.markdown_processor(contents)
+                assignment["settings"]["description"] = description
+                assignment["resources"].extend(res)
+
+        assignment["name"] = assignment["settings"]["name"]
+        return assignment
+
+    def parse_assignment_settings(self, settings_tag):
+        settings = {
+            "name": settings_tag["name"],
+            "position": settings_tag.get("position", None),
+            "submission_types": settings_tag.get("submission_types", ["none"]),
+            "allowed_extensions": settings_tag.get("allowed_extensions", []),
+            "turnitin_enabled": settings_tag.get("turnitin_enabled", False),
+            "vericite_enabled": settings_tag.get("vericite_enabled", False),
+            "turnitin_settings": settings_tag.get("turnitin_settings", None),
+            "integration_data": settings_tag.get("integration_data", None),
+            "peer_reviews": settings_tag.get("peer_reviews", False),
+            "automatic_peer_reviews": settings_tag.get("automatic_peer_reviews", False),
+            "notify_of_update": settings_tag.get("notify_of_update", False),
+            "group_category_id": settings_tag.get("group_category", None),
+            "grade_group_students_individually": settings_tag.get("grade_group_students_individually", False),
+            "external_tool_tag_attributes": settings_tag.get("external_tool_tag_attributes", None),
+            "points_possible": settings_tag.get("points_possible", None),
+            "grading_type": settings_tag.get("grading_type", "points"),
+            "due_at": make_iso(settings_tag.get("due_at", None)),
+            "lock_at": make_iso(settings_tag.get("available_to", None)),
+            "unlock_at": make_iso(settings_tag.get("available_from", None)),
+            "assignment_group_id": self.group_indexer(settings_tag.get("assignment_group", None)),
+            "assignment_overrides": settings_tag.get("assignment_overrides", None),
+            "only_visible_to_overrides": settings_tag.get("only_visible_to_overrides", False),
+            "published": settings_tag.get("published", True),
+            "grading_standard_id": settings_tag.get("grading_standard_id", None),
+            "omit_from_final_grade": settings_tag.get("omit_from_final_grade", False),
+            "hide_in_gradebook": settings_tag.get("hide_in_gradebook", False),
+            "quiz_lti": settings_tag.get("quiz_lti", None),
+            "moderated_grading": settings_tag.get("moderated_grading", False),
+            "grader_count": settings_tag.get("grader_count", None),
+            "final_grader_id": settings_tag.get("final_grader_id", None),
+            "grader_comments_visible_to_graders": settings_tag.get("grader_comments_visible_to_graders", False),
+            "graders_anonymous_to_graders": settings_tag.get("graders_anonymous_to_graders", False),
+            "grader_names_visible_to_final_grader": settings_tag.get("grader_names_visible_to_final_grader", False),
+            "anonymous_grading": settings_tag.get("anonymous_grading", False),
+            "allowed_attempts": settings_tag.get("allowed_attempts", 1),
+            "annotatable_attachment_id": settings_tag.get("annotatable_attachment_id", None),
+        }
+        return settings
+
+
 class DocumentParser:
     def __init__(self, path_to_resources, markdown_processor: Callable[[str], tuple[str, list]],
                  group_indexer=lambda x: 0):
         self.path_to_resources = path_to_resources
         self.markdown_processor = markdown_processor
         self.element_processors = {
-            "quiz": QuizParser(self.markdown_processor, group_indexer)
+            "quiz": QuizParser(self.markdown_processor, group_indexer),
+            "assignment": AssignmentParser(self.markdown_processor, group_indexer),
+            "module": ModuleParser()
         }
 
     def parse(self, text):
         soup = BeautifulSoup(text, "html.parser")
         document = []
-        for tag in soup.find_all():
+        for tag in soup.children:
             parser = self.element_processors.get(tag.name, None)
             if parser:
                 element = parser.parse(tag)

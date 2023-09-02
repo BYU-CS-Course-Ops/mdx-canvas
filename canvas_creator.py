@@ -1,14 +1,17 @@
 import json
 import os
+import re
 import textwrap
 
 import uuid
 import argparse
+from typing import List, Any
 
 from canvasapi import Canvas
 
 from canvasapi.quiz import Quiz
 from canvasapi.course import Course
+from canvasapi.module import Module
 
 import markdown as md
 from pathlib import Path
@@ -101,13 +104,14 @@ def process_markdown(markdown_or_file: str, course: Course, image_folder, files_
 
 def get_group_index(course: Course, group: str):
     groups = course.get_assignment_groups()
-    group_index = 0
-    if group:
-        if not any(g.name == group for g in groups):
-            print("Created Assignment Group: " + group)
-            course.create_assignment_group(name=group)
-        groups = course.get_assignment_groups()
-        group_index = [g.name for g in groups].index(group)
+    if not group:
+        return None
+
+    if not any(g.name == group for g in groups):
+        print("Created Assignment Group: " + group)
+        course.create_assignment_group(name=group)
+    groups = course.get_assignment_groups()
+    group_index = [g.name for g in groups].index(group)
     return group_index
 
 
@@ -118,6 +122,13 @@ def replace_questions(quiz: Quiz, questions: list[dict]):
         quiz.create_question(question=question)
 
 
+def get_student_ids_by_section(course: Course, section: str):
+    sections = course.get_sections()
+    section_id = [s.id for s in sections if s.name == section][0]
+    students = course.get_section(section_id).get_users(enrollment_type="student")
+    return [s.id for s in students]
+
+
 def get_quiz(course: Course, title: str):
     quizzes = course.get_quizzes()
     for quiz in quizzes:
@@ -126,25 +137,68 @@ def get_quiz(course: Course, title: str):
     return None
 
 
-def create_or_edit_quiz(course, quiz):
-    quiz_name = quiz["settings"]["title"]
-    if canvas_quiz := get_quiz(course, quiz_name):
-        print(f"Editing quiz {quiz_name} ...")
-        canvas_quiz.edit(quiz=quiz["settings"])
+def get_assignment(course: Course, assignment_name):
+    assignments = course.get_assignments()
+    for assignment in assignments:
+        if assignment.name == assignment_name:
+            return assignment
+    return None
+
+
+def get_module(course: Course, module_name: str):
+    modules = course.get_modules()
+    for module in modules:
+        if module.name == module_name:
+            return module
+    return None
+
+
+def get_module_item(module:Module, item_name):
+    module_items = list(module.get_module_items())
+    for item in module_items:
+        if item.title == item_name:
+            return item
+    return None
+
+
+def get_object_id_from_element(course: Course, item):
+    if item["type"] == "Quiz":
+        quiz = get_quiz(course, item["title"])
+        if not quiz:
+            return None
+        return quiz.id
+    elif item["type"] == "Assignment":
+        assignment = get_assignment(course, item["title"])
+        if not assignment:
+            return None
+        return assignment.id
+
+
+def create_or_edit_assignment(course, element):
+    name = element["name"]
+    if canvas_assignment := get_assignment(course, name):
+        print(f"Editing assignment {name} ...")
+        canvas_assignment.edit(assignment=element["settings"])
     else:
-        print(f"Creating quiz {quiz_name} ...")
-        canvas_quiz = course.create_quiz(quiz=quiz["settings"])
-    replace_questions(canvas_quiz, quiz["questions"])
+        print(f"Creating assignment {name} ...")
+        course.create_assignment(assignment=element["settings"])
+    return canvas_assignment
 
 
-def save_quiz_to_json(quiz, json_folder):
-    json_string = json.dumps(quiz, indent=4)
-    with open(json_folder / f"{quiz['settings']['title']}.json", "w") as f:
-        f.write(json_string)
+def create_or_edit_quiz(course, element):
+    name = element["name"]
+    if canvas_quiz := get_quiz(course, name):
+        print(f"Editing quiz {name} ...")
+        canvas_quiz.edit(quiz=element["settings"])
+    else:
+        print(f"Creating quiz {name} ...")
+        canvas_quiz = course.create_quiz(quiz=element["settings"])
+    replace_questions(canvas_quiz, element["questions"])
+    return canvas_quiz
 
 
 def upload_and_link_files(document_object, course, resources: list[tuple]):
-    create_resource_folder(course, document_object["settings"]["title"])
+    create_resource_folder(course, document_object["name"])
     text = json.dumps(document_object, indent=4)
     for fake_id, full_path in resources:
         resource_id = str(course.upload(full_path)[1]["id"])
@@ -152,15 +206,118 @@ def upload_and_link_files(document_object, course, resources: list[tuple]):
     return json.loads(text)
 
 
-def create_elements_from_template(element_template, all_replacements):
+def replace_and_repeat(text, match, dictionary):
+    # A match looks like {{ Some text after Placeholder1 and before Placeholder2}}
+    # A match can be repeated if the replacement is a comma-separated list
+    # A repeated match can have several included replacements
+    replacements_for_this_match = []
+    for placeholder, replacement in dictionary.items():
+        if placeholder in match:
+            repeats = replacement.split(",")
+            # reps looks like [(Placeholder1, option1), (Placeholder1, option2)]
+            reps = [(placeholder, repeat) for repeat in repeats]
+            replacements_for_this_match.append(reps)
+
+    if not replacements_for_this_match:
+        return text
+
+    transposed_to_options = list(zip(*replacements_for_this_match))
+
+    # Linked options replace Placeholder1 and Placeholder2 with something like Homework 1a and  https://byu.instructure.com/courses/20736/quizzes/123456
+    repeated = ""
+    for options in transposed_to_options:
+        match_copy = match
+        for placeholder, option in options:
+            match_copy = match_copy.replace(placeholder, option)
+        repeated += match_copy
+
+    return text.replace("{{" + match + "}}", repeated)
+
+
+def create_elements_from_template(element_template):
+    if not (all_replacements := element_template.get("replacements", None)):
+        return [element_template]
+
     template_text = json.dumps(element_template, indent=4)
+    elements = []
     for dictionary in all_replacements:
         text = template_text
-        for placeholder, replacement in dictionary.items():
-            text = text.replace("{" + placeholder + "}", replacement)
-        yield json.loads(text)
+        matches = re.findall("{{[^{]*}}", text)
+        for match in matches:
+            text = replace_and_repeat(text, match[2:-2], dictionary)
+        elements.append(json.loads(text))
+    return elements
+
+
+def delete_module_item_if_exists(module, name):
+    for item in module.get_module_items():
+        if item.title == name:
+            print(f"Deleting module item {name} ...")
+            item.delete()
+
+
+def create_module_item_without_id(module:Module, element):
+    if element["type"] not in ["ExternalUrl", "SubHeader", "Page"]:
+        print(f"Could not find object id for {element['title']}")
+        return
+
+    delete_module_item_if_exists(module, element["title"])
+
+    if element["type"] == "ExternalUrl":
+        module.create_module_item(module_item=element)
+    elif element["type"] == "SubHeader":
+        module.create_module_item(module_item=element)
+    elif element["type"] == "Page":
+        pass
+        # page = module.create_module_item(module_item=element)
+        # id = page.content_id
+        # create_or_update_module_item(module, element, id, element["position"])
+
+
+def create_or_edit_module_item(module: Module, element, object_id, position):
+    element["position"] = position
+    if not object_id:
+        create_module_item_without_id(module, element)
+        return
+    # Create module item if it doesn't exist
+    element["content_id"] = object_id
+    if module_item := get_module_item(module, element["title"]):
+        print(f"Editing module item {element['title']} in module {module.name} ...")
+        module_item.edit(module_item=element)
     else:
-        yield element_template
+        print(f"Creating module item {element['title']} in module {module.name} ...")
+        module.create_module_item(module_item=element)
+
+
+def delete_other_module_items(canvas_module, element):
+    names = []
+    for item in element["items"]:
+        names.append(item["title"])
+    for item in canvas_module.get_module_items():
+        if item.title not in names:
+            print(f"Deleting module item {item.title} ...")
+            item.delete()
+
+
+def create_or_update_module_items(course: Course, element, canvas_module):
+    if "items" not in element:
+        return
+    delete_other_module_items(canvas_module, element)
+    for index, item in enumerate(element["items"]):
+        object_id = get_object_id_from_element(course, item)
+        create_or_edit_module_item(canvas_module, item, object_id, index + 1)
+
+
+def create_or_update_module(course, element):
+    name = element["name"]
+    if canvas_module := get_module(course, name):
+        print(f"Editing module {name} ...")
+        canvas_module.edit(module=element["settings"])
+    else:
+        print(f"Creating module {name} ...")
+        canvas_module = course.create_module(module=element["settings"])
+    create_or_update_module_items(course, element, canvas_module)
+    return canvas_module
 
 
 def create_elements_from_document(course: Course, quiz_markdown: str, path_to_resources: Path):
@@ -175,14 +332,23 @@ def create_elements_from_document(course: Course, quiz_markdown: str, path_to_re
     # Create multiple quizzes or assignments from the document object
     for template in document_object:
         # Create multiple elements from the element template
-        for element in create_elements_from_template(template, template["replacements"]):
-            element = upload_and_link_files(element, course, element["resources"])
-            create_or_edit_quiz(course, element)
+        elements = create_elements_from_template(template)
+        for element in elements:
+            if "resources" in element:
+                element = upload_and_link_files(element, course, element["resources"])
+            if element["type"] == "quiz":
+                create_or_edit_quiz(course, element)
+            elif element["type"] == "assignment":
+                create_or_edit_assignment(course, element)
+            elif element["type"] == "module":
+                create_or_update_module(course, element)
+            else:
+                raise ValueError(f"Unknown type {element['type']}")
 
 
 def main(api_url, api_token, course_id, file_path: Path, path_to_resources: Path):
     # Post all the .md (markdown) files inside the [markdown-quiz-files] folder
-    print("-" * 50 + "\nCanvas Quiz Generator\n" + "-" * 50)
+    print("-" * 50 + "\nCanvas Generator\n" + "-" * 50)
 
     canvas = Canvas(api_url, api_token)
     course: Course = canvas.get_course(course_id)
@@ -192,7 +358,6 @@ def main(api_url, api_token, course_id, file_path: Path, path_to_resources: Path
 
     print(f"Posting to Canvas ({file_path}) ...")
     create_elements_from_document(course, file_path.read_text(), path_to_resources)
-
 
 
 if __name__ == "__main__":
