@@ -361,7 +361,7 @@ class AssignmentParser:
             if tag.name == "settings":
                 settings = self.parse_assignment_settings(tag)
                 assignment["settings"].update(settings)
-            elif tag.name == "placeholder-values":
+            elif tag.name == "template-arguments":
                 assignment["replacements"] = parse_template_data(tag)
             elif tag.name == "description":
                 contents = "".join([str(c) for c in tag.contents])
