@@ -82,7 +82,7 @@
 <assignment title="Homework 4b - Substrings"/>
 <assignment title="Day 17"/>
 <quiz title="Lab 4c Quiz"/>
-<assignment title="Homework 4c - Terminal"/>
+<assignment title="Homework 4c - Program Arguments"/>
 <assignment title="Day 18"/>
 <quiz title="Lab 4d Quiz"/>
 <assignment title="Homework 4d - Reading and Writing Files"/>
@@ -91,7 +91,7 @@
 <assignment title="Homework 4e - Split and Join"/>
 <assignment title="Day 20"/>
 <quiz title="Lab 4f Quiz"/>
-<assignment title="Homework 4f - Random Coiteration"/>
+<assignment title="Homework 4f - Random and Coiteration"/>
 <assignment title="Project 4 - Wordle"/>
 </module>
 
@@ -114,7 +114,7 @@
 <module title="Unit 6: Grids" position="10" published="True">
 <assignment title="Day 25"/>
 <quiz title="Lab 6a Quiz"/>
-<assignment title="Homework 6a - Indexing"/>
+<assignment title="Homework 6a - Mutability"/>
 <assignment title="Day 26"/>
 <quiz title="Lab 6b Quiz"/>
 <assignment title="Homework 6b - Grids"/>

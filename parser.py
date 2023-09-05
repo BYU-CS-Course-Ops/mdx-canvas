@@ -278,7 +278,6 @@ class ModuleParser:
         return item
 
 
-
 class QuizParser:
     question_processors = {
         "multiple-choice": MultipleChoiceProcessor(),
@@ -372,12 +371,20 @@ class AssignmentParser:
         assignment["name"] = assignment["settings"]["name"]
         return assignment
 
+    def get_list(self, string):
+        items = string.strip().split(',')
+        return [l.strip() for l in items if l.strip()]
+
+    def get_dict(self, string):
+        items = string.strip().split(',')
+        return {l.strip().split('=')[0]: l.strip().split('=')[1] for l in items if l.strip()}
+
     def parse_assignment_settings(self, settings_tag):
         settings = {
             "name": settings_tag["name"],
             "position": settings_tag.get("position", None),
-            "submission_types": settings_tag.get("submission_types", ["none"]),
-            "allowed_extensions": settings_tag.get("allowed_extensions", []),
+            "submission_types": self.get_list(settings_tag.get("submission_types", "none")),
+            "allowed_extensions": self.get_list(settings_tag.get("allowed_extensions", "")),
             "turnitin_enabled": settings_tag.get("turnitin_enabled", False),
             "vericite_enabled": settings_tag.get("vericite_enabled", False),
             "turnitin_settings": settings_tag.get("turnitin_settings", None),
@@ -387,7 +394,7 @@ class AssignmentParser:
             "notify_of_update": settings_tag.get("notify_of_update", False),
             "group_category_id": settings_tag.get("group_category", None),
             "grade_group_students_individually": settings_tag.get("grade_group_students_individually", False),
-            "external_tool_tag_attributes": settings_tag.get("external_tool_tag_attributes", None),
+            "external_tool_tag_attributes": self.get_dict(settings_tag.get("external_tool_tag_attributes", "")),
             "points_possible": settings_tag.get("points_possible", None),
             "grading_type": settings_tag.get("grading_type", "points"),
             "due_at": make_iso(settings_tag.get("due_at", None)),

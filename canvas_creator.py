@@ -5,6 +5,7 @@ import textwrap
 
 import uuid
 import argparse
+from datetime import datetime
 
 from canvasapi import Canvas
 from canvasapi.assignment import Assignment
@@ -85,6 +86,7 @@ def create_resource_folder(course, quiz_title: str):
         print(f"Created {quiz_title} folder")
         course.create_folder(name=quiz_title, parent_folder_path=generated_folder_name,
                                                   hidden=True)
+
 
 def get_img_html(image_name, alt_text, course, image_folder: Path):
     """
@@ -216,6 +218,35 @@ def get_object_id_from_element(course: Course, item):
         item["page_url"] = page_url
 
 
+def make_iso(date: datetime | str | None):
+    input_format1 = "%b %d, %Y, %I:%M %p"
+    input_format2 = "%b %d %Y %I:%M %p"
+
+    if date is None:
+        return None
+    if isinstance(date, str):
+        # For templating
+        if date.startswith("{"):
+            return date
+        try:
+            date = datetime.strptime(date, input_format1)
+        except ValueError:
+            try:
+                date = datetime.strptime(date, input_format2)
+            except ValueError:
+                return date
+    return datetime.isoformat(date)
+
+
+def fix_dates(element):
+    if "due_at" in element:
+        element["due_at"] = make_iso(element["due_at"])
+    if "unlock_at" in element:
+        element["unlock_at"] = make_iso(element["unlock_at"])
+    if "lock_at" in element:
+        element["lock_at"] = make_iso(element["lock_at"])
+
+
 def create_or_edit_assignment(course, element):
     name = element["name"]
     if canvas_assignment := get_assignment(course, name):
@@ -263,6 +294,11 @@ def replace_and_repeat(text, match, dictionary):
     if not replacements_for_this_match:
         return text
 
+    # If all replacements are empty, then the match is removed
+    if not any([v for k, v in dictionary.items() if k in match]):
+        text = text.replace("{{" + match + "}}", "")
+        return text
+
     transposed_to_options = list(zip(*replacements_for_this_match))
 
     # Linked options replace Placeholder1 and Placeholder2 with something like Homework 1a and  https://byu.instructure.com/courses/20736/quizzes/123456
@@ -298,29 +334,29 @@ def delete_module_item_if_exists(module, name):
             item.delete()
 
 
-def create_module_item_without_id(module: Module, element):
+def create_or_edit_module_item_without_id(module: Module, element):
     if element["type"] not in ["ExternalUrl", "SubHeader", "Page"]:
         print(f"Could not find object id for {element['title']}")
         return
 
-    delete_module_item_if_exists(module, element["title"])
-
-    if element["type"] == "ExternalUrl":
-        module.create_module_item(module_item=element)
-    elif element["type"] == "SubHeader":
-        module.create_module_item(module_item=element)
-    elif element["type"] == "Page":
-        if not element["page_url"]:
-            print(f"Could not find page url for {element['title']}")
+    for item in module.get_module_items():
+        if item.title == element["title"]:
+            print(f"Editing module item {element['title']} in module {module.name} ...")
+            item.edit(module_item=element)
             return
-        module.create_module_item(module_item=element)
+
+    if element["type"] == "Page" and not element["page_url"]:
+        print(f"Could not find page url for {element['title']}")
+        return
+
+    print(f"Creating module item {element['title']} in module {module.name} ...")
+    module.create_module_item(module_item=element)
 
 
 def create_or_edit_module_item(module: Module, element, object_id, position):
     element["position"] = position
-    element["published"] = True
     if not object_id:
-        create_module_item_without_id(module, element)
+        create_or_edit_module_item_without_id(module, element)
         return
     # Create module item if it doesn't exist
     element["content_id"] = object_id
@@ -435,6 +471,8 @@ def create_elements_from_document(course: Course, quiz_markdown: str, path_to_re
         for element in elements:
             if "resources" in element:
                 element = upload_and_link_files(element, course, element["resources"])
+            if "settings" in element:
+                fix_dates(element["settings"])
             if element["type"] == "quiz":
                 create_or_edit_quiz(course, element)
             elif element["type"] == "assignment":
