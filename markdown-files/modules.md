@@ -37,13 +37,13 @@
 <assignment title="Homework 2a - If and Else"/>
 <assignment title="Day 6"/>
 <quiz title="Lab 2b Quiz"/>
-<assignment title="Homework 2b - Return, and, or"/>
+<assignment title="Homework 2b - Conditions"/>
 <assignment title="Day 7"/>
 <quiz title="Lab 2c Quiz"/>
 <assignment title="Homework 2c - Decomposition"/>
 <assignment title="Day 8"/>
 <quiz title="Lab 2d Quiz"/>
-<assignment title="Homework 2d - Variables, multiple-parameter functions"/>
+<assignment title="Homework 2d - Variables"/>
 <assignment title="Project 2 - Decomposition with Bit"/>
 </module>
 

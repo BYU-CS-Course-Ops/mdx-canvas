@@ -7,7 +7,7 @@
 | Homework 1a - Introduction to Bit       | Sep 12 | 2874558       |
 | Homework 1b - Functions                 | Sep 14 |               |
 | Homework 1c - While                     | Sep 19 |               |
-| Homework 2a - If                        | Sep 21 |               |
+| Homework 2a - If and Else               | Sep 21 |               |
 | Homework 2b - Conditions                | Sep 26 |               |
 | Homework 2c - Decomposition             | Sep 28 |               |
 | Homework 2d - Variables                 | Oct 03 |               |
