@@ -1,3 +1,6 @@
+import json
+import re
+
 import pandas as pandas
 from typing import Callable, Union
 
@@ -30,7 +33,7 @@ def make_iso(date: datetime | str | None):
         return None
     if isinstance(date, str):
         # For templating
-        if date.startswith("{"):
+        if date.startswith("{") or "due" in date.lower() or "lock" in date.lower():
             return date
         date = datetime.strptime(date, input_format)
     return datetime.isoformat(date)
@@ -227,10 +230,20 @@ class OverrideParser:
                 override["sections"].append(tag.contents[0])
             elif tag.name == "student":
                 override["students"].append(tag.contents[0])
-            elif tag.name == "assignments":
-                lines = tag.contents[0].strip().split('\n')
-                override["assignments"] = [l.strip() for l in lines if l.strip()]
+            elif tag.name == "assignment":
+                override["assignments"].append(self.parse_assignment_tag(tag))
+            elif tag.name == "template-arguments":
+                override["replacements"] = parse_template_data(tag)
         return override
+
+    def parse_assignment_tag(self, tag):
+        settings = {
+            "title": tag.get("title", None),
+            "due_at": make_iso(tag.get("due_at", None)),
+            "lock_at": make_iso(tag.get("available_to", None)),
+            "unlock_at": make_iso(tag.get("available_from", None))
+        }
+        return settings
 
 
 class ModuleParser:
@@ -466,9 +479,59 @@ class DocumentParser:
         for tag in soup.children:
             parser = self.element_processors.get(tag.name, None)
             if parser:
-                element = parser.parse(tag)
-                if isinstance(element, list):
-                    document.extend(element)
-                else:
-                    document.append(element)
+                elements = parser.parse(tag)
+                if not isinstance(elements, list):
+                    elements = [elements]
+                for element in elements:
+                    new_elements = self.create_elements_from_template(element)
+                    document.extend(new_elements)
         return document
+
+    def replace_and_repeat(self, text, match, dictionary):
+        # A match looks like {{ Some text after Placeholder1 and before Placeholder2}}
+        # A match can be repeated if the replacement is a comma-separated list
+        # A repeated match can have several included replacements
+        replacements_for_this_match = []
+        for placeholder, replacement in dictionary.items():
+            if placeholder in match:
+                repeats = replacement.split(",")
+                # reps looks like [(Placeholder1, option1), (Placeholder1, option2)]
+                reps = [(placeholder, repeat) for repeat in repeats]
+                replacements_for_this_match.append(reps)
+
+        if not replacements_for_this_match:
+            return text
+
+        # If all replacements are empty, then the match is removed
+        if not any([v for k, v in dictionary.items() if k in match]):
+            text = text.replace("{{" + match + "}}", "")
+            return text
+
+        transposed_to_options = list(zip(*replacements_for_this_match))
+
+        # Linked options replace Placeholder1 and Placeholder2 with something like Homework 1a and  https://byu.instructure.com/courses/20736/quizzes/123456
+        repeated = ""
+        for options in transposed_to_options:
+            match_copy = match
+            for placeholder, option in options:
+                match_copy = match_copy.replace(placeholder, option)
+            repeated += match_copy
+
+        return text.replace("{{" + match + "}}", repeated)
+
+    def create_elements_from_template(self, element_template):
+        if not (all_replacements := element_template.get("replacements", None)):
+            return [element_template]
+
+        template_text = json.dumps(element_template, indent=4)
+        elements = []
+        for dictionary in all_replacements:
+            text = template_text
+            matches = re.findall("{{[^{]*}}", text)
+            for match in matches:
+                text = self.replace_and_repeat(text, match[2:-2], dictionary)
+            elements.append(json.loads(text))
+
+        for element in elements:
+            del element["replacements"]
+        return elements

@@ -178,6 +178,14 @@ def get_assignment(course: Course, assignment_name):
     return None
 
 
+def get_override(assignment: Assignment, override_name):
+    overrides = assignment.get_overrides()
+    for override in overrides:
+        if override.title == override_name:
+            return override
+    return None
+
+
 def get_page(course: Course, name):
     pages = course.get_pages()
     for page in pages:
@@ -279,54 +287,6 @@ def upload_and_link_files(document_object, course, resources: list[tuple]):
     return json.loads(text)
 
 
-def replace_and_repeat(text, match, dictionary):
-    # A match looks like {{ Some text after Placeholder1 and before Placeholder2}}
-    # A match can be repeated if the replacement is a comma-separated list
-    # A repeated match can have several included replacements
-    replacements_for_this_match = []
-    for placeholder, replacement in dictionary.items():
-        if placeholder in match:
-            repeats = replacement.split(",")
-            # reps looks like [(Placeholder1, option1), (Placeholder1, option2)]
-            reps = [(placeholder, repeat) for repeat in repeats]
-            replacements_for_this_match.append(reps)
-
-    if not replacements_for_this_match:
-        return text
-
-    # If all replacements are empty, then the match is removed
-    if not any([v for k, v in dictionary.items() if k in match]):
-        text = text.replace("{{" + match + "}}", "")
-        return text
-
-    transposed_to_options = list(zip(*replacements_for_this_match))
-
-    # Linked options replace Placeholder1 and Placeholder2 with something like Homework 1a and  https://byu.instructure.com/courses/20736/quizzes/123456
-    repeated = ""
-    for options in transposed_to_options:
-        match_copy = match
-        for placeholder, option in options:
-            match_copy = match_copy.replace(placeholder, option)
-        repeated += match_copy
-
-    return text.replace("{{" + match + "}}", repeated)
-
-
-def create_elements_from_template(element_template):
-    if not (all_replacements := element_template.get("replacements", None)):
-        return [element_template]
-
-    template_text = json.dumps(element_template, indent=4)
-    elements = []
-    for dictionary in all_replacements:
-        text = template_text
-        matches = re.findall("{{[^{]*}}", text)
-        for match in matches:
-            text = replace_and_repeat(text, match[2:-2], dictionary)
-        elements.append(json.loads(text))
-    return elements
-
-
 def delete_module_item_if_exists(module, name):
     for item in module.get_module_items():
         if item.title == name:
@@ -399,23 +359,40 @@ def create_or_update_module(course, element):
     return canvas_module
 
 
-def get_assignments(course, names):
+def get_assignment_override_pair(course, overrides):
     assignments = course.get_assignments()
-    return [a for a in assignments if a.name in names]
+    names = [o["title"] for o in overrides]
+    pairs = []
+    for assignment in assignments:
+        if assignment.name in names:
+            pairs.append((assignment, overrides[names.index(assignment.name)]))
+    return pairs
+
+
+def create_or_update_override_for_assignment(assignment, override, students, sections):
+    override["student_ids"] = students
+    override["section_ids"] = sections
+    override_id = get_override(assignment, override["title"])
+    if canvas_override := assignment.get_override(override_id):
+        print(f"Editing override {override['title']} ...")
+        canvas_override.edit(assignment_override=override)
+    else:
+        print(f"Creating override {override['title']} ...")
+        assignment.create_override(assignment_override=override)
 
 
 def create_or_update_override(course, element):
     students = element["students"]
     sections = element["sections"]
-    assignments = get_assignments(course, element["assignments"])
-    if not assignments:
-        raise ValueError(f"Could not find assignment {element['assignments']}")
+
+    assignment_override_pairs = get_assignment_override_pair(course, element["assignments"])
+    if not assignment_override_pairs:
+        raise ValueError(f"Could not find any of {element['assignments']} in canvas")
     if not students and not sections:
         raise ValueError("Must provide either students or sections")
-    if students:
-        create_student_overrides(course, students)
-    if sections:
-        create_section_overrides(course, sections, assignments)
+
+    for assignment, override in assignment_override_pairs:
+        create_or_update_override_for_assignment(assignment, override, students, sections)
 
 
 def create_student_overrides(course, students):
@@ -426,22 +403,10 @@ def create_student_overrides(course, students):
 
 def get_section_ids(course, names):
     sections = course.get_sections()
-    return [s.id for s in sections if s.name in names]
-
-
-def create_section_overrides(course: Course, sections, assignments):
-    section_ids = get_section_ids(course, sections)
-    if not section_ids:
+    sections = [s.id for s in sections if s.name in names]
+    if not sections:
         raise ValueError(f"Could not find sections {sections}")
-    for section_id in section_ids:
-        print(f"Creating overrides for section {section_id} ...")
-        for assignment in assignments:
-            print(f"Creating override for assignment {assignment.name} ...")
-            try:
-                assignment.create_override(assignment_override={"course_section_id": section_id})
-            except:
-                print("Override already exists")
-            assignment.edit(assignment={"only_visible_to_overrides": True})
+    return sections
 
 
 def create_or_edit_page(course: Course, element):
@@ -465,26 +430,23 @@ def create_elements_from_document(course: Course, quiz_markdown: str, path_to_re
     document_object = parser.parse(quiz_markdown)
 
     # Create multiple quizzes or assignments from the document object
-    for template in document_object:
-        # Create multiple elements from the element template
-        elements = create_elements_from_template(template)
-        for element in elements:
-            if "resources" in element:
-                element = upload_and_link_files(element, course, element["resources"])
-            if "settings" in element:
-                fix_dates(element["settings"])
-            if element["type"] == "quiz":
-                create_or_edit_quiz(course, element)
-            elif element["type"] == "assignment":
-                create_or_edit_assignment(course, element)
-            elif element["type"] == "page":
-                create_or_edit_page(course, element)
-            elif element["type"] == "module":
-                create_or_update_module(course, element)
-            elif element["type"] == "override":
-                create_or_update_override(course, element)
-            else:
-                raise ValueError(f"Unknown type {element['type']}")
+    for element in document_object:
+        if "resources" in element:
+            element = upload_and_link_files(element, course, element["resources"])
+        if "settings" in element:
+            fix_dates(element["settings"])
+        if element["type"] == "quiz":
+            create_or_edit_quiz(course, element)
+        elif element["type"] == "assignment":
+            create_or_edit_assignment(course, element)
+        elif element["type"] == "page":
+            create_or_edit_page(course, element)
+        elif element["type"] == "module":
+            create_or_update_module(course, element)
+        elif element["type"] == "override":
+            create_or_update_override(course, element)
+        else:
+            raise ValueError(f"Unknown type {element['type']}")
 
 
 def main(api_url, api_token, course_id, file_path: Path, path_to_resources: Path):
