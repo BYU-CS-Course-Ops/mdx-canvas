@@ -71,5 +71,5 @@
 
 </template-arguments>
 <section>How to Program (TESTING)</section>
-<assignment title="{{Day Name}}" due_at="{{Due At}}, 2023"></assignment>
+<assignment title="{{Day Name}}" due_at="{{Due At}}, 2023, 11:59 PM"></assignment>
 </override>

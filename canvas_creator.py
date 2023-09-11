@@ -227,6 +227,7 @@ def get_object_id_from_element(course: Course, item):
 
 
 def make_iso(date: datetime | str | None):
+    # Example: Sep 5, 2023, 12:00 AM
     input_format1 = "%b %d, %Y, %I:%M %p"
     input_format2 = "%b %d %Y %I:%M %p"
 
@@ -369,21 +370,33 @@ def get_assignment_override_pair(course, overrides):
     return pairs
 
 
-def create_or_update_override_for_assignment(assignment, override, students, sections):
-    override["student_ids"] = students
-    override["section_ids"] = sections
-    override_id = get_override(assignment, override["title"])
-    if canvas_override := assignment.get_override(override_id):
-        print(f"Editing override {override['title']} ...")
-        canvas_override.edit(assignment_override=override)
-    else:
-        print(f"Creating override {override['title']} ...")
-        assignment.create_override(assignment_override=override)
+def create_or_update_override_for_assignment(assignment, override, students, sections, section_ids):
+    overrides = []
+    if students:
+        student_override = override.copy()
+        student_override["student_ids"] = students
+        student_override["title"] = "".join(students)
+        overrides.append(student_override)
+
+    for section, id in zip(sections, section_ids):
+        specific_override = override.copy()
+        specific_override["title"] = section
+        specific_override["course_section_id"] = id
+        overrides.append(specific_override)
+
+    for override in overrides:
+        if canvas_override := get_override(assignment, override["title"]):
+            print(f"Editing override {override['title']} ...")
+            canvas_override.edit(assignment_override=override)
+        else:
+            print(f"Creating override {override['title']} ...")
+            assignment.create_override(assignment_override=override)
 
 
 def create_or_update_override(course, element):
     students = element["students"]
     sections = element["sections"]
+    section_ids = get_section_ids(course, sections)
 
     assignment_override_pairs = get_assignment_override_pair(course, element["assignments"])
     if not assignment_override_pairs:
@@ -392,7 +405,8 @@ def create_or_update_override(course, element):
         raise ValueError("Must provide either students or sections")
 
     for assignment, override in assignment_override_pairs:
-        create_or_update_override_for_assignment(assignment, override, students, sections)
+        fix_dates(override)
+        create_or_update_override_for_assignment(assignment, override, students, sections, section_ids)
 
 
 def create_student_overrides(course, students):
