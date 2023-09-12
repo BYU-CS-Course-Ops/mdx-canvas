@@ -1,7 +1,6 @@
 import json
 import re
 
-import pandas as pandas
 from typing import Callable, Union
 
 from bs4 import BeautifulSoup
@@ -85,6 +84,22 @@ def parse_template_data(template_tag):
         line = [l.strip() for l in line][1:-1]
         data.append(dict(zip(headers, line)))
     return data
+
+
+question_types = [
+    'calculated_question',
+    'essay_question',
+    'file_upload_question',
+    'fill_in_multiple_blanks_question',
+    'matching_question',
+    'multiple_answers_question',
+    'multiple_choice_question',
+    'multiple_dropdowns_question',
+    'numerical_question',
+    'short_answer_question',
+    'text_only_question',
+    'true_false_question'
+]
 
 
 class TFConverter:
