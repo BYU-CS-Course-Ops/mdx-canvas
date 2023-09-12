@@ -1,11 +1,10 @@
 import json
 import os
-import re
 import textwrap
 
 import uuid
 import argparse
-from datetime import datetime
+
 
 from canvasapi import Canvas
 from canvasapi.assignment import Assignment
@@ -18,7 +17,7 @@ import markdown as md
 from pathlib import Path
 from bs4 import BeautifulSoup
 
-from parser import DocumentParser
+from parser import DocumentParser, make_iso
 
 question_types = [
     'calculated_question',
@@ -226,27 +225,6 @@ def get_object_id_from_element(course: Course, item):
         item["page_url"] = page_url
 
 
-def make_iso(date: datetime | str | None):
-    # Example: Sep 5, 2023, 12:00 AM
-    input_format1 = "%b %d, %Y, %I:%M %p"
-    input_format2 = "%b %d %Y %I:%M %p"
-
-    if date is None:
-        return None
-    if isinstance(date, str):
-        # For templating
-        if date.startswith("{"):
-            return date
-        try:
-            date = datetime.strptime(date, input_format1)
-        except ValueError:
-            try:
-                date = datetime.strptime(date, input_format2)
-            except ValueError:
-                return date
-    return datetime.isoformat(date)
-
-
 def fix_dates(element):
     if "due_at" in element:
         element["due_at"] = make_iso(element["due_at"])
@@ -379,10 +357,10 @@ def create_or_update_override_for_assignment(assignment, override, students, sec
         overrides.append(student_override)
 
     for section, id in zip(sections, section_ids):
-        specific_override = override.copy()
-        specific_override["title"] = section
-        specific_override["course_section_id"] = id
-        overrides.append(specific_override)
+        section_override = override.copy()
+        section_override["title"] = section
+        section_override["course_section_id"] = id
+        overrides.append(section_override)
 
     for override in overrides:
         if canvas_override := get_override(assignment, override["title"]):

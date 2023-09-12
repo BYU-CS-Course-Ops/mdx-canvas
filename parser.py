@@ -27,16 +27,30 @@ def get_answers(question_tag):
 
 
 def make_iso(date: datetime | str | None):
-    input_format = "%b %d, %Y, %I:%M %p"
+    # Example: Sep 5, 2023, 12:00 AM
+    input_formats = [
+        "%b %d, %Y, %I:%M %p %z",
+        "%b %d %Y %I:%M %p %z",
+    ]
+    mountain = " -0600"
 
     if date is None:
         return None
+    if isinstance(date, datetime):
+        return datetime.isoformat(date)
     if isinstance(date, str):
         # For templating
         if date.startswith("{") or "due" in date.lower() or "lock" in date.lower():
             return date
-        date = datetime.strptime(date, input_format)
-    return datetime.isoformat(date)
+        for input_format in input_formats:
+            try:
+                date = datetime.strptime(date + mountain, input_format)
+                return datetime.isoformat(date)
+            except ValueError:
+                continue
+
+    else:
+        raise Exception("Date must be a datetime object or a string")
 
 
 def parse_template_data(template_tag):
