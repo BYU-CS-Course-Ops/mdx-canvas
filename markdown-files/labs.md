@@ -31,7 +31,7 @@
 
 </template-arguments>
 
-<settings title="{{Title}}" due_at="{{Due}}, 2023, 8:00 AM " available_from="Sep 5, 2023, 12:00 AM" available_to="Dec 18, 2023, 11:59 PM" points_possible="10" assignment_group="Labs" shuffle_answers="False" allowed_attempts="-1">
+<settings title="{{Title}}" {{due_at="Due, 2023, 8:00 AM"}} available_from="Sep 5, 2023, 12:00 AM" available_to="Dec 18, 2023, 11:59 PM" points_possible="10" assignment_group="Labs" shuffle_answers="False" allowed_attempts="-1">
 </settings>
 
 <question type="true-false" points="10">
