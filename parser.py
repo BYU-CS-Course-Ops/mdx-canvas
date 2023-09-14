@@ -25,13 +25,25 @@ def get_answers(question_tag):
     return corrects + incorrects
 
 
-def make_iso(date: datetime | str | None):
-    # Example: Sep 5, 2023, 12:00 AM
+def string_is_date(date: str):
+    # For templating. The string might not be a date yet.
+    # Once the template arguments are filled in, we will apply make_iso.
+    if date.startswith("{") or "due" in date.lower() or "lock" in date.lower():
+        return False
+    has_digit = False
+    for d in range(10):
+        if f"{d}" in date:
+            has_digit = True
+    return has_digit
+
+
+def make_iso(date: datetime | str | None, time_zone: str):
+    # Example date: Sep 5, 2023, 12:00 AM
+    # Example time_zone: ' -0600'   (mountain time)
     input_formats = [
         "%b %d, %Y, %I:%M %p %z",
         "%b %d %Y %I:%M %p %z",
     ]
-    mountain = " -0600"
 
     if date is None:
         return None
@@ -39,11 +51,11 @@ def make_iso(date: datetime | str | None):
         return datetime.isoformat(date)
     if isinstance(date, str):
         # For templating
-        if date.startswith("{") or "due" in date.lower() or "lock" in date.lower():
+        if not string_is_date(date):
             return date
         for input_format in input_formats:
             try:
-                date = datetime.strptime(date + mountain, input_format)
+                date = datetime.strptime(date + time_zone, input_format)
                 return datetime.isoformat(date)
             except ValueError:
                 continue
@@ -55,6 +67,7 @@ def make_iso(date: datetime | str | None):
 def parse_template_data(template_tag):
     """
     Parses a template tag into a list of dictionaries
+    Each dictionary will become a canvas object
     Converts the following:
     | header1 | header2    |
     |---------|------------|
@@ -243,8 +256,8 @@ class TextQuestionProcessor:
 
 
 class OverrideParser:
-    def __init__(self):
-        pass
+    def __init__(self, date_formatter):
+        self.date_formatter = date_formatter
 
     def parse(self, override_tag: Tag):
         override = {
@@ -268,9 +281,9 @@ class OverrideParser:
     def parse_assignment_tag(self, tag):
         settings = {
             "title": tag.get("title", None),
-            "due_at": make_iso(tag.get("due_at", None)),
-            "lock_at": make_iso(tag.get("available_to", None)),
-            "unlock_at": make_iso(tag.get("available_from", None))
+            "due_at": self.date_formatter(tag.get("due_at", None)),
+            "lock_at": self.date_formatter(tag.get("available_to", None)),
+            "unlock_at": self.date_formatter(tag.get("available_from", None))
         }
         return settings
 
@@ -330,9 +343,10 @@ class QuizParser:
         "text": TextQuestionProcessor()
     }
 
-    def __init__(self, markdown_processor: Callable[[str], tuple[str, list]], group_indexer):
+    def __init__(self, markdown_processor: Callable[[str], tuple[str, list]], group_indexer, date_formatter):
         self.markdown_processor = markdown_processor
         self.group_indexer = group_indexer
+        self.date_formatter = date_formatter
 
     def parse(self, quiz_tag: Tag):
         quiz = {
@@ -366,15 +380,15 @@ class QuizParser:
             "shuffle_answers": settings_tag.get("shuffle_answers", False),
             "hide_results": None,
             "show_correct_answers": True,
-            "show_correct_answers_at": make_iso(settings_tag.get("show_correct_answers_at", None)),
+            "show_correct_answers_at": self.date_formatter(settings_tag.get("show_correct_answers_at", None)),
             "allowed_attempts": settings_tag.get("allowed_attempts", 1),
             "scoring_policy": settings_tag.get("scoring_policy", "keep_highest"),
             "one_question_at_a_time": settings_tag.get("one_question_at_a_time", False),
             "cant_go_back": settings_tag.get("cant_go_back", False),
             "access_code": settings_tag.get("access_code", None),
-            "due_at": make_iso(settings_tag.get("due_at", None)),
-            "lock_at": make_iso(settings_tag.get("available_to", None)),
-            "unlock_at": make_iso(settings_tag.get("available_from", None)),
+            "due_at": self.date_formatter(settings_tag.get("due_at", None)),
+            "lock_at": self.date_formatter(settings_tag.get("available_to", None)),
+            "unlock_at": self.date_formatter(settings_tag.get("available_from", None)),
             "published": settings_tag.get("published", True),
             "one_time_results": settings_tag.get("one_time_results", False),
         }
@@ -386,9 +400,10 @@ class QuizParser:
 
 
 class AssignmentParser:
-    def __init__(self, markdown_processor: Callable[[str], tuple[str, list]], group_indexer):
+    def __init__(self, markdown_processor: Callable[[str], tuple[str, list]], group_indexer, date_formatter):
         self.markdown_processor = markdown_processor
         self.group_indexer = group_indexer
+        self.date_formatter = date_formatter
 
     def parse(self, assignment_tag):
         assignment = {
@@ -439,9 +454,9 @@ class AssignmentParser:
             "external_tool_tag_attributes": self.get_dict(settings_tag.get("external_tool_tag_attributes", "")),
             "points_possible": settings_tag.get("points_possible", None),
             "grading_type": settings_tag.get("grading_type", "points"),
-            "due_at": make_iso(settings_tag.get("due_at", None)),
-            "lock_at": make_iso(settings_tag.get("available_to", None)),
-            "unlock_at": make_iso(settings_tag.get("available_from", None)),
+            "due_at": self.date_formatter(settings_tag.get("due_at", None)),
+            "lock_at": self.date_formatter(settings_tag.get("available_to", None)),
+            "unlock_at": self.date_formatter(settings_tag.get("available_from", None)),
             "assignment_group_id": self.group_indexer(settings_tag.get("assignment_group", None)),
             "assignment_overrides": settings_tag.get("assignment_overrides", None),
             "only_visible_to_overrides": settings_tag.get("only_visible_to_overrides", False),
@@ -464,8 +479,9 @@ class AssignmentParser:
 
 
 class PageParser:
-    def __init__(self, markdown_processor: Callable[[str], tuple[str, list]]):
+    def __init__(self, markdown_processor: Callable[[str], tuple[str, list]], date_formatter):
         self.markdown_processor = markdown_processor
+        self.date_formatter = date_formatter
 
     def parse(self, page_tag):
         page = {
@@ -478,7 +494,7 @@ class PageParser:
                 "notify_of_update": page_tag.get("notify_of_update", False),
                 "published": page_tag.get("published", True),
                 "front_page": page_tag.get("front_page", False),
-                "publish_at": make_iso(page_tag.get("publish_at", None)),
+                "publish_at": self.date_formatter(page_tag.get("publish_at", None)),
             },
             "resources": []
         }
@@ -490,16 +506,18 @@ class PageParser:
 
 
 class DocumentParser:
-    def __init__(self, path_to_resources, markdown_processor: Callable[[str], tuple[str, list]],
+    def __init__(self, path_to_resources, markdown_processor: Callable[[str], tuple[str, list]], time_zone: str,
                  group_indexer=lambda x: 0):
         self.path_to_resources = path_to_resources
         self.markdown_processor = markdown_processor
+        self.date_formatter = lambda x: make_iso(x, time_zone)
+
         self.element_processors = {
-            "quiz": QuizParser(self.markdown_processor, group_indexer),
-            "assignment": AssignmentParser(self.markdown_processor, group_indexer),
-            "page": PageParser(self.markdown_processor),
+            "quiz": QuizParser(self.markdown_processor, group_indexer, self.date_formatter),
+            "assignment": AssignmentParser(self.markdown_processor, group_indexer, self.date_formatter),
+            "page": PageParser(self.markdown_processor, self.date_formatter),
             "module": ModuleParser(),
-            "override": OverrideParser()
+            "override": OverrideParser(self.date_formatter)
         }
 
     def parse(self, text):
@@ -538,7 +556,7 @@ class DocumentParser:
 
         transposed_to_options = list(zip(*replacements_for_this_match))
 
-        # Linked options replace Placeholder1 and Placeholder2 with something like Homework 1a and  https://byu.instructure.com/courses/20736/quizzes/123456
+        # Options replace Placeholder1 and Placeholder2 with something similar to Homework 1a and  https://byu.instructure.com/courses/20736/quizzes/123456
         repeated = ""
         for options in transposed_to_options:
             match_copy = match
@@ -561,6 +579,7 @@ class DocumentParser:
                 text = self.replace_and_repeat(text, match[2:-2], dictionary)
             elements.append(json.loads(text))
 
+        # Replacements become unnecessary after creating the elements
         for element in elements:
             del element["replacements"]
         return elements

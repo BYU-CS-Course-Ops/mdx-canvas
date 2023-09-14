@@ -31,7 +31,7 @@
 | Homework 6b - Grids                     | Dec 16 |               |
 
 </template-arguments>
-<settings name="{{Title}}" {{due_at="Due At, 2023, 8:00 AM"}} available_from="Sep 5, 2023, 12:00 AM" available_to="Dec 18, 2023, 11:59 PM" points_possible="30" assignment_group="Homework" shuffle_answers="False" allowed_attempts="-1" submission_types="external_tool", {{external_tool_tag_attributes="url=https://www.gradescope.com/courses/537405/assignments/Gradescope ID}}">
+<settings name="{{Title}}" {{due_at="Due At, 2023, 8:00 AM" }} available_from="Sep 5, 2023, 12:00 AM" available_to="Dec 18, 2023, 11:59 PM" points_possible="30" assignment_group="Homework" shuffle_answers="False" allowed_attempts="-1" submission_types="external_tool", {{external_tool_tag_attributes="url=https://www.gradescope.com/courses/537405/assignments/Gradescope ID}}">
 </settings>
 
 </assignment>

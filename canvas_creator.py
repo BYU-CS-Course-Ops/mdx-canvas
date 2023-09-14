@@ -397,11 +397,12 @@ def create_or_edit_page(course: Course, element):
     return canvas_page
 
 
-def create_elements_from_document(course: Course, quiz_markdown: str, path_to_resources: Path):
+def create_elements_from_document(course: Course, time_zone: str, quiz_markdown: str, path_to_resources: Path):
     # Provide processing functions, so that the parser needs no access to a canvas course
     parser = DocumentParser(
         path_to_resources=path_to_resources,
         markdown_processor=lambda text: process_markdown(text, course, path_to_resources),
+        time_zone=time_zone,
         group_indexer=lambda group_name: get_group_index(course, group_name)
     )
     document_object = parser.parse(quiz_markdown)
@@ -426,8 +427,7 @@ def create_elements_from_document(course: Course, quiz_markdown: str, path_to_re
             raise ValueError(f"Unknown type {element['type']}")
 
 
-def main(api_url, api_token, course_id, file_path: Path, path_to_resources: Path):
-    # Post all the .md (markdown) files inside the [markdown-quiz-files] folder
+def main(api_url, api_token, course_id, time_zone: str, file_path: Path, path_to_resources: Path):
     print("-" * 50 + "\nCanvas Generator\n" + "-" * 50)
 
     canvas = Canvas(api_url, api_token)
@@ -437,7 +437,7 @@ def main(api_url, api_token, course_id, file_path: Path, path_to_resources: Path
         raise ValueError("File must be a markdown file")
 
     print(f"Posting to Canvas ({file_path}) ...")
-    create_elements_from_document(course, file_path.read_text(), path_to_resources)
+    create_elements_from_document(course, time_zone, file_path.read_text(), path_to_resources)
 
 
 if __name__ == "__main__":
@@ -451,6 +451,7 @@ if __name__ == "__main__":
     api_token = os.getenv("CANVAS_API_TOKEN")
     api_url: str = "https://byu.instructure.com/"
     course_id: int = 20736
+    time_zone: str = " -0600"  # Mountain Time
 
-    main(api_url, api_token, course_id, args.file_path, args.resources)
+    main(api_url, api_token, course_id, time_zone, args.file_path, args.resources)
 
