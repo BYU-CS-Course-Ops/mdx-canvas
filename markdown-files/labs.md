@@ -41,3 +41,16 @@ I completed the lab activities.
 </question>
 
 </quiz>
+
+Templating engine:
+Jinja 
+Edit course home header
+maybe homepage.xml
+homework.canvas.md
+module.canvas.xml
+Change midterm multiple choice to be like final
+
+^^ can work for 
+Secrets and github actions
+add as a ta, token, signature
+just deploys content to canvs

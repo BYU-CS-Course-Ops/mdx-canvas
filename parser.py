@@ -1,5 +1,6 @@
 import json
 import re
+from pathlib import Path
 
 from typing import Callable, Union
 
@@ -7,6 +8,9 @@ from bs4 import BeautifulSoup
 from datetime import datetime
 from bs4.element import Tag
 from typing import Protocol
+
+from jinja2 import Environment, FileSystemLoader, select_autoescape
+
 
 
 def get_corrects_and_incorrects(question_tag):
@@ -49,7 +53,7 @@ def make_iso(date: datetime | str | None, time_zone: str):
         return None
     if isinstance(date, datetime):
         return datetime.isoformat(date)
-    if isinstance(date, str):
+    elif isinstance(date, str):
         # For templating
         if not string_is_date(date):
             return date
@@ -59,7 +63,7 @@ def make_iso(date: datetime | str | None, time_zone: str):
                 return datetime.isoformat(date)
             except ValueError:
                 continue
-
+        raise Exception("Invalid date format")
     else:
         raise Exception("Date must be a datetime object or a string")
 
@@ -95,7 +99,20 @@ def parse_template_data(template_tag):
         line = line.split('|')
         # Splitting on | leaves empty strings at the beginning and end
         line = [l.strip() for l in line][1:-1]
-        data.append(dict(zip(headers, line)))
+        basic_pairs = dict(zip(headers, line))
+        complex_pairs = {}
+        for key, value in basic_pairs.items():
+            if value.contains(","):
+                # This is a list, like "1,2,3"
+                complex_pairs[key] = value.split(",")
+            if key.contains("."):
+                # This is a complex key, like "settings.title"
+                complex_key = key.split(".")
+                complex_pairs[complex_key[0]] = {
+                    complex_key[1]: value
+                }
+
+        data.append()
     return data
 
 
@@ -506,11 +523,18 @@ class PageParser:
 
 
 class DocumentParser:
-    def __init__(self, path_to_resources, markdown_processor: Callable[[str], tuple[str, list]], time_zone: str,
+    def __init__(self, path_to_resources: Path, path_to_canvas_files: Path, markdown_processor: Callable[[str], tuple[str, list]], time_zone: str,
                  group_indexer=lambda x: 0):
+        self.jinja_env = None
         self.path_to_resources = path_to_resources
+        self.path_to_files = path_to_canvas_files
         self.markdown_processor = markdown_processor
         self.date_formatter = lambda x: make_iso(x, time_zone)
+
+        self.jinja_env = Environment(
+            loader=FileSystemLoader(path_to_canvas_files),
+            autoescape=select_autoescape()
+        )
 
         self.element_processors = {
             "quiz": QuizParser(self.markdown_processor, group_indexer, self.date_formatter),
@@ -549,11 +573,6 @@ class DocumentParser:
         if not replacements_for_this_match:
             return text
 
-        # If all replacements are empty, then the match is removed
-        if not any([v for k, v in dictionary.items() if k in match]):
-            text = text.replace("{{" + match + "}}", "")
-            return text
-
         transposed_to_options = list(zip(*replacements_for_this_match))
 
         # Options replace Placeholder1 and Placeholder2 with something similar to Homework 1a and  https://byu.instructure.com/courses/20736/quizzes/123456
@@ -571,13 +590,11 @@ class DocumentParser:
             return [element_template]
 
         template_text = json.dumps(element_template, indent=4)
+        template = self.jinja_env.from_string(template_text)
+
         elements = []
-        for dictionary in all_replacements:
-            text = template_text
-            matches = re.findall("{{[^{]*}}", text)
-            for match in matches:
-                text = self.replace_and_repeat(text, match[2:-2], dictionary)
-            elements.append(json.loads(text))
+        for context in all_replacements:
+            elements.append(json.loads(template.render(context)))
 
         # Replacements become unnecessary after creating the elements
         for element in elements:

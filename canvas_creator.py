@@ -196,13 +196,11 @@ def get_module_item(module:Module, item_name):
 
 def get_object_id_from_element(course: Course, item):
     if item["type"] == "Quiz":
-        quiz = get_quiz(course, item["title"])
-        if not quiz:
+        if not (quiz := get_quiz(course, item["title"])):
             return None
         return quiz.id
     elif item["type"] == "Assignment":
-        assignment = get_assignment(course, item["title"])
-        if not assignment:
+        if not (assignment := get_assignment(course, item["title"])):
             return None
         return assignment.id
     elif item["type"] == "Page":
@@ -372,12 +370,6 @@ def create_or_update_override(course, element):
         create_or_update_override_for_assignment(assignment, override, students, sections, section_ids)
 
 
-def create_student_overrides(course, students):
-    for student in students:
-        if not course.get_user(student):
-            raise ValueError(f"Could not find student {student}")
-
-
 def get_section_ids(course, names):
     sections = course.get_sections()
     sections = [s.id for s in sections if s.name in names]
@@ -397,15 +389,16 @@ def create_or_edit_page(course: Course, element):
     return canvas_page
 
 
-def create_elements_from_document(course: Course, time_zone: str, quiz_markdown: str, path_to_resources: Path):
+def create_elements_from_document(course: Course, time_zone: str, file_path: Path, path_to_resources: Path):
     # Provide processing functions, so that the parser needs no access to a canvas course
     parser = DocumentParser(
         path_to_resources=path_to_resources,
+        path_to_canvas_files=file_path.parent,
         markdown_processor=lambda text: process_markdown(text, course, path_to_resources),
         time_zone=time_zone,
         group_indexer=lambda group_name: get_group_index(course, group_name)
     )
-    document_object = parser.parse(quiz_markdown)
+    document_object = parser.parse(file_path.read_text())
 
     # Create multiple quizzes or assignments from the document object
     for element in document_object:
@@ -437,7 +430,7 @@ def main(api_url, api_token, course_id, time_zone: str, file_path: Path, path_to
         raise ValueError("File must be a markdown file")
 
     print(f"Posting to Canvas ({file_path}) ...")
-    create_elements_from_document(course, time_zone, file_path.read_text(), path_to_resources)
+    create_elements_from_document(course, time_zone, file_path, path_to_resources)
 
 
 if __name__ == "__main__":
