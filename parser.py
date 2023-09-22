@@ -1,5 +1,4 @@
 import json
-import re
 from pathlib import Path
 
 from typing import Callable, Union
@@ -8,6 +7,7 @@ from bs4 import BeautifulSoup
 from datetime import datetime
 from bs4.element import Tag
 from typing import Protocol
+from collections import defaultdict
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
@@ -98,21 +98,22 @@ def parse_template_data(template_tag):
     for line in lines[2:]:
         line = line.split('|')
         # Splitting on | leaves empty strings at the beginning and end
-        line = [l.strip() for l in line][1:-1]
+        line = [phrase.strip() for phrase in line][1:-1]
         basic_pairs = dict(zip(headers, line))
-        complex_pairs = {}
+        complex_pairs = defaultdict(dict)
         for key, value in basic_pairs.items():
-            if value.contains(","):
-                # This is a list, like "1,2,3"
-                complex_pairs[key] = value.split(",")
-            if key.contains("."):
-                # This is a complex key, like "settings.title"
-                complex_key = key.split(".")
-                complex_pairs[complex_key[0]] = {
-                    complex_key[1]: value
-                }
+            if key.startswith("list:"):  # Split value into list
+                key = key[5:].strip()
+                value = value.split(",")
 
-        data.append()
+            if "." in key:
+                # This is a complex key, like "settings.title"
+                super_key, sub_key = key.split(".")
+                complex_pairs[super_key][sub_key] = value
+            else:
+                complex_pairs[key] = value
+
+        data.append(complex_pairs)
     return data
 
 
@@ -535,6 +536,7 @@ class DocumentParser:
             loader=FileSystemLoader(path_to_canvas_files),
             autoescape=select_autoescape()
         )
+        self.jinja_env.globals.update(zip=zip)
 
         self.element_processors = {
             "quiz": QuizParser(self.markdown_processor, group_indexer, self.date_formatter),
@@ -558,32 +560,6 @@ class DocumentParser:
                     document.extend(new_elements)
         return document
 
-    def replace_and_repeat(self, text, match, dictionary):
-        # A match looks like {{ Some text after Placeholder1 and before Placeholder2}}
-        # A match can be repeated if the replacement is a comma-separated list
-        # A repeated match can have several included replacements
-        replacements_for_this_match = []
-        for placeholder, replacement in dictionary.items():
-            if placeholder in match:
-                repeats = replacement.split(",")
-                # reps looks like [(Placeholder1, option1), (Placeholder1, option2)]
-                reps = [(placeholder, repeat) for repeat in repeats]
-                replacements_for_this_match.append(reps)
-
-        if not replacements_for_this_match:
-            return text
-
-        transposed_to_options = list(zip(*replacements_for_this_match))
-
-        # Options replace Placeholder1 and Placeholder2 with something similar to Homework 1a and  https://byu.instructure.com/courses/20736/quizzes/123456
-        repeated = ""
-        for options in transposed_to_options:
-            match_copy = match
-            for placeholder, option in options:
-                match_copy = match_copy.replace(placeholder, option)
-            repeated += match_copy
-
-        return text.replace("{{" + match + "}}", repeated)
 
     def create_elements_from_template(self, element_template):
         if not (all_replacements := element_template.get("replacements", None)):

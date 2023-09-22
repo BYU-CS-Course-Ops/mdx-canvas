@@ -208,13 +208,13 @@ def get_object_id_from_element(course: Course, item):
         item["page_url"] = page_url
 
 
-def fix_dates(element):
+def fix_dates(element, time_zone):
     if "due_at" in element:
-        element["due_at"] = make_iso(element["due_at"])
+        element["due_at"] = make_iso(element["due_at"], time_zone)
     if "unlock_at" in element:
-        element["unlock_at"] = make_iso(element["unlock_at"])
+        element["unlock_at"] = make_iso(element["unlock_at"], time_zone)
     if "lock_at" in element:
-        element["lock_at"] = make_iso(element["lock_at"])
+        element["lock_at"] = make_iso(element["lock_at"], time_zone)
 
 
 def create_or_edit_assignment(course, element):
@@ -354,7 +354,7 @@ def create_or_update_override_for_assignment(assignment, override, students, sec
             assignment.create_override(assignment_override=override)
 
 
-def create_or_update_override(course, element):
+def create_or_update_override(course, element, time_zone):
     students = element["students"]
     sections = element["sections"]
     section_ids = get_section_ids(course, sections)
@@ -366,7 +366,7 @@ def create_or_update_override(course, element):
         raise ValueError("Must provide either students or sections")
 
     for assignment, override in assignment_override_pairs:
-        fix_dates(override)
+        fix_dates(override, time_zone)
         create_or_update_override_for_assignment(assignment, override, students, sections, section_ids)
 
 
@@ -405,7 +405,7 @@ def create_elements_from_document(course: Course, time_zone: str, file_path: Pat
         if "resources" in element:
             element = upload_and_link_files(element, course, element["resources"])
         if "settings" in element:
-            fix_dates(element["settings"])
+            fix_dates(element["settings"], time_zone)
         if element["type"] == "quiz":
             create_or_edit_quiz(course, element)
         elif element["type"] == "assignment":
@@ -415,7 +415,7 @@ def create_elements_from_document(course: Course, time_zone: str, file_path: Pat
         elif element["type"] == "module":
             create_or_update_module(course, element)
         elif element["type"] == "override":
-            create_or_update_override(course, element)
+            create_or_update_override(course, element, time_zone)
         else:
             raise ValueError(f"Unknown type {element['type']}")
 
@@ -426,8 +426,8 @@ def main(api_url, api_token, course_id, time_zone: str, file_path: Path, path_to
     canvas = Canvas(api_url, api_token)
     course: Course = canvas.get_course(course_id)
 
-    if not file_path.suffix == ".md":
-        raise ValueError("File must be a markdown file")
+    # if not file_path.suffix == ".md":
+    #     raise ValueError("File must be a markdown file")
 
     print(f"Posting to Canvas ({file_path}) ...")
     create_elements_from_document(course, time_zone, file_path, path_to_resources)
