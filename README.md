@@ -11,7 +11,7 @@ pip install md-canvas
 
 ## Quizzes
 
-See [sample-quiz.md](markdown-files/sample-quiz.md) for a quiz example.
+See [sample-quiz.md](markdown-files/sample-quiz.canvas.md) for a quiz example.
 
 The basic structure is as follows:
 ```xml

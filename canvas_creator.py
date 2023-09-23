@@ -5,7 +5,6 @@ import textwrap
 import uuid
 import argparse
 
-
 from canvasapi import Canvas
 from canvasapi.assignment import Assignment
 
@@ -69,7 +68,7 @@ def create_resource_folder(course, quiz_title: str):
     if not any(f.name == quiz_title for f in folders):
         print(f"Created {quiz_title} folder")
         course.create_folder(name=quiz_title, parent_folder_path=generated_folder_name,
-                                                  hidden=True)
+                             hidden=True)
 
 
 def get_img_html(image_name, alt_text, course, image_folder: Path):
@@ -186,7 +185,7 @@ def get_module(course: Course, module_name: str):
     return None
 
 
-def get_module_item(module:Module, item_name):
+def get_module_item(module: Module, item_name):
     module_items = list(module.get_module_items())
     for item in module_items:
         if item.title == item_name:
@@ -426,8 +425,8 @@ def main(api_url, api_token, course_id, time_zone: str, file_path: Path, path_to
     canvas = Canvas(api_url, api_token)
     course: Course = canvas.get_course(course_id)
 
-    # if not file_path.suffix == ".md":
-    #     raise ValueError("File must be a markdown file")
+    if "canvas" not in file_path:
+        raise ValueError("File must be a canvas file")
 
     print(f"Posting to Canvas ({file_path}) ...")
     create_elements_from_document(course, time_zone, file_path, path_to_resources)
@@ -447,4 +446,3 @@ if __name__ == "__main__":
     time_zone: str = " -0600"  # Mountain Time
 
     main(api_url, api_token, course_id, time_zone, args.file_path, args.resources)
-
