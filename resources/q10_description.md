@@ -1,0 +1,1 @@
+Match each `list` pattern with the scenario it serves.

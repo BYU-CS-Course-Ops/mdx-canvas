@@ -71,7 +71,7 @@ Input: I LOVE pie (not 3.14)
 (5, 6, 3)
 ```
 
-<right>
+<correct>
 
 ```python
 def count_characters(input_string):
@@ -85,9 +85,9 @@ def count_characters(input_string):
             digit_count += 1
     return (upper_count, lower_count, digit_count)
 ```
-</right>
+</correct>
 
-<wrong>
+<incorrect>
 
 ```python
 def count_characters(input_string):
@@ -96,7 +96,7 @@ def count_characters(input_string):
     digit_count = input_string.count('isdigit')
     return (upper_count, lower_count, digit_count)
 ```
-</wrong>
+</incorrect>
 <wrong>
 
 ```python
@@ -153,35 +153,6 @@ def main():
 <question type = "true-false">
 <right>
 
-```python
-def main():
-    print('Hello, world!')
-```
-</right>
-</question>
-
-<question type = "matching">
-<left>
-
-1 + 2
-</left>
-<right>
-3
-</right>
-<left>
-2 + 2
-</left>
-<right>
-4
-</right>
-<left>
-3 + 2
-</left>
-<right>
-5
-</right>
-</question>
-</quiz>
 
 
 

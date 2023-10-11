@@ -425,7 +425,7 @@ def main(api_url, api_token, course_id, time_zone: str, file_path: Path, path_to
     canvas = Canvas(api_url, api_token)
     course: Course = canvas.get_course(course_id)
 
-    if "canvas" not in file_path:
+    if "canvas" not in file_path.__str__():
         raise ValueError("File must be a canvas file")
 
     print(f"Posting to Canvas ({file_path}) ...")

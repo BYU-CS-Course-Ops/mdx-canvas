@@ -12,16 +12,24 @@ from collections import defaultdict
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 
-
 def get_corrects_and_incorrects(question_tag):
     corrects = question_tag.css.filter('correct')
     incorrects = question_tag.css.filter('incorrect')
     return corrects, incorrects
 
 
+def get_correct_comments(question_tag):
+    feedback = question_tag.css.filter('correct-comments')
+    return feedback if feedback else None
+
+def get_incorrect_comments(question_tag):
+    feedback = question_tag.css.filter('incorrect-comments')
+    return feedback if feedback else None
+
+
 def get_points(question_tag):
     points = question_tag.css.filter('points')
-    return points[0].contents[0].strip() if len(points) > 0 else 1
+    return points[0].contents[0].strip() if points else 1
 
 
 def get_answers(question_tag):
@@ -47,6 +55,7 @@ def make_iso(date: datetime | str | None, time_zone: str):
     input_formats = [
         "%b %d, %Y, %I:%M %p %z",
         "%b %d %Y %I:%M %p %z",
+        "%Y-%m-%dT%H:%M:%S%z"
     ]
 
     if date is None:
@@ -59,7 +68,10 @@ def make_iso(date: datetime | str | None, time_zone: str):
             return date
         for input_format in input_formats:
             try:
-                date = datetime.strptime(date + time_zone, input_format)
+                if "-" in date:
+                    date = datetime.strptime(date, input_format)
+                else:
+                    date = datetime.strptime(date + time_zone, input_format)
                 return datetime.isoformat(date)
             except ValueError:
                 continue
@@ -142,6 +154,8 @@ class TFConverter:
             "question_text": question_text,
             "question_type": 'true_false_question',
             "points_possible": get_points(correct_incorrect_tag),
+            "correct_comments": get_correct_comments(correct_incorrect_tag),
+            "incorrect_comments": get_incorrect_comments(correct_incorrect_tag),
             "answers": [
                 {
                     "answer_text": "True",
@@ -202,7 +216,27 @@ class MultipleChoiceProcessor:
         if len(corrects) != 1:
             raise Exception("Multiple choice questions must have exactly one correct answer")
 
-        return process(MultipleAnswersProcessor(), question_tag, markdown_processor)
+        question_text, resources = markdown_processor(question_tag.contents[0])
+        answers = []
+        for answer in corrects + incorrects:
+            answer_html, res = markdown_processor(answer.string)
+            answers.append((True if answer in corrects else False, answer_html))
+            resources.extend(res)
+
+        question = {
+            "question_text": question_text,
+            "question_type": 'multiple_choice_question',
+            "points_possible": get_points(question_tag),
+            "correct_comments": get_correct_comments(question_tag),
+            "incorrect_comments": get_incorrect_comments(question_tag),
+            "answers": [
+                {
+                    "answer_html": answer_html,
+                    "answer_weight": 100 if correct else 0
+                } for correct, answer_html in answers
+            ]
+        }
+        return question, resources
 
 
 class MultipleAnswersProcessor:
@@ -219,8 +253,10 @@ class MultipleAnswersProcessor:
 
         question = {
             "question_text": question_text,
-            "question_type": 'multiple_choice_question',
+            "question_type": 'multiple_answers_question',
             "points_possible": get_points(question_tag),
+            "correct_comments": get_correct_comments(question_tag),
+            "incorrect_comments": get_incorrect_comments(question_tag),
             "answers": [
                 {
                     "answer_html": answer_html,
@@ -240,9 +276,6 @@ class MatchingProcessor:
             answer_left, answer_right = pair.css.filter('left')[0], pair.css.filter('right')[0]
             matches.append((answer_left.string.strip(), answer_right.string.strip()))
 
-        for match in matches:
-            print(match)
-
         distractors = question_tag.css.filter('distractors')
         distractor_text = distractors[0].contents[0].strip() if len(distractors) > 0 else None
         question_text, resources = markdown_processor(question_tag.contents[0])
@@ -250,6 +283,8 @@ class MatchingProcessor:
             "question_text": question_text,
             "question_type": 'matching_question',
             "points_possible": get_points(question_tag),
+            "correct_comments": get_correct_comments(question_tag),
+            "incorrect_comments": get_incorrect_comments(question_tag),
             "answers": [
                 {
                     "answer_match_left": answer_left,

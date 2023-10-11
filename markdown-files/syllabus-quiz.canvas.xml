@@ -1,0 +1,71 @@
+<quiz>
+<settings title="Syllabus Quiz" due_at="Dec 21, 2023, 11:59 PM" available_from="Dec 16, 2023, 12:00 AM" available_to="Dec 21, 2023, 11:59 PM" points_possible="6" assignment_group="Labs" shuffle_answers="True" allowed_attempts="-1" show_correct_answers_at="Dec 21, 2023, 11:59 PM">
+    Please review the syllabus at [https://fall2023.byucs110.org/syllabus/](https://fall2023.byucs110.org/syllabus/) before completing this quiz.
+</settings>
+
+
+<question type="matching">
+    Match the type of assignment with how you can work with your classmates
+    <pair>
+        <left>Labs</left>
+        <right>work with a partner, discuss and write code together, produce your own version without copying and pasting</right>
+    </pair>
+    <pair>
+        <left>Homeworks</left>
+        <right>discuss on a whiteboard or on paper with a friend, share drawings, write all of your own code</right>
+    </pair>
+    <pair>
+        <left>Projects</left>
+        <right>work entirely on your own, do not discuss with other students</right>
+    </pair>
+</question>
+
+<question type="multiple-choice">
+    Where is the TA lab located?
+    <correct>TMCB 1119</correct>
+
+    <incorrect>EB 242</incorrect>
+
+    <incorrect>TMCB 1111</incorrect>
+
+    <incorrect>EB 122</incorrect>
+</question>
+
+<question type="multiple-answers">
+    What should I use TA office hours for?
+    <correct>To ask a specific question about a problem I have found in my code</correct>
+
+    <incorrect>Time for TA's to write my code for me</incorrect>
+
+    <correct>Ask questions about things I didn't understand from the lecture</correct>
+
+    <correct>Work on homework and study for exams</correct>
+</question>
+
+<question type="true-false">
+    <correct>The link for discord is on Canvas</correct>
+</question>
+
+<question type="true-false">
+    <incorrect>
+        If I'm not sure how to do a problem, I can ask ChatGPT and then turn in the code it gives me.
+    </incorrect>
+    <incorrect-comments>
+        You should look at the course guide (on the course website) for examples of how to do an assignment.
+
+        Looking online for ideas and examples is also a helpful way to learn, but you should never turn in code you did not write yourself.
+    </incorrect-comments>
+
+    <correct-comments>
+        You should look at the course guide (on the course website) for examples of how to do an assignment.
+
+        Looking online for ideas and examples is also a helpful way to learn, but you should never turn in code you did not write yourself.
+    </correct-comments>
+</question>
+
+<question type="true-false">
+    <correct>I know how to contact my instructor if I need help.</correct>
+</question>
+
+</quiz>
+
