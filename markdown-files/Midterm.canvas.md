@@ -63,7 +63,7 @@ if __name__ == '__main__':
 </incorrect>
 </question>
 
-<question type = "multiple-tf">
+<question type = "multiple-tf" name="Questions 5-8">
 Given the following starting world named `rgb`:
 
 ![q2_starting_world](./q2_start_description.svg)
@@ -162,12 +162,303 @@ if __name__ == '__main__':
 </incorrect>
 </question>
 
-<question type="multiple-tf"> name="Questions 5-8">
-Given the following starting world named rgb:
+<question type="multiple-tf"> name="Questions 9-12">
+Starting with this world:
 
-bit world where bit starts on left of middle row, in middle row is red, green, blue, red, green, blue
+![four by four bit world; all cells white; bit in bottom left corner
+](q3_start_description.svg)
 
-Which block of code will produce the following end result:
+Which code snippet produces this result:
+
+![four by four bit world with blue in the cells on the edge
+](q3_finish_description.svg)
+
+<correct>
+
+```python
+from byubit import Bit
+
+@Bit.empty_world(4, 4)
+def run(bit):
+    while not bit.is_blue():
+        while bit.front_clear():
+            bit.paint('blue')
+            bit.move()
+        bit.left()
+        
+run(Bit.new_bit)
+```
+</correct>
+
+<incorrect>
+
+```python
+from byubit import Bit
+
+@Bit.empty_world(4, 4)
+def run(bit):
+    while not bit.is_blue():
+        while bit.front_clear():
+            bit.paint('blue')
+            bit.move()
+        bit.left()
+
+if __name__ == '__main__':
+    run(Bit.new_bit)
+```
+</incorrect>
+
+<incorrect>
+
+```python
+from byubit import Bit
+
+@Bit.empty_world(4, 4)
+def run(bit):
+    while not bit.is_blue():
+        while bit.front_clear():
+            bit.move()
+            bit.paint('blue')
+        bit.left()
+
+if __name__ == '__main__':
+    run(Bit.new_bit)
+```
+</incorrect>
+
+<incorrect>
+
+```python
+from byubit import Bit
+
+@Bit.empty_world(4, 4)
+def run(bit):
+    while not bit.is_blue():
+        bit.move()
+        bit.paint('blue')
+        if not bit.front_clear():
+            bit.left()
+
+if __name__ == '__main__':
+    run(Bit.new_bit)
+```
+</incorrect>
+</question>
+
+<question type = "multiple-tf" name="Questions 13-15">
+Bit starts in the following world `red_bars`:
+
+![q4_starting_world](q4_start_description.svg)
+
+
+Which of the following implementations of `draw_bar` will produce the following result?
+
+![q4_ending_world](q4_finish_description.svg)
+
+
+
+```python
+from byubit import Bit
+
+def go(bit, color):
+    while bit.front_clear():
+        bit.move()
+        if color is not None:
+            bit.paint(color)
+
+def draw_bar(bit):
+    pass
+
+@Bit.worlds('red_bars')
+def run(bit):
+    while bit.front_clear():
+        bit.move()
+        if bit.is_red():
+            draw_bar(bit)
+
+if __name__ == '__main__':
+    run(Bit.new_bit)
+```
+<correct>
+
+```python
+def draw_bar(bit):
+    bit.left()
+    go(bit, 'red')
+    bit.right()
+    bit.right()
+    go(bit, None)
+    bit.left()
+```
+</correct>
+
+<incorrect>
+
+```python
+def draw_bar(bit):
+    go(bit, 'red')
+    bit.left()
+    bit.left()
+    go(bit, 'red')
+```
+</incorrect>
+
+<incorrect>
+
+```python
+def draw_bar(bit):
+    bit.left()
+    while bit.front_clear():
+        go(bit, None)
+        bit.left()
+        bit.left()
+        go(bit, 'red')
+        bit.left()
+```
+</incorrect>
+
+<incorrect>
+
+```python
+def draw_bar(bit):
+    bit.left()
+    go(bit, None)
+    bit.right()
+    bit.right()
+    go(bit, 'red')
+    bit.left()
+```
+</incorrect>
+</question>
+
+<question type="multiple-choice"> name="Question 16">
+What does the following code print?
+
+```python
+def function1(a):
+    return a + 2
+
+
+def function2(a):
+    return function1(a) - 5
+
+
+def main():
+    result = function2(3)
+    print(result)
+
+if __name__ == '__main__':
+    main()
+```
+<correct>
+`0`
+</correct>
+
+<incorrect>
+`-2`
+</incorrect>
+
+<incorrect>
+`3`
+</incorrect>
+
+<incorrect>
+`1`
+</incorrect>
+
+</question>
+
+<question name="Question 17">
+Which block of code could produce the following dialog:
+
+```text
+Give me a fruit: pear
+Those are fine.
+Give me a fruit: banana
+Those are fine.
+Give me a fruit: apple
+I like that!
+Goodbye!
+```
+
+<correct>
+
+```python
+def main():
+    while True:
+        fruit = input('Give me a fruit: ')
+        if fruit == 'apple':
+            print('I like that!')
+            break
+        elif fruit == 'durian':
+            print('No thank you!')
+        else:
+            print('Those are fine.')
+    print('Goodbye!')
+
+if __name__ == '__main__':
+    main()
+```
+</correct>
+
+<incorrect>
+
+```python
+def main():
+    while True:
+        fruit = input('Give me a fruit: ')
+        if fruit == 'apple':
+            print('I like that!')
+            return
+        else:
+            print('Those are fine.')
+    print('Goodbye!')
+
+if __name__ == '__main__':
+    main()
+```
+</incorrect>
+
+<incorrect>
+
+```python
+def main():
+    while True:
+        fruit = input('Give me a fruit: ')
+        if fruit == 'apple':
+            print('I like that!')
+            break
+        elif fruit == 'banana':
+            print('Those are ok.')
+        else:
+            print('Those are fine.')
+    print('Goodbye!')
+
+if __name__ == '__main__':
+    main()
+```
+</incorrect>
+
+<incorrect>
+
+```python
+def main():
+    while True:
+        fruit = input('Give me a fruit: ')
+        if fruit == 'pear':
+            print('Those are fine.')
+            break
+        elif fruit == 'banana':
+            print('Those are fine.')
+            break
+        else:
+            print('I like that!')
+    print('Goodbye!')
+
+if __name__ == '__main__':
+    main()
+```
+</incorrect>
 </question>
 
 

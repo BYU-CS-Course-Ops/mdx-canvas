@@ -22,6 +22,7 @@ def get_correct_comments(question_tag):
     feedback = question_tag.css.filter('correct-comments')
     return feedback if feedback else None
 
+
 def get_incorrect_comments(question_tag):
     feedback = question_tag.css.filter('incorrect-comments')
     return feedback if feedback else None
@@ -594,7 +595,6 @@ class DocumentParser:
                     new_elements = self.create_elements_from_template(element)
                     document.extend(new_elements)
         return document
-
 
     def create_elements_from_template(self, element_template):
         if not (all_replacements := element_template.get("replacements", None)):
