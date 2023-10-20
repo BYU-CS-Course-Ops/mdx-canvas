@@ -50,28 +50,26 @@ def give_me_100():
 
 <question type = "matching">
 ![alt text](image-test.jpg)
-<pair>
-    <left>
-    1 + 2
-    </left>
-    <right>
-    3
-    </right>
-</pair>
-<pair>
-<left>
-2 + 2
-</left>
-<right>
-4
-</right>
-</pair>
-<distractors>
-    7
-    9
-</distractors>
-
+    <pair>
+        <left>
+            1 + 2
+        </left>
+        <right>
+            3
+        </right>
+    </pair>
+    <pair>
+        <left>
+            2 + 2
+        </left>
+        <right>
+            4
+        </right>
+    </pair>
+    <distractors>
+        7
+        9
+    </distractors>
 </question>
-
 </quiz>
 
