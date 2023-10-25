@@ -4,12 +4,14 @@ from pathlib import Path
 from typing import Callable, Union
 
 from bs4 import BeautifulSoup
-from datetime import datetime
 from bs4.element import Tag
-from typing import Protocol
+from datetime import datetime
+from typing import Protocol, TypeAlias
 from collections import defaultdict
 
-from jinja2 import Environment, FileSystemLoader, select_autoescape
+from jinja2 import Environment
+
+ResourceExtractor: TypeAlias = Callable[[str], tuple[str, list]]
 
 
 def get_corrects_and_incorrects(question_tag):
@@ -103,30 +105,27 @@ def parse_template_data(template_tag):
     ]
     """
     data = []
-    lines = template_tag.contents[0].strip().split('\n')
-    # Grab the headers from the table, removing whitespace and empty headers
-    headers = lines[0].split('|')
-    headers = [h.strip() for h in headers if h.strip()]
-    # The lines with data start at index 2, after the header and the separator
-    for line in lines[2:]:
-        line = line.split('|')
-        # Splitting on | leaves empty strings at the beginning and end
-        line = [phrase.strip() for phrase in line][1:-1]
-        basic_pairs = dict(zip(headers, line))
-        complex_pairs = defaultdict(dict)
-        for key, value in basic_pairs.items():
-            if key.startswith("list:"):  # Split value into list
-                key = key[5:].strip()
-                value = value.split(",")
+    headers, separator, *lines = template_tag.contents[0].strip().split('\n')
+    # Remove whitespace and empty headers
+    headers = [h.strip() for h in headers.split('|') if h.strip()]
+    for line in lines:
+        left_bar, *line, right_bar = line.split('|')
+        line = [phrase.strip() for phrase in line]
 
-            if "." in key:
-                # This is a complex key, like "settings.title"
-                super_key, sub_key = key.split(".")
-                complex_pairs[super_key][sub_key] = value
+        replacements = defaultdict(dict)
+        for header, value in zip(headers, line):
+            if header.startswith("list:"):
+                header = header[5:].strip()  # Remove 'list: ' from header
+                value = value.split(",")     # Split the value into a list
+
+            if "." in header:
+                # Interpret the header as "object.attribute"
+                obj, attribute = header.split(".")
+                replacements[obj][attribute] = value
             else:
-                complex_pairs[key] = value
+                replacements[header] = value
 
-        data.append(complex_pairs)
+        data.append(replacements)
     return data
 
 
@@ -148,7 +147,7 @@ question_types = [
 
 class TFConverter:
     @staticmethod
-    def process(correct_incorrect_tag, markdown_processor: Callable[[str], tuple[str, list]]):
+    def process(correct_incorrect_tag, markdown_processor: ResourceExtractor):
         is_true = correct_incorrect_tag.name == "correct"
         question_text, resources = markdown_processor(correct_incorrect_tag.contents[0])
         question = {
@@ -178,19 +177,19 @@ class Processor(Protocol):
     """
 
     @staticmethod
-    def process(question_tag, markdown_processor: Callable[[str], tuple[str, list]]) -> Union[
+    def process(question_tag, markdown_processor: ResourceExtractor) -> Union[
         tuple[list[dict], list], tuple[dict, list]]:
         ...
 
 
-def process(processor: Processor, question_tag, markdown_processor: Callable[[str], tuple[str, list]]):
+def process(processor: Processor, question_tag, markdown_processor: ResourceExtractor):
     question, resources = processor.process(question_tag, markdown_processor)
     return question, resources
 
 
 class TrueFalseProcessor:
     @staticmethod
-    def process(question_tag, markdown_processor: Callable[[str], tuple[str, list]]):
+    def process(question_tag, markdown_processor: ResourceExtractor):
         answers = get_answers(question_tag)
         if len(answers) != 1:
             raise Exception("True false questions must have one correct or incorrect answer")
@@ -200,7 +199,7 @@ class TrueFalseProcessor:
 
 class MultipleTrueFalseProcessor:
     @staticmethod
-    def process(question_tag, markdown_processor: Callable[[str], tuple[str, list]]):
+    def process(question_tag, markdown_processor: ResourceExtractor):
         heading_question, resources = process(TextQuestionProcessor(), question_tag, markdown_processor)
         questions = [heading_question]
         for answer in get_answers(question_tag):
@@ -212,7 +211,7 @@ class MultipleTrueFalseProcessor:
 
 class MultipleChoiceProcessor:
     @staticmethod
-    def process(question_tag, markdown_processor: Callable[[str], tuple[str, list]]):
+    def process(question_tag, markdown_processor: ResourceExtractor):
         corrects, incorrects = get_corrects_and_incorrects(question_tag)
         if len(corrects) != 1:
             raise Exception("Multiple choice questions must have exactly one correct answer")
@@ -242,7 +241,7 @@ class MultipleChoiceProcessor:
 
 class MultipleAnswersProcessor:
     @staticmethod
-    def process(question_tag, markdown_processor: Callable[[str], tuple[str, list]]):
+    def process(question_tag, markdown_processor: ResourceExtractor):
         corrects, incorrects = get_corrects_and_incorrects(question_tag)
 
         question_text, resources = markdown_processor(question_tag.contents[0])
@@ -270,7 +269,7 @@ class MultipleAnswersProcessor:
 
 class MatchingProcessor:
     @staticmethod
-    def process(question_tag, markdown_processor: Callable[[str], tuple[str, list]]):
+    def process(question_tag, markdown_processor: ResourceExtractor):
         pairs = question_tag.css.filter('pair')
         matches = []
         for pair in pairs:
@@ -300,7 +299,7 @@ class MatchingProcessor:
 
 class TextQuestionProcessor:
     @staticmethod
-    def process(question_tag, markdown_processor: Callable[[str], tuple[str, list]]):
+    def process(question_tag, markdown_processor: ResourceExtractor):
         question_text, resources = markdown_processor(question_tag.contents[0])
         question = {
             "question_text": question_text,
@@ -397,7 +396,7 @@ class QuizParser:
         "text": TextQuestionProcessor()
     }
 
-    def __init__(self, markdown_processor: Callable[[str], tuple[str, list]], group_indexer, date_formatter):
+    def __init__(self, markdown_processor: ResourceExtractor, group_indexer, date_formatter):
         self.markdown_processor = markdown_processor
         self.group_indexer = group_indexer
         self.date_formatter = date_formatter
@@ -454,7 +453,7 @@ class QuizParser:
 
 
 class AssignmentParser:
-    def __init__(self, markdown_processor: Callable[[str], tuple[str, list]], group_indexer, date_formatter):
+    def __init__(self, markdown_processor: ResourceExtractor, group_indexer, date_formatter):
         self.markdown_processor = markdown_processor
         self.group_indexer = group_indexer
         self.date_formatter = date_formatter
@@ -533,7 +532,7 @@ class AssignmentParser:
 
 
 class PageParser:
-    def __init__(self, markdown_processor: Callable[[str], tuple[str, list]], date_formatter):
+    def __init__(self, markdown_processor: ResourceExtractor, date_formatter):
         self.markdown_processor = markdown_processor
         self.date_formatter = date_formatter
 
@@ -560,18 +559,15 @@ class PageParser:
 
 
 class DocumentParser:
-    def __init__(self, path_to_resources: Path, path_to_canvas_files: Path, markdown_processor: Callable[[str], tuple[str, list]], time_zone: str,
+    def __init__(self, path_to_resources: Path, path_to_canvas_files: Path, markdown_processor: ResourceExtractor, time_zone: str,
                  group_indexer=lambda x: 0):
-        self.jinja_env = None
         self.path_to_resources = path_to_resources
         self.path_to_files = path_to_canvas_files
         self.markdown_processor = markdown_processor
         self.date_formatter = lambda x: make_iso(x, time_zone)
 
-        self.jinja_env = Environment(
-            loader=FileSystemLoader(path_to_canvas_files),
-            autoescape=select_autoescape()
-        )
+        self.jinja_env = Environment()
+        # This enables us to use the zip function in template documents
         self.jinja_env.globals.update(zip=zip)
 
         self.element_processors = {
@@ -600,11 +596,15 @@ class DocumentParser:
         if not (all_replacements := element_template.get("replacements", None)):
             return [element_template]
 
+        # Element template is an object, turn it into text
         template_text = json.dumps(element_template, indent=4)
+
+        # Use the text to create a jinja template
         template = self.jinja_env.from_string(template_text)
 
         elements = []
         for context in all_replacements:
+            # For each replacement, create an object from the template
             elements.append(json.loads(template.render(context)))
 
         # Replacements become unnecessary after creating the elements
