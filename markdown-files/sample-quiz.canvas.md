@@ -24,7 +24,6 @@ This is a correct answer
 </incorrect>
 </question>
 
-<question type="multiple-answers">
 This is another question
 <incorrect>
 
@@ -48,6 +47,15 @@ def give_me_100():
 
 </question>
 
+<question type='true-false'>
+    <correct>
+        this is the question
+    </correct>
+</question>
+
+<question type='true-false' answer="true">
+    this is the question
+</question>
 <question type = "matching">
 ![alt text](image-test.jpg)
     <pair>
