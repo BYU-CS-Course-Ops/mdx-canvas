@@ -1,4 +1,4 @@
-We'd love for you to add to the project! Current tasks include adding support for all question types and options. A thorough survey of canvas content also needs to be conducted, so that we can accurately track our progress in our ability to post and store content. Before contributing, please read how the tool works. You might also consider reading the [README](https://github.com/beanlab/md-canvas/blob/main/README.md).
+We'd love for you to add to the project! Current tasks include adding support for all question types and options. A thorough survey of canvas content also needs to be conducted, so that we can accurately track our progress in our ability to post and store content. Before contributing, please read how the tool works. You may also consider reading the [README](https://github.com/beanlab/md-canvas/blob/main/README.md).
 
 ## Document Parsing
 
@@ -40,6 +40,8 @@ def parse(self, text):
 
 If `parse()` was run on the example quiz above, tag would take the value of the `quiz` tag. Other possible high-level tags include `assignment` and `module`. 
 
+A document can have multiple high-level `Tag`s, such as an assignment and an override. This is an especially useful combination, since overrides specify exceptions to assignment due dates and visibility.
+
 After getting the tag, the document parser identifies the appropriate element parser to use.
 
 ```python
@@ -48,7 +50,7 @@ After getting the tag, the document parser identifies the appropriate element pa
 	    elements = parser.parse(tag)
 ```
 
-The element parsers are defined  when the Document Parser is constructed. Each element parser corresponds to a high-level `Tag`. A document can have multiple high-level `Tag`s, such as an assignment and an override. This is an especially useful combination, since overrides specify exceptions to assignment due dates and visibility.
+The element parsers are defined  when the Document Parser is constructed. Each element parser corresponds to a high-level `Tag`. 
 
 ```python
 self.element_processors = {  
@@ -93,24 +95,6 @@ Template arguments are specified using a markdown table, inside a replacements t
 |Lab 2b Quiz|Sep 26|
 |Lab 2c Quiz|Sep 28|
 |Lab 2d Quiz|Oct 03|
-|Lab 3a Quiz|Oct 05|
-|Lab 3b Quiz|Oct 10|
-|Lab 3c Quiz|Oct 12|
-|Lab 3d Quiz|Oct 17|
-|Lab 3e Quiz|Oct 19|
-|Lab 3f Quiz|Oct 24|
-|Lab 4a Quiz|Nov 02|
-|Lab 4b Quiz|Nov 07|
-|Lab 4c Quiz|Nov 09|
-|Lab 4d Quiz|Nov 14|
-|Lab 4e Quiz|Nov 16|
-|Lab 4f Quiz|Nov 21|
-|Lab 5a Quiz|Nov 30|
-|Lab 5b Quiz|Dec 05|
-|Lab 5c Quiz|Dec 07|
-|Lab 5d Quiz|Dec 12|
-|Lab 6a Quiz|Dec 14|
-|Lab 6b Quiz|Dec 16|
 <replacements>
 
 <settings title="{{Title}}" {{due_at="Due, 2023, 8:00 AM"}} points_possible="10" assignment_group="Labs" shuffle_answers="False" allowed_attempts="-1">
@@ -184,4 +168,134 @@ for header, value in zip(headers, line):
 
 ## Date Parsing
 
-Dates are 
+Dates need to be passed to the Canvas API in ISO format:
+
+```cpp
+2013-01-23T23:59:00-07:00
+```
+
+Conveniently, we can use the datetime module to convert other date formats to ISO.
+
+```python
+from datetime import datetime
+```
+
+Our algorithm takes a date and returns a string. If the date is:
+- None
+	- We return None
+- A datetime object
+	- We use `datetime.isoformat(date)` to convert the date to a string
+- A string in ISO format
+	- ISO format is one of the acceptable formats
+- A string in another acceptable format
+	- We use `date = datetime.strptime(date, input_format)` to convert date to a datetime object, then to ISO format
+- A string that is not a date
+	- We return the string as is.
+- A string that looks like a date, but in a format we can't convert
+	- Raise an Exception
+
+Canvas stores dates with timezones. We add a timezone so that Canvas can properly compare new dates with existing dates. 
+
+```python
+		# If the date doesn't have  a time zone, add one  
+		if not "-" in date:  
+			date = date + time_zone
+		# Example time_zone: ' -0600'   (mountain time)
+```
+
+We check if the string matches several input formats. If it doesn't match, we raise an exception.
+
+Current date formats are the following:
+```js
+"%b %d, %Y, %I:%M %p %z",  
+"%b %d %Y %I:%M %p %z",  
+"%Y-%m-%dT%H:%M:%S%z"
+```
+
+To interpret the formats, see [this website.](https://www.programiz.com/python-programming/datetime/strptime) 
+
+## Canvas Course Objects
+
+The Canvas Python API provides Course objects. Course objects are specific to a class, and need authorization to be retrieved. 
+
+```python
+canvas = Canvas(api_url, api_token)  
+course: Course = canvas.get_course(course_id)
+```
+
+The user provides authorization (an api token) as a parameter to the `Canvas()` constructor. 
+
+The user creates an API token on canvas by navigating this path:
+Account -> Settings -> Approved Integrations -> New Access Token
+
+The course id is found in the url of the course.
+
+## Using the Canvas API to Create a Quiz
+
+Once we have the Course object, creating a quiz is simple.
+
+```python
+canvas_quiz = course.create_quiz(quiz=element["settings"])
+```
+
+The `create_quiz()` function takes a keyword parameter `quiz`, which is expected to be a dictionary of quiz settings.
+
+When parsing each quiz or other element, we store the necessary settings in a `<settings>` tag. 
+
+The full list of settings the user can use are found here:
+[https://canvas.instructure.com/doc/api/quizzes.html#Quiz](https://canvas.instructure.com/doc/api/quizzes.html#Quiz)
+
+## Using the Canvas API to Add Questions to a Quiz
+
+Questions must be added individually to a quiz. The `create_quiz()` function returns a `Quiz` object which we store for later use. The `create_question` function takes a keyword parameter `question`, which is expected to be a dictionary of question attributes.
+
+```python
+for question in questions:
+    canvas_quiz.create_question(question=question)
+```
+
+The question attributes can be found in this reference: 
+[https://canvas.instructure.com/doc/api/quiz_questions.html](https://canvas.instructure.com/doc/api/quiz_questions.html)
+
+The user does not interact directly with the quiz questions API. Instead, we provide an easier format for creating quiz questions, and our parser does the rest of the work.
+
+Each question type expects a different set of attributes. For example, a matching question requires:
+- Question text
+- Question type
+- Points possible
+- Comments if a student selects a correct answer
+- Comments if a student selects an incorrect answer
+- A list of answers, where each answer has:
+	- A left match
+	- A right match
+	- An answer weight (Always 100 for matching questions)
+- A new-line separated string of incorrect right matches
+
+This is the expected structure for a question dictionary:
+
+```python
+question = {  
+    "question_text": question_text,  
+    "question_type": 'matching_question',  
+    "points_possible": get_points(question_tag),  
+    "correct_comments": get_correct_comments(question_tag),  
+    "incorrect_comments": get_incorrect_comments(question_tag),  
+    "answers": [  
+        {  
+            "answer_match_left": answer_left,  
+            "answer_match_right": answer_right,  
+            "answer_weight": 100  
+        } for answer_left, answer_right in matches  
+    ],  
+    "matching_answer_incorrect_matches": distractor_text  
+}
+```
+
+## Resources
+
+The official guide to the Canvas Python API is found here: [https://canvasapi.readthedocs.io/en/stable/getting-started.html](https://canvasapi.readthedocs.io/en/stable/getting-started.html)
+
+The Python API does not fully explain the parameters each function requires. You will need to consult the [REST API](https://canvas.instructure.com/doc/api/assignments.html) for that information.
+
+The jinja documentation is found here: [https://jinja.palletsprojects.com/en/3.1.x/]( https://jinja.palletsprojects.com/en/3.1.x/)
+
