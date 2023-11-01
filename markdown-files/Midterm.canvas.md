@@ -26,7 +26,8 @@ Good luck!
 Some of these questions have answers that are very similar. Be sure to review all the answers for a question and not just take the first answer that looks correct.
 </question>
 
-<question type = "multiple-tf" name="Questions 1-4">
+<question type = "multiple-choice" name="Questions 1-4">
+Which image will the following code produce?
 
 ```python
 from byubit import Bit
@@ -63,7 +64,7 @@ if __name__ == '__main__':
 </incorrect>
 </question>
 
-<question type = "multiple-tf" name="Questions 5-8">
+<question type = "multiple-answers" name="Questions 5-8">
 Given the following starting world named `rgb`:
 
 ![q2_starting_world](./q2_start_description.svg)
@@ -243,6 +244,24 @@ if __name__ == '__main__':
     run(Bit.new_bit)
 ```
 </incorrect>
+
+<correct>
+
+```python
+from byubit import Bit
+
+@Bit.empty_world(4, 4)
+def run(bit):
+    while not bit.is_blue():
+        bit.paint('blue')
+        bit.move()
+        if not bit.front_clear():
+            bit.left()
+
+if __name__ == '__main__':
+    run(Bit.new_bit)
+```
+</correct>
 </question>
 
 <question type = "multiple-tf" name="Questions 13-16">

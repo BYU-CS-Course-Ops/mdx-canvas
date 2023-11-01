@@ -66,12 +66,15 @@ def make_iso(date: datetime | str | None, time_zone: str):
     if isinstance(date, datetime):
         return datetime.isoformat(date)
     elif isinstance(date, str):
-        # For templating
+        # Template dates don't need to be converted
         if not string_is_date(date):
             return date
+        # If the date doesn't have  a time zone, add one
+        if not "-" in date:
+            date = date + time_zone
         for input_format in input_formats:
             try:
-                if "-" in date:
+                if "-" in date: # If the date already has a time zone
                     date = datetime.strptime(date, input_format)
                 else:
                     date = datetime.strptime(date + time_zone, input_format)
