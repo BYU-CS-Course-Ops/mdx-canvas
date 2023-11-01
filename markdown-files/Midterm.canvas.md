@@ -26,7 +26,7 @@ Good luck!
 Some of these questions have answers that are very similar. Be sure to review all the answers for a question and not just take the first answer that looks correct.
 </question>
 
-<question type = "multiple-choice" name="Questions 1-4">
+<question type = "multiple-choice">
 Which image will the following code produce?
 
 ```python
@@ -64,7 +64,10 @@ if __name__ == '__main__':
 </incorrect>
 </question>
 
-<question type = "multiple-answers" name="Questions 5-8">
+<question type = "multiple-tf">
+
+# Questions 2-5
+
 Given the following starting world named `rgb`:
 
 ![q2_starting_world](./q2_start_description.svg)
@@ -163,7 +166,10 @@ if __name__ == '__main__':
 </incorrect>
 </question>
 
-<question type="multiple-tf"> name="Questions 9-12">
+<question type="multiple-tf">
+
+# Questions 6-10
+
 Starting with this world:
 
 ![four by four bit world; all cells white; bit in bottom left corner
@@ -264,7 +270,10 @@ if __name__ == '__main__':
 </correct>
 </question>
 
-<question type = "multiple-tf" name="Questions 13-16">
+<question type = "multiple-tf">
+
+# Questions 11-15
+
 Bit starts in the following world `red_bars`:
 
 ![q4_starting_world](q4_start_description.svg)
@@ -350,7 +359,7 @@ def draw_bar(bit):
 </incorrect>
 </question>
 
-<question type="multiple-choice"> name="Question 17">
+<question type="multiple-choice">
 What does the following code print?
 
 ```python
@@ -387,7 +396,7 @@ if __name__ == '__main__':
 
 </question>
 
-<question type="multiple-tf" name="Questions 18-21">
+<question type="multiple-tf">
 Which block of code could produce the following dialog:
 
 ```text
@@ -480,7 +489,7 @@ if __name__ == '__main__':
 </incorrect>
 </question>
 
-<question type="multiple-tf" name="Questions 22-25">
+<question type="multiple-tf">
 
 Which of the following dialogs is **not** possible with this code?
 
@@ -551,7 +560,7 @@ You want 3 pets.
 </question>
 
 
-<question type="multiple-choice" name="Question 26">
+<question type="multiple-choice">
 What will the following block of code print?
 
 ```python
@@ -630,7 +639,7 @@ I like 12
 </incorrect>
 </question>
 
-<question type="multiple-tf" name="Question 27-30">
+<question type="multiple-tf">
 
 Consider the following code and output.
 
@@ -689,7 +698,7 @@ def keep_it(thing):
 </incorrect>
 </question>
 
-<question type="matching" name="Question 31">
+<question type="matching">
 Match each `list` pattern with the scenario it serves.
 <pair>
     <left>You want to add an exclamation point to each word in a list.</left>
@@ -709,7 +718,7 @@ Match each `list` pattern with the scenario it serves.
 </pair>
 </question>
 
-<question type='matching' name="Question 32">
+<question type='matching'>
 Match each block of code with the pattern it demonstrates:
 
 Code Block A:
@@ -776,7 +785,7 @@ def count_points(games):
 </pair>
 </question>
 
-<question type='multiple-tf' name='Questions 33-36'>
+<question type='multiple-tf'>
 Consider the following code:
 
 ```python
@@ -821,7 +830,7 @@ for students in last, first, major, state:
 </incorrect>
 </question>
 
-<question type='multiple-answers' name='Question 37'>
+<question type='multiple-answers'>
 Consider the following code:
 
 ```python
@@ -872,7 +881,7 @@ Age: 2
 </incorrect>
 </question>
 
-<question type='multiple-tf' name='Questions 38-41'>
+<question type='multiple-tf'>
 You need to write a function that gets a person's sandwich toppings.
 
 If they ask for onions, you need to say those are out.
