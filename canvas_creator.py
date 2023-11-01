@@ -20,6 +20,9 @@ from parser import DocumentParser, make_iso
 
 
 def load_env(file_name):
+    """
+    Loads all environment variables from a file.
+    """
     with open(file_name) as file:
         for line in file:
             line = line.strip()
@@ -36,6 +39,9 @@ def readfile(filepath: Path):
 
 
 def get_fancy_html(markdown_or_file: str, files_folder=None):
+    """
+    Converts markdown to html, and adds syntax highlighting to code blocks.
+    """
     if markdown_or_file.endswith('.md'):
         markdown_or_file = readfile(files_folder / markdown_or_file)
 
@@ -99,6 +105,10 @@ def process_images(html, course: Course, image_folder):
 
 
 def process_markdown(markdown_or_file: str, course: Course, image_folder, files_folder=None):
+    """
+    Converts markdown to html, and adds syntax highlighting to code blocks.
+    Then, finds all the images in the html, and replaces them with html that links to the image in Canvas.
+    """
     html = get_fancy_html(markdown_or_file, files_folder)
     return process_images(html, course, image_folder)
 
@@ -121,6 +131,9 @@ def get_group_index(course: Course, group: str):
 
 
 def replace_questions(quiz: Quiz, questions: list[dict]):
+    """
+    Deletes all questions in a quiz, and replaces them with new questions.
+    """
     for quiz_question in quiz.get_questions():
         quiz_question.delete()
     for question in questions:
@@ -161,6 +174,14 @@ def get_assignment(course: Course, assignment_name):
     return None
 
 
+def get_module(course: Course, module_name: str):
+    modules = course.get_modules()
+    for module in modules:
+        if module.name == module_name:
+            return module
+    return None
+
+
 def get_override(assignment: Assignment, override_name):
     overrides = assignment.get_overrides()
     for override in overrides:
@@ -177,16 +198,8 @@ def get_page(course: Course, name):
     return None
 
 
-def get_module(course: Course, module_name: str):
-    modules = course.get_modules()
-    for module in modules:
-        if module.name == module_name:
-            return module
-    return None
-
-
 def get_module_item(module: Module, item_name):
-    module_items = list(module.get_module_items())
+    module_items = module.get_module_items()
     for item in module_items:
         if item.title == item_name:
             return item
@@ -240,6 +253,9 @@ def create_or_edit_quiz(course, element):
 
 
 def upload_and_link_files(document_object, course, resources: list[tuple]):
+    """
+    Uploads all the files in the resources list, and replaces the fake ids in the document with the real ids.
+    """
     create_resource_folder(course, document_object["name"])
     text = json.dumps(document_object, indent=4)
     for fake_id, full_path in resources:
@@ -289,7 +305,7 @@ def create_or_edit_module_item(module: Module, element, object_id, position):
         module.create_module_item(module_item=element)
 
 
-def delete_other_module_items(canvas_module, element):
+def delete_element_module_items(canvas_module, element):
     names = []
     for item in element["items"]:
         names.append(item["title"])
@@ -302,7 +318,7 @@ def delete_other_module_items(canvas_module, element):
 def create_or_update_module_items(course: Course, element, canvas_module):
     if "items" not in element:
         return
-    delete_other_module_items(canvas_module, element)
+    delete_element_module_items(canvas_module, element)
     for index, item in enumerate(element["items"]):
         object_id = get_object_id_from_element(course, item)
         create_or_edit_module_item(canvas_module, item, object_id, index + 1)
@@ -419,7 +435,7 @@ def create_elements_from_document(course: Course, time_zone: str, file_path: Pat
             raise ValueError(f"Unknown type {element['type']}")
 
 
-def main(api_url, api_token, course_id, time_zone: str, file_path: Path, path_to_resources: Path):
+def main(api_token, api_url, course_id, time_zone: str, file_path: Path, path_to_resources: Path):
     print("-" * 50 + "\nCanvas Generator\n" + "-" * 50)
 
     canvas = Canvas(api_url, api_token)
@@ -433,16 +449,21 @@ def main(api_url, api_token, course_id, time_zone: str, file_path: Path, path_to
 
 
 if __name__ == "__main__":
-    load_env("secrets.env")
-
     parser = argparse.ArgumentParser()
     parser.add_argument("--file_path", type=Path)
     parser.add_argument("--resources", type=Path)
+    parser.add_argument("--env", type=Path, default="secrets.env")
+    parser.add_argument("--course_info", type=Path, default="course_info.json")
     args = parser.parse_args()
 
-    api_token = os.getenv("CANVAS_API_TOKEN")
-    api_url: str = "https://byu.instructure.com/"
-    course_id: int = 20736
-    time_zone: str = " -0600"  # Mountain Time
+    load_env(args.env)
+    with open(args.course_info) as file:
+        course_settings = json.load(file)
 
-    main(api_url, api_token, course_id, time_zone, args.file_path, args.resources)
+    # " -0600" is Mountain Time
+    main(api_token=os.getenv("CANVAS_API_TOKEN"),
+         api_url=course_settings["CANVAS_API_URL"],
+         course_id=course_settings["CANVAS_COURSE_ID"],
+         time_zone=course_settings["CANVAS_TIME_ZONE"],
+         file_path=args.file_path,
+         path_to_resources=args.resources)
