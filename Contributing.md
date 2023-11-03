@@ -1,8 +1,22 @@
 We'd love for you to add to the project! Current tasks include adding support for all question types and options. A thorough survey of canvas content also needs to be conducted, so that we can accurately track our progress in our ability to post and store content. Before contributing, please read how the tool works. You may also consider reading the [README](https://github.com/beanlab/md-canvas/blob/main/README.md).
 
+## The goal
+
+The goal of the tool is to store Canvas content in local documents. Canvas is a LMS, or Learning Management system, used by many schools and universities in the US. For people who manage content, one of its major draws is its API, or Application Programming Interface. APIs enable programmers to interact with websites and databases automatically. Automatic interaction saves time interacting with a website as long as the available tools are easy to use.
+
+
+
+## Understanding the Tool
+
+After reading this document, you should understand:
+- How quiz documents are parsed as a whole (turning text into structured data)
+- How 
+
+
 ## Document Parsing
 
-Practical quiz creation is dependent on functional and seamless parsing. A simple quiz should be easily created in a document:
+A user should easily be able to create a simple quiz, like this example:
+
 ```xml
 <quiz>
 	<settings title="Sample Quiz" points_possible="40">
@@ -16,11 +30,7 @@ Practical quiz creation is dependent on functional and seamless parsing. A simpl
 </quiz>
 ```
 
-To help with ease of use, the file's extension is customizable. Adding a .md, .xml, or .jinja extension to the file is not necessary for the parser to function, but each could optimize highlighting in the text editor of a user's choice. XML and HTML are particularly useful for matching opening and closing tags.
-
-```xml
-<question> </question>
-```
+The CanvasTo help with that, we parse the document ourselves. 
 
 The html parser `Beautiful Soup` is used to process the tags and interpret quiz structure. 
 
@@ -79,10 +89,49 @@ def parse(self, text):
 			document.extend(new_elements)
 ```
 
+## A note on File extensions
+
+The file's extension is customizable for viewing convenience. File extensions such as .md, .xml, or .jinja are not necessary; they only change how the text is displayed when editing. XML and HTML are particularly useful for matching opening and closing tags.
+
+XML / HTML:
+
+```xml
+<question> </question>
+```
+
+MD: [Markdown cheat sheet](https://www.markdownguide.org/cheat-sheet/)
+
+| Header 1| Header 2|
+| --- | --- |
+| cell 1 | cell 2|
+
+Jinja: [Jinja templating guide](https://jinja.palletsprojects.com/en/3.1.x/templates/)
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>My Webpage</title>
+</head>
+<body>
+    <ul id="navigation">
+    {% for item in navigation %}
+        <li><a href="{{ item.href }}">{{ item.caption }}</a></li>
+    {% endfor %}
+    </ul>
+
+    <h1>My Webpage</h1>
+    {{ a_variable }}
+
+    {# a comment #}
+</body>
+</html>
+```
+
 ## Template Parsing
 Each element in a document can be used as a template to generate similar documents in Canvas. This is useful for the common scenario where an assignment shares many similarities with a whole class of  assignments, with a few small changes. 
 
-Template arguments are specified using a markdown table, inside a replacements tag:
+Template arguments are specified using a markdown-style table, inside a replacements tag:
 ```xml
 <quiz>  
 <replacements>
@@ -297,5 +346,11 @@ The official guide to the Canvas Python API is found here: [https://canvasapi.re
 
 The Python API does not fully explain the parameters each function requires. You will need to consult the [REST API](https://canvas.instructure.com/doc/api/assignments.html) for that information.
 
-The jinja documentation is found here: [https://jinja.palletsprojects.com/en/3.1.x/]( https://jinja.palletsprojects.com/en/3.1.x/)
+The jinja documentation is found here: 
+- Writing templates
+	- [Jinja templating guide](https://jinja.palletsprojects.com/en/3.1.x/templates/)
+- Creating more features
+	- [https://jinja.palletsprojects.com/en/3.1.x/]( https://jinja.palletsprojects.com/en/3.1.x/)
 
+Markdown syntax:
+- [Markdown cheat sheet](https://www.markdownguide.org/cheat-sheet/)

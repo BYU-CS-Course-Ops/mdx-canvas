@@ -1,11 +1,11 @@
-# md-canvas
+# local-canvas
 Storing canvas content in structured files
 for easy editing, sharing, and version control.
 
 # Installation
 
 ```
-pip install md-canvas
+pip install local-canvas
 ```
 
 
