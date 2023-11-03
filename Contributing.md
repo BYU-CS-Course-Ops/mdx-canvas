@@ -2,16 +2,43 @@ We'd love for you to add to the project! Current tasks include adding support fo
 
 ## The goal
 
-The goal of the tool is to store Canvas content in local documents. Canvas is a LMS, or Learning Management system, used by many schools and universities in the US. For people who manage content, one of its major draws is its API, or Application Programming Interface. APIs enable programmers to interact with websites and databases automatically. Automatic interaction saves time interacting with a website as long as the available tools are easy to use.
+The goal of the local-canvas tool is to store Canvas content in local documents. Canvas is an LMS, or Learning Management system, used by many schools and universities in the US. Canvas provides several types of content:
+- Quizzes
+- Assignments
+- Pages
+- Discussions
+- Files
 
+For simplicity, this document will refer to these content elements as pages, since they are eventually displayed as webpages in Canvas.
 
+For people who manage content, one of the major draws to Canvas is its API, or Application Programming Interface. APIs enable programmers to interact with websites and databases automatically. Automatic interaction saves time interacting with a website **as long as the available tools are easy to use**.
 
-## Understanding the Tool
+Local-canvas aims to be a simple, intuitive, powerful, and functionally complete way to interact with the Canvas API. As a wrapper, it does significant work behind-the-scenes. 
 
-After reading this document, you should understand:
-- How quiz documents are parsed as a whole (turning text into structured data)
-- How 
+#### Information Flow
+1. A content creator creates a set of local documents on their computer.
+2. A content manager points local-canvas to their documents, as well as the appropriate course.
+3. Local-canvas reads the file as a text document.
+	1. Local-canvas parses the document, interpreting nested and sequential text as structured data.
+	2. Templating allows local-canvas to turn one document into several pages.
+	3. The structured data is reformatted:
+		1. Dates are converted to [ISO format](https://www.iso.org/iso-8601-date-and-time-format.html).
+		2. Images are uploaded to canvas, assigned to folders, and linked.
+	4. The data is restructured to match [the parameters of the Canvas API]([https://canvasapi.readthedocs.io/en/stable/getting-started.html](https://canvasapi.readthedocs.io/en/stable/getting-started.html).
+4. The Canvas API accepts the data, and modifies the course as requested.
 
+## Understanding local-canvas
+
+Parsing means turning text into structured data.
+
+**After reading this document, you should understand:**
+- How we parse local documents using Beautiful Soup
+- How we parse individual elements by extracting elements from Tags
+- How we parse templates using jinja
+- How we manually parse template arguments
+- How we convert text elements to objects in Python
+- How we unpack dictionaries into keyword arguments
+- How we provide keyword arguments to the Canvas API
 
 ## Document Parsing
 
@@ -19,7 +46,7 @@ A user should easily be able to create a simple quiz, like this example:
 
 ```xml
 <quiz>
-	<settings title="Sample Quiz" points_possible="40">
+	<settings title="Example Quiz" points_possible="40">
 	</settings>
 	
 	<question type = "multiple-choice">
@@ -30,16 +57,18 @@ A user should easily be able to create a simple quiz, like this example:
 </quiz>
 ```
 
-The CanvasTo help with that, we parse the document ourselves. 
+To help with that, we parse the document ourselves, giving us the flexibility to offer a simple syntax.
 
-The html parser `Beautiful Soup` is used to process the tags and interpret quiz structure. 
+We use the html parser `Beautiful Soup` to process the tags and interpret quiz structure. `Beautiful Soup` is a Python Library that is typically used to interpret html used in a webpage. Here, we use it to understand the structure of tags in the document.
 
 ```python
 from bs4 import BeautifulSoup  
 from bs4.element import Tag
 ```
 
-Beautiful Soup is explicitly used in a single method—the parse method of the Document Parser class—but all lower Parser classes expect a `Tag` as a parameter. All documents are passed to a Document Parser as text. Beautiful Soup then identifies all of the highest level `Tag` objects in the document.
+Beautiful Soup is explicitly used in a single method—the parse method of the Document Parser class—but all lower Parser classes expect a `Tag` as a parameter. 
+
+All documents are passed to a Document Parser as text. Beautiful Soup then identifies all of the highest level `Tag` objects in the document.
 
 ```python
 def parse(self, text):
@@ -50,9 +79,9 @@ def parse(self, text):
 
 If `parse()` was run on the example quiz above, tag would take the value of the `quiz` tag. Other possible high-level tags include `assignment` and `module`. 
 
-A document can have multiple high-level `Tag`s, such as an assignment and an override. This is an especially useful combination, since overrides specify exceptions to assignment due dates and visibility.
+A document can have multiple high-level `Tag`s, such as an assignment and an override. This is an especially useful combination, since overrides specify exceptions to assignment due dates and visibility, and a content creator might design a page for a specific section of their class.
 
-After getting the tag, the document parser identifies the appropriate element parser to use.
+After getting the tag, the document parser identifies the appropriate element parser to use, then calls the parser's `parse` function on the tag.
 
 ```python
 	parser = self.element_processors.get(tag.name, None)  
@@ -87,45 +116,6 @@ def parse(self, text):
 		for element in elements:  
 			new_elements = self.create_elements_from_template(element)  
 			document.extend(new_elements)
-```
-
-## A note on File extensions
-
-The file's extension is customizable for viewing convenience. File extensions such as .md, .xml, or .jinja are not necessary; they only change how the text is displayed when editing. XML and HTML are particularly useful for matching opening and closing tags.
-
-XML / HTML:
-
-```xml
-<question> </question>
-```
-
-MD: [Markdown cheat sheet](https://www.markdownguide.org/cheat-sheet/)
-
-| Header 1| Header 2|
-| --- | --- |
-| cell 1 | cell 2|
-
-Jinja: [Jinja templating guide](https://jinja.palletsprojects.com/en/3.1.x/templates/)
-
-```html
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <title>My Webpage</title>
-</head>
-<body>
-    <ul id="navigation">
-    {% for item in navigation %}
-        <li><a href="{{ item.href }}">{{ item.caption }}</a></li>
-    {% endfor %}
-    </ul>
-
-    <h1>My Webpage</h1>
-    {{ a_variable }}
-
-    {# a comment #}
-</body>
-</html>
 ```
 
 ## Template Parsing
@@ -178,6 +168,8 @@ for context in all_replacements:
     elements.append(json.loads(template.render(context)))
 ```
 
+The `template.render()` expression yields a new document, with each template argument replaced appropriately. `json.loads` takes that string and [returns a Python object representing the structured data](https://www.w3schools.com/python/python_json.asp).
+
 The specifics of jinja's syntax can be found in [their documentation.]( https://jinja.palletsprojects.com/en/3.1.x/)
 Some of jinja's most powerful features are accessed when the context contains lists and dictionaries. 
 
@@ -189,16 +181,16 @@ Some of jinja's most powerful features are accessed when the context contains li
 {% endfor %}
 ```
 
-The first and last lines define a `for` loop. `Videos` is a dictionary, containing `'names': [a list of video names]` and `'links': [a list of video links]`. 
+The first and last lines frame a `for` loop. `Videos` is a dictionary, containing `'names': [a list of video names]` and `'links': [a list of video links]`. 
 
 Our tool supports lists and dictionaries through specific header formats.
   
-| Day_Name | list: Videos.names                      | list: Videos.links                                         |  
+| Headers>| list: Videos.names                      | list: Videos.links                                         |  
 |----------|-----------------------------------------|------------------------------------------------------------|  
 | Day 1    | My Introduction, Introduction to CS 110 | https://youtu.be/14WS_bHXm_M, https://youtu.be/uVlKzVlNbjM |  
 | Day 2    | Introduction to Bit                     | https://youtu.be/7Lo8A69q9gA                               |  
 
-Any cell that is a list should have a header that begins with `list: `. To create a dictionary, the user should use headers like `Videos.names` and `Videos.links`. Videos will be created as a dictionary, with `names` and `links` as keys.
+Any cell that contains a list should have a header that begins with `list: `. To create a relationship between columns, the user should use headers like `Videos.names` and `Videos.links`. Videos will be  interpreted as an object, with `names` and `links` as attributes.
 
 ```python
 replacements = defaultdict(dict)  
@@ -215,15 +207,54 @@ for header, value in zip(headers, line):
         replacements[header] = value
 ```
 
+## A note on File extensions
+
+The file's extension is customizable for viewing convenience. File extensions such as .md, .xml, or .jinja are not necessary; they only change how the text is displayed when editing. XML and HTML are particularly useful for matching opening and closing tags.
+
+XML / HTML:
+
+```xml
+<question> </question>
+```
+
+MD: [Markdown cheat sheet](https://www.markdownguide.org/cheat-sheet/)
+
+| Header 1| Header 2|
+| --- | --- |
+| cell 1 | cell 2|
+
+Jinja: [Jinja templating guide](https://jinja.palletsprojects.com/en/3.1.x/templates/)
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>My Webpage</title>
+</head>
+<body>
+    <ul id="navigation">
+    {% for item in navigation %}
+        <li><a href="{{ item.href }}">{{ item.caption }}</a></li>
+    {% endfor %}
+    </ul>
+
+    <h1>My Webpage</h1>
+    {{ a_variable }}
+
+    {# a comment #}
+</body>
+</html>
+```
+
 ## Date Parsing
 
-Dates need to be passed to the Canvas API in ISO format:
+Dates need to be passed to the Canvas API in ISO format, or as datetime objects:
 
 ```cpp
 2013-01-23T23:59:00-07:00
 ```
 
-Conveniently, we can use the datetime module to convert other date formats to ISO.
+We use the datetime module to convert other date formats to ISO.
 
 ```python
 from datetime import datetime
@@ -261,7 +292,7 @@ Current date formats are the following:
 "%Y-%m-%dT%H:%M:%S%z"
 ```
 
-To interpret the formats, see [this website.](https://www.programiz.com/python-programming/datetime/strptime) 
+To interpret these and other formats, see [this website.](https://www.programiz.com/python-programming/datetime/strptime) 
 
 ## Canvas Course Objects
 
@@ -274,7 +305,7 @@ course: Course = canvas.get_course(course_id)
 
 The user provides authorization (an api token) as a parameter to the `Canvas()` constructor. 
 
-The user creates an API token on canvas by navigating this path:
+The user can create an API token on Canvas by navigating this path:
 Account -> Settings -> Approved Integrations -> New Access Token
 
 The course id is found in the url of the course.
@@ -349,8 +380,15 @@ The Python API does not fully explain the parameters each function requires. You
 The jinja documentation is found here: 
 - Writing templates
 	- [Jinja templating guide](https://jinja.palletsprojects.com/en/3.1.x/templates/)
-- Creating more features
+- Adding features
 	- [https://jinja.palletsprojects.com/en/3.1.x/]( https://jinja.palletsprojects.com/en/3.1.x/)
 
 Markdown syntax:
 - [Markdown cheat sheet](https://www.markdownguide.org/cheat-sheet/)
+
+ISO format:
+- [Python dateTime documentation](https://docs.python.org/3/library/datetime.html#format-codes)
+
+Json conversion from string to objects:
+- [Tutorial](https://www.w3schools.com/python/python_json.asp)
+- [Documentation](https://docs.python.org/3/library/json.html)
