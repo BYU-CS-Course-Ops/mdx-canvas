@@ -1,6 +1,6 @@
-We'd love for you to add to the project! Current tasks include adding support for all question types and options. A thorough survey of canvas content also needs to be conducted, so that we can accurately track our progress in our ability to post and store content. Before contributing, please read how the tool works. You may also consider reading the [README](https://github.com/beanlab/md-canvas/blob/main/README.md).
+We'd love for you to add to the project! Current tasks include adding support for all question types and options. A thorough survey of canvas content also needs to be conducted, so that we can accurately track our progress in our ability to post and store content. Before contributing, please read this document to understand how the tool works. You may also consider reading the [README](https://github.com/beanlab/md-canvas/blob/main/README.md). 
 
-## The goal
+## Purpose
 
 The goal of the local-canvas tool is to store Canvas content in local documents. Canvas is an LMS, or Learning Management system, used by many schools and universities in the US. Canvas provides several types of content:
 - Quizzes
@@ -9,22 +9,23 @@ The goal of the local-canvas tool is to store Canvas content in local documents.
 - Discussions
 - Files
 
-For simplicity, this document will refer to these content elements as pages, since they are eventually displayed as webpages in Canvas.
+For simplicity, this document will refer to these content elements as pages, since they are displayed as webpages in Canvas.
 
-For people who manage content, one of the major draws to Canvas is its API, or Application Programming Interface. APIs enable programmers to interact with websites and databases automatically. Automatic interaction saves time interacting with a website **as long as the available tools are easy to use**.
+Canvas is an excellent solution for content managers due to its high-functioning API, or Application Programming Interface. APIs enable programmers to interact with websites and databases automatically. Automatic interaction saves time **as long as the available tools are easy to use**.
 
-Local-canvas aims to be a simple, intuitive, powerful, and functionally complete way to interact with the Canvas API. As a wrapper, it does significant work behind-the-scenes. 
+Local-canvas aims to be a simple, intuitive, and powerful way to interact with the Canvas API. As a wrapper, it does significant work behind-the-scenes. 
 
-#### Information Flow
+#### Sequential Information Flow
 1. A content creator creates a set of local documents on their computer.
-2. A content manager points local-canvas to their documents, as well as the appropriate course.
-3. Local-canvas reads the file as a text document.
-	1. Local-canvas parses the document, interpreting nested and sequential text as structured data.
+	-  These could be quizzes, assignments, discussions, etc.
+2. A content manager points local-canvas to the documents, as well as the appropriate course.
+3. Local-canvas reads the file as a text.
+	1. Local-canvas parses the text, interpreting nested and sequential text as structured data.
 	2. Templating allows local-canvas to turn one document into several pages.
 	3. The structured data is reformatted:
-		1. Dates are converted to [ISO format](https://www.iso.org/iso-8601-date-and-time-format.html).
+		1. Dates are converted to ISO format.
 		2. Images are uploaded to canvas, assigned to folders, and linked.
-	4. The data is restructured to match [the parameters of the Canvas API]([https://canvasapi.readthedocs.io/en/stable/getting-started.html](https://canvasapi.readthedocs.io/en/stable/getting-started.html).
+	4. The data is restructured to match the parameters of the Canvas API.
 4. The Canvas API accepts the data, and modifies the course as requested.
 
 ## Understanding local-canvas
@@ -34,15 +35,14 @@ Parsing means turning text into structured data.
 **After reading this document, you should understand:**
 - How we parse local documents using Beautiful Soup
 - How we parse individual elements by extracting elements from Tags
-- How we parse templates using jinja
+- How we parse page templates using jinja
 - How we manually parse template arguments
 - How we convert text elements to objects in Python
-- How we unpack dictionaries into keyword arguments
-- How we provide keyword arguments to the Canvas API
+- How we provide dictionaries of attributes as arguments to the Canvas API
 
 ## Document Parsing
 
-A user should easily be able to create a simple quiz, like this example:
+A user should easily be able to create quizzes. To help the user, we offer a simple syntax, as shown in this example:
 
 ```xml
 <quiz>
@@ -57,16 +57,17 @@ A user should easily be able to create a simple quiz, like this example:
 </quiz>
 ```
 
-To help with that, we parse the document ourselves, giving us the flexibility to offer a simple syntax.
+We parse the document in pieces, giving us the flexibility to offer this syntax. The basic building block is a tag, which is commonly used in other formats like html.
 
-We use the html parser `Beautiful Soup` to process the tags and interpret quiz structure. `Beautiful Soup` is a Python Library that is typically used to interpret html used in a webpage. Here, we use it to understand the structure of tags in the document.
+A tag element has this structure:
 
-```python
-from bs4 import BeautifulSoup  
-from bs4.element import Tag
+```xml
+<quiz (attributes)> # Opening tag
+Content
+<quiz> # Closing tag
 ```
 
-Beautiful Soup is explicitly used in a single method—the parse method of the Document Parser class—but all lower Parser classes expect a `Tag` as a parameter. 
+`Beautiful Soup` is a Python Library that is typically used to interpret html used in a webpage. We use it to understand the structure of tags in the document. We import `Beautiful Soup` from `bs4` and `Tag` from `bs4.element`. A `Tag` is a specific object type with certain useful attributes.
 
 All documents are passed to a Document Parser as text. Beautiful Soup then identifies all of the highest level `Tag` objects in the document.
 
@@ -77,11 +78,11 @@ def parse(self, text):
 	for tag in soup.children: # Highest Tags
 ```
 
-If `parse()` was run on the example quiz above, tag would take the value of the `quiz` tag. Other possible high-level tags include `assignment` and `module`. 
+If `parse()` was run on the example quiz above, tag would take the value of the `quiz` tag. Other possible high-level tags include `assignment`, `module`, and `override`.
 
-A document can have multiple high-level `Tag`s, such as an assignment and an override. This is an especially useful combination, since overrides specify exceptions to assignment due dates and visibility, and a content creator might design a page for a specific section of their class.
+A document could contain multiple tags, such as an assignment and an override. This is an especially useful combination, since overrides specify exceptions to assignment due dates and visibility, and a content creator might design an assignment for a specific section of their class.
 
-After getting the tag, the document parser identifies the appropriate element parser to use, then calls the parser's `parse` function on the tag.
+After getting the tag, the document parser identifies the appropriate element parser to use, then calls the parser's `parse` function on the `Tag`.
 
 ```python
 	parser = self.element_processors.get(tag.name, None)  
@@ -89,7 +90,7 @@ After getting the tag, the document parser identifies the appropriate element pa
 	    elements = parser.parse(tag)
 ```
 
-The element parsers are defined  when the Document Parser is constructed. Each element parser corresponds to a high-level `Tag`. 
+The element parsers are defined  when the Document Parser is constructed. Each element parser corresponds to a different `Tag`. 
 
 ```python
 self.element_processors = {  
@@ -119,42 +120,45 @@ def parse(self, text):
 ```
 
 ## Template Parsing
-Each element in a document can be used as a template to generate similar documents in Canvas. This is useful for the common scenario where an assignment shares many similarities with a whole class of  assignments, with a few small changes. 
 
-Template arguments are specified using a markdown-style table, inside a replacements tag:
+Each element in a document can be used as a template to generate similar documents in Canvas. This is useful for the common scenario where an assignment shares many similarities with several other assignments, with a few small changes. 
+
+Template arguments are specified using a [markdown-style table](https://www.markdownguide.org/cheat-sheet/), inside a `<replacements>` tag:
 ```xml
-<quiz>  
-<replacements>
-|Title|Due|
-|---|---|
-|Lab 1a Quiz|Sep 12|
-|Lab 1b Quiz|Sep 14|
-|Lab 1c Quiz|Sep 19|
-|Lab 2a Quiz|Sep 21|
-|Lab 2b Quiz|Sep 26|
-|Lab 2c Quiz|Sep 28|
-|Lab 2d Quiz|Oct 03|
-<replacements>
-
-<settings title="{{Title}}" {{due_at="Due, 2023, 8:00 AM"}} points_possible="10" assignment_group="Labs" shuffle_answers="False" allowed_attempts="-1">
-</settings>
-</quiz>
+<override>  
+<template-arguments>  
+  
+| Day_Name | Due_At |  
+|----------|--------|  
+| Day 1    | Sep 5  |  
+| Day 2    | Sep 7  |  
+| Day 3    | Sep 12 |  
+| Day 4    | Sep 14 |  
+| Day 5    | Sep 19 |  
+  
+</template-arguments>  
+<section>How to Program (TESTING)</section>  
+<assignment title="{{ Day_Name }}" due_at="{{ Due_At }}, 2023, 11:59 PM"></assignment>  
+</override>
 ```
+
+Here, the `Day_Name` and `Due_At` variables are replaced with the different values in the table.
 
 The replacements are processed manually by splitting each row on the pipe `|` character. Each row will eventually become a separate item in Canvas. 
 
-The templating (generating separate pieces of text for each replacement) is done using jinja. Jinja works efficiently, using minimal lines of code.
+The templating (generating separate pieces of text for each replacement) is done using jinja. Jinja is a python library specifically used for templating, and it works on documents with a syntax similar to python. Jinja provides access to variables, expressions, and loops within a document, and is especially targeted towards created templated webpages using html. Since our document structure is similar to html, jinja is perfect for templating canvas pages.
 
-A Jinja environment is initialized in the Document Parser constructor:
-```python
-from jinja2 import Environment
-
-self.jinja_env = Environment()
-# This enables us to use the zip function in template documents
-self.jinja_env.globals.update(zip=zip)
+Specifically, jinja acts on this section of the override template:
+```xml
+<override>
+<section>How to Program (TESTING)</section>
+<assignment title="{{ Day_Name }}" due_at="{{ Due_At }}, 2023, 11:59 PM"></assignment>
+</override>
 ```
 
-Jinja is then used in Document Parser's `create_elements_from_template()` method:
+Here, `{{ Day_Name }}` is a variable. When we provide the template with context, such as `{"Day_Name": "Day 2"}`, jinja will replace `{{ Day_Name }}` with `Day 2`.
+
+We use jinja in the Document Parser's `create_elements_from_template()` method. This method receives a Python object from an element parser. We turn the element into a string using json, then jinja creates a template from that string.
 ```python
 # Element template is an object, turn it into text  
 template_text = json.dumps(element_template, indent=4)  
@@ -168,7 +172,7 @@ for context in all_replacements:
     elements.append(json.loads(template.render(context)))
 ```
 
-The `template.render()` expression yields a new document, with each template argument replaced appropriately. `json.loads` takes that string and [returns a Python object representing the structured data](https://www.w3schools.com/python/python_json.asp).
+The `template.render()` expression accepts a context, which is how we replace variables in the document with specific pieces of text. The `.render()` method replaces each template argument appropriately, returning a string with everything replaced. Then `json.loads()` function takes that string and returns a Python object representing the structured data.
 
 The specifics of jinja's syntax can be found in [their documentation.]( https://jinja.palletsprojects.com/en/3.1.x/)
 Some of jinja's most powerful features are accessed when the context contains lists and dictionaries. 
@@ -181,7 +185,7 @@ Some of jinja's most powerful features are accessed when the context contains li
 {% endfor %}
 ```
 
-The first and last lines frame a `for` loop. `Videos` is a dictionary, containing `'names': [a list of video names]` and `'links': [a list of video links]`. 
+The first and last lines frame a `for` loop. This for loop creates multiple div blocks, one for each name-link pair in Videos. `Videos` is a dictionary, containing `'names': [a list of video names]` and `'links': [a list of video links]`. We zip the two lists together, so that we can iterate through both lists at the same time.
 
 Our tool supports lists and dictionaries through specific header formats.
   
@@ -209,21 +213,32 @@ for header, value in zip(headers, line):
 
 ## A note on File extensions
 
-The file's extension is customizable for viewing convenience. File extensions such as .md, .xml, or .jinja are not necessary; they only change how the text is displayed when editing. XML and HTML are particularly useful for matching opening and closing tags.
+The file's extension is customizable for to help the user view their file. File extensions such as .md, .xml, or .jinja are not necessary for parsing, but modern text editors highlight text differently depending on the file extension. 
 
-XML / HTML:
+##### XML / HTML:
+XML and HTML are particularly useful for viewing matches between opening and closing tags.
 
 ```xml
 <question> </question>
 ```
 
-MD: [Markdown cheat sheet](https://www.markdownguide.org/cheat-sheet/)
+##### Markdown:
+Markdown is useful for displaying tables, and for creating course content. The markdown processor function will convert all markdown into html, which canvas renders.
+[Markdown cheat sheet](https://www.markdownguide.org/cheat-sheet/)
+
+```md
+| Header 1| Header 2|
+| --- | --- |
+| cell 1 | cell 2|
+```
 
 | Header 1| Header 2|
 | --- | --- |
 | cell 1 | cell 2|
 
-Jinja: [Jinja templating guide](https://jinja.palletsprojects.com/en/3.1.x/templates/)
+##### Jinja
+We use jinja to process page templates.
+[Jinja templating guide](https://jinja.palletsprojects.com/en/3.1.x/templates/)
 
 ```html
 <!DOCTYPE html>
@@ -292,8 +307,9 @@ Current date formats are the following:
 "%Y-%m-%dT%H:%M:%S%z"
 ```
 
-To interpret these and other formats, see [this website.](https://www.programiz.com/python-programming/datetime/strptime) 
+To interpret these and other formats, see [this date tutorial.](https://www.programiz.com/python-programming/datetime/strptime) 
 
+# Using the Canvas API
 ## Canvas Course Objects
 
 The Canvas Python API provides Course objects. Course objects are specific to a class, and need authorization to be retrieved. 
@@ -310,7 +326,11 @@ Account -> Settings -> Approved Integrations -> New Access Token
 
 The course id is found in the url of the course.
 
-## Using the Canvas API to Create a Quiz
+## Creating a Page
+
+We follow a similar process to create each type of page. Quizzes are more complicated, since they require additional information pertaining to each question and answer. Quizzes are explained in the next section.
+
+## Creating a Quiz
 
 Once we have the Course object, creating a quiz is simple.
 
@@ -325,7 +345,7 @@ When parsing each quiz or other element, we store the necessary settings in a `<
 The full list of settings the user can use are found here:
 [https://canvas.instructure.com/doc/api/quizzes.html#Quiz](https://canvas.instructure.com/doc/api/quizzes.html#Quiz)
 
-## Using the Canvas API to Add Questions to a Quiz
+## Adding Questions to a Quiz
 
 Questions must be added individually to a quiz. The `create_quiz()` function returns a `Quiz` object which we store for later use. The `create_question` function takes a keyword parameter `question`, which is expected to be a dictionary of question attributes.
 
@@ -334,7 +354,7 @@ for question in questions:
     canvas_quiz.create_question(question=question)
 ```
 
-The question attributes can be found in this reference: 
+The full attribute list for a question can be found in this reference: 
 [https://canvas.instructure.com/doc/api/quiz_questions.html](https://canvas.instructure.com/doc/api/quiz_questions.html)
 
 The user does not interact directly with the quiz questions API. Instead, we provide an easier format for creating quiz questions, and our parser does the rest of the work.
@@ -351,7 +371,7 @@ Each question type expects a different set of attributes. For example, a matchin
 	- An answer weight (Always 100 for matching questions)
 - A new-line separated string of incorrect right matches
 
-This is the expected structure for a question dictionary:
+This is the expected structure for a matching question dictionary:
 
 ```python
 question = {  
@@ -371,24 +391,34 @@ question = {
 }
 ```
 
-## Resources
+Again, the full attribute list for a question can be found in this reference: 
+[https://canvas.instructure.com/doc/api/quiz_questions.html](https://canvas.instructure.com/doc/api/quiz_questions.html)
+
+# Resources
 
 The official guide to the Canvas Python API is found here: [https://canvasapi.readthedocs.io/en/stable/getting-started.html](https://canvasapi.readthedocs.io/en/stable/getting-started.html)
 
 The Python API does not fully explain the parameters each function requires. You will need to consult the [REST API](https://canvas.instructure.com/doc/api/assignments.html) for that information.
 
-The jinja documentation is found here: 
+##### Jinja documentation
 - Writing templates
 	- [Jinja templating guide](https://jinja.palletsprojects.com/en/3.1.x/templates/)
 - Adding features
 	- [https://jinja.palletsprojects.com/en/3.1.x/]( https://jinja.palletsprojects.com/en/3.1.x/)
 
-Markdown syntax:
+##### Markdown syntax:
 - [Markdown cheat sheet](https://www.markdownguide.org/cheat-sheet/)
 
-ISO format:
+##### ISO format:
 - [Python dateTime documentation](https://docs.python.org/3/library/datetime.html#format-codes)
 
-Json conversion from string to objects:
+##### Json conversion from string to objects:
 - [Tutorial](https://www.w3schools.com/python/python_json.asp)
 - [Documentation](https://docs.python.org/3/library/json.html)
+
+# Contact Information
+
+### Preston Raab - Primary Developer
+- Email: [phr23@byu.edu](mailto:phr23@byu.edu)
+### Gordon Bean - Advisor
+- Email: [gbean@cs.byu.edu](mailto:gbean@cs.byu.edu)
