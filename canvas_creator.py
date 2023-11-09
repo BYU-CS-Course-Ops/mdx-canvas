@@ -338,6 +338,7 @@ def create_or_update_module(course, element):
 
 def get_assignment_override_pair(course, overrides):
     assignments = course.get_assignments()
+    # Grab override names
     names = [o["title"] for o in overrides]
     pairs = []
     for assignment in assignments:
@@ -457,8 +458,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     load_env(args.env)
-    with open(args.course_info) as file:
-        course_settings = json.load(file)
+    with open(args.course_info) as f:
+        course_settings = json.load(f)
 
     # " -0600" is Mountain Time
     main(api_token=os.getenv("CANVAS_API_TOKEN"),

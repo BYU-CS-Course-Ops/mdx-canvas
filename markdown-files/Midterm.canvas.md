@@ -48,19 +48,19 @@ if __name__ == '__main__':
     run(Bit.new_bit)
 ```
 <correct>
-![alt text](q1_bit_blue_red_green_T.PNG)
+![alt text](resources/q1_bit_blue_red_green_T.PNG)
 </correct>
 
 <incorrect>
-![alt text](q1_bit_blue_blue_blue_F.PNG)
+![alt text](resources/q1_bit_blue_blue_blue_F.PNG)
 </incorrect>
 
 <incorrect>
-![alt text](q1_bit_blue_green_green_F.PNG)
+![alt text](resources/q1_bit_blue_green_green_F.PNG)
 </incorrect>
 
 <incorrect>
-![alt text](q1_bit_blue_red_red_F.PNG)
+![alt text](resources/q1_bit_blue_red_red_F.PNG)
 </incorrect>
 </question>
 
@@ -70,11 +70,11 @@ if __name__ == '__main__':
 
 Given the following starting world named `rgb`:
 
-![q2_starting_world](./q2_start_description.svg)
+![q2_starting_world](resources/q2_start_description.svg)
 
 Which block of code will produce the following end result:
 
-![q2_ending_world](./q2_finish_description.svg)
+![q2_ending_world](resources/q2_finish_description.svg)
 
 <correct>
 
@@ -173,12 +173,12 @@ if __name__ == '__main__':
 Starting with this world:
 
 ![four by four bit world; all cells white; bit in bottom left corner
-](q3_start_description.svg)
+](resources/q3_start_description.svg)
 
 Which code snippet produces this result:
 
 ![four by four bit world with blue in the cells on the edge
-](q3_finish_description.svg)
+](resources/q3_finish_description.svg)
 
 <correct>
 
@@ -276,12 +276,12 @@ if __name__ == '__main__':
 
 Bit starts in the following world `red_bars`:
 
-![q4_starting_world](q4_start_description.svg)
+![q4_starting_world](resources/q4_start_description.svg)
 
 
 Which of the following implementations of `draw_bar` will produce the following result?
 
-![q4_ending_world](q4_finish_description.svg)
+![q4_ending_world](resources/q4_finish_description.svg)
 
 
 
