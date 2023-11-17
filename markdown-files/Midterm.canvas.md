@@ -48,18 +48,22 @@ if __name__ == '__main__':
     run(Bit.new_bit)
 ```
 <correct>
+
 ![alt text](resources/q1_bit_blue_red_green_T.PNG)
 </correct>
 
 <incorrect>
+
 ![alt text](resources/q1_bit_blue_blue_blue_F.PNG)
 </incorrect>
 
 <incorrect>
+
 ![alt text](resources/q1_bit_blue_green_green_F.PNG)
 </incorrect>
 
 <incorrect>
+
 ![alt text](resources/q1_bit_blue_red_red_F.PNG)
 </incorrect>
 </question>
@@ -699,19 +703,24 @@ def keep_it(thing):
 </question>
 
 <question type="matching">
+
 Match each `list` pattern with the scenario it serves.
+
 <pair>
     <left>You want to add an exclamation point to each word in a list.</left>
     <right>Mapping pattern</right>
 </pair>
+
 <pair>
     <left>Eligibility is defined by highest grade, then by earliest application. You want to find the most eligible applicant.</left>
     <right>Selection pattern</right>
 </pair>
+
 <pair>
     <left>A purchase record has information about the number of items, date, and total purchase price. You want to find the total spent across a batch of purchases.</left>
     <right>Accumulator pattern</right>
 </pair>
+
 <pair>
     <left>You have a list of speech transcripts. You want only the speeches that mention prayer.</left>
     <right>Filter pattern</right>
