@@ -24,7 +24,7 @@ This is a correct answer
 </incorrect>
 </question>
 
-This is another question
+<question type = "multiple-choice">
 <incorrect>
 
 ```python
@@ -36,7 +36,6 @@ def give_me_100():
 
 </incorrect>
 
-<correct>5</correct>
 <correct>6</correct>
 
 <incorrect>

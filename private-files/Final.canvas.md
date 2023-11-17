@@ -150,9 +150,6 @@ def main():
 </wrong>
 </question>
 
-<question type = "true-false">
-<right>
-
 
 
 

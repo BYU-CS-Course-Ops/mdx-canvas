@@ -405,12 +405,15 @@ def create_or_edit_page(course: Course, element):
     return canvas_page
 
 
-def create_elements_from_document(course: Course, time_zone: str, file_path: Path, path_to_resources: Path):
+def create_elements_from_document(course: Course, time_zone: str, file_path: Path):
+    if "canvas" not in file_path.__str__():
+        raise ValueError("File must be a canvas file")
+
     # Provide processing functions, so that the parser needs no access to a canvas course
     parser = DocumentParser(
-        path_to_resources=path_to_resources,
+        path_to_resources=file_path.parent,
         path_to_canvas_files=file_path.parent,
-        markdown_processor=lambda text: process_markdown(text, course, path_to_resources),
+        markdown_processor=lambda text: process_markdown(text, course, file_path.parent),
         time_zone=time_zone,
         group_indexer=lambda group_name: get_group_index(course, group_name)
     )
@@ -436,17 +439,14 @@ def create_elements_from_document(course: Course, time_zone: str, file_path: Pat
             raise ValueError(f"Unknown type {element['type']}")
 
 
-def main(api_token, api_url, course_id, time_zone: str, file_path: Path, path_to_resources: Path):
+def main(api_token, api_url, course_id, time_zone: str, file_path: Path):
     print("-" * 50 + "\nCanvas Generator\n" + "-" * 50)
 
     canvas = Canvas(api_url, api_token)
     course: Course = canvas.get_course(course_id)
 
-    if "canvas" not in file_path.__str__():
-        raise ValueError("File must be a canvas file")
-
     print(f"Posting to Canvas ({file_path}) ...")
-    create_elements_from_document(course, time_zone, file_path, path_to_resources)
+    create_elements_from_document(course, time_zone, file_path)
 
 
 if __name__ == "__main__":
@@ -466,5 +466,4 @@ if __name__ == "__main__":
          api_url=course_settings["CANVAS_API_URL"],
          course_id=course_settings["CANVAS_COURSE_ID"],
          time_zone=course_settings["CANVAS_TIME_ZONE"],
-         file_path=args.file_path,
-         path_to_resources=args.resources)
+         file_path=args.file_path)

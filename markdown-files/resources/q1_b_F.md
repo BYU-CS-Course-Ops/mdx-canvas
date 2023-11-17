@@ -1,1 +1,0 @@
-![bit_blue_blue_blue](q1_bit_blue_blue_blue_F.PNG)

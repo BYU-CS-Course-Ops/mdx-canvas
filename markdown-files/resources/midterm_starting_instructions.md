@@ -1,1 +1,0 @@
-Some of these questions have answers that are very similar. Be sure to review all the answers for a question and not just take the first answer that looks correct. You may find that a later answer is more correct than the first one you see.

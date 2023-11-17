@@ -195,7 +195,8 @@ class TrueFalseProcessor:
     def process(question_tag, markdown_processor: ResourceExtractor):
         answers = get_answers(question_tag)
         if len(answers) != 1:
-            raise Exception("True false questions must have one correct or incorrect answer")
+            raise Exception("True false questions must have one correct or incorrect answer\n"
+                            "Answers: " + str(answers))
 
         return process(TFConverter(), answers[0], markdown_processor)
 
@@ -217,7 +218,8 @@ class MultipleChoiceProcessor:
     def process(question_tag, markdown_processor: ResourceExtractor):
         corrects, incorrects = get_corrects_and_incorrects(question_tag)
         if len(corrects) != 1:
-            raise Exception("Multiple choice questions must have exactly one correct answer")
+            raise Exception("Multiple choice questions must have exactly one correct answer\n"
+                            "Corrects: " + str(corrects))
 
         question_text, resources = markdown_processor(question_tag.contents[0])
         answers = []
