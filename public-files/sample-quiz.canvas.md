@@ -7,7 +7,9 @@ These instructions are seen before taking the quiz.
 
 <question type="text">
 **This is closer to html format**
-![alt text](image-test.jpg)
+
+![alt text](resources/image-test.jpg)
+
 </question>
 
 This is a comment
@@ -20,7 +22,9 @@ This is a correct answer
 </correct>
 
 <incorrect>
-![alt text](image-test.jpg)
+
+![alt text](resources/image-test.jpg)
+
 </incorrect>
 </question>
 
@@ -42,8 +46,6 @@ def give_me_100():
     This is 
     incorrect
 </incorrect>
-
-
 </question>
 
 <question type='true-false'>
@@ -52,11 +54,9 @@ def give_me_100():
     </correct>
 </question>
 
-<question type='true-false' answer="true">
-    this is the question
-</question>
 <question type = "matching">
-![alt text](image-test.jpg)
+
+![alt text](resources/image-test.jpg)
     <pair>
         <left>
             1 + 2
@@ -77,6 +77,7 @@ def give_me_100():
         7
         9
     </distractors>
+
 </question>
 </quiz>
 
