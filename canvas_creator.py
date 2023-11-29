@@ -271,7 +271,34 @@ def delete_module_item_if_exists(module, name):
             item.delete()
 
 
+def create_or_edit_module_item(module: Module, element, object_id, position):
+    """
+    Creates a module item with an object id, like an assignment or a quiz.
+    """
+    element["position"] = position
+    if not object_id:
+        create_or_edit_module_item_without_id(module, element)
+    else:
+        create_or_edit_module_item_with_id(module, element, object_id)
+
+
+def create_or_edit_module_item_with_id(module: Module, element, object_id):
+    """
+    Create module item if it doesn't exist, otherwise edit it.
+    """
+    element["content_id"] = object_id
+    if module_item := get_module_item(module, element["title"]):
+        print(f"Editing module item {element['title']} in module {module.name} ...")
+        module_item.edit(module_item=element)
+    else:
+        print(f"Creating module item {element['title']} in module {module.name} ...")
+        module.create_module_item(module_item=element)
+
+
 def create_or_edit_module_item_without_id(module: Module, element):
+    """
+    Creates a module item without an object id, like a page or a header.
+    """
     if element["type"] not in ["ExternalUrl", "SubHeader", "Page"]:
         print(f"Could not find object id for {element['title']}")
         return
@@ -290,22 +317,7 @@ def create_or_edit_module_item_without_id(module: Module, element):
     module.create_module_item(module_item=element)
 
 
-def create_or_edit_module_item(module: Module, element, object_id, position):
-    element["position"] = position
-    if not object_id:
-        create_or_edit_module_item_without_id(module, element)
-        return
-    # Create module item if it doesn't exist
-    element["content_id"] = object_id
-    if module_item := get_module_item(module, element["title"]):
-        print(f"Editing module item {element['title']} in module {module.name} ...")
-        module_item.edit(module_item=element)
-    else:
-        print(f"Creating module item {element['title']} in module {module.name} ...")
-        module.create_module_item(module_item=element)
-
-
-def delete_element_module_items(canvas_module, element):
+def delete_module_items_from_element(canvas_module, element):
     names = []
     for item in element["items"]:
         names.append(item["title"])
@@ -318,7 +330,7 @@ def delete_element_module_items(canvas_module, element):
 def create_or_update_module_items(course: Course, element, canvas_module):
     if "items" not in element:
         return
-    delete_element_module_items(canvas_module, element)
+    delete_module_items_from_element(canvas_module, element)
     for index, item in enumerate(element["items"]):
         object_id = get_object_id_from_element(course, item)
         create_or_edit_module_item(canvas_module, item, object_id, index + 1)
