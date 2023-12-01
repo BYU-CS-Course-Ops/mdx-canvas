@@ -439,7 +439,7 @@ class QuizParser:
             "hide_results": None,
             "show_correct_answers": True,
             "show_correct_answers_at": self.date_formatter(settings_tag.get("show_correct_answers_at", None)),
-            "allowed_attempts": settings_tag.get("allowed_attempts", 1),
+            "allowed_attempts": settings_tag.get("allowed_attempts"),
             "scoring_policy": settings_tag.get("scoring_policy", "keep_highest"),
             "one_question_at_a_time": settings_tag.get("one_question_at_a_time", False),
             "cant_go_back": settings_tag.get("cant_go_back", False),
@@ -530,7 +530,7 @@ class AssignmentParser:
             "graders_anonymous_to_graders": settings_tag.get("graders_anonymous_to_graders", False),
             "grader_names_visible_to_final_grader": settings_tag.get("grader_names_visible_to_final_grader", False),
             "anonymous_grading": settings_tag.get("anonymous_grading", False),
-            "allowed_attempts": settings_tag.get("allowed_attempts", 1),
+            "allowed_attempts": settings_tag.get("allowed_attempts"),
             "annotatable_attachment_id": settings_tag.get("annotatable_attachment_id", None),
         }
         return settings

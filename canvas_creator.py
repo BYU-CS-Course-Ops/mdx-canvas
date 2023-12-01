@@ -232,23 +232,25 @@ def fix_dates(element, time_zone):
 def create_or_edit_assignment(course, element):
     name = element["name"]
     if canvas_assignment := get_assignment(course, name):
-        print(f"Editing assignment {name} ...")
+        print(f"Editing canvas assignment {name} ...  ", end="")
         canvas_assignment.edit(assignment=element["settings"])
     else:
-        print(f"Creating assignment {name} ...")
+        print(f"Creating canvas assignment {name} ...  ", end="")
         course.create_assignment(assignment=element["settings"])
+    print("Done")
     return canvas_assignment
 
 
 def create_or_edit_quiz(course, element):
     name = element["name"]
     if canvas_quiz := get_quiz(course, name):
-        print(f"Editing quiz {name} ...")
+        print(f"Editing canvas quiz {name} ...  ", end="")
         canvas_quiz.edit(quiz=element["settings"])
     else:
-        print(f"Creating quiz {name} ...")
+        print(f"Creating canvas quiz {name} ...  ", end="")
         canvas_quiz = course.create_quiz(quiz=element["settings"])
     replace_questions(canvas_quiz, element["questions"])
+    print("Done")
     return canvas_quiz
 
 
@@ -288,11 +290,12 @@ def create_or_edit_module_item_with_id(module: Module, element, object_id):
     """
     element["content_id"] = object_id
     if module_item := get_module_item(module, element["title"]):
-        print(f"Editing module item {element['title']} in module {module.name} ...")
+        print(f"Editing module item {element['title']} in module {module.name} ...  ", end="")
         module_item.edit(module_item=element)
     else:
-        print(f"Creating module item {element['title']} in module {module.name} ...")
+        print(f"Creating module item {element['title']} in module {module.name} ...  ", end="")
         module.create_module_item(module_item=element)
+    print("Done")
 
 
 def create_or_edit_module_item_without_id(module: Module, element):
@@ -300,21 +303,23 @@ def create_or_edit_module_item_without_id(module: Module, element):
     Creates a module item without an object id, like a page or a header.
     """
     if element["type"] not in ["ExternalUrl", "SubHeader", "Page"]:
-        print(f"Could not find object id for {element['title']}")
+        print(f"{element['title']} does not exist, no id found when creating module.")
         return
 
     for item in module.get_module_items():
         if item.title == element["title"]:
-            print(f"Editing module item {element['title']} in module {module.name} ...")
+            print(f"Editing module item {element['title']} in module {module.name} ...  ", end="")
             item.edit(module_item=element)
+            print("Done")
             return
 
     if element["type"] == "Page" and not element["page_url"]:
         print(f"Could not find page url for {element['title']}")
         return
 
-    print(f"Creating module item {element['title']} in module {module.name} ...")
+    print(f"Creating module item {element['title']} in module {module.name} ...  ", end="")
     module.create_module_item(module_item=element)
+    print("Done")
 
 
 def delete_module_items_from_element(canvas_module, element):
@@ -339,23 +344,26 @@ def create_or_update_module_items(course: Course, element, canvas_module):
 def create_or_update_module(course, element):
     name = element["name"]
     if canvas_module := get_module(course, name):
-        print(f"Editing module {name} ...")
+        print(f"Editing canvas module {name} ...  ", end="")
         canvas_module.edit(module=element["settings"])
     else:
-        print(f"Creating module {name} ...")
+        print(f"Creating canvas module {name} ...  ", end="")
         canvas_module = course.create_module(module=element["settings"])
+    print()
     create_or_update_module_items(course, element, canvas_module)
     return canvas_module
 
 
-def get_assignment_override_pair(course, overrides):
+def get_assignment_override_pairs(course, overrides):
+    """
+    Searches for canvas assignments with names that match the override names.
+    """
     assignments = course.get_assignments()
-    # Grab override names
-    names = [o["title"] for o in overrides]
     pairs = []
     for assignment in assignments:
-        if assignment.name in names:
-            pairs.append((assignment, overrides[names.index(assignment.name)]))
+        for override in overrides:
+            if assignment.name == override["title"]:
+                pairs.append((assignment, override))
     return pairs
 
 
@@ -375,21 +383,24 @@ def create_or_update_override_for_assignment(assignment, override, students, sec
 
     for override in overrides:
         if canvas_override := get_override(assignment, override["title"]):
-            print(f"Editing override {override['title']} ...")
+            print(f"Editing override {override['title']} ...  ", end="")
             canvas_override.edit(assignment_override=override)
         else:
-            print(f"Creating override {override['title']} ...")
+            print(f"Creating override {override['title']} ...  ", end="")
             assignment.create_override(assignment_override=override)
+        print("Done")
 
 
-def create_or_update_override(course, element, time_zone):
-    students = element["students"]
-    sections = element["sections"]
+def create_or_update_override(course, override, time_zone):
+    students = override["students"]
+    sections = override["sections"]
     section_ids = get_section_ids(course, sections)
+    assignment_names = [a['title'] for a in override["assignments"]]
 
-    assignment_override_pairs = get_assignment_override_pair(course, element["assignments"])
+    assignment_override_pairs = get_assignment_override_pairs(course, override["assignments"])
     if not assignment_override_pairs:
-        raise ValueError(f"Could not find any of {element['assignments']} in canvas")
+        print(f"Could not find {assignment_names} in canvas for override {override['section']}")
+        return
     if not students and not sections:
         raise ValueError("Must provide either students or sections")
 
@@ -409,11 +420,12 @@ def get_section_ids(course, names):
 def create_or_edit_page(course: Course, element):
     name = element["name"]
     if canvas_page := get_page(course, name):
-        print(f"Editing page {name} ...")
+        print(f"Editing canvas page {name} ...  ", end="")
         canvas_page.edit(wiki_page=element["settings"])
     else:
-        print(f"Creating page {name} ...")
+        print(f"Creating canvas page {name} ...  ", end="")
         canvas_page = course.create_page(wiki_page=element["settings"])
+    print("Done")
     return canvas_page
 
 
@@ -458,7 +470,7 @@ def main(api_token, api_url, course_id, time_zone: str, file_path: Path):
     canvas = Canvas(api_url, api_token)
     course: Course = canvas.get_course(course_id)
 
-    print(f"Posting to Canvas ({file_path}) ...")
+    print(f"Parsing file ({file_path}) ...  ", end="")
     create_elements_from_document(course, time_zone, file_path)
 
 

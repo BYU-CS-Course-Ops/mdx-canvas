@@ -12,7 +12,7 @@ def create_for_folder(course: Course, time_zone: str, folder: Path):
     for file_path in folder.iterdir():
         if file_path.is_dir():
             continue
-        print(f"Posting to Canvas ({file_path}) ...")
+        print(f"Parsing file ({file_path}) ...  ", end="")
         create_elements_from_document(course, time_zone, file_path)
 
 
