@@ -419,7 +419,8 @@ def create_or_edit_page(course: Course, element):
 
 def create_elements_from_document(course: Course, time_zone: str, file_path: Path):
     if "canvas" not in file_path.__str__():
-        raise ValueError("File must be a canvas file")
+        print("Error: File must be a canvas file")
+        return
 
     # Provide processing functions, so that the parser needs no access to a canvas course
     parser = DocumentParser(

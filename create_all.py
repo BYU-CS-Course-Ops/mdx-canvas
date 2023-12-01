@@ -8,11 +8,7 @@ import json
 import os
 
 
-def main(api_token, api_url, course_id, time_zone: str, folder: Path):
-    print("-" * 50 + "\nCanvas Generator\n" + "-" * 50)
-
-    canvas = Canvas(api_url, api_token)
-    course: Course = canvas.get_course(course_id)
+def create_for_folder(course: Course, time_zone: str, folder: Path):
     for file_path in folder.iterdir():
         if file_path.is_dir():
             continue
@@ -20,11 +16,20 @@ def main(api_token, api_url, course_id, time_zone: str, folder: Path):
         create_elements_from_document(course, time_zone, file_path)
 
 
+def main(api_token, api_url, course_id, time_zone: str, folders: list[Path]):
+    print("-" * 50 + "\nCanvas Generator\n" + "-" * 50)
+
+    canvas = Canvas(api_url, api_token)
+    course: Course = canvas.get_course(course_id)
+    for folder in folders:
+        create_for_folder(course, time_zone, folder)
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument("--folder", type=Path)
-    parser.add_argument("--env", type=Path, default="secrets.env")
-    parser.add_argument("--course_info", type=Path, default="course_info.json")
+    parser.add_argument("env", type=Path, default="secrets.env")
+    parser.add_argument("course_info", type=Path, default="course_info.json")
+    parser.add_argument("folders", type=Path, nargs="+", default=["."])
     args = parser.parse_args()
 
     load_env(args.env)
@@ -36,4 +41,4 @@ if __name__ == '__main__':
          api_url=course_settings["CANVAS_API_URL"],
          course_id=course_settings["CANVAS_COURSE_ID"],
          time_zone=course_settings["CANVAS_TIME_ZONE"],
-         folder=args.folder)
+         folders=args.folders)

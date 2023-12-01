@@ -1,5 +1,5 @@
 <quiz>
-<settings title="Syllabus Quiz" due_at="Dec 21, 2023, 11:59 PM" available_from="Dec 16, 2023, 12:00 AM" available_to="Dec 21, 2023, 11:59 PM" points_possible="6" assignment_group="Labs" shuffle_answers="True" allowed_attempts="-1" show_correct_answers_at="Dec 21, 2023, 11:59 PM">
+<settings title="Syllabus Quiz" due_at="Dec 21, 2023, 11:59 PM" available_to="Dec 21, 2023, 11:59 PM" points_possible="6" assignment_group="Labs" shuffle_answers="False" allowed_attempts="-1" >
     Please review the syllabus at [https://fall2023.byucs110.org/syllabus/](https://fall2023.byucs110.org/syllabus/) before completing this quiz.
 </settings>
 
@@ -24,11 +24,11 @@
     Where is the TA lab located?
     <correct>TMCB 1119</correct>
 
-    <incorrect>EB 242</incorrect>
+    <incorrect>TMCB 1170</incorrect>
 
     <incorrect>TMCB 1111</incorrect>
 
-    <incorrect>EB 122</incorrect>
+    <incorrect>EB 170</incorrect>
 </question>
 
 <question type="multiple-answers">
