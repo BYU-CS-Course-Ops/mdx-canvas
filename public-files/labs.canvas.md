@@ -32,7 +32,14 @@
 
 </template-arguments>
 
-<settings title="{{Title}} Quiz" {{due_at="Due, 2023, 8:00 AM"}} available_from="Sep 5, 2023, 12:00 AM" available_to="Dec 18, 2023, 11:59 PM" points_possible="10" assignment_group="Labs" shuffle_answers="False" allowed_attempts="-1">
+<settings name="{{Title}} Quiz" 
+    due_at="{{ Due_At }}, 2023, 8:00 AM"
+    available_from="Sep 5, 2023, 12:00 AM" 
+    available_to="Dec 18, 2023, 11:59 PM" 
+    points_possible="10" 
+    assignment_group="Labs" 
+    shuffle_answers="False" 
+    allowed_attempts="-1">
 </settings>
 
 <description>
@@ -54,4 +61,4 @@ I completed the lab activities.
 ^^ can work for 
 Secrets and github actions
 add as a ta, token, signature
-just deploys content to canvs
+just deploys content to canvas

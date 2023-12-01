@@ -490,6 +490,12 @@ class AssignmentParser:
         items = string.strip().split(',')
         return [l.strip() for l in items if l.strip()]
 
+    def get_bool(self, string):
+        if string.lower() == "true":
+            return True
+        else:
+            return False
+
     def get_dict(self, string):
         items = string.strip().split(',')
         return {l.strip().split('=')[0]: l.strip().split('=')[1] for l in items if l.strip()}
@@ -500,15 +506,15 @@ class AssignmentParser:
             "position": settings_tag.get("position", None),
             "submission_types": self.get_list(settings_tag.get("submission_types", "none")),
             "allowed_extensions": self.get_list(settings_tag.get("allowed_extensions", "")),
-            "turnitin_enabled": settings_tag.get("turnitin_enabled", False),
-            "vericite_enabled": settings_tag.get("vericite_enabled", False),
+            "turnitin_enabled": self.get_bool(settings_tag.get("turnitin_enabled", "False")),
+            "vericite_enabled": self.get_bool(settings_tag.get("vericite_enabled", "False")),
             "turnitin_settings": settings_tag.get("turnitin_settings", None),
             "integration_data": settings_tag.get("integration_data", None),
-            "peer_reviews": settings_tag.get("peer_reviews", False),
-            "automatic_peer_reviews": settings_tag.get("automatic_peer_reviews", False),
-            "notify_of_update": settings_tag.get("notify_of_update", False),
+            "peer_reviews": self.get_bool(settings_tag.get("peer_reviews", "False")),
+            "automatic_peer_reviews": self.get_bool(settings_tag.get("automatic_peer_reviews", "False")),
+            "notify_of_update": self.get_bool(settings_tag.get("notify_of_update", "False")),
             "group_category_id": settings_tag.get("group_category", None),
-            "grade_group_students_individually": settings_tag.get("grade_group_students_individually", False),
+            "grade_group_students_individually": self.get_bool(settings_tag.get("grade_group_students_individually", "False")),
             "external_tool_tag_attributes": self.get_dict(settings_tag.get("external_tool_tag_attributes", "")),
             "points_possible": settings_tag.get("points_possible", None),
             "grading_type": settings_tag.get("grading_type", "points"),
@@ -517,19 +523,19 @@ class AssignmentParser:
             "unlock_at": self.date_formatter(settings_tag.get("available_from", None)),
             "assignment_group_id": self.group_indexer(settings_tag.get("assignment_group", None)),
             "assignment_overrides": settings_tag.get("assignment_overrides", None),
-            "only_visible_to_overrides": settings_tag.get("only_visible_to_overrides", False),
-            "published": settings_tag.get("published", True),
+            "only_visible_to_overrides": self.get_bool(settings_tag.get("only_visible_to_overrides", "False")),
+            "published": self.get_bool(settings_tag.get("published", "True")),
             "grading_standard_id": settings_tag.get("grading_standard_id", None),
-            "omit_from_final_grade": settings_tag.get("omit_from_final_grade", False),
-            "hide_in_gradebook": settings_tag.get("hide_in_gradebook", False),
+            "omit_from_final_grade": self.get_bool(settings_tag.get("omit_from_final_grade", "False")),
+            "hide_in_gradebook": self.get_bool(settings_tag.get("hide_in_gradebook", "False")),
             "quiz_lti": settings_tag.get("quiz_lti", None),
-            "moderated_grading": settings_tag.get("moderated_grading", False),
+            "moderated_grading": self.get_bool(settings_tag.get("moderated_grading", "False")),
             "grader_count": settings_tag.get("grader_count", None),
             "final_grader_id": settings_tag.get("final_grader_id", None),
-            "grader_comments_visible_to_graders": settings_tag.get("grader_comments_visible_to_graders", False),
-            "graders_anonymous_to_graders": settings_tag.get("graders_anonymous_to_graders", False),
-            "grader_names_visible_to_final_grader": settings_tag.get("grader_names_visible_to_final_grader", False),
-            "anonymous_grading": settings_tag.get("anonymous_grading", False),
+            "grader_comments_visible_to_graders": self.get_bool(settings_tag.get("grader_comments_visible_to_graders", "False")),
+            "graders_anonymous_to_graders": self.get_bool(settings_tag.get("graders_anonymous_to_graders", "False")),
+            "grader_names_visible_to_final_grader": self.get_bool(settings_tag.get("grader_names_visible_to_final_grader", "False")),
+            "anonymous_grading": self.get_bool(settings_tag.get("anonymous_grading", "False")),
             "allowed_attempts": settings_tag.get("allowed_attempts"),
             "annotatable_attachment_id": settings_tag.get("annotatable_attachment_id", None),
         }

@@ -50,6 +50,10 @@ def get_fancy_html(markdown_or_file: str, files_folder=None):
     return fenced
 
 
+def print_red(string):
+    print(f"\033[91m{string}\033[00m")
+
+
 def get_canvas_folder(course: Course, folder_name: str, parent_folder_path=""):
     """
     Retrieves an object representing a digital folder in Canvas. If the folder does not exist, it is created.
@@ -154,7 +158,7 @@ def get_page_url(course: Course, page_name: str):
     for page in pages:
         if page.title == page_name:
             return page.url
-    print(f"Could not find page {page_name}")
+    print_red(f"Could not find page {page_name}")
     return None
 
 
@@ -303,7 +307,7 @@ def create_or_edit_module_item_without_id(module: Module, element):
     Creates a module item without an object id, like a page or a header.
     """
     if element["type"] not in ["ExternalUrl", "SubHeader", "Page"]:
-        print(f"{element['title']} does not exist, no id found when creating module.")
+        print_red(f"{element['title']} does not exist, no id found when creating module.")
         return
 
     for item in module.get_module_items():
@@ -399,7 +403,7 @@ def create_or_update_override(course, override, time_zone):
 
     assignment_override_pairs = get_assignment_override_pairs(course, override["assignments"])
     if not assignment_override_pairs:
-        print(f"Could not find {assignment_names} in canvas for override {override['section']}")
+        print_red(f"Could not find {assignment_names} in canvas for override {override['sections']}")
         return
     if not students and not sections:
         raise ValueError("Must provide either students or sections")
@@ -431,7 +435,7 @@ def create_or_edit_page(course: Course, element):
 
 def create_elements_from_document(course: Course, time_zone: str, file_path: Path):
     if "canvas" not in file_path.__str__():
-        print("Error: File must be a canvas file")
+        print_red("Error: File must be a canvas file")
         return
 
     # Provide processing functions, so that the parser needs no access to a canvas course
