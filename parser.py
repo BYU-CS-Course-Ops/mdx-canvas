@@ -74,7 +74,7 @@ def make_iso(date: datetime | str | None, time_zone: str):
             date = date + time_zone
         for input_format in input_formats:
             try:
-                if "-" in date: # If the date already has a time zone
+                if "-" in date:  # If the date already has a time zone
                     date = datetime.strptime(date, input_format)
                 else:
                     date = datetime.strptime(date + time_zone, input_format)
@@ -119,7 +119,7 @@ def parse_template_data(template_tag):
         for header, value in zip(headers, line):
             if header.startswith("list:"):
                 header = header[5:].strip()  # Remove 'list: ' from header
-                value = value.split(",")     # Split the value into a list
+                value = value.split(",")  # Split the value into a list
 
             if "." in header:
                 # Interpret the header as "object.attribute"
@@ -514,7 +514,8 @@ class AssignmentParser:
             "automatic_peer_reviews": self.get_bool(settings_tag.get("automatic_peer_reviews", "False")),
             "notify_of_update": self.get_bool(settings_tag.get("notify_of_update", "False")),
             "group_category_id": settings_tag.get("group_category", None),
-            "grade_group_students_individually": self.get_bool(settings_tag.get("grade_group_students_individually", "False")),
+            "grade_group_students_individually": self.get_bool(
+                settings_tag.get("grade_group_students_individually", "False")),
             "external_tool_tag_attributes": self.get_dict(settings_tag.get("external_tool_tag_attributes", "")),
             "points_possible": settings_tag.get("points_possible", None),
             "grading_type": settings_tag.get("grading_type", "points"),
@@ -532,9 +533,11 @@ class AssignmentParser:
             "moderated_grading": self.get_bool(settings_tag.get("moderated_grading", "False")),
             "grader_count": settings_tag.get("grader_count", None),
             "final_grader_id": settings_tag.get("final_grader_id", None),
-            "grader_comments_visible_to_graders": self.get_bool(settings_tag.get("grader_comments_visible_to_graders", "False")),
+            "grader_comments_visible_to_graders": self.get_bool(
+                settings_tag.get("grader_comments_visible_to_graders", "False")),
             "graders_anonymous_to_graders": self.get_bool(settings_tag.get("graders_anonymous_to_graders", "False")),
-            "grader_names_visible_to_final_grader": self.get_bool(settings_tag.get("grader_names_visible_to_final_grader", "False")),
+            "grader_names_visible_to_final_grader": self.get_bool(
+                settings_tag.get("grader_names_visible_to_final_grader", "False")),
             "anonymous_grading": self.get_bool(settings_tag.get("anonymous_grading", "False")),
             "allowed_attempts": settings_tag.get("allowed_attempts"),
             "annotatable_attachment_id": settings_tag.get("annotatable_attachment_id", None),
@@ -570,7 +573,8 @@ class PageParser:
 
 
 class DocumentParser:
-    def __init__(self, path_to_resources: Path, path_to_canvas_files: Path, markdown_processor: ResourceExtractor, time_zone: str,
+    def __init__(self, path_to_resources: Path, path_to_canvas_files: Path, markdown_processor: ResourceExtractor,
+                 time_zone: str,
                  group_indexer=lambda x: 0):
         self.path_to_resources = path_to_resources
         self.path_to_files = path_to_canvas_files
@@ -579,7 +583,8 @@ class DocumentParser:
 
         self.jinja_env = Environment()
         # This enables us to use the zip function in template documents
-        self.jinja_env.globals.update(zip=zip)
+
+        self.jinja_env.globals.update(zip=zip, split_list=lambda sl: [s.strip() for s in sl.split(';')])
 
         self.element_processors = {
             "quiz": QuizParser(self.markdown_processor, group_indexer, self.date_formatter),
