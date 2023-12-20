@@ -117,7 +117,7 @@ def parse_template_data(template_tag):
     headers = [h.strip() for h in headers.split('|') if h.strip()]
     for line in lines:
         left_bar, *line, right_bar = line.split('|')
-        line = [phrase.strip().replace("\\", "") for phrase in line]
+        line = [phrase.strip() for phrase in line]
 
         replacements = defaultdict(dict)
         for header, value in zip(headers, line):
@@ -616,8 +616,12 @@ class DocumentParser:
 
         elements = []
         for context in all_replacements:
+            for key, value in context.items():
+                context[key] = value.replace('"','\\"')
             # For each replacement, create an object from the template
-            elements.append(json.loads(template.render(context).replace("\\", "")))
+            rendered = template.render(context)
+            element = json.loads(rendered)
+            elements.append(element)
 
         # Replacements become unnecessary after creating the elements
         for element in elements:
