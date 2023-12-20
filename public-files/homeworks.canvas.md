@@ -19,7 +19,7 @@
 | 3f | Structured Data           | Oct 24 |          | structured-data       |
 | 4a | Strings                   | Nov 02 |          | strings               |
 | 4b | Substrings                | Nov 07 |          | substrings            |
-| 4c | Program arguments         | Nov 09 |          | program-arguments     |
+| 4c | Program Arguments         | Nov 09 |          | program-arguments     |
 | 4d | Reading and Writing Files | Nov 14 |          | files                 |
 | 4e | Split and Join            | Nov 16 |          | split-and-join        |
 | 4f | Random and Coiteration    | Nov 21 |          | random-coiteration    |

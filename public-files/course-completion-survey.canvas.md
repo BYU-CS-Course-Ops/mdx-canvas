@@ -1,0 +1,25 @@
+<quiz>
+
+<settings title="Course Completion Survey" 
+    due_at="Dec 18, 2023, 11:59 PM"
+    available_from="Sep 5, 2023, 12:00 AM" 
+    available_to="Dec 25, 2023, 11:59 PM" 
+    assignment_group="Final" 
+</settings>
+
+<description>
+
+Please complete the survey at: (BYU CS 110 Course Completion Survey - Winter 2023)[https://byu.az1.qualtrics.com/jfe/form/SV_cBbYijDuC5FaQui?course=cs110&term=20235]
+    
+When you are finished, take this quiz. It has one True/False question: "Did you take the survey?"
+    
+Your feedback is invaluable. Thank you for taking a minute to help us improve this course!
+</description>
+
+<question type="true-false" points="10">
+    <correct>
+        Did you take the course completion survey?
+    </correct>
+</question>
+
+</quiz>

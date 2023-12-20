@@ -6,7 +6,7 @@ import uuid
 import argparse
 
 from canvasapi import Canvas
-from canvasapi.assignment import Assignment
+from canvasapi.assignment import Assignment, AssignmentGroup
 
 from canvasapi.quiz import Quiz
 from canvasapi.course import Course
@@ -116,23 +116,22 @@ def process_markdown(markdown_or_file: str, course: Course, image_folder, files_
     return process_images(html, course, image_folder)
 
 
-def get_group_index(course: Course, group: str, course_assignment_groups):
+def get_group_id(course: Course, group_name: str, names_to_ids: dict[str, int]):
     """
-    Group indexes are numbers that stand for groups like Labs, Projects, etc.
-    Since users will provide names for groups, this method is necessary to find indexes.
+    Group ids are numbers that stand for groups like Labs, Projects, etc.
+    Since users will provide names for groups, this method is necessary to find ids.
     """
-    if not group:
+    if not group_name:
         return None
 
-    if not any(g.name == group for g in course_assignment_groups):
-        print("Created Assignment Group: " + group)
-        course.create_assignment_group(name=group)
-        course_assignment_groups.clear()
+    if group_name not in names_to_ids:
+        print("Created Assignment Group: " + group_name)
+        course.create_assignment_group(name=group_name)
         for g in course.get_assignment_groups():
-            course_assignment_groups.append(g)
-    groups = {g.name: g.id for g in course_assignment_groups}
-    group_index = groups[group]
-    return group_index
+            if g.name not in names_to_ids:
+                names_to_ids[g.name] = g.id
+
+    return names_to_ids[group_name]
 
 
 def replace_questions(quiz: Quiz, questions: list[dict]):
@@ -439,13 +438,16 @@ def create_elements_from_document(course: Course, time_zone: str, file_path: Pat
         print_red("Error: File must be a canvas file")
         return
 
+    assignment_groups = list(course.get_assignment_groups())
+    names_to_ids = {g.name: g.id for g in assignment_groups}
+
     # Provide processing functions, so that the parser needs no access to a canvas course
     parser = DocumentParser(
         path_to_resources=file_path.parent,
         path_to_canvas_files=file_path.parent,
         markdown_processor=lambda text: process_markdown(text, course, file_path.parent),
         time_zone=time_zone,
-        group_indexer=lambda group_name: get_group_index(course, group_name, course.get_assignment_groups())
+        group_identifier=lambda group_name: get_group_id(course, group_name, names_to_ids),
     )
     document_object = parser.parse(file_path.read_text())
 

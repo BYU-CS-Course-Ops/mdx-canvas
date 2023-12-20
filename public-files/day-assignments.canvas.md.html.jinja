@@ -47,22 +47,22 @@
         <div id="kl_custom_block_0" class="">
             <div class="bs-container" style="margin-top: 15px; padding-right: 5px; padding-left: 5px; margin-bottom: 5px;">
                 <div class="bs-row">
-                    {% for name, link in zip(split_list(Video_names), split_list(Video_links)) %}
                     <div class="bs-col-md kl_solid_border kl_border_radius_5" style="border-width: 7px; border-color: #002e5d; margin-right: 10px; margin-bottom: 10px; margin-left: 10px;">
                         <h4 class="kl_border_radius_5" style="color: #ffffff; text-align: center; margin-top: 15px; background-color: #002e5d; border-color: #002e5d;"><span class="" style="font-size: 18pt; background-color: #002e5d; color: #ffffff; border-color: #002e5d; margin-right: 0px; margin-bottom: 0px; margin-left: 0px;">Videos</span></h4>
-                        <p><a class="ytp-share-panel-link ytp-no-contextmenu" title="Share link" href="https://youtu.be/{{ link }}" target="_blank" rel="noopener" aria-label="Share link">{{ name }}</a></p>
+                        {% for name, link in zip(split_list(Video_names), split_list(Video_links)) %}
+                            <p><a class="ytp-share-panel-link ytp-no-contextmenu" title="Share link" href="https://youtu.be/{{ link }}" target="_blank" rel="noopener" aria-label="Share link">{{ name }}</a></p>
+                        {% endfor %}
                     </div>
-                    {% endfor %}
                     {% if Code_Buddy_ID %}
-                    <div class="bs-col-md kl_solid_border kl_border_radius_5" style="border-width: 7px; border-color: #002e5d; padding-bottom: 20px; margin-right: 10px; margin-bottom: 10px; margin-left: 10px;">
-                        <h4 class="kl_border_radius_5" style="color: #ffffff; text-align: center; margin-top: 15px; background-color: #002e5d; border-color: #002e5d;"><span class="" style="font-size: 18pt; background-color: #002e5d; color: #ffffff;">CodeBuddy</span></h4>
-                        <p><a class="inline_disabled" href="https://codebuddy.byu.edu/assignment/31/{{ Code_Buddy_ID }}" target="_blank" rel="noopener">{{ Code_Buddy_Display }}</a></p>
-                    </div>
+                        <div class="bs-col-md kl_solid_border kl_border_radius_5" style="border-width: 7px; border-color: #002e5d; padding-bottom: 20px; margin-right: 10px; margin-bottom: 10px; margin-left: 10px;">
+                            <h4 class="kl_border_radius_5" style="color: #ffffff; text-align: center; margin-top: 15px; background-color: #002e5d; border-color: #002e5d;"><span class="" style="font-size: 18pt; background-color: #002e5d; color: #ffffff;">CodeBuddy</span></h4>
+                            <p><a class="inline_disabled" href="https://codebuddy.byu.edu/assignment/31/{{ Code_Buddy_ID }}" target="_blank" rel="noopener">{{ Day_Title }}</a></p>
+                        </div>
                     {% else %}{% endif %}
                     <div class="bs-col-md kl_solid_border kl_border_radius_5" style="border-width: 7px; border-color: #002e5d; margin-left: 10px; color: #000000; margin-right: 10px; margin-bottom: 10px;">
                         <h4 class="kl_border_radius_5" style="color: #ffffff; text-align: center; margin-top: 15px; background-color: #002e5d; border-color: #002e5d;"><span class="" style="font-size: 18pt; background-color: #002e5d; color: #ffffff;">Practice</span></h4>
                         {% for display, link in zip(split_list(Practice_displays), split_list(Practice_links)) %}
-                        <p><a class="underline decoration-lightblue" href="https://fall2023.byucs110.org/{{ link }}"> {{Day_Title}} - {{ display }}</a><span>&nbsp;</span></p>
+                            <p><a class="underline decoration-lightblue" href="https://fall2023.byucs110.org/{{ link }}"> {{Day_Title}} - {{ display }}</a><span>&nbsp;</span></p>
                         {% endfor %}
                         <p><a class="underline decoration-lightblue" href="https://byu.az1.qualtrics.com/jfe/form/SV_8uJA1ajIcubxzwi?term=20233">Assignment Completion Quiz</a><span>&nbsp;</span></p>
                     </div>

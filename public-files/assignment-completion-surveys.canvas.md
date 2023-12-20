@@ -1,0 +1,22 @@
+<assignment>
+
+<settings title="Assignment Completion Surveys" 
+    due_at="Dec 18, 2023, 11:59 PM"
+    available_from="Sep 5, 2023, 12:00 AM" 
+    available_to="Dec 25, 2023, 11:59 PM" 
+    points_possible="10" 
+    assignment_group="Final" 
+    submission_types="not_graded"
+</settings>
+
+<description>
+    This is extra credit.
+
+    If you submitted most of the assignment completion surveys, you'll get full points. If you did some of them, you'll get partial credit.
+    
+    You are encouraged to take the survey for past assignments: CS 110 Assignment Completion SurveyLinks to an external site.
+    
+    Your feedback is invaluable to us. It helps us make meaningful improvements to the course for future students. Thank you for helping us!
+</description>
+
+</assignment>

@@ -1,13 +1,13 @@
 # Sample Assignment
 <assignment>
 <settings title="Sample Assignment"
-    submission_types="none"
-    grading_type="not_graded" 
+    submission_types="not_graded"
     only_visible_to_overrides="True"
     published="False"
-    access_code="start-final">
-
+    points_possible="0"
+    assignment_group="Homework">
 </settings>
+
 <description>
 </description>
 </assignment>

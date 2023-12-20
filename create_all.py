@@ -13,16 +13,22 @@ def file_sorter(file_path: Path):
         return 100  # modules should be last
     elif "Midterm" in file_path.name.lower():
         return 60
+    elif "Final" in file_path.name.lower():
+        return 40
+    elif "assignment" in file_path.name.lower():
+        return 30
+    elif "quiz" in file_path.name.lower():
+        return 20
     elif "homework" in file_path.name.lower():
-        return 50
+        return 10
     elif "lab" in file_path.name.lower():
         return 5
-    elif "quiz" in file_path.name.lower():
-        return 30
-    elif "Final" in file_path.name.lower():
-        return 25
-    elif "assignment" in file_path.name.lower():
-        return 10
+    elif "project" in file_path.name.lower():
+        return 4
+    elif "syllabus" in file_path.name.lower():
+        return 3
+    elif "header" in file_path.name.lower():
+        return 2
     return 90
 
 

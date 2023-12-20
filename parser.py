@@ -22,12 +22,12 @@ def get_corrects_and_incorrects(question_tag):
 
 def get_correct_comments(question_tag):
     feedback = question_tag.css.filter('correct-comments')
-    return feedback if feedback else None
+    return get_contents(feedback[0]) if feedback else None
 
 
 def get_incorrect_comments(question_tag):
     feedback = question_tag.css.filter('incorrect-comments')
-    return feedback if feedback else None
+    return get_contents(feedback[0]) if feedback else None
 
 
 def get_points(question_tag, default=1):
@@ -364,7 +364,7 @@ class ModuleParser:
             "settings": {
                 "name": module_tag["title"],
                 "position": module_tag["position"],
-                "published": module_tag.get("published", True),
+                "published": module_tag.get("published", "true"),
             },
             "items": []
         }
@@ -391,9 +391,10 @@ class ModuleParser:
             "indent": tag.get("indent", None),
             "page_url": tag.get("page_url", None),
             "external_url": tag.get("url", None),
-            "new_tab": tag.get("new_tab", True),
+            "new_tab": tag.get("new_tab", "true"),
             "completion_requirement": tag.get("completion_requirement", None),
             "iframe": tag.get("iframe", None),
+            "published": tag.get("published", "true"),
         }
         return item
 
@@ -583,7 +584,7 @@ class PageParser:
 class DocumentParser:
     def __init__(self, path_to_resources: Path, path_to_canvas_files: Path, markdown_processor: ResourceExtractor,
                  time_zone: str,
-                 group_indexer=lambda x: 0):
+                 group_identifier=lambda x: 0):
         self.path_to_resources = path_to_resources
         self.path_to_files = path_to_canvas_files
         self.markdown_processor = markdown_processor
@@ -595,8 +596,8 @@ class DocumentParser:
         self.jinja_env.globals.update(zip=zip, split_list=lambda sl: [s.strip() for s in sl.split(';')])
 
         self.element_processors = {
-            "quiz": QuizParser(self.markdown_processor, group_indexer, self.date_formatter),
-            "assignment": AssignmentParser(self.markdown_processor, group_indexer, self.date_formatter),
+            "quiz": QuizParser(self.markdown_processor, group_identifier, self.date_formatter),
+            "assignment": AssignmentParser(self.markdown_processor, group_identifier, self.date_formatter),
             "page": PageParser(self.markdown_processor, self.date_formatter),
             "module": ModuleParser(),
             "override": OverrideParser(self.date_formatter)

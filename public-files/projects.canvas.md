@@ -15,7 +15,7 @@
     due_at="{{ Due_At }}, 2023, 8:00 AM"
     available_from="Sep 5, 2023, 12:00 AM" 
     available_to="Dec 18, 2023, 11:59 PM" 
-    points_possible="30" 
+    points_possible="150" 
     assignment_group="Projects" 
     submission_types="external_tool"
     external_tool_tag_attributes="url=https://lti.int.turnitin.com/launch/gs-proxy"
