@@ -8,8 +8,26 @@ import json
 import os
 
 
+def file_sorter(file_path: Path):
+    if "modules" in file_path.name.lower():
+        return 100  # modules should be last
+    elif "Midterm" in file_path.name.lower():
+        return 60
+    elif "homework" in file_path.name.lower():
+        return 50
+    elif "lab" in file_path.name.lower():
+        return 40
+    elif "quiz" in file_path.name.lower():
+        return 30
+    elif "Final" in file_path.name.lower():
+        return 25
+    elif "assignment" in file_path.name.lower():
+        return 10
+    return 90
+
+
 def create_for_folder(course: Course, time_zone: str, folder: Path):
-    for file_path in folder.iterdir():
+    for file_path in sorted(folder.iterdir(), key=file_sorter):
         if file_path.is_dir():
             continue
         print(f"Parsing file ({file_path}) ...  ", end="")

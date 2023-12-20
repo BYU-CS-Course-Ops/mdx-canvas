@@ -11,7 +11,7 @@
 | Project 5 - Cipher                      | Sep 26 | homework2b-conditions            |
 
 </template-arguments>
-<settings name="{{ Title }}" 
+<settings title="{{ Title }}" 
     due_at="{{ Due_At }}, 2023, 8:00 AM"
     available_from="Sep 5, 2023, 12:00 AM" 
     available_to="Dec 18, 2023, 11:59 PM" 

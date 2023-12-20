@@ -81,9 +81,13 @@ def make_iso(date: datetime | str | None, time_zone: str):
                 return datetime.isoformat(date)
             except ValueError:
                 continue
-        raise Exception("Invalid date format")
+        raise Exception(f"Invalid date format: " + date)
     else:
         raise Exception("Date must be a datetime object or a string")
+
+
+def get_contents(tag):
+    return "".join([str(c) for c in tag.contents])
 
 
 def parse_template_data(template_tag):
@@ -108,25 +112,16 @@ def parse_template_data(template_tag):
     ]
     """
     data = []
-    headers, separator, *lines = template_tag.contents[0].strip().split('\n')
+    headers, separator, *lines = get_contents(template_tag).strip().split('\n')
     # Remove whitespace and empty headers
     headers = [h.strip() for h in headers.split('|') if h.strip()]
     for line in lines:
         left_bar, *line, right_bar = line.split('|')
-        line = [phrase.strip() for phrase in line]
+        line = [phrase.strip().replace("\\", "") for phrase in line]
 
         replacements = defaultdict(dict)
         for header, value in zip(headers, line):
-            if header.startswith("list:"):
-                header = header[5:].strip()  # Remove 'list: ' from header
-                value = value.split(",")  # Split the value into a list
-
-            if "." in header:
-                # Interpret the header as "object.attribute"
-                obj, attribute = header.split(".")
-                replacements[obj][attribute] = value
-            else:
-                replacements[header] = value
+            replacements[header] = value
 
         data.append(replacements)
     return data
@@ -437,7 +432,8 @@ class QuizParser:
             "time_limit": settings_tag.get("time_limit", None),
             "shuffle_answers": settings_tag.get("shuffle_answers", False),
             "hide_results": None,
-            "show_correct_answers": True,
+            "show_correct_answers": settings_tag.get("show_correct_answers", True),
+            "show_correct_answers_last_attempt": settings_tag.get("show_correct_answers_last_attempt", False),
             "show_correct_answers_at": self.date_formatter(settings_tag.get("show_correct_answers_at", None)),
             "allowed_attempts": settings_tag.get("allowed_attempts"),
             "scoring_policy": settings_tag.get("scoring_policy", "keep_highest"),
@@ -478,7 +474,7 @@ class AssignmentParser:
             elif tag.name == "template-arguments":
                 assignment["replacements"] = parse_template_data(tag)
             elif tag.name == "description":
-                contents = "".join([str(c) for c in tag.contents])
+                contents = get_contents(tag)
                 description, res = self.markdown_processor(contents)
                 assignment["settings"]["description"] = description
                 assignment["resources"].extend(res)
@@ -502,7 +498,7 @@ class AssignmentParser:
 
     def parse_assignment_settings(self, settings_tag):
         settings = {
-            "name": settings_tag["name"],
+            "name": settings_tag["title"],
             "position": settings_tag.get("position", None),
             "submission_types": self.get_list(settings_tag.get("submission_types", "none")),
             "allowed_extensions": self.get_list(settings_tag.get("allowed_extensions", "")),
@@ -539,7 +535,7 @@ class AssignmentParser:
             "grader_names_visible_to_final_grader": self.get_bool(
                 settings_tag.get("grader_names_visible_to_final_grader", "False")),
             "anonymous_grading": self.get_bool(settings_tag.get("anonymous_grading", "False")),
-            "allowed_attempts": settings_tag.get("allowed_attempts"),
+            "allowed_attempts": -1 if settings_tag.get("grading_type") == "not_graded" else settings_tag.get("allowed_attempts"),
             "annotatable_attachment_id": settings_tag.get("annotatable_attachment_id", None),
         }
         return settings
@@ -621,7 +617,7 @@ class DocumentParser:
         elements = []
         for context in all_replacements:
             # For each replacement, create an object from the template
-            elements.append(json.loads(template.render(context)))
+            elements.append(json.loads(template.render(context).replace("\\", "")))
 
         # Replacements become unnecessary after creating the elements
         for element in elements:
