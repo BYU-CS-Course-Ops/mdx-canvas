@@ -1,7 +1,7 @@
 <quiz>
 <template-arguments>
 
-| Id | Due    | Late_Due | Website_URL           |
+| Id | Due_At | Late_Due | Website_URL           |
 |----|--------|----------|-----------------------|
 | 0  | Sep 7  |          | getting-started       |
 | 1a | Sep 12 |          | introduction-to-bit   |
@@ -56,8 +56,3 @@ I completed the lab activities.
 </question>
 
 </quiz>
-
-^^ can work for 
-Secrets and github actions
-add as a ta, token, signature
-just deploys content to canvas

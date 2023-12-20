@@ -65,17 +65,16 @@ def get_canvas_folder(course: Course, folder_name: str, parent_folder_path=""):
     return [f for f in folders if f.name == folder_name][0]
 
 
-def create_resource_folder(course, quiz_title: str):
+def create_resource_folder(course, quiz_title: str, course_folders):
     """
     Creates a folder in Canvas to store images and other resources.
     """
-    folders = list(course.get_folders())
     generated_folder_name = "Generated-Content"
-    if not any(f.name == generated_folder_name for f in folders):
+    if not any(f.name == generated_folder_name for f in course_folders):
         print("Created Content Folder")
         course.create_folder(name=generated_folder_name, parent_folder_path="", hidden=True)
 
-    if not any(f.name == quiz_title for f in folders):
+    if not any(f.name == quiz_title for f in course_folders):
         print(f"Created {quiz_title} folder")
         course.create_folder(name=quiz_title, parent_folder_path=generated_folder_name,
                              hidden=True)
@@ -117,20 +116,22 @@ def process_markdown(markdown_or_file: str, course: Course, image_folder, files_
     return process_images(html, course, image_folder)
 
 
-def get_group_index(course: Course, group: str):
+def get_group_index(course: Course, group: str, course_assignment_groups):
     """
     Group indexes are numbers that stand for groups like Labs, Projects, etc.
     Since users will provide names for groups, this method is necessary to find indexes.
     """
-    groups = course.get_assignment_groups()
     if not group:
         return None
 
-    if not any(g.name == group for g in groups):
+    if not any(g.name == group for g in course_assignment_groups):
         print("Created Assignment Group: " + group)
         course.create_assignment_group(name=group)
-    groups = course.get_assignment_groups()
-    group_index = [g.name for g in groups].index(group)
+        course_assignment_groups.clear()
+        for g in course.get_assignment_groups():
+            course_assignment_groups.append(g)
+    groups = {g.name: g.id for g in course_assignment_groups}
+    group_index = groups[group]
     return group_index
 
 
@@ -258,11 +259,11 @@ def create_or_edit_quiz(course, element):
     return canvas_quiz
 
 
-def upload_and_link_files(document_object, course, resources: list[tuple]):
+def upload_and_link_files(document_object, course, resources: list[tuple], course_folders):
     """
     Uploads all the files in the resources list, and replaces the fake ids in the document with the real ids.
     """
-    create_resource_folder(course, document_object["name"])
+    create_resource_folder(course, document_object["name"], course_folders)
     text = json.dumps(document_object, indent=4)
     for fake_id, full_path in resources:
         resource_id = str(course.upload(full_path)[1]["id"])
@@ -444,14 +445,16 @@ def create_elements_from_document(course: Course, time_zone: str, file_path: Pat
         path_to_canvas_files=file_path.parent,
         markdown_processor=lambda text: process_markdown(text, course, file_path.parent),
         time_zone=time_zone,
-        group_indexer=lambda group_name: get_group_index(course, group_name)
+        group_indexer=lambda group_name: get_group_index(course, group_name, course.get_assignment_groups())
     )
     document_object = parser.parse(file_path.read_text())
+
+    course_folders = list(course.get_folders())
 
     # Create multiple quizzes or assignments from the document object
     for element in document_object:
         if "resources" in element:
-            element = upload_and_link_files(element, course, element["resources"])
+            element = upload_and_link_files(element, course, element["resources"], course_folders)
         if "settings" in element:
             fix_dates(element["settings"], time_zone)
         if element["type"] == "quiz":

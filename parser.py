@@ -30,9 +30,13 @@ def get_incorrect_comments(question_tag):
     return feedback if feedback else None
 
 
-def get_points(question_tag):
-    points = question_tag.css.filter('points')
-    return points[0].contents[0].strip() if points else 1
+def get_points(question_tag, default=1):
+    points = question_tag.get("points", default)
+    try:
+        return int(points)
+    except ValueError:
+        print("Invalid points value: " + points)
+        return default
 
 
 def get_answers(question_tag):
@@ -193,7 +197,15 @@ class TrueFalseProcessor:
             raise Exception("True false questions must have one correct or incorrect answer\n"
                             "Answers: " + str(answers))
 
-        return process(TFConverter(), answers[0], markdown_processor)
+        question, resources = process(TFConverter(), answers[0], markdown_processor)
+        if not get_points(answers[0], 0):
+            points = get_points(question_tag)
+            question["points_possible"] = points
+        if not question["correct_comments"]:
+            question["correct_comments"] = get_correct_comments(question_tag)
+        if not question["incorrect_comments"]:
+            question["incorrect_comments"] = get_incorrect_comments(question_tag)
+        return question, resources
 
 
 class MultipleTrueFalseProcessor:

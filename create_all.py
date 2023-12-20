@@ -16,7 +16,7 @@ def file_sorter(file_path: Path):
     elif "homework" in file_path.name.lower():
         return 50
     elif "lab" in file_path.name.lower():
-        return 40
+        return 5
     elif "quiz" in file_path.name.lower():
         return 30
     elif "Final" in file_path.name.lower():
