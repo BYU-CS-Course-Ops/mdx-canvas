@@ -11,6 +11,7 @@ from canvasapi.assignment import Assignment, AssignmentGroup
 from canvasapi.quiz import Quiz
 from canvasapi.course import Course
 from canvasapi.module import Module
+from canvasapi.user import User
 
 import markdown as md
 from pathlib import Path
@@ -244,16 +245,20 @@ def create_or_edit_assignment(course, element):
     print("Done")
     return canvas_assignment
 
+user: User
 
-def create_or_edit_quiz(course, element):
+
+def create_or_edit_quiz(course: Course, element):
     name = element["name"]
     if canvas_quiz := get_quiz(course, name):
+        canvas_quiz: Quiz
         print(f"Editing canvas quiz {name} ...  ", end="")
         canvas_quiz.edit(quiz=element["settings"])
     else:
         print(f"Creating canvas quiz {name} ...  ", end="")
         canvas_quiz = course.create_quiz(quiz=element["settings"])
     replace_questions(canvas_quiz, element["questions"])
+    canvas_quiz.edit()
     print("Done")
     return canvas_quiz
 
@@ -265,8 +270,11 @@ def upload_and_link_files(document_object, course, resources: list[tuple], cours
     create_resource_folder(course, document_object["name"], course_folders)
     text = json.dumps(document_object, indent=4)
     for fake_id, full_path in resources:
-        resource_id = str(course.upload(full_path)[1]["id"])
-        text = text.replace(fake_id, resource_id)
+        try:
+            resource_id = str(course.upload(full_path)[1]["id"])
+            text = text.replace(fake_id, resource_id)
+        except IOError:
+            print(f"File: {full_path} does not exist, leaving as is")
     return json.loads(text)
 
 

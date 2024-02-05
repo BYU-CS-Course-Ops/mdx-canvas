@@ -1,9 +1,15 @@
 <quiz>
-<template-arguments filename="lab_template_args.csv" />
+<template-arguments>
+
+| Id  | Due_At | Late_Due | Website_URL |
+|-----|--------|----------|-------------|
+| 111 | Sep 7  |          | test-lab    |
+
+</template-arguments>
 
 <settings title="Lab {{Id}} Quiz"
-    due_at="{{ Due_At }}, 2024, 8:00 AM"
-    available_from="Jan 8, 2024, 12:00 AM"
+    due_at="{{ Due_At }}, 2023, 8:00 AM"
+    available_from="Sep 5, 2023, 12:00 AM"
     available_to="Dec 25, 2023, 11:59 PM"
     assignment_group="Labs"
     shuffle_answers="False"
@@ -15,6 +21,8 @@
 Complete {{Title}} [found here](https://fall2023.byucs110.org/labs/lab0-getting-started/)
 
 Then complete this Quiz. 
+<p>Paragraph 2</p>
+<!-- foobar -->
 
 </description>
 
@@ -25,8 +33,3 @@ I completed the lab activities.
 </question>
 
 </quiz>
-
-Recursive checksums: especially 
-MD5 checksum
-
-Ask Professor Jones if she 

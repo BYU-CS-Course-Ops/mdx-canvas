@@ -94,42 +94,6 @@ def get_contents(tag):
     return "".join([str(c) for c in tag.contents])
 
 
-def parse_template_data(template_tag):
-    """
-    Parses a template tag into a list of dictionaries
-    Each dictionary will become a canvas object
-    Converts the following:
-    | header1 | header2    |
-    |---------|------------|
-    | first   | quiz       |
-    | second  | assignment |
-    into
-    [
-        {
-            "header1": "first",
-            "header2": "quiz"
-        },
-        {
-            "header1": "second",
-            "header2": "assignment"
-        }
-    ]
-    """
-    data = []
-    headers, separator, *lines = get_contents(template_tag).strip().split('\n')
-    # Remove whitespace and empty headers
-    headers = [h.strip() for h in headers.split('|') if h.strip()]
-    for line in lines:
-        left_bar, *line, right_bar = line.split('|')
-        line = [phrase.strip() for phrase in line]
-
-        replacements = defaultdict(dict)
-        for header, value in zip(headers, line):
-            replacements[header] = value
-
-        data.append(replacements)
-    return data
-
 
 question_types = [
     'calculated_question',
@@ -321,8 +285,9 @@ class TextQuestionProcessor:
 
 
 class OverrideParser:
-    def __init__(self, date_formatter):
+    def __init__(self, date_formatter, templater):
         self.date_formatter = date_formatter
+        self.template = templater
 
     def parse(self, override_tag: Tag):
         override = {
@@ -340,7 +305,7 @@ class OverrideParser:
             elif tag.name == "assignment":
                 override["assignments"].append(self.parse_assignment_tag(tag))
             elif tag.name == "template-arguments":
-                override["replacements"] = parse_template_data(tag)
+                override["replacements"] = self.template(tag)
         return override
 
     def parse_assignment_tag(self, tag):
@@ -409,24 +374,26 @@ class QuizParser:
         "text": TextQuestionProcessor()
     }
 
-    def __init__(self, markdown_processor: ResourceExtractor, group_indexer, date_formatter):
+    def __init__(self, markdown_processor: ResourceExtractor, group_indexer, date_formatter, templater):
         self.markdown_processor = markdown_processor
         self.group_indexer = group_indexer
         self.date_formatter = date_formatter
+        self.template = templater
 
     def parse(self, quiz_tag: Tag):
         quiz = {
             "type": "quiz",
             "questions": [],
             "resources": [],
-            "replacements": []
+            "replacements": [],
+            "settings": {}
         }
         for tag in quiz_tag.find_all():
             if tag.name == "settings":
                 quiz["settings"] = self.parse_quiz_settings(tag)
                 quiz["name"] = quiz["settings"]["title"]
             elif tag.name == "template-arguments":
-                quiz["replacements"] = parse_template_data(tag)
+                quiz["replacements"] = self.template(tag)
             elif tag.name == "question":
                 question, res = self.parse_question(tag)
                 quiz["resources"].extend(res)
@@ -435,6 +402,8 @@ class QuizParser:
                     quiz["questions"].extend(question)
                 else:
                     quiz["questions"].append(question)
+            elif tag.name == "description":
+                quiz["settings"]["description"] = get_contents(tag)
         return quiz
 
     def parse_quiz_settings(self, settings_tag):
@@ -467,10 +436,11 @@ class QuizParser:
 
 
 class AssignmentParser:
-    def __init__(self, markdown_processor: ResourceExtractor, group_indexer, date_formatter):
+    def __init__(self, markdown_processor: ResourceExtractor, group_indexer, date_formatter, templater):
         self.markdown_processor = markdown_processor
         self.group_indexer = group_indexer
         self.date_formatter = date_formatter
+        self.template = templater
 
     def parse(self, assignment_tag):
         assignment = {
@@ -485,7 +455,7 @@ class AssignmentParser:
                 settings = self.parse_assignment_settings(tag)
                 assignment["settings"].update(settings)
             elif tag.name == "template-arguments":
-                assignment["replacements"] = parse_template_data(tag)
+                assignment["replacements"] = self.template(tag)
             elif tag.name == "description":
                 contents = get_contents(tag)
                 description, res = self.markdown_processor(contents)
@@ -596,11 +566,11 @@ class DocumentParser:
         self.jinja_env.globals.update(zip=zip, split_list=lambda sl: [s.strip() for s in sl.split(';')])
 
         self.element_processors = {
-            "quiz": QuizParser(self.markdown_processor, group_identifier, self.date_formatter),
-            "assignment": AssignmentParser(self.markdown_processor, group_identifier, self.date_formatter),
+            "quiz": QuizParser(self.markdown_processor, group_identifier, self.date_formatter, self.parse_template_data),
+            "assignment": AssignmentParser(self.markdown_processor, group_identifier, self.date_formatter, self.parse_template_data),
             "page": PageParser(self.markdown_processor, self.date_formatter),
             "module": ModuleParser(),
-            "override": OverrideParser(self.date_formatter)
+            "override": OverrideParser(self.date_formatter, self.parse_template_data)
         }
 
     def parse(self, text):
@@ -640,3 +610,46 @@ class DocumentParser:
         for element in elements:
             del element["replacements"]
         return elements
+
+
+    def parse_template_data(self, template_tag):
+        """
+        Parses a template tag into a list of dictionaries
+        Each dictionary will become a canvas object
+        Converts the following:
+        | header1 | header2    |
+        |---------|------------|
+        | first   | quiz       |
+        | second  | assignment |
+        into
+        [
+            {
+                "header1": "first",
+                "header2": "quiz"
+            },
+            {
+                "header1": "second",
+                "header2": "assignment"
+            }
+        ]
+        """
+        if template_tag.get("filename"):
+            csv = (self.path_to_files / template_tag.get("filename")).read_text()
+            headers, *lines = csv.split('\n')
+        else:
+            headers, separator, *lines = get_contents(template_tag).strip().split('\n')
+            # Remove whitespace and empty headers
+            headers = [h.strip() for h in headers.split('|') if h.strip()]
+            lines = [line for left_bar, *line, right_bar in [line.split('|') for line in lines]]
+
+        data = []
+        for line in lines:
+            line = [phrase.strip() for phrase in line]
+
+            replacements = defaultdict(dict)
+            for header, value in zip(headers, line):
+                replacements[header] = value
+
+            data.append(replacements)
+        return data
+
