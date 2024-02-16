@@ -1,7 +1,20 @@
 <quiz>
-<settings title="Midterm" due_at="Dec 21, 2023, 11:59 PM" available_from="Dec 16, 2023, 12:00 AM" available_to="Dec 21, 2023, 11:59 PM" points_possible="40" assignment_group="Final" shuffle_answers="True" time_limit="240" allowed_attempts="1" show_correct_answers_at="Dec 21, 2023, 11:59 PM" access_code="start-midterm">
+<settings 
+    title="Midterm12" 
+    due_at="Mar 8, 2023, 11:59 PM" 
+    available_from="Mar 4, 2024, 12:00 AM" 
+    available_to="Mar 8,  2024, 11:59 PM" 
+    assignment_group="Midterm" 
+    shuffle_answers="True" 
+    time_limit="180" 
+    allowed_attempts="1" 
+    show_correct_answers_at="Mar 13, 2024, 12:00 AM" 
+    hide_correct_answers_at="Apr 2,  2024, 12:00 AM" 
+    access_code="start-midterm">
+/>
 
-## Quiz Instructions
+<description>
+
 Please read and understand the following instructions before taking the midterm.
 
 This is an exam. You are on your honor to treat this exam appropriately. You are not allowed to consult any material or people during this exam.
@@ -16,11 +29,8 @@ Turn off your phone. Close all applications except your browser, and close all t
 
 To start the test, you will need the passcode **start-midterm**. Only start the test once you intend to take and complete it.
 
-The correct answers will be visible starting on Saturday.
-
 Good luck!
-
-</settings>
+</description>
 
 <question type="text">
 Some of these questions have answers that are very similar. Be sure to review all the answers for a question and not just take the first answer that looks correct.
@@ -68,9 +78,7 @@ if __name__ == '__main__':
 </incorrect>
 </question>
 
-<question type = "multiple-tf">
-
-# Questions 2-5
+<question type = "multiple-choice">
 
 Given the following starting world named `rgb`:
 
@@ -170,9 +178,7 @@ if __name__ == '__main__':
 </incorrect>
 </question>
 
-<question type="multiple-tf">
-
-# Questions 6-10
+<question type="multiple-choice">
 
 Starting with this world:
 
@@ -254,29 +260,9 @@ if __name__ == '__main__':
     run(Bit.new_bit)
 ```
 </incorrect>
-
-<correct>
-
-```python
-from byubit import Bit
-
-@Bit.empty_world(4, 4)
-def run(bit):
-    while not bit.is_blue():
-        bit.paint('blue')
-        bit.move()
-        if not bit.front_clear():
-            bit.left()
-
-if __name__ == '__main__':
-    run(Bit.new_bit)
-```
-</correct>
 </question>
 
-<question type = "multiple-tf">
-
-# Questions 11-15
+<question type = "multiple-choice">
 
 Bit starts in the following world `red_bars`:
 
@@ -400,7 +386,7 @@ if __name__ == '__main__':
 
 </question>
 
-<question type="multiple-tf">
+<question type="multiple-choice">
 Which block of code could produce the following dialog:
 
 ```text
@@ -493,9 +479,9 @@ if __name__ == '__main__':
 </incorrect>
 </question>
 
-<question type="multiple-tf">
+<question type="multiple-choice">
 
-Which of the following dialogs is **not** possible with this code?
+Which of the following dialogs is **NOT** possible with this code?
 
 ```python
 def want_pets():
@@ -643,7 +629,7 @@ I like 12
 </incorrect>
 </question>
 
-<question type="multiple-tf">
+<question type="multiple-choice">
 
 Consider the following code and output.
 
@@ -794,7 +780,7 @@ def count_points(games):
 </pair>
 </question>
 
-<question type='multiple-tf'>
+<question type='multiple-choice'>
 Consider the following code:
 
 ```python

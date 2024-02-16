@@ -1,3 +1,4 @@
+from datetime import datetime
 import json
 import os
 import textwrap
@@ -5,8 +6,9 @@ import textwrap
 import uuid
 import argparse
 
+import pytz
 from canvasapi import Canvas
-from canvasapi.assignment import Assignment, AssignmentGroup
+from canvasapi.assignment import Assignment
 
 from canvasapi.quiz import Quiz
 from canvasapi.course import Course
@@ -139,6 +141,7 @@ def replace_questions(quiz: Quiz, questions: list[dict]):
     """
     Deletes all questions in a quiz, and replaces them with new questions.
     """
+    print(f"Replacing questions ... ", end="")
     for quiz_question in quiz.get_questions():
         quiz_question.delete()
     for question in questions:
@@ -225,13 +228,20 @@ def get_object_id_from_element(course: Course, item):
         item["page_url"] = page_url
 
 
+def fix_dates_attribute(element, attribute, time_zone):
+    if attribute in element:
+        datetime_version = datetime.fromisoformat(make_iso(element[attribute], time_zone))
+        utc_version = datetime_version.astimezone(pytz.utc)
+        element[attribute] = utc_version.isoformat()
+
+
 def fix_dates(element, time_zone):
-    if "due_at" in element:
-        element["due_at"] = make_iso(element["due_at"], time_zone)
-    if "unlock_at" in element:
-        element["unlock_at"] = make_iso(element["unlock_at"], time_zone)
-    if "lock_at" in element:
-        element["lock_at"] = make_iso(element["lock_at"], time_zone)
+    print(f"Fixing dates for {element['title']} ...")
+    fix_dates_attribute(element, "due_at", time_zone)
+    fix_dates_attribute(element, "unlock_at", time_zone)
+    fix_dates_attribute(element, "lock_at", time_zone)
+    fix_dates_attribute(element, "show_correct_answers_at", time_zone)
+
 
 
 def create_or_edit_assignment(course, element):
@@ -250,16 +260,48 @@ user: User
 
 def create_or_edit_quiz(course: Course, element):
     name = element["name"]
+    settings: dict = element["settings"]
+    print("Getting quiz from canvas")
     if canvas_quiz := get_quiz(course, name):
         canvas_quiz: Quiz
         print(f"Editing canvas quiz {name} ...  ", end="")
         canvas_quiz.edit(quiz=element["settings"])
     else:
         print(f"Creating canvas quiz {name} ...  ", end="")
-        canvas_quiz = course.create_quiz(quiz=element["settings"])
+        try:
+            canvas_quiz = course.create_quiz(quiz=element["settings"])
+        except Exception as ex:
+            print(ex)
+            print()
+            if canvas_quiz := get_quiz(course, name):
+                canvas_quiz: Quiz
+                print_red("Attempting to edit partially created quiz ...")
+                try:
+                    canvas_quiz.edit(quiz=settings)
+                except Exception as ex:
+                    print_red("Failed to edit quiz")
+                    raise ex
+            else:
+                print_red("Quiz was not created")
+                print_red("Attempting to debug quiz creation")
+                canvas_quiz = debug_quiz_creation(canvas_quiz, course, settings)
+
     replace_questions(canvas_quiz, element["questions"])
     canvas_quiz.edit()
     print("Done")
+    return canvas_quiz
+
+
+def debug_quiz_creation(canvas_quiz, course, settings):
+    for index in range(1, len(settings)):
+        keys = list(settings.keys())[:index]
+        values = list(settings.values())[:index]
+        print_red(f"Attempting with {dict(zip(keys, values))}")
+        try:
+            canvas_quiz = course.create_quiz(quiz=dict(zip(keys, values)))
+        except Exception as ex:
+            print(f"Failed on key: {keys[-1]}, value: {values[-1]}")
+            raise ex
     return canvas_quiz
 
 
@@ -267,6 +309,7 @@ def upload_and_link_files(document_object, course, resources: list[tuple], cours
     """
     Uploads all the files in the resources list, and replaces the fake ids in the document with the real ids.
     """
+    print(f"Uploading resources for {document_object['name']} ...", end="")
     create_resource_folder(course, document_object["name"], course_folders)
     text = json.dumps(document_object, indent=4)
     for fake_id, full_path in resources:
@@ -326,7 +369,7 @@ def create_or_edit_module_item_without_id(module: Module, element):
             return
 
     if element["type"] == "Page" and not element["page_url"]:
-        print(f"Could not find page url for {element['title']}")
+        print_red(f"Could not find page url for {element['title']}")
         return
 
     print(f"Creating module item {element['title']} in module {module.name} ...  ", end="")
@@ -441,9 +484,9 @@ def create_or_edit_page(course: Course, element):
     return canvas_page
 
 
-def create_elements_from_document(course: Course, time_zone: str, file_path: Path):
-    if "canvas" not in file_path.__str__():
-        print_red("Error: File must be a canvas file")
+def create_elements_from_document(course: Course, time_zone, file_path: Path):
+    if "mdx" not in file_path.__str__():
+        print_red("Error: File must be a mdx file")
         return
 
     assignment_groups = list(course.get_assignment_groups())
@@ -503,9 +546,9 @@ if __name__ == "__main__":
     with open(args.course_info) as f:
         course_settings = json.load(f)
 
-    # " -0600" is Mountain Time
+    # "America/Denver" is Mountain Time
     main(api_token=os.getenv("CANVAS_API_TOKEN"),
          api_url=course_settings["CANVAS_API_URL"],
          course_id=course_settings["CANVAS_COURSE_ID"],
-         time_zone=course_settings["CANVAS_TIME_ZONE"],
+         time_zone=course_settings["LOCAL_TIME_ZONE"],
          file_path=args.file_path)

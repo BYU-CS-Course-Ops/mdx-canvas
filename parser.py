@@ -3,9 +3,10 @@ from pathlib import Path
 
 from typing import Callable, Union
 
+import pytz
 from bs4 import BeautifulSoup
 from bs4.element import Tag
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Protocol, TypeAlias
 from collections import defaultdict
 
@@ -56,43 +57,41 @@ def string_is_date(date: str):
     return has_digit
 
 
-def make_iso(date: datetime | str | None, time_zone: str):
-    # Example date: Sep 5, 2023, 12:00 AM
-    # Example time_zone: ' -0600'   (mountain time)
-    input_formats = [
-        "%b %d, %Y, %I:%M %p %z",
-        "%b %d %Y %I:%M %p %z",
-        "%Y-%m-%dT%H:%M:%S%z"
-    ]
-
-    if date is None:
-        return None
+def make_iso(date: datetime | str | None, time_zone: str) -> str:
     if isinstance(date, datetime):
         return datetime.isoformat(date)
     elif isinstance(date, str):
-        # Template dates don't need to be converted
-        if not string_is_date(date):
-            return date
-        # If the date doesn't have  a time zone, add one
-        if not "-" in date:
-            date = date + time_zone
-        for input_format in input_formats:
+        # Check if the string is already in ISO format
+        try:
+            return datetime.isoformat(datetime.fromisoformat(date))
+        except ValueError:
+            pass
+
+        try_formats = [
+            "%b %d, %Y, %I:%M %p",
+            "%b %d %Y %I:%M %p",
+            "%Y-%m-%dT%H:%M:%S%z"
+        ]
+        for format_str in try_formats:
             try:
-                if "-" in date:  # If the date already has a time zone
-                    date = datetime.strptime(date, input_format)
-                else:
-                    date = datetime.strptime(date + time_zone, input_format)
-                return datetime.isoformat(date)
+                parsed_date = datetime.strptime(date, format_str)
+                break
             except ValueError:
-                continue
-        raise Exception(f"Invalid date format: " + date)
+                pass
+        else:
+            raise ValueError(f"Invalid date format: {date}")
+
+        # Convert the parsed datetime object to the desired timezone
+        to_zone = pytz.timezone(time_zone)
+        parsed_date = parsed_date.replace(tzinfo=None)  # Remove existing timezone info
+        parsed_date = parsed_date.astimezone(to_zone)
+        return datetime.isoformat(parsed_date)
     else:
-        raise Exception("Date must be a datetime object or a string")
+        raise TypeError("Date must be a datetime object or a string")
 
 
 def get_contents(tag):
     return "".join([str(c) for c in tag.contents])
-
 
 
 question_types = [
@@ -146,6 +145,19 @@ class Processor(Protocol):
     def process(question_tag, markdown_processor: ResourceExtractor) -> Union[
         tuple[list[dict], list], tuple[dict, list]]:
         ...
+
+
+class AttributeAdder:
+    def __init__(self, settings: dict, settings_tag: Tag):
+        self.settings = settings
+        self.settings_tag = settings_tag
+
+    def __call__(self, attribute, default=None, new_name=None, formatter=None):
+        if attribute in self.settings_tag or default is not None:
+            value = self.settings_tag.get(attribute, default)
+            if formatter:
+                value = formatter(value)
+            self.settings[new_name if new_name else attribute] = value
 
 
 def process(processor: Processor, question_tag, markdown_processor: ResourceExtractor):
@@ -311,9 +323,9 @@ class OverrideParser:
     def parse_assignment_tag(self, tag):
         settings = {
             "title": tag.get("title", None),
+            "unlock_at": self.date_formatter(tag.get("available_from", None)),
             "due_at": self.date_formatter(tag.get("due_at", None)),
-            "lock_at": self.date_formatter(tag.get("available_to", None)),
-            "unlock_at": self.date_formatter(tag.get("available_from", None))
+            "lock_at": self.date_formatter(tag.get("available_to", None))
         }
         return settings
 
@@ -352,15 +364,17 @@ class ModuleParser:
         item = {
             "title": tag["title"],
             "type": self.casing[tag.name],
-            "position": tag.get("position", None),
-            "indent": tag.get("indent", None),
-            "page_url": tag.get("page_url", None),
-            "external_url": tag.get("url", None),
-            "new_tab": tag.get("new_tab", "true"),
-            "completion_requirement": tag.get("completion_requirement", None),
-            "iframe": tag.get("iframe", None),
-            "published": tag.get("published", "true"),
         }
+
+        adder = AttributeAdder(item, tag)
+        adder("position")
+        adder("indent")
+        adder("page_url")
+        adder("external_url")
+        adder("new_tab", "true")
+        adder("completion_requirement")
+        adder("iframe")
+        adder("published", "true")
         return item
 
 
@@ -403,32 +417,37 @@ class QuizParser:
                 else:
                     quiz["questions"].append(question)
             elif tag.name == "description":
-                quiz["settings"]["description"] = get_contents(tag)
+                description, res = self.markdown_processor(get_contents(tag))
+                quiz["resources"].extend(res)
+                quiz["settings"]["description"] = description
         return quiz
 
     def parse_quiz_settings(self, settings_tag):
-        settings = {
-            "title": settings_tag["title"],
-            "quiz_type": settings_tag.get("quiz_type", "assignment"),
-            "assignment_group_id": self.group_indexer(settings_tag.get("assignment_group", None)),
-            "time_limit": settings_tag.get("time_limit", None),
-            "shuffle_answers": settings_tag.get("shuffle_answers", False),
-            "hide_results": None,
-            "show_correct_answers": settings_tag.get("show_correct_answers", True),
-            "show_correct_answers_last_attempt": settings_tag.get("show_correct_answers_last_attempt", False),
-            "show_correct_answers_at": self.date_formatter(settings_tag.get("show_correct_answers_at", None)),
-            "allowed_attempts": settings_tag.get("allowed_attempts"),
-            "scoring_policy": settings_tag.get("scoring_policy", "keep_highest"),
-            "one_question_at_a_time": settings_tag.get("one_question_at_a_time", False),
-            "cant_go_back": settings_tag.get("cant_go_back", False),
-            "access_code": settings_tag.get("access_code", None),
-            "due_at": self.date_formatter(settings_tag.get("due_at", None)),
-            "lock_at": self.date_formatter(settings_tag.get("available_to", None)),
-            "unlock_at": self.date_formatter(settings_tag.get("available_from", None)),
-            "published": settings_tag.get("published", True),
-            "one_time_results": settings_tag.get("one_time_results", False),
-        }
+        settings = {"title": settings_tag["title"]}
+
+        adder = AttributeAdder(settings, settings_tag)
+
+        adder("quiz_type", "assignment")
+        adder("assignment_group", None, "assignment_group_id", formatter=self.group_indexer)
+        adder("time_limit")
+        adder("shuffle_answers", False)
+        adder("hide_results")
+        adder("show_correct_answers", True)
+        adder("show_correct_answers_last_attempt", False)
+        adder("show_correct_answers_at", None, formatter=self.date_formatter)
+        adder("allowed_attempts")
+        adder("scoring_policy", "keep_highest")
+        adder("one_question_at_a_time", False)
+        adder("cant_go_back", False)
+        adder("available_from", None, "unlock_at", formatter=self.date_formatter)
+        adder("due_at", None, "due_at", formatter=self.date_formatter)
+        adder("available_to", None, "lock_at", formatter=self.date_formatter)
+        adder("access_code")
+        adder("published", True)
+        adder("one_time_results", False)
+
         return settings
+
 
     def parse_question(self, question_tag: Tag):
         processor = self.question_processors[question_tag["type"]]
@@ -480,47 +499,45 @@ class AssignmentParser:
         return {l.strip().split('=')[0]: l.strip().split('=')[1] for l in items if l.strip()}
 
     def parse_assignment_settings(self, settings_tag):
-        settings = {
-            "name": settings_tag["title"],
-            "position": settings_tag.get("position", None),
-            "submission_types": self.get_list(settings_tag.get("submission_types", "none")),
-            "allowed_extensions": self.get_list(settings_tag.get("allowed_extensions", "")),
-            "turnitin_enabled": self.get_bool(settings_tag.get("turnitin_enabled", "False")),
-            "vericite_enabled": self.get_bool(settings_tag.get("vericite_enabled", "False")),
-            "turnitin_settings": settings_tag.get("turnitin_settings", None),
-            "integration_data": settings_tag.get("integration_data", None),
-            "peer_reviews": self.get_bool(settings_tag.get("peer_reviews", "False")),
-            "automatic_peer_reviews": self.get_bool(settings_tag.get("automatic_peer_reviews", "False")),
-            "notify_of_update": self.get_bool(settings_tag.get("notify_of_update", "False")),
-            "group_category_id": settings_tag.get("group_category", None),
-            "grade_group_students_individually": self.get_bool(
-                settings_tag.get("grade_group_students_individually", "False")),
-            "external_tool_tag_attributes": self.get_dict(settings_tag.get("external_tool_tag_attributes", "")),
-            "points_possible": settings_tag.get("points_possible", None),
-            "grading_type": settings_tag.get("grading_type", "points"),
-            "due_at": self.date_formatter(settings_tag.get("due_at", None)),
-            "lock_at": self.date_formatter(settings_tag.get("available_to", None)),
-            "unlock_at": self.date_formatter(settings_tag.get("available_from", None)),
-            "assignment_group_id": self.group_indexer(settings_tag.get("assignment_group", None)),
-            "assignment_overrides": settings_tag.get("assignment_overrides", None),
-            "only_visible_to_overrides": self.get_bool(settings_tag.get("only_visible_to_overrides", "False")),
-            "published": self.get_bool(settings_tag.get("published", "True")),
-            "grading_standard_id": settings_tag.get("grading_standard_id", None),
-            "omit_from_final_grade": self.get_bool(settings_tag.get("omit_from_final_grade", "False")),
-            "hide_in_gradebook": self.get_bool(settings_tag.get("hide_in_gradebook", "False")),
-            "quiz_lti": settings_tag.get("quiz_lti", None),
-            "moderated_grading": self.get_bool(settings_tag.get("moderated_grading", "False")),
-            "grader_count": settings_tag.get("grader_count", None),
-            "final_grader_id": settings_tag.get("final_grader_id", None),
-            "grader_comments_visible_to_graders": self.get_bool(
-                settings_tag.get("grader_comments_visible_to_graders", "False")),
-            "graders_anonymous_to_graders": self.get_bool(settings_tag.get("graders_anonymous_to_graders", "False")),
-            "grader_names_visible_to_final_grader": self.get_bool(
-                settings_tag.get("grader_names_visible_to_final_grader", "False")),
-            "anonymous_grading": self.get_bool(settings_tag.get("anonymous_grading", "False")),
-            "allowed_attempts": -1 if settings_tag.get("grading_type") == "not_graded" else settings_tag.get("allowed_attempts"),
-            "annotatable_attachment_id": settings_tag.get("annotatable_attachment_id", None),
-        }
+        settings = {"name": settings_tag["title"]}
+
+        adder = AttributeAdder(settings, settings_tag)
+        adder("position")
+        adder("submission_types", "none", formatter=self.get_list)
+        adder("allowed_extensions", "", formatter=self.get_list)
+        adder("turnitin_enabled", "False", formatter=self.get_bool)
+        adder("vericite_enabled", "False", formatter=self.get_bool)
+        adder("turnitin_settings")
+        adder("integration_data")
+        adder("peer_reviews", "False", formatter=self.get_bool)
+        adder("automatic_peer_reviews", "False", formatter=self.get_bool)
+        adder("notify_of_update", "False", formatter=self.get_bool)
+        adder("group_category", new_name="group_category_id")
+        adder("grade_group_students_individually", "False", formatter=self.get_bool)
+        adder("external_tool_tag_attributes", "", formatter=self.get_dict)
+        adder("points_possible")
+        adder("grading_type", "points")
+        adder("available_from", new_name="unlock_at", formatter=self.date_formatter)
+        adder("due_at", formatter=self.date_formatter)
+        adder("available_to", new_name="lock_at", formatter=self.date_formatter)
+        adder("assignment_group", new_name="assignment_group_id", formatter=self.group_indexer)
+        adder("assignment_overrides")
+        adder("only_visible_to_overrides", "False", formatter=self.get_bool)
+        adder("published", "True", formatter=self.get_bool)
+        adder("grading_standard_id")
+        adder("omit_from_final_grade", "False", formatter=self.get_bool)
+        adder("hide_in_gradebook", "False", formatter=self.get_bool)
+        adder("quiz_lti")
+        adder("moderated_grading", "False", formatter=self.get_bool)
+        adder("grader_count")
+        adder("final_grader_id")
+        adder("grader_comments_visible_to_graders", "False", formatter=self.get_bool)
+        adder("graders_anonymous_to_graders", "False", formatter=self.get_bool)
+        adder("grader_names_visible_to_final_grader", "False", formatter=self.get_bool)
+        adder("anonymous_grading", "False", formatter=self.get_bool)
+        adder("allowed_attempts", formatter=lambda x: -1 if x == "not_graded" else x)
+        adder("annotatable_attachment_id")
+
         return settings
 
 
@@ -566,8 +583,10 @@ class DocumentParser:
         self.jinja_env.globals.update(zip=zip, split_list=lambda sl: [s.strip() for s in sl.split(';')])
 
         self.element_processors = {
-            "quiz": QuizParser(self.markdown_processor, group_identifier, self.date_formatter, self.parse_template_data),
-            "assignment": AssignmentParser(self.markdown_processor, group_identifier, self.date_formatter, self.parse_template_data),
+            "quiz": QuizParser(self.markdown_processor, group_identifier, self.date_formatter,
+                               self.parse_template_data),
+            "assignment": AssignmentParser(self.markdown_processor, group_identifier, self.date_formatter,
+                                           self.parse_template_data),
             "page": PageParser(self.markdown_processor, self.date_formatter),
             "module": ModuleParser(),
             "override": OverrideParser(self.date_formatter, self.parse_template_data)
@@ -600,7 +619,7 @@ class DocumentParser:
         elements = []
         for context in all_replacements:
             for key, value in context.items():
-                context[key] = value.replace('"','\\"')
+                context[key] = value.replace('"', '\\"')
             # For each replacement, create an object from the template
             rendered = template.render(context)
             element = json.loads(rendered)
@@ -610,7 +629,6 @@ class DocumentParser:
         for element in elements:
             del element["replacements"]
         return elements
-
 
     def parse_template_data(self, template_tag):
         """
@@ -652,4 +670,3 @@ class DocumentParser:
 
             data.append(replacements)
         return data
-

@@ -1,5 +1,19 @@
 <quiz>
-<settings title="Final" due_at="Dec 21, 2023, 11:59 PM" available_from="Dec 16, 2023, 12:00 AM" available_to="Dec 21, 2023, 11:59 PM" points_possible="40" assignment_group="Final" shuffle_answers="True" time_limit="240" allowed_attempts="1" show_correct_answers_at="Dec 21, 2023, 11:59 PM" access_code="start-final">
+<settings 
+    title="Final" 
+    due_at="Dec 21, 2023, 11:59 PM" 
+    available_from="Dec 16, 2023, 12:00 AM" 
+    available_to="Dec 21, 2023, 11:59 PM" 
+    points_possible="40" 
+    assignment_group="Final" 
+    shuffle_answers="True" 
+    time_limit="240" 
+    allowed_attempts="1" 
+    show_correct_answers_at="Dec 21, 2023, 11:59 PM" 
+    access_code="start-final">
+/>
+
+<description>
 
 ### Before taking the exam
 Please take the course completion survey: Course Completion Survey
@@ -23,8 +37,7 @@ Turn off your phone. Close all applications except your browser, and close all t
 Only start the test once you intend to take and complete it. To start the test, you will need the passcode: **start-final**. 
 
 Good luck!
-
-</settings>
+</description>
 
 
 <question type="text">
