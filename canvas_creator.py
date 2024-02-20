@@ -13,7 +13,6 @@ from canvasapi.assignment import Assignment
 from canvasapi.quiz import Quiz
 from canvasapi.course import Course
 from canvasapi.module import Module
-from canvasapi.user import User
 
 import markdown as md
 from pathlib import Path
@@ -166,52 +165,38 @@ def get_page_url(course: Course, page_name: str):
     return None
 
 
-def get_quiz(course: Course, title: str):
-    quizzes = course.get_quizzes()
-    for quiz in quizzes:
-        if quiz.title == title:
-            return quiz
+def get_quiz(course: Course, title: str, delete=False):
+    return get_canvas_object(course.get_quizzes, "title", title, delete)
+
+
+def get_assignment(course: Course, assignment_name, delete=False):
+    return get_canvas_object(course.get_assignments, "name", assignment_name, delete)
+
+
+def get_module(course: Course, module_name: str, delete=False):
+    return get_canvas_object(course.get_modules, "name", module_name, delete)
+
+
+def get_canvas_object(course_getter, attr_name, attr, delete=False):
+    objects = course_getter()
+    for obj in objects:
+        if obj.__getattribute__(attr_name) == attr:
+            if not delete:
+                return obj
+            obj.delete()
     return None
 
 
-def get_assignment(course: Course, assignment_name):
-    assignments = course.get_assignments()
-    for assignment in assignments:
-        if assignment.name == assignment_name:
-            return assignment
-    return None
+def get_override(assignment: Assignment, override_name, delete=False):
+    return get_canvas_object(assignment.get_overrides, "title", override_name, delete)
 
 
-def get_module(course: Course, module_name: str):
-    modules = course.get_modules()
-    for module in modules:
-        if module.name == module_name:
-            return module
-    return None
+def get_page(course: Course, title, delete=False):
+    return get_canvas_object(course.get_pages, "title", title, delete)
 
 
-def get_override(assignment: Assignment, override_name):
-    overrides = assignment.get_overrides()
-    for override in overrides:
-        if override.title == override_name:
-            return override
-    return None
-
-
-def get_page(course: Course, name):
-    pages = course.get_pages()
-    for page in pages:
-        if page.title == name:
-            return page
-    return None
-
-
-def get_module_item(module: Module, item_name):
-    module_items = module.get_module_items()
-    for item in module_items:
-        if item.title == item_name:
-            return item
-    return None
+def get_module_item(module: Module, item_name, delete=False):
+    return get_canvas_object(module.get_module_items, "title", item_name, delete)
 
 
 def get_object_id_from_element(course: Course, item):
@@ -236,7 +221,7 @@ def fix_dates_attribute(element, attribute, time_zone):
 
 
 def fix_dates(element, time_zone):
-    print(f"Fixing dates for {element['title']} ...")
+    print(f"Fixing dates ...")
     fix_dates_attribute(element, "due_at", time_zone)
     fix_dates_attribute(element, "unlock_at", time_zone)
     fix_dates_attribute(element, "lock_at", time_zone)
@@ -244,9 +229,9 @@ def fix_dates(element, time_zone):
 
 
 
-def create_or_edit_assignment(course, element):
+def modify_assignment(course, element, delete: bool):
     name = element["name"]
-    if canvas_assignment := get_assignment(course, name):
+    if canvas_assignment := get_assignment(course, name, delete):
         print(f"Editing canvas assignment {name} ...  ", end="")
         canvas_assignment.edit(assignment=element["settings"])
     else:
@@ -255,40 +240,44 @@ def create_or_edit_assignment(course, element):
     print("Done")
     return canvas_assignment
 
-user: User
 
-
-def create_or_edit_quiz(course: Course, element):
+def modify_quiz(course: Course, element, delete: bool):
     name = element["name"]
     settings: dict = element["settings"]
     print("Getting quiz from canvas")
-    if canvas_quiz := get_quiz(course, name):
+    if canvas_quiz := get_quiz(course, name, delete):
         canvas_quiz: Quiz
         print(f"Editing canvas quiz {name} ...  ", end="")
         canvas_quiz.edit(quiz=element["settings"])
     else:
-        print(f"Creating canvas quiz {name} ...  ", end="")
-        try:
-            canvas_quiz = course.create_quiz(quiz=element["settings"])
-        except Exception as ex:
-            print(ex)
-            print()
-            if canvas_quiz := get_quiz(course, name):
-                canvas_quiz: Quiz
-                print_red("Attempting to edit partially created quiz ...")
-                try:
-                    canvas_quiz.edit(quiz=settings)
-                except Exception as ex:
-                    print_red("Failed to edit quiz")
-                    raise ex
-            else:
-                print_red("Quiz was not created")
-                print_red("Attempting to debug quiz creation")
-                canvas_quiz = debug_quiz_creation(canvas_quiz, course, settings)
+        canvas_quiz = create_quiz(course, element, name, settings)
 
     replace_questions(canvas_quiz, element["questions"])
     canvas_quiz.edit()
     print("Done")
+    return canvas_quiz
+
+
+def create_quiz(course, element, name, settings):
+    print(f"Creating canvas quiz {name} ...  ", end="")
+    try:
+        canvas_quiz = course.create_quiz(quiz=element["settings"])
+    except Exception as ex:
+        print(ex)
+        print()
+        # Perhaps the quiz was partially created, and then the program crashed
+        if canvas_quiz := get_quiz(course, name):
+            canvas_quiz: Quiz
+            print_red("Attempting to edit partially created quiz ...")
+            try:
+                canvas_quiz.edit(quiz=settings)
+            except Exception as ex:
+                print_red("Failed to edit quiz")
+                raise ex
+        else:
+            print_red("Quiz was not created")
+            print_red("Attempting to debug quiz creation")
+            canvas_quiz = debug_quiz_creation(canvas_quiz, course, settings)
     return canvas_quiz
 
 
@@ -302,6 +291,7 @@ def debug_quiz_creation(canvas_quiz, course, settings):
         except Exception as ex:
             print(f"Failed on key: {keys[-1]}, value: {values[-1]}")
             raise ex
+        canvas_quiz.delete()
     return canvas_quiz
 
 
@@ -396,7 +386,7 @@ def create_or_update_module_items(course: Course, element, canvas_module):
         create_or_edit_module_item(canvas_module, item, object_id, index + 1)
 
 
-def create_or_update_module(course, element):
+def modify_module(course, element, delete: bool):
     name = element["name"]
     if canvas_module := get_module(course, name):
         print(f"Editing canvas module {name} ...  ", end="")
@@ -446,7 +436,7 @@ def create_or_update_override_for_assignment(assignment, override, students, sec
         print("Done")
 
 
-def create_or_update_override(course, override, time_zone):
+def modify_override(course, override, delete: bool, time_zone: str):
     students = override["students"]
     sections = override["sections"]
     section_ids = get_section_ids(course, sections)
@@ -472,7 +462,7 @@ def get_section_ids(course, names):
     return sections
 
 
-def create_or_edit_page(course: Course, element):
+def modify_page(course: Course, element, delete: bool):
     name = element["name"]
     if canvas_page := get_page(course, name):
         print(f"Editing canvas page {name} ...  ", end="")
@@ -484,7 +474,7 @@ def create_or_edit_page(course: Course, element):
     return canvas_page
 
 
-def create_elements_from_document(course: Course, time_zone, file_path: Path):
+def create_elements_from_document(course: Course, time_zone, file_path: Path, delete: bool):
     if "mdx" not in file_path.__str__():
         print_red("Error: File must be a mdx file")
         return
@@ -511,35 +501,35 @@ def create_elements_from_document(course: Course, time_zone, file_path: Path):
         if "settings" in element:
             fix_dates(element["settings"], time_zone)
         if element["type"] == "quiz":
-            create_or_edit_quiz(course, element)
+            modify_quiz(course, element, delete)
         elif element["type"] == "assignment":
-            create_or_edit_assignment(course, element)
+            modify_assignment(course, element, delete)
         elif element["type"] == "page":
-            create_or_edit_page(course, element)
+            modify_page(course, element, delete)
         elif element["type"] == "module":
-            create_or_update_module(course, element)
+            modify_module(course, element, delete)
         elif element["type"] == "override":
-            create_or_update_override(course, element, time_zone)
+            modify_override(course, element, delete, time_zone)
         else:
             raise ValueError(f"Unknown type {element['type']}")
 
 
-def main(api_token, api_url, course_id, time_zone: str, file_path: Path):
+def main(api_token, api_url, course_id, time_zone: str, file_path: Path, delete=False):
     print("-" * 50 + "\nCanvas Generator\n" + "-" * 50)
 
     canvas = Canvas(api_url, api_token)
     course: Course = canvas.get_course(course_id)
 
     print(f"Parsing file ({file_path}) ...  ", end="")
-    create_elements_from_document(course, time_zone, file_path)
+    create_elements_from_document(course, time_zone, file_path, delete)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--file_path", type=Path)
-    parser.add_argument("--resources", type=Path)
     parser.add_argument("--env", type=Path, default="secrets.env")
     parser.add_argument("--course_info", type=Path, default="course_info.json")
+    parser.add_argument("--delete", action="store_true")
     args = parser.parse_args()
 
     load_env(args.env)
@@ -551,4 +541,5 @@ if __name__ == "__main__":
          api_url=course_settings["CANVAS_API_URL"],
          course_id=course_settings["CANVAS_COURSE_ID"],
          time_zone=course_settings["LOCAL_TIME_ZONE"],
-         file_path=args.file_path)
+         file_path=args.file_path,
+         delete=args.delete)
