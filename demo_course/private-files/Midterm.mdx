@@ -208,7 +208,7 @@ from byubit import Bit
 
 @Bit.empty_world(4, 4)
 def run(bit):
-    while not bit.is_blue():
+    while not bit.front_clear():
         while bit.front_clear():
             bit.paint('blue')
             bit.move()
@@ -844,6 +844,22 @@ Last name:
 Age: 4
 ```
 </correct>
+<correct>
+
+```text
+First name: 
+Last name: de Souza
+Age: 5
+```
+</correct>
+<correct>
+
+```text
+First name: Preet
+Last name: Bharara
+Age: 2
+```
+</correct>
 <incorrect>
 
 ```text
@@ -852,29 +868,13 @@ Last name: Page
 Age: 10
 ```
 </incorrect>
-<incorrect>
-
-```text
-First name: 
-Last name: de Souza
-Age: 5
-```
-</incorrect>
-<incorrect>
-
-```text
-First name: Preet
-Last name: Bharara
-Age: 2
-```
-</incorrect>
 </question>
 
 <question type='multiple-choice'>
 You need to write a function that gets a person's sandwich toppings.
 
-If they ask for onions, you need to say those are out.
-Otherwise, add the topping to a list of toppings and return the list.
+- If they ask for onions, you need to say those are out.
+- Otherwise, add the topping to a list of toppings and return the list.
 
 Which of these functions accomplishes this?
 
