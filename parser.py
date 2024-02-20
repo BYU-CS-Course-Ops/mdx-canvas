@@ -5,7 +5,7 @@ from typing import Callable, Union
 
 import pytz
 from bs4 import BeautifulSoup
-from bs4.element import Tag
+from bs4.element import Tag, NavigableString
 from datetime import datetime, timedelta
 from typing import Protocol, TypeAlias
 from collections import defaultdict
@@ -23,12 +23,12 @@ def get_corrects_and_incorrects(question_tag):
 
 def get_correct_comments(question_tag):
     feedback = question_tag.css.filter('correct-comments')
-    return get_contents(feedback[0]) if feedback else None
+    return get_img_and_text_contents(feedback[0]) if feedback else None
 
 
 def get_incorrect_comments(question_tag):
     feedback = question_tag.css.filter('incorrect-comments')
-    return get_contents(feedback[0]) if feedback else None
+    return get_img_and_text_contents(feedback[0]) if feedback else None
 
 
 def get_points(question_tag, default=1):
@@ -90,8 +90,8 @@ def make_iso(date: datetime | str | None, time_zone: str) -> str:
         raise TypeError("Date must be a datetime object or a string")
 
 
-def get_contents(tag):
-    return "".join([str(c) for c in tag.contents])
+def get_img_and_text_contents(tag):
+    return "".join([str(c) for c in tag.contents if isinstance(c, NavigableString) or (isinstance(c, Tag) and c.name == "img")])
 
 
 question_types = [
@@ -114,7 +114,7 @@ class TFConverter:
     @staticmethod
     def process(correct_incorrect_tag, markdown_processor: ResourceExtractor):
         is_true = correct_incorrect_tag.name == "correct"
-        question_text, resources = markdown_processor(correct_incorrect_tag.contents[0])
+        question_text, resources = markdown_processor(get_img_and_text_contents(correct_incorrect_tag))
         question = {
             "question_text": question_text,
             "question_type": 'true_false_question',
@@ -204,10 +204,10 @@ class MultipleChoiceProcessor:
             raise Exception("Multiple choice questions must have exactly one correct answer\n"
                             "Corrects: " + str(corrects))
 
-        question_text, resources = markdown_processor(question_tag.contents[0])
+        question_text, resources = markdown_processor(get_img_and_text_contents(question_tag))
         answers = []
         for answer in corrects + incorrects:
-            answer_html, res = markdown_processor(get_contents(answer))
+            answer_html, res = markdown_processor(get_img_and_text_contents(answer))
             answers.append((True if answer in corrects else False, answer_html))
             resources.extend(res)
 
@@ -232,10 +232,10 @@ class MultipleAnswersProcessor:
     def process(question_tag, markdown_processor: ResourceExtractor):
         corrects, incorrects = get_corrects_and_incorrects(question_tag)
 
-        question_text, resources = markdown_processor(question_tag.contents[0])
+        question_text, resources = markdown_processor(get_img_and_text_contents(question_tag))
         answers = []
         for answer in corrects + incorrects:
-            answer_html, res = markdown_processor(get_contents(answer))
+            answer_html, res = markdown_processor(get_img_and_text_contents(answer))
             answers.append((True if answer in corrects else False, answer_html))
             resources.extend(res)
 
@@ -265,8 +265,8 @@ class MatchingProcessor:
             matches.append((answer_left.string.strip(), answer_right.string.strip()))
 
         distractors = question_tag.css.filter('distractors')
-        distractor_text = distractors[0].contents[0].strip() if len(distractors) > 0 else None
-        question_text, resources = markdown_processor(question_tag.contents[0])
+        distractor_text = get_img_and_text_contents(distractors[0]).strip() if len(distractors) > 0 else None
+        question_text, resources = markdown_processor(get_img_and_text_contents(question_tag))
         question = {
             "question_text": question_text,
             "question_type": 'matching_question',
@@ -288,7 +288,7 @@ class MatchingProcessor:
 class TextQuestionProcessor:
     @staticmethod
     def process(question_tag, markdown_processor: ResourceExtractor):
-        question_text, resources = markdown_processor(question_tag.contents[0])
+        question_text, resources = markdown_processor(get_img_and_text_contents(question_tag))
         question = {
             "question_text": question_text,
             "question_type": 'text_only_question',
@@ -311,9 +311,9 @@ class OverrideParser:
         }
         for tag in override_tag.find_all():
             if tag.name == "section":
-                override["sections"].append(tag.contents[0])
+                override["sections"].append(get_img_and_text_contents(tag))
             elif tag.name == "student":
-                override["students"].append(tag.contents[0])
+                override["students"].append(get_img_and_text_contents(tag))
             elif tag.name == "assignment":
                 override["assignments"].append(self.parse_assignment_tag(tag))
             elif tag.name == "template-arguments":
@@ -417,7 +417,7 @@ class QuizParser:
                 else:
                     quiz["questions"].append(question)
             elif tag.name == "description":
-                description, res = self.markdown_processor(get_contents(tag))
+                description, res = self.markdown_processor(get_img_and_text_contents(tag))
                 quiz["resources"].extend(res)
                 quiz["settings"]["description"] = description
         return quiz
@@ -477,7 +477,7 @@ class AssignmentParser:
             elif tag.name == "template-arguments":
                 assignment["replacements"] = self.template(tag)
             elif tag.name == "description":
-                contents = get_contents(tag)
+                contents = get_img_and_text_contents(tag)
                 description, res = self.markdown_processor(contents)
                 assignment["settings"]["description"] = description
                 assignment["resources"].extend(res)
@@ -562,7 +562,7 @@ class PageParser:
             },
             "resources": []
         }
-        contents = "".join([str(c) for c in page_tag.contents])
+        contents = get_img_and_text_contents(page_tag)
         body, res = self.markdown_processor(contents)
         page["settings"]["body"] = body
         page["resources"].extend(res)
@@ -656,7 +656,7 @@ class DocumentParser:
             csv = (self.path_to_files / template_tag.get("filename")).read_text()
             headers, *lines = csv.split('\n')
         else:
-            headers, separator, *lines = get_contents(template_tag).strip().split('\n')
+            headers, separator, *lines = get_img_and_text_contents(template_tag).strip().split('\n')
             # Remove whitespace and empty headers
             headers = [h.strip() for h in headers.split('|') if h.strip()]
             lines = [line for left_bar, *line, right_bar in [line.split('|') for line in lines]]
