@@ -221,7 +221,7 @@ def fix_dates_attribute(element, attribute, time_zone):
 
 
 def fix_dates(element, time_zone):
-    print(f"Fixing dates ...")
+    print(f"Adding time zone to dates ...")
     fix_dates_attribute(element, "due_at", time_zone)
     fix_dates_attribute(element, "unlock_at", time_zone)
     fix_dates_attribute(element, "lock_at", time_zone)

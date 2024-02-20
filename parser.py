@@ -153,7 +153,7 @@ class AttributeAdder:
         self.settings_tag = settings_tag
 
     def __call__(self, attribute, default=None, new_name=None, formatter=None):
-        if attribute in self.settings_tag or default is not None:
+        if attribute in self.settings_tag.attrs or default is not None:
             value = self.settings_tag.get(attribute, default)
             if formatter:
                 value = formatter(value)
@@ -435,6 +435,7 @@ class QuizParser:
         adder("show_correct_answers", True)
         adder("show_correct_answers_last_attempt", False)
         adder("show_correct_answers_at", None, formatter=self.date_formatter)
+        adder("hide_correct_answers_at", None, formatter=self.date_formatter)
         adder("allowed_attempts")
         adder("scoring_policy", "keep_highest")
         adder("one_question_at_a_time", False)
