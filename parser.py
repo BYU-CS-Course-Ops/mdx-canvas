@@ -207,7 +207,7 @@ class MultipleChoiceProcessor:
         question_text, resources = markdown_processor(question_tag.contents[0])
         answers = []
         for answer in corrects + incorrects:
-            answer_html, res = markdown_processor(answer.string)
+            answer_html, res = markdown_processor(get_contents(answer))
             answers.append((True if answer in corrects else False, answer_html))
             resources.extend(res)
 
@@ -235,7 +235,7 @@ class MultipleAnswersProcessor:
         question_text, resources = markdown_processor(question_tag.contents[0])
         answers = []
         for answer in corrects + incorrects:
-            answer_html, res = markdown_processor(answer.string)
+            answer_html, res = markdown_processor(get_contents(answer))
             answers.append((True if answer in corrects else False, answer_html))
             resources.extend(res)
 

@@ -82,13 +82,14 @@ def create_resource_folder(course, quiz_title: str, course_folders):
                              hidden=True)
 
 
-def get_img_html(image_name, alt_text, course, image_folder: Path):
+def get_img_html(image_name, alt_text, style, course, image_folder: Path):
     """
     Returns the html for an image, and the path to the resource so it can later be uploaded to Canvas.
     After uploading, the correct resource id must be substituted for the fake id using a text replace.
     """
     fake_object_id = str(uuid.uuid4())
-    html_text = f'<p><img id="{image_name}" src="/courses/{course.id}/files/{fake_object_id}/preview" alt="{alt_text}" /></p>'
+    style_text = f'style="{style}"' if style else ""
+    html_text = f'<p><img id="{image_name}" src="/courses/{course.id}/files/{fake_object_id}/preview" alt="{alt_text}" {style_text}/></p>'
     resource = (fake_object_id, str(image_folder / image_name))
     return html_text, resource
 
@@ -103,7 +104,7 @@ def process_images(html, course: Course, image_folder):
     matches = soup.find_all('img')
     resources = []
     for img in matches:
-        basic_image_html, resource = get_img_html(img["src"], img["alt"], course, image_folder)
+        basic_image_html, resource = get_img_html(img["src"], img["alt"], img.get("style"), course, image_folder)
         img.replace_with(BeautifulSoup(basic_image_html, "html.parser"))
         resources.append(resource)
     return str(soup), resources
