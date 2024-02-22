@@ -464,10 +464,10 @@ def modify_page(course: Course, element, delete: bool):
 def post_document(course: Course, time_zone, file_path: Path, delete: bool = False):
     """
     Parses a markdown file, and posts the elements to Canvas.
-    @param course: The canvas course to post to, obtained from the canvas api
-    @param time_zone: The time zone of the course (e.g. "America/Denver")
-    @param file_path: The path to the markdown file
-    @param delete: If true, deletes all elements in the Canvas course with the same name as the elements in the file
+    :param course: The canvas course to post to, obtained from the canvas api
+    :param time_zone: The time zone of the course (e.g. "America/Denver")
+    :param file_path: The path to the markdown file
+    :param delete: If true, deletes all elements in the Canvas course with the same name as the elements in the file
     """
 
     print(f"Parsing file ({file_path.name}) ...  ", end="")
@@ -510,13 +510,24 @@ def post_document(course: Course, time_zone, file_path: Path, delete: bool = Fal
             raise ValueError(f"Unknown type {element['type']}")
 
 
+def get_course(api_url: str, api_token: str, canvas_course_id: int) -> Course:
+    """
+    Returns a Canvas Course object for the given API URL, API token, and course ID.
+
+    :param api_url: str: The URL for the Canvas API.
+    :param api_token: str: The authentication token for the Canvas API.
+    :param canvas_course_id: int: The ID of the Canvas course.
+    :return: Course: A Canvas Course object.
+    """
+    canvas = Canvas(api_url, api_token)
+    course: Course = canvas.get_course(canvas_course_id)
+    return course
+
+
 def main(api_token, api_url, course_id, time_zone: str, file_path: Path, delete=False):
     print("-" * 50 + "\nCanvas Generator\n" + "-" * 50)
 
-    canvas = Canvas(api_url, api_token)
-    course: Course = canvas.get_course(course_id)
-
-    post_document(course, time_zone, file_path, delete)
+    post_document(get_course(api_url, api_token, course_id), time_zone, file_path, delete)
 
 
 if __name__ == "__main__":

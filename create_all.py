@@ -1,9 +1,7 @@
 import argparse
 
 from pathlib import Path
-from mdxcanvas import post_document
-from canvasapi import Canvas
-from canvasapi.course import Course
+from mdxcanvas import post_document, get_course
 import json
 import os
 from dotenv import load_dotenv
@@ -29,7 +27,7 @@ def file_sorter(file_path: Path):
     return 90
 
 
-def create_for_folder(course: Course, time_zone: str, folder: Path):
+def create_for_folder(course, time_zone: str, folder: Path):
     for file_path in sorted(folder.iterdir(), key=file_sorter):
         if file_path.is_dir():
             continue
@@ -40,10 +38,8 @@ def create_for_folder(course: Course, time_zone: str, folder: Path):
 def main(api_token, api_url, course_id, time_zone: str, folders: list[Path]):
     print("-" * 50 + "\nCanvas Generator\n" + "-" * 50)
 
-    canvas = Canvas(api_url, api_token)
-    course: Course = canvas.get_course(course_id)
     for folder in folders:
-        create_for_folder(course, time_zone, folder)
+        create_for_folder(get_course(api_url, api_token, course_id), time_zone, folder)
 
 
 if __name__ == '__main__':
