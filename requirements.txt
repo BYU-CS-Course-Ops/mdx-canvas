@@ -1,8 +1,0 @@
-Jinja2>=3.1.2
-Markdown>=3.1.1
-MarkupSafe>=2.0.1
-canvasapi>=3.2.0
-beautifulsoup4>=4.12.2
-pandas
-pytz>=2023.3.post1
-python-dotenv>=1.0.1
