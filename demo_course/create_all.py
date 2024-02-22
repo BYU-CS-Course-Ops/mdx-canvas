@@ -8,6 +8,9 @@ from dotenv import load_dotenv
 
 
 def file_sorter(file_path: Path):
+    # Modules should be created last,
+    # so it can organize the modules after the assignments are created.
+    # Other files can be ordered as you desire.
     order = [
         ("header", 2),
         ("syllabus", 3),
@@ -18,7 +21,7 @@ def file_sorter(file_path: Path):
         ("assignment", 30),
         ("Final", 40),
         ("Midterm", 60),
-        ("modules", 100),  # modules should be last
+        ("modules", 100),
     ]
     for name, value in order:
         if name.lower() in file_path.name.lower():
@@ -44,9 +47,9 @@ def main(api_url, api_token, course_id, time_zone: str, folders: list[Path]):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
+    parser.add_argument("folders", type=Path, nargs="+", default=[Path.cwd()])
     parser.add_argument("--env", type=Path, default=".env")
     parser.add_argument("--course_info", type=Path, default="testing_course_info.json")
-    parser.add_argument("folders", type=Path, nargs="+", default=[Path.cwd()])
     args = parser.parse_args()
 
     load_dotenv(args.env)
