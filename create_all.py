@@ -23,26 +23,22 @@ def load_env(file_name):
 
 
 def file_sorter(file_path: Path):
-    if "modules" in file_path.name.lower():
-        return 100  # modules should be last
-    elif "Midterm" in file_path.name.lower():
-        return 60
-    elif "Final" in file_path.name.lower():
-        return 40
-    elif "assignment" in file_path.name.lower():
-        return 30
-    elif "quiz" in file_path.name.lower():
-        return 20
-    elif "homework" in file_path.name.lower():
-        return 10
-    elif "lab" in file_path.name.lower():
-        return 5
-    elif "project" in file_path.name.lower():
-        return 4
-    elif "syllabus" in file_path.name.lower():
-        return 3
-    elif "header" in file_path.name.lower():
-        return 2
+    order = [
+        ("header", 2),
+        ("syllabus", 3),
+        ("project", 4),
+        ("lab", 5),
+        ("homework", 10),
+        ("quiz", 20),
+        ("assignment", 30),
+        ("Final", 40),
+        ("Midterm", 60),
+        ("modules", 100),  # modules should be last
+    ]
+    for name, value in order:
+        if name.lower() in file_path.name.lower():
+            return value
+
     return 90
 
 
