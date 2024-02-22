@@ -1,11 +1,25 @@
 import argparse
 
 from pathlib import Path
-from canvas_creator import load_env, create_elements_from_document
+from mdxcanvas import post_document
 from canvasapi import Canvas
 from canvasapi.course import Course
 import json
 import os
+
+
+def load_env(file_name):
+    """
+    Loads all environment variables from a file.
+    """
+    with open(file_name) as file:
+        for line in file:
+            line = line.strip()
+            if not line or line.startswith('#'):
+                continue
+
+            key, value = line.split('=')
+            os.environ[key] = value
 
 
 def file_sorter(file_path: Path):
@@ -37,7 +51,7 @@ def create_for_folder(course: Course, time_zone: str, folder: Path):
         if file_path.is_dir():
             continue
         print(f"Parsing file ({file_path}) ...  ", end="")
-        create_elements_from_document(course, time_zone, file_path)
+        post_document(course, time_zone, file_path)
 
 
 def main(api_token, api_url, course_id, time_zone: str, folders: list[Path]):

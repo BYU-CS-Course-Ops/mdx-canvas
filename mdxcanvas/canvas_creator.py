@@ -61,10 +61,10 @@ def get_canvas_folder(course: Course, folder_name: str, parent_folder_path=""):
     Retrieves an object representing a digital folder in Canvas. If the folder does not exist, it is created.
     """
     folders = list(course.get_folders())
-    if not any(f.name == folder_name for f in folders):
+    if not any(fl.name == folder_name for fl in folders):
         print(f"Created {folder_name} folder")
         course.create_folder(name=folder_name, parent_folder_path=parent_folder_path, hidden=True)
-    return [f for f in folders if f.name == folder_name][0]
+    return [fl for fl in folders if fl.name == folder_name][0]
 
 
 def create_resource_folder(course, quiz_title: str, course_folders):
@@ -72,11 +72,11 @@ def create_resource_folder(course, quiz_title: str, course_folders):
     Creates a folder in Canvas to store images and other resources.
     """
     generated_folder_name = "Generated-Content"
-    if not any(f.name == generated_folder_name for f in course_folders):
+    if not any(fl.name == generated_folder_name for fl in course_folders):
         print("Created Content Folder")
         course.create_folder(name=generated_folder_name, parent_folder_path="", hidden=True)
 
-    if not any(f.name == quiz_title for f in course_folders):
+    if not any(fl.name == quiz_title for fl in course_folders):
         print(f"Created {quiz_title} folder")
         course.create_folder(name=quiz_title, parent_folder_path=generated_folder_name,
                              hidden=True)
@@ -84,7 +84,7 @@ def create_resource_folder(course, quiz_title: str, course_folders):
 
 def get_img_html(image_name, alt_text, style, course, image_folder: Path):
     """
-    Returns the html for an image, and the path to the resource so it can later be uploaded to Canvas.
+    Returns the html for an image, and the path to the resource, so it can later be uploaded to Canvas.
     After uploading, the correct resource id must be substituted for the fake id using a text replace.
     """
     fake_object_id = str(uuid.uuid4())
@@ -227,7 +227,6 @@ def fix_dates(element, time_zone):
     fix_dates_attribute(element, "unlock_at", time_zone)
     fix_dates_attribute(element, "lock_at", time_zone)
     fix_dates_attribute(element, "show_correct_answers_at", time_zone)
-
 
 
 def modify_assignment(course, element, delete: bool):
@@ -387,7 +386,7 @@ def create_or_update_module_items(course: Course, element, canvas_module):
         create_or_edit_module_item(canvas_module, item, object_id, index + 1)
 
 
-def modify_module(course, element, delete: bool):
+def modify_module(course, element):
     name = element["name"]
     if canvas_module := get_module(course, name):
         print(f"Editing canvas module {name} ...  ", end="")
@@ -421,10 +420,10 @@ def create_or_update_override_for_assignment(assignment, override, students, sec
         student_override["title"] = "".join(students)
         overrides.append(student_override)
 
-    for section, id in zip(sections, section_ids):
+    for section, s_id in zip(sections, section_ids):
         section_override = override.copy()
         section_override["title"] = section
-        section_override["course_section_id"] = id
+        section_override["course_section_id"] = s_id
         overrides.append(section_override)
 
     for override in overrides:
@@ -517,7 +516,7 @@ def post_document(course: Course, time_zone, file_path: Path, delete: bool = Fal
         elif element["type"] == "page":
             modify_page(course, element, delete)
         elif element["type"] == "module":
-            modify_module(course, element, delete)
+            modify_module(course, element)
         elif element["type"] == "override":
             modify_override(course, element, time_zone)
         else:
@@ -534,16 +533,16 @@ def main(api_token, api_url, course_id, time_zone: str, file_path: Path, delete=
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--file_path", type=Path)
-    parser.add_argument("--env", type=Path, default="secrets.env")
-    parser.add_argument("--course_info", type=Path, default="course_info.json")
-    parser.add_argument("--delete", action="store_true")
-    args = parser.parse_args()
+    arg_parser = argparse.ArgumentParser()
+    arg_parser.add_argument("--file_path", type=Path)
+    arg_parser.add_argument("--env", type=Path, default="secrets.env")
+    arg_parser.add_argument("--course_info", type=Path, default="course_info.json")
+    arg_parser.add_argument("--delete", action="store_true")
+    args = arg_parser.parse_args()
 
     load_env(args.env)
-    with open(args.course_info) as f:
-        course_settings = json.load(f)
+    with open(args.course_info) as course_info_file:
+        course_settings = json.load(course_info_file)
 
     # "America/Denver" is Mountain Time
     main(api_token=os.getenv("CANVAS_API_TOKEN"),
