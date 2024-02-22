@@ -5,3 +5,4 @@ canvasapi>=3.2.0
 bs4>=4.12.2
 pandas
 pytz>=2023.3.post1
+python-dotenv>=1.0.1

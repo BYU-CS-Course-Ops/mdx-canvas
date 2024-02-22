@@ -6,20 +6,7 @@ from canvasapi import Canvas
 from canvasapi.course import Course
 import json
 import os
-
-
-def load_env(file_name):
-    """
-    Loads all environment variables from a file.
-    """
-    with open(file_name) as file:
-        for line in file:
-            line = line.strip()
-            if not line or line.startswith('#'):
-                continue
-
-            key, value = line.split('=')
-            os.environ[key] = value
+from dotenv import load_dotenv
 
 
 def file_sorter(file_path: Path):
@@ -61,12 +48,12 @@ def main(api_token, api_url, course_id, time_zone: str, folders: list[Path]):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument("--env", type=Path, default="secrets.env")
+    parser.add_argument("--env", type=Path, default=".env")
     parser.add_argument("--course_info", type=Path, default="testing_course_info.json")
     parser.add_argument("--folders", type=Path, nargs="+", default=[Path.cwd()])
     args = parser.parse_args()
 
-    load_env(args.env)
+    load_dotenv(args.env)
     with open(args.course_info) as f:
         course_settings = json.load(f)
 

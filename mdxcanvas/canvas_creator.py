@@ -19,20 +19,7 @@ from pathlib import Path
 from bs4 import BeautifulSoup
 
 from mdxcanvas.parser import DocumentParser, make_iso
-
-
-def load_env(file_name):
-    """
-    Loads all environment variables from a file.
-    """
-    with open(file_name) as file:
-        for line in file:
-            line = line.strip()
-            if not line or line.startswith('#'):
-                continue
-
-            key, value = line.split('=')
-            os.environ[key] = value
+from dotenv import load_dotenv
 
 
 def readfile(filepath: Path):
@@ -535,12 +522,12 @@ def main(api_token, api_url, course_id, time_zone: str, file_path: Path, delete=
 if __name__ == "__main__":
     arg_parser = argparse.ArgumentParser()
     arg_parser.add_argument("--file_path", type=Path)
-    arg_parser.add_argument("--env", type=Path, default="secrets.env")
+    arg_parser.add_argument("--env", type=Path, default=".env")
     arg_parser.add_argument("--course_info", type=Path, default="course_info.json")
     arg_parser.add_argument("--delete", action="store_true")
     args = arg_parser.parse_args()
 
-    load_env(args.env)
+    load_dotenv(args.env)
     with open(args.course_info) as course_info_file:
         course_settings = json.load(course_info_file)
 
