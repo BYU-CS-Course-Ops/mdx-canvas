@@ -18,7 +18,7 @@ import markdown as md
 from pathlib import Path
 from bs4 import BeautifulSoup
 
-from parser import DocumentParser, make_iso
+from mdxcanvas.parser import DocumentParser, make_iso
 
 
 def load_env(file_name):
@@ -222,7 +222,7 @@ def fix_dates_attribute(element, attribute, time_zone):
 
 
 def fix_dates(element, time_zone):
-    print(f"Adding time zone to dates ...")
+    print(f"Adding time zone to dates ... ", end="")
     fix_dates_attribute(element, "due_at", time_zone)
     fix_dates_attribute(element, "unlock_at", time_zone)
     fix_dates_attribute(element, "lock_at", time_zone)
@@ -299,7 +299,7 @@ def upload_and_link_files(document_object, course, resources: list[tuple], cours
     """
     Uploads all the files in the resources list, and replaces the fake ids in the document with the real ids.
     """
-    print(f"Uploading resources for {document_object['name']} ...", end="")
+    print(f"Uploading resources ... ", end="")
     create_resource_folder(course, document_object["name"], course_folders)
     text = json.dumps(document_object, indent=4)
     for fake_id, full_path in resources:
@@ -483,8 +483,8 @@ def post_document(course: Course, time_zone, file_path: Path, delete: bool = Fal
     @param delete: If true, deletes all elements in the Canvas course with the same name as the elements in the file
     """
 
-    print(f"Parsing file ({file_path}) ...  ", end="")
-    if "mdx" not in file_path.__str__():
+    print(f"Parsing file ({file_path.name}) ...  ", end="")
+    if "mdx" not in file_path.name:
         print_red("Error: File must be a mdx file")
         return
 
