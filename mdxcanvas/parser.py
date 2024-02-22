@@ -6,7 +6,7 @@ from typing import Callable, Union
 import pytz
 from bs4 import BeautifulSoup
 from bs4.element import Tag, NavigableString
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Protocol, TypeAlias
 from collections import defaultdict
 
@@ -91,7 +91,8 @@ def make_iso(date: datetime | str | None, time_zone: str) -> str:
 
 
 def get_img_and_text_contents(tag):
-    return "".join([str(c) for c in tag.contents if isinstance(c, NavigableString) or (isinstance(c, Tag) and c.name == "img")])
+    return "".join(
+        [str(c) for c in tag.contents if isinstance(c, NavigableString) or (isinstance(c, Tag) and c.name == "img")])
 
 
 question_types = [
@@ -143,8 +144,7 @@ class Processor(Protocol):
 
     @staticmethod
     def process(question_tag, markdown_processor: ResourceExtractor) -> Union[
-        tuple[list[dict], list], tuple[dict, list]]:
-        ...
+        tuple[list[dict], list], tuple[dict, list]]: ...
 
 
 class AttributeAdder:
@@ -169,9 +169,8 @@ class TrueFalseProcessor:
     @staticmethod
     def process(question_tag, markdown_processor: ResourceExtractor):
         answers = get_answers(question_tag)
-        if len(answers) != 1:
-            raise Exception("True false questions must have one correct or incorrect answer\n"
-                            "Answers: " + str(answers))
+
+        check_correct_size(answers, 1, "True/False")
 
         question, resources = process(TFConverter(), answers[0], markdown_processor)
         if not get_points(answers[0], 0):
@@ -196,13 +195,19 @@ class MultipleTrueFalseProcessor:
         return questions, resources
 
 
-class MultipleChoiceProcessor:
-    @staticmethod
-    def process(question_tag, markdown_processor: ResourceExtractor):
+def check_correct_size(corrects: list, num, question_type):
+    if num is not None and len(corrects) != num:
+        raise Exception(f"{question_type} must have exactly {num} correct answer(s)\n"
+                        "Answers: " + str(corrects))
+
+
+class MultipleCommonProcessor:
+    question_type: str
+    num_correct: Union[int, None]
+
+    def process(self, question_tag, markdown_processor: ResourceExtractor):
         corrects, incorrects = get_corrects_and_incorrects(question_tag)
-        if len(corrects) != 1:
-            raise Exception("Multiple choice questions must have exactly one correct answer\n"
-                            "Corrects: " + str(corrects))
+        check_correct_size(corrects, self.num_correct, self.question_type)
 
         question_text, resources = markdown_processor(get_img_and_text_contents(question_tag))
         answers = []
@@ -213,7 +218,7 @@ class MultipleChoiceProcessor:
 
         question = {
             "question_text": question_text,
-            "question_type": 'multiple_choice_question',
+            "question_type": self.question_type,
             "points_possible": get_points(question_tag),
             "correct_comments": get_correct_comments(question_tag),
             "incorrect_comments": get_incorrect_comments(question_tag),
@@ -227,32 +232,20 @@ class MultipleChoiceProcessor:
         return question, resources
 
 
-class MultipleAnswersProcessor:
-    @staticmethod
-    def process(question_tag, markdown_processor: ResourceExtractor):
-        corrects, incorrects = get_corrects_and_incorrects(question_tag)
+class MultipleChoiceProcessor(MultipleCommonProcessor):
+    question_type = 'multiple_choice_question'
+    num_correct = 1
 
-        question_text, resources = markdown_processor(get_img_and_text_contents(question_tag))
-        answers = []
-        for answer in corrects + incorrects:
-            answer_html, res = markdown_processor(get_img_and_text_contents(answer))
-            answers.append((True if answer in corrects else False, answer_html))
-            resources.extend(res)
+    def process(self, question_tag, markdown_processor: ResourceExtractor):
+        return super().process(question_tag, markdown_processor)
 
-        question = {
-            "question_text": question_text,
-            "question_type": 'multiple_answers_question',
-            "points_possible": get_points(question_tag),
-            "correct_comments": get_correct_comments(question_tag),
-            "incorrect_comments": get_incorrect_comments(question_tag),
-            "answers": [
-                {
-                    "answer_html": answer_html,
-                    "answer_weight": 100 if correct else 0
-                } for correct, answer_html in answers
-            ]
-        }
-        return question, resources
+
+class MultipleAnswersProcessor(MultipleCommonProcessor):
+    question_type = 'multiple_answers_question'
+    num_correct = None
+
+    def process(self, question_tag, markdown_processor: ResourceExtractor):
+        return super().process(question_tag, markdown_processor)
 
 
 class MatchingProcessor:
@@ -449,7 +442,6 @@ class QuizParser:
 
         return settings
 
-
     def parse_question(self, question_tag: Tag):
         processor = self.question_processors[question_tag["type"]]
         return processor.process(question_tag, self.markdown_processor)
@@ -485,19 +477,22 @@ class AssignmentParser:
         assignment["name"] = assignment["settings"]["name"]
         return assignment
 
-    def get_list(self, string):
+    @staticmethod
+    def get_list(string):
         items = string.strip().split(',')
-        return [l.strip() for l in items if l.strip()]
+        return [cell.strip() for cell in items if cell.strip()]
 
-    def get_bool(self, string):
+    @staticmethod
+    def get_bool(string):
         if string.lower() == "true":
             return True
         else:
             return False
 
-    def get_dict(self, string):
+    @staticmethod
+    def get_dict(string):
         items = string.strip().split(',')
-        return {l.strip().split('=')[0]: l.strip().split('=')[1] for l in items if l.strip()}
+        return {cell.strip().split('=')[0]: cell.strip().split('=')[1] for cell in items if cell.strip()}
 
     def parse_assignment_settings(self, settings_tag):
         settings = {"name": settings_tag["title"]}
@@ -596,6 +591,7 @@ class DocumentParser:
     def parse(self, text):
         soup = BeautifulSoup(text, "html.parser")
         document = []
+        tag: Tag
         for tag in soup.children:
             parser = self.element_processors.get(tag.name, None)
             if parser:

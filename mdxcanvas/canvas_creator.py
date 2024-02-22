@@ -437,7 +437,7 @@ def create_or_update_override_for_assignment(assignment, override, students, sec
         print("Done")
 
 
-def modify_override(course, override, delete: bool, time_zone: str):
+def modify_override(course, override, time_zone: str):
     students = override["students"]
     sections = override["sections"]
     section_ids = get_section_ids(course, sections)
@@ -465,7 +465,7 @@ def get_section_ids(course, names):
 
 def modify_page(course: Course, element, delete: bool):
     name = element["name"]
-    if canvas_page := get_page(course, name):
+    if canvas_page := get_page(course, name, delete):
         print(f"Editing canvas page {name} ...  ", end="")
         canvas_page.edit(wiki_page=element["settings"])
     else:
@@ -475,7 +475,16 @@ def modify_page(course: Course, element, delete: bool):
     return canvas_page
 
 
-def create_elements_from_document(course: Course, time_zone, file_path: Path, delete: bool):
+def post_document(course: Course, time_zone, file_path: Path, delete: bool = False):
+    """
+    Parses a markdown file, and posts the elements to Canvas.
+    @param course: The canvas course to post to, obtained from the canvas api
+    @param time_zone: The time zone of the course (e.g. "America/Denver")
+    @param file_path: The path to the markdown file
+    @param delete: If true, deletes all elements in the Canvas course with the same name as the elements in the file
+    """
+
+    print(f"Parsing file ({file_path}) ...  ", end="")
     if "mdx" not in file_path.__str__():
         print_red("Error: File must be a mdx file")
         return
@@ -510,7 +519,7 @@ def create_elements_from_document(course: Course, time_zone, file_path: Path, de
         elif element["type"] == "module":
             modify_module(course, element, delete)
         elif element["type"] == "override":
-            modify_override(course, element, delete, time_zone)
+            modify_override(course, element, time_zone)
         else:
             raise ValueError(f"Unknown type {element['type']}")
 
@@ -521,8 +530,7 @@ def main(api_token, api_url, course_id, time_zone: str, file_path: Path, delete=
     canvas = Canvas(api_url, api_token)
     course: Course = canvas.get_course(course_id)
 
-    print(f"Parsing file ({file_path}) ...  ", end="")
-    create_elements_from_document(course, time_zone, file_path, delete)
+    post_document(course, time_zone, file_path, delete)
 
 
 if __name__ == "__main__":
