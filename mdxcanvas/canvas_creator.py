@@ -1,3 +1,4 @@
+import re
 from datetime import datetime
 import json
 import os
@@ -5,6 +6,7 @@ import textwrap
 
 import uuid
 import argparse
+from xml.etree import ElementTree as etree
 
 import pytz
 from canvasapi import Canvas
@@ -15,11 +17,13 @@ from canvasapi.course import Course
 from canvasapi.module import Module
 
 import markdown as md
+from markdown.extensions.codehilite import makeExtension as makeCodehiliteExtension
+
 from pathlib import Path
 from bs4 import BeautifulSoup
 
-from mdxcanvas.parser import DocumentParser, make_iso
-from dotenv import load_dotenv
+from .extensions import BlackInlineCodeExtension
+from .parser import DocumentParser, make_iso
 
 
 def readfile(filepath: Path):
@@ -35,7 +39,18 @@ def get_fancy_html(markdown_or_file: str, files_folder=None):
         markdown_or_file = readfile(files_folder / markdown_or_file)
 
     dedented = textwrap.dedent(markdown_or_file)
-    fenced = md.markdown(dedented, extensions=['fenced_code'])
+
+    fenced = md.markdown(dedented, extensions=[
+        'fenced_code',
+
+        # This embeds the highlight style directly into the HTML
+        # instead of using CSS classes
+        makeCodehiliteExtension(noclasses=True),
+
+        # This forces the color of inline code to be black
+        # as a workaround for Canvas's super-ugly default red :P
+        BlackInlineCodeExtension()
+    ])
     return fenced
 
 
