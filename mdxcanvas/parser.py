@@ -91,6 +91,11 @@ def make_iso(date: datetime | str | None, time_zone: str) -> str:
 
 
 def get_img_and_text_contents(tag):
+    """
+    Typically, the body of a tag is found at contents[0], and subtags (like answers) are found later.
+    However, images sometimes separate the text into multiple parts.
+    This function joins the text and images together.
+    """
     return "".join(
         [str(c) for c in tag.contents if isinstance(c, NavigableString) or (isinstance(c, Tag) and c.name == "img")])
 
@@ -289,7 +294,29 @@ class TextQuestionProcessor:
         return question, resources
 
 
-class OverrideParser:
+class Parser:
+    @staticmethod
+    def get_list(string):
+        items = string.strip().split(',')
+        return [cell.strip() for cell in items if cell.strip()]
+
+    @staticmethod
+    def get_bool(string):
+        if string is False or string is True:
+            return string
+
+        if string.lower() == "true":
+            return True
+        else:
+            return False
+
+    @staticmethod
+    def get_dict(string):
+        items = string.strip().split(',')
+        return {cell.strip().split('=')[0]: cell.strip().split('=')[1] for cell in items if cell.strip()}
+
+
+class OverrideParser(Parser):
     def __init__(self, date_formatter, templater):
         self.date_formatter = date_formatter
         self.template = templater
@@ -315,27 +342,30 @@ class OverrideParser:
 
     def parse_assignment_tag(self, tag):
         settings = {
-            "title": tag.get("title", None),
-            "unlock_at": self.date_formatter(tag.get("available_from", None)),
-            "due_at": self.date_formatter(tag.get("due_at", None)),
-            "lock_at": self.date_formatter(tag.get("available_to", None))
+            "title": tag["title"],
         }
+        adder = AttributeAdder(settings, tag)
+        adder("available_from", new_name="unlock_at", formatter=self.date_formatter)
+        adder("due_at", formatter=self.date_formatter)
+        adder("available_to", new_name="lock_at", formatter=self.date_formatter)
         return settings
 
 
-class ModuleParser:
-    def __init__(self):
-        pass
+class ModuleParser(Parser):
+
+    def parse_module_settings(self, module_tag):
+        settings = {
+            "name": module_tag["title"],
+            "position": module_tag["position"],
+        }
+        AttributeAdder(settings, module_tag)("published", False, formatter=self.get_bool)
+        return settings
 
     def parse(self, module_tag: Tag):
         module = {
             "type": "module",
             "name": module_tag["title"],
-            "settings": {
-                "name": module_tag["title"],
-                "position": module_tag["position"],
-                "published": module_tag.get("published", "true"),
-            },
+            "settings": self.parse_module_settings(module_tag),
             "items": []
         }
         for item_tag in module_tag.find_all():
@@ -364,14 +394,14 @@ class ModuleParser:
         adder("indent")
         adder("page_url")
         adder("external_url")
-        adder("new_tab", "true")
+        adder("new_tab", True, formatter=self.get_bool)
         adder("completion_requirement")
         adder("iframe")
-        adder("published", "true")
+        adder("published", False, formatter=self.get_bool)
         return item
 
 
-class QuizParser:
+class QuizParser(Parser):
     question_processors = {
         "multiple-choice": MultipleChoiceProcessor(),
         "multiple-answers": MultipleAnswersProcessor(),
@@ -423,22 +453,22 @@ class QuizParser:
         adder("quiz_type", "assignment")
         adder("assignment_group", None, "assignment_group_id", formatter=self.group_indexer)
         adder("time_limit")
-        adder("shuffle_answers", False)
-        adder("hide_results")
-        adder("show_correct_answers", True)
-        adder("show_correct_answers_last_attempt", False)
+        adder("shuffle_answers", False, formatter=self.get_bool)
+        adder("hide_results", formatter=self.get_bool)
+        adder("show_correct_answers", True, formatter=self.get_bool)
+        adder("show_correct_answers_last_attempt", False, formatter=self.get_bool)
         adder("show_correct_answers_at", None, formatter=self.date_formatter)
         adder("hide_correct_answers_at", None, formatter=self.date_formatter)
         adder("allowed_attempts")
         adder("scoring_policy", "keep_highest")
-        adder("one_question_at_a_time", False)
-        adder("cant_go_back", False)
+        adder("one_question_at_a_time", False, formatter=self.get_bool)
+        adder("cant_go_back", False, formatter=self.get_bool)
         adder("available_from", None, "unlock_at", formatter=self.date_formatter)
-        adder("due_at", None, "due_at", formatter=self.date_formatter)
+        adder("due_at", None, formatter=self.date_formatter)
         adder("available_to", None, "lock_at", formatter=self.date_formatter)
         adder("access_code")
-        adder("published", True)
-        adder("one_time_results", False)
+        adder("published", False, formatter=self.get_bool)
+        adder("one_time_results", False, formatter=self.get_bool)
 
         return settings
 
@@ -447,7 +477,7 @@ class QuizParser:
         return processor.process(question_tag, self.markdown_processor)
 
 
-class AssignmentParser:
+class AssignmentParser(Parser):
     def __init__(self, markdown_processor: ResourceExtractor, group_indexer, date_formatter, templater):
         self.markdown_processor = markdown_processor
         self.group_indexer = group_indexer
@@ -477,23 +507,6 @@ class AssignmentParser:
         assignment["name"] = assignment["settings"]["name"]
         return assignment
 
-    @staticmethod
-    def get_list(string):
-        items = string.strip().split(',')
-        return [cell.strip() for cell in items if cell.strip()]
-
-    @staticmethod
-    def get_bool(string):
-        if string.lower() == "true":
-            return True
-        else:
-            return False
-
-    @staticmethod
-    def get_dict(string):
-        items = string.strip().split(',')
-        return {cell.strip().split('=')[0]: cell.strip().split('=')[1] for cell in items if cell.strip()}
-
     def parse_assignment_settings(self, settings_tag):
         settings = {"name": settings_tag["title"]}
 
@@ -501,15 +514,15 @@ class AssignmentParser:
         adder("position")
         adder("submission_types", "none", formatter=self.get_list)
         adder("allowed_extensions", "", formatter=self.get_list)
-        adder("turnitin_enabled", "False", formatter=self.get_bool)
-        adder("vericite_enabled", "False", formatter=self.get_bool)
+        adder("turnitin_enabled", False, formatter=self.get_bool)
+        adder("vericite_enabled", False, formatter=self.get_bool)
         adder("turnitin_settings")
         adder("integration_data")
-        adder("peer_reviews", "False", formatter=self.get_bool)
-        adder("automatic_peer_reviews", "False", formatter=self.get_bool)
-        adder("notify_of_update", "False", formatter=self.get_bool)
+        adder("peer_reviews", False, formatter=self.get_bool)
+        adder("automatic_peer_reviews", False, formatter=self.get_bool)
+        adder("notify_of_update", False, formatter=self.get_bool)
         adder("group_category", new_name="group_category_id")
-        adder("grade_group_students_individually", "False", formatter=self.get_bool)
+        adder("grade_group_students_individually", False, formatter=self.get_bool)
         adder("external_tool_tag_attributes", "", formatter=self.get_dict)
         adder("points_possible")
         adder("grading_type", "points")
@@ -518,43 +531,49 @@ class AssignmentParser:
         adder("available_to", new_name="lock_at", formatter=self.date_formatter)
         adder("assignment_group", new_name="assignment_group_id", formatter=self.group_indexer)
         adder("assignment_overrides")
-        adder("only_visible_to_overrides", "False", formatter=self.get_bool)
-        adder("published", "True", formatter=self.get_bool)
+        adder("only_visible_to_overrides", False, formatter=self.get_bool)
+        adder("published", False, formatter=self.get_bool)
         adder("grading_standard_id")
-        adder("omit_from_final_grade", "False", formatter=self.get_bool)
-        adder("hide_in_gradebook", "False", formatter=self.get_bool)
+        adder("omit_from_final_grade", False, formatter=self.get_bool)
+        adder("hide_in_gradebook", False, formatter=self.get_bool)
         adder("quiz_lti")
-        adder("moderated_grading", "False", formatter=self.get_bool)
+        adder("moderated_grading", False, formatter=self.get_bool)
         adder("grader_count")
         adder("final_grader_id")
-        adder("grader_comments_visible_to_graders", "False", formatter=self.get_bool)
-        adder("graders_anonymous_to_graders", "False", formatter=self.get_bool)
-        adder("grader_names_visible_to_final_grader", "False", formatter=self.get_bool)
-        adder("anonymous_grading", "False", formatter=self.get_bool)
+        adder("grader_comments_visible_to_graders", False, formatter=self.get_bool)
+        adder("graders_anonymous_to_graders", False, formatter=self.get_bool)
+        adder("grader_names_visible_to_final_grader", False, formatter=self.get_bool)
+        adder("anonymous_grading", False, formatter=self.get_bool)
         adder("allowed_attempts", formatter=lambda x: -1 if x == "not_graded" else x)
         adder("annotatable_attachment_id")
 
         return settings
 
 
-class PageParser:
+class PageParser(Parser):
     def __init__(self, markdown_processor: ResourceExtractor, date_formatter):
         self.markdown_processor = markdown_processor
         self.date_formatter = date_formatter
+
+    def parse_page_settings(self, page_tag):
+        settings = {
+            "type": "page",
+            "name": page_tag["title"],
+            "body": "",
+        }
+        adder = AttributeAdder(settings, page_tag)
+        adder("editing_roles", "teachers")
+        adder("notify_of_update", False, formatter=self.get_bool)
+        adder("published", False, formatter=self.get_bool)
+        adder("front_page", False, formatter=self.get_bool)
+        adder("publish_at", formatter=self.date_formatter)
+        return settings
 
     def parse(self, page_tag):
         page = {
             "type": "page",
             "name": page_tag["title"],
-            "settings": {
-                "title": page_tag["title"],
-                "body": "",
-                "editing_roles": page_tag.get("editing_roles", "teachers"),
-                "notify_of_update": page_tag.get("notify_of_update", False),
-                "published": page_tag.get("published", True),
-                "front_page": page_tag.get("front_page", False),
-                "publish_at": self.date_formatter(page_tag.get("publish_at", None)),
-            },
+            "settings": self.parse_page_settings(page_tag),
             "resources": []
         }
         contents = get_img_and_text_contents(page_tag)
