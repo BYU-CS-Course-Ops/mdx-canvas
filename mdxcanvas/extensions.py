@@ -1,5 +1,5 @@
 import re
-from xml import etree
+import xml.etree.ElementTree as etree
 
 from markdown.inlinepatterns import BacktickInlineProcessor, BACKTICK_RE
 from markdown.extensions import Extension
