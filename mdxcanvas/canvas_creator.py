@@ -522,30 +522,3 @@ def get_course(api_url: str, api_token: str, canvas_course_id: int) -> Course:
     canvas = Canvas(api_url, api_token)
     course: Course = canvas.get_course(canvas_course_id)
     return course
-
-
-def main(api_token, api_url, course_id, time_zone: str, file_path: Path, delete=False):
-    print("-" * 50 + "\nCanvas Generator\n" + "-" * 50)
-
-    post_document(get_course(api_url, api_token, course_id), time_zone, file_path, delete)
-
-
-if __name__ == "__main__":
-    arg_parser = argparse.ArgumentParser()
-    arg_parser.add_argument("--file_path", type=Path)
-    arg_parser.add_argument("--env", type=Path, default=".env")
-    arg_parser.add_argument("--course_info", type=Path, default="course_info.json")
-    arg_parser.add_argument("--delete", action="store_true")
-    args = arg_parser.parse_args()
-
-    load_dotenv(args.env)
-    with open(args.course_info) as course_info_file:
-        course_settings = json.load(course_info_file)
-
-    # "America/Denver" is Mountain Time
-    main(api_token=os.getenv("CANVAS_API_TOKEN"),
-         api_url=course_settings["CANVAS_API_URL"],
-         course_id=course_settings["CANVAS_COURSE_ID"],
-         time_zone=course_settings["LOCAL_TIME_ZONE"],
-         file_path=args.file_path,
-         delete=args.delete)
