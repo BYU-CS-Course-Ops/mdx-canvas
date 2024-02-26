@@ -321,10 +321,10 @@ class Parser:
 
 
 class OverrideParser:
-    def __init__(self, date_formatter, templater):
+    def __init__(self, date_formatter, templater, parser):
         self.date_formatter = date_formatter
         self.template = templater
-        self.parser = Parser()
+        self.parser = parser
 
     def parse(self, override_tag: Tag):
         override = {
@@ -357,8 +357,8 @@ class OverrideParser:
 
 
 class ModuleParser:
-    def __init__(self):
-        self.parser = Parser()
+    def __init__(self, parser):
+        self.parser = parser
 
     def parse_module_settings(self, module_tag):
         settings = {
@@ -418,12 +418,12 @@ class QuizParser:
         "text": TextQuestionProcessor()
     }
 
-    def __init__(self, markdown_processor: ResourceExtractor, group_indexer, date_formatter, templater):
+    def __init__(self, markdown_processor: ResourceExtractor, group_indexer, date_formatter, templater, parser):
         self.markdown_processor = markdown_processor
         self.group_indexer = group_indexer
         self.date_formatter = date_formatter
         self.template = templater
-        self.parser = Parser()
+        self.parser = parser
 
     def parse(self, quiz_tag: Tag):
         quiz = {
@@ -486,12 +486,12 @@ class QuizParser:
 
 
 class AssignmentParser:
-    def __init__(self, markdown_processor: ResourceExtractor, group_indexer, date_formatter, templater):
+    def __init__(self, markdown_processor: ResourceExtractor, group_indexer, date_formatter, templater, parser):
         self.markdown_processor = markdown_processor
         self.group_indexer = group_indexer
         self.date_formatter = date_formatter
         self.template = templater
-        self.parser = Parser()
+        self.parser = parser
 
     def parse(self, assignment_tag):
         assignment = {
@@ -560,10 +560,10 @@ class AssignmentParser:
 
 
 class PageParser:
-    def __init__(self, markdown_processor: ResourceExtractor, date_formatter):
+    def __init__(self, markdown_processor: ResourceExtractor, date_formatter, parser):
         self.markdown_processor = markdown_processor
         self.date_formatter = date_formatter
-        self.parser = Parser()
+        self.parser = parser
 
     def parse_page_settings(self, page_tag):
         settings = {
@@ -607,14 +607,16 @@ class DocumentParser:
 
         self.jinja_env.globals.update(zip=zip, split_list=lambda sl: [s.strip() for s in sl.split(';')])
 
+        parser = Parser()
+
         self.element_processors = {
             "quiz": QuizParser(self.markdown_processor, group_identifier, self.date_formatter,
-                               self.parse_template_data),
+                               self.parse_template_data, parser),
             "assignment": AssignmentParser(self.markdown_processor, group_identifier, self.date_formatter,
-                                           self.parse_template_data),
-            "page": PageParser(self.markdown_processor, self.date_formatter),
-            "module": ModuleParser(),
-            "override": OverrideParser(self.date_formatter, self.parse_template_data)
+                                           self.parse_template_data, parser),
+            "page": PageParser(self.markdown_processor, self.date_formatter, parser),
+            "module": ModuleParser(parser),
+            "override": OverrideParser(self.date_formatter, self.parse_template_data, parser)
         }
 
     def parse(self, text):
