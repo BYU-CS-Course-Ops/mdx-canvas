@@ -461,6 +461,7 @@ class QuizParser:
         adder("quiz_type", "assignment")
         adder("assignment_group", None, "assignment_group_id", formatter=self.group_indexer)
         adder("time_limit")
+        adder("points_possible")
         adder("shuffle_answers", False, formatter=self.parser.get_bool)
         adder("hide_results", formatter=self.parser.get_bool)
         adder("show_correct_answers", True, formatter=self.parser.get_bool)
