@@ -107,6 +107,10 @@ The basic structure is as follows:
         - assignment
         - graded_survey
         - survey
+- points_possible: integer
+    - The number of points the survey is worth
+    - Only applies if quiz_type is "graded_survey"
+    - For assignments, the total points are determined by the sum of the questions
 - assignment_group: string
     - default=None
     - Name of the group the assignment should be put in
