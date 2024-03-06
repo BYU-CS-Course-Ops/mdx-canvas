@@ -1,6 +1,6 @@
 # parse the yaml file and return the data
 
-from strictyaml import load, Map, Str, Int, Seq, Optional, Any, Enum, MapPattern, YAMLError
+from strictyaml import load, Map, Str, Int, Seq, Optional, Any, Enum, MapPattern, YAMLError, Bool
 
 # Define the schema for the yaml file
 schema = Map({
@@ -10,7 +10,7 @@ schema = Map({
     Optional("available_from"): Str(),
     Optional("available_to"): Str(),
     Optional("assignment_group"): Str(),
-    Optional("shuffle_answers"): bool,
+    Optional("shuffle_answers"): Bool(),
     Optional("time_limit"): Int(),
     Optional("allowed_attempts"): Int(),
     Optional("show_correct_answers_at"): Str(),
@@ -35,17 +35,18 @@ schema = Map({
     )
 })
 
+
 def parse_yaml(file_path: str) -> dict:
     with open(file_path, 'r') as file:
         text = file.read()
 
     try:
-        data = load(text, schema)
-        return data
+        document = load(text, schema).data
+        return document
     except YAMLError as error:
         print(error)
 
 
 if __name__ == "__main__":
-    data = parse_yaml("Midterm.yaml")
-    pass
+    document = parse_yaml("Midterm.yaml")
+    print(document)
