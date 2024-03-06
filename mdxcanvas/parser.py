@@ -9,6 +9,32 @@ from bs4.element import Tag, NavigableString
 from datetime import datetime
 from typing import Protocol, TypeAlias
 from collections import defaultdict
+from strictyaml import Map, Str, Int, Seq, Bool, Optional, load
+
+schema = Map({
+    "title": Str(),
+    "type": Str(),
+    "settings": Map({
+        "name": Str(),
+        "position": Int(),
+        "published": Bool(),
+    }),
+    "sections": Seq(Str()),
+    "students": Seq(Str()),
+    "assignments": Seq(Map({
+        "title": Str(),
+        "position": Int(),
+        "published": Bool(),
+        "unlock_at": Optional(Str()),
+        "due_at": Optional(Str()),
+        "lock_at": Optional(Str()),
+        "points_possible": Optional(Int()),
+    })),
+    "replacements": Seq(Map({
+        "key": Str(),
+        "value": Str(),
+    })),
+})
 
 from jinja2 import Environment
 

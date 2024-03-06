@@ -1,0 +1,154 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Canvas Page",
+  "description": "A canvas page, such as an assignment, quiz, or page",
+  "properties": {
+    "title": {
+      "description": "The title of the page",
+      "type": "string"
+    },
+    "type": {
+      "description": "The type of page",
+      "type": "string",
+      "enum": [
+        "assignment",
+        "quiz",
+        "page"
+      ]
+    },
+    "due_at": {
+      "description": "The due date and time for the page",
+      "type": "string",
+      "format": "date-time"
+    },
+    "available_from": {
+      "description": "The date and time the page becomes available",
+      "type": "string",
+      "format": "date-time"
+    },
+    "available_to": {
+      "description": "The date and time the page is no longer available",
+      "type": "string",
+      "format": "date-time"
+    },
+    "assignment_group": {
+      "description": "The assignment group for the page",
+      "type": "string"
+    },
+    "shuffle_answers": {
+      "description": "Whether to shuffle the answers for a quiz",
+      "type": "boolean"
+    },
+    "time_limit": {
+      "description": "The time limit for a quiz",
+      "type": "integer"
+    },
+    "allowed_attempts": {
+      "description": "The number of allowed attempts for a quiz",
+      "type": "integer"
+    },
+    "show_correct_answers_at": {
+      "description": "The date and time to show correct answers for a quiz",
+      "type": "string",
+      "format": "date-time"
+    },
+    "hide_correct_answers_at": {
+      "description": "The date and time to hide correct answers for a quiz",
+      "type": "string",
+      "format": "date-time"
+    },
+    "access_code": {
+      "description": "The access code for a quiz",
+      "type": "string"
+    },
+    "description": {
+      "description": "The description of the page",
+      "type": "string"
+    },
+    "questions": {
+      "description": "The questions for a quiz",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "description": "The type of question",
+            "type": "string",
+            "enum": [
+              "intro_text",
+              "text",
+              "multiple-choice",
+              "matching",
+              "multiple-answers"
+            ]
+          },
+          "text": {
+            "description": "The text of the question",
+            "type": "string"
+          },
+          "answers": {
+            "description": "The answers for the question",
+            "type": "object",
+            "properties": {
+              "correct": {
+                "description": "The correct answer for the question",
+                "oneOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                ]
+              },
+              "incorrect": {
+                "description": "The incorrect answers for the question",
+                "oneOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "required": [
+          "type",
+          "text"
+        ],
+        "optional": [
+          "answers"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "required": [
+      "title",
+      "type",
+      "description"
+    ],
+    "oneOf": [
+      {
+        "required": [
+          "due_at"
+        ]
+      },
+      {
+        "required": [
+          "available_from",
+          "available_to"
+        ]
+      }
+    ]
+  },
+  "additionalProperties": false
+}
