@@ -32,7 +32,7 @@ questions:
   - type: text
     text: |
       Some of these questions have answers that are very similar. Be sure to review all the answers for a question and not just take the first answer that looks correct.
-  # Blue Red Green:
+  # Q1, Blue Red Green:
   - type: multiple-choice
     text: | # Q1 text
       Which image will the following code produce?
@@ -56,16 +56,17 @@ questions:
             run(Bit.new_bit)
       ```
     answers:
-      correct: | # Q1 correct answer
+      correct: # Q1 correct answer
+      - | 
         <img src="resources/q1_bit_blue_red_green_T.png" alt="blue, red, green" style="width: 200px;"/>
       incorrect: # Q1 incorrect answers
-        - |
-          <img src='resources/q1_bit_blue_blue_blue_F.png' alt='blue, blue, blue' style='width: 200px;'/>
-        - |
-          <img src='resources/q1_bit_blue_green_green_F.png' alt='blue, green, green' style='width: 200px;'/>
-        - |
-          <img src='resources/q1_bit_blue_red_red_F.png' alt='blue, red, red' style='width: 200px;'/>
-  # RGB:
+      - |
+        <img src='resources/q1_bit_blue_blue_blue_F.png' alt='blue, blue, blue' style='width: 200px;'/>
+      - |
+        <img src='resources/q1_bit_blue_green_green_F.png' alt='blue, green, green' style='width: 200px;'/>
+      - |
+        <img src='resources/q1_bit_blue_red_red_F.png' alt='blue, red, red' style='width: 200px;'/>
+  # Q2, RGB:
   - type: multiple-choice # Question 2
     text: | # Q2 text
       Given the following starting world named `rgb`:
@@ -76,7 +77,8 @@ questions:
       
       <img src="resources/q2_end_result.png" alt="ending world" style="width: 300px;"/>
     answers:
-      correct: | # Q2 correct answer
+      correct: # Q2 correct answer
+      - | 
         ```python
         from byubit import Bit
         
@@ -151,7 +153,7 @@ questions:
         if __name__ == '__main__':
             run(Bit.new_bit)
         ```
-  # Blue Box:
+  # Q3, Blue Box:
   - type: multiple-choice # Question 3
     text: | # Q3 text
       Starting with this world:
@@ -162,7 +164,8 @@ questions:
       
       <img src="resources/q3_end_result.png" alt="ending world" style="width: 200px;"/>
     answers:
-      correct: | # Q3 correct answer
+      correct:  # Q3 correct answer
+      - |
         ```python
         from byubit import Bit
         
@@ -222,7 +225,7 @@ questions:
         if __name__ == '__main__':
             run(Bit.new_bit)
         ```
-  # Red Bars:
+  # Q4, Red Bars:
   - type: multiple-choice # Question 4
     text: | # Q4 text
       Bit starts in the following world `red_bars`:
@@ -233,7 +236,8 @@ questions:
       
       <img src="resources/q4_end_result.png" alt="ending world" style="width: 250px;"/>
     answers:
-      correct: | # Q4 correct answer
+      correct: # Q4 correct answer
+      - |
         ```python
         def draw_bar(bit):
             bit.left()
@@ -273,7 +277,7 @@ questions:
               go(bit, 'red')
               bit.left()
           ```
-  # Mystery Functions:
+  # Q5, Mystery Functions:
   - type: multiple-choice # Question 5
     text: | # Q5 text
       What does the following code print?
@@ -293,13 +297,13 @@ questions:
             main()
       ```
     answers:
-      correct: | # Q5 correct answer
-        `0`
+      correct:  # Q5 correct answer
+      - "`0`"
       incorrect: # Q5 incorrect answers
-        - `-2`
-        - `3`
-        - `1`
-  # I like Fruit:
+      - "`-2`"
+      - "`3`"
+      - "`1`"
+  # Q6, I like Fruit:
   - type: multiple-choice # Question 6
     text: | # Q6 text
       Which block of code could produce the following dialog:
@@ -314,7 +318,8 @@ questions:
             Goodbye!
         ```
     answers:
-      correct: | # Q6 correct answer
+      correct: # Q6 correct answer
+      - |
         ```python
         def main():
             while True:
@@ -382,7 +387,7 @@ questions:
         if __name__ == '__main__':
             main()
         ```
-  # Pets:
+  # Q7, Pets:
   - type: multiple-choice # Question 7
     text: | # Q7 text
       Which of the following dialogs is **NOT** possible with this code?
@@ -405,7 +410,8 @@ questions:
           want_pets()
       ```
     answers:
-      correct: | # Q7 correct answer
+      correct: # Q7 correct answer
+      - |
         ```text
           What pet do you want? gerbil
           What pet do you want? dinosaur
@@ -442,7 +448,7 @@ questions:
               You want 3 pets.
               ```
 
-  # Modulo 2:
+  # Q8, Modulo 2:
   - type: multiple-choice # Question 8
     text: | # Q8 text
       What will the following block of code print?
@@ -466,7 +472,8 @@ questions:
           main()
       ```
     answers:
-      correct: | # Q8 correct answer
+      correct: # Q8 correct answer
+      - |
         ```text
           I like 1
           I like 4
@@ -512,7 +519,7 @@ questions:
             5
             9
             ```
-  # Keepers:
+  # Q9, Keepers:
   - type: multiple-choice # Question 9
     text: | # Q9 text
       Consider the following code and output.
@@ -534,7 +541,8 @@ questions:
       ```
       Which version of `keep_it` could be used to produce that output?
     answers:
-      correct: | # Q9 correct answer
+      correct: # Q9 correct answer
+      - |
         ```python
         def keep_it(thing):
             return thing > 7 or thing < -5
@@ -560,7 +568,7 @@ questions:
         def keep_it(thing):
             return thing > -3 or thing < 9
         ```
-  # List Patterns:
+  # Q10, List Patterns:
   - type: matching # Question 10
     text: | # Q10 text
         Match each `list` pattern with the scenario it serves.
@@ -574,7 +582,7 @@ questions:
           right: "Accumulator pattern"
         - left: "You have a list of speech transcripts. You want only the speeches that mention prayer."
           right: "Filter pattern"
-  # Code Patterns:
+  # Q11, Code Patterns:
   - type: matching # Question 11
     text: | # Q11 text
       Match each block of code with the pattern it demonstrates:
@@ -628,7 +636,7 @@ questions:
           right: "Filter pattern"
         - left: "Code Block D"
           right: "Accumulator pattern"
-  # Unpack Tuples:
+  # Q12, Unpack Tuples:
   - type: multiple-choice # Question 12
     text: | # Q12 text
       Consider the following code:
@@ -641,7 +649,8 @@ questions:
       ```
       Which code will loop through a list of student tuples and unpack them into variables?
     answers:
-      correct: | # Q12 correct answer
+      correct: # Q12 correct answer
+      - |
         ```python
         for last, first, major, state in students:
             print(f'{first} {last} -- {major} major, from {state}')
@@ -662,7 +671,7 @@ questions:
           for students in last, first, major, state:
               print(f'{first} {last} -- {major} major, from {state}')
           ```
-  # Return None:
+  # Q13, Return None:
   - type: multiple-answers # Question 13
     text: | # Q13 text
       In which of the following cases would this function return `None`? (Mark all that apply)
@@ -693,7 +702,7 @@ questions:
         Last name: Page
         Age: 10
         ```
-  # Sandwich Toppings:
+  # Q14, Sandwich Toppings:
   - type: multiple-choice # Question 14
     text: | # Q14 text
       You need to write a function that gets a person's sandwich toppings.
@@ -703,7 +712,8 @@ questions:
       
       Which of these functions accomplishes this?
     answers:
-      correct: | # Q14 correct answer
+      correct: # Q14 correct answer
+      - |
         ```python
         def get_toppings():
             toppings = []
