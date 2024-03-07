@@ -33,7 +33,7 @@ questions:
     text: |
       Some of these questions have answers that are very similar. Be sure to review all the answers for a question and not just take the first answer that looks correct.
   # Q1, Blue Red Green:
-  - type: multiple-choice
+  - type: multiple_choice
     text: | # Q1 text
       Which image will the following code produce?
       
@@ -67,7 +67,7 @@ questions:
       - |
         <img src='resources/q1_bit_blue_red_red_F.png' alt='blue, red, red' style='width: 200px;'/>
   # Q2, RGB:
-  - type: multiple-choice # Question 2
+  - type: multiple_choice # Question 2
     text: | # Q2 text
       Given the following starting world named `rgb`:
       
@@ -154,7 +154,7 @@ questions:
             run(Bit.new_bit)
         ```
   # Q3, Blue Box:
-  - type: multiple-choice # Question 3
+  - type: multiple_choice # Question 3
     text: | # Q3 text
       Starting with this world:
       
@@ -226,7 +226,7 @@ questions:
             run(Bit.new_bit)
         ```
   # Q4, Red Bars:
-  - type: multiple-choice # Question 4
+  - type: multiple_choice # Question 4
     text: | # Q4 text
       Bit starts in the following world `red_bars`:
       
@@ -278,7 +278,7 @@ questions:
               bit.left()
           ```
   # Q5, Mystery Functions:
-  - type: multiple-choice # Question 5
+  - type: multiple_choice # Question 5
     text: | # Q5 text
       What does the following code print?
       
@@ -304,7 +304,7 @@ questions:
       - "`3`"
       - "`1`"
   # Q6, I like Fruit:
-  - type: multiple-choice # Question 6
+  - type: multiple_choice # Question 6
     text: | # Q6 text
       Which block of code could produce the following dialog:
       
@@ -388,7 +388,7 @@ questions:
             main()
         ```
   # Q7, Pets:
-  - type: multiple-choice # Question 7
+  - type: multiple_choice # Question 7
     text: | # Q7 text
       Which of the following dialogs is **NOT** possible with this code?
       
@@ -449,7 +449,7 @@ questions:
               ```
 
   # Q8, Modulo 2:
-  - type: multiple-choice # Question 8
+  - type: multiple_choice # Question 8
     text: | # Q8 text
       What will the following block of code print?
       
@@ -520,7 +520,7 @@ questions:
             9
             ```
   # Q9, Keepers:
-  - type: multiple-choice # Question 9
+  - type: multiple_choice # Question 9
     text: | # Q9 text
       Consider the following code and output.
       
@@ -637,7 +637,7 @@ questions:
         - left: "Code Block D"
           right: "Accumulator pattern"
   # Q12, Unpack Tuples:
-  - type: multiple-choice # Question 12
+  - type: multiple_choice # Question 12
     text: | # Q12 text
       Consider the following code:
       
@@ -672,7 +672,7 @@ questions:
               print(f'{first} {last} -- {major} major, from {state}')
           ```
   # Q13, Return None:
-  - type: multiple-answers # Question 13
+  - type: multiple_answers # Question 13
     text: | # Q13 text
       In which of the following cases would this function return `None`? (Mark all that apply)
     answers:
@@ -703,7 +703,7 @@ questions:
         Age: 10
         ```
   # Q14, Sandwich Toppings:
-  - type: multiple-choice # Question 14
+  - type: multiple_choice # Question 14
     text: | # Q14 text
       You need to write a function that gets a person's sandwich toppings.
       

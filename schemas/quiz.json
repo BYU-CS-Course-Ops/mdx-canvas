@@ -5,9 +5,15 @@
   "type": "object",
   "properties": {
     "questions": {
-      "$ref": "./questions.json",
-      "description": "The questions on the quiz.",
-      "required": true
+      "type": "array",
+        "items": {
+          "$ref": "./question.json",
+          "description": "The questions on the quiz.",
+          "required": true,
+          "minItems": 1,
+          "uniqueItems": true,
+          "additionalItems": false
+        }
     },
     "title": {
       "type": "string",

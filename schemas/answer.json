@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/beanlab/mdx-canvas/tree/yaml/schemas/answer.json",
+  "title": "Answer",
+  "type": "object",
+  "properties": {
+    "answers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "correct": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "incorrect": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "correct",
+          "incorrect"
+        ]
+      }
+    }
+  }
+}
