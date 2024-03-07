@@ -1,0 +1,13 @@
+{
+  "$id": "https://github.com/beanlab/mdx-canvas/tree/yaml/schemas/properties.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "definitions": {
+
+  },
+  "properties": {
+  },
+  "required": [
+  ]
+}

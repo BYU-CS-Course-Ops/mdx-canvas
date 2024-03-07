@@ -1,8 +1,9 @@
 type: quiz
 title: Midterm
+quiz_type: assignment
 due_at: 'Mar 8, 2024, 11:59 PM'
-available_from: 'Mar 4, 2024, 12:00 AM'
-available_to: 'Mar 8,  2024, 11:59 PM'
+unlock_at: 'Mar 4, 2024, 12:00 AM'
+lock_at: 'Mar 8, 2024, 11:59 PM'
 assignment_group: Midterm
 shuffle_answers: True
 time_limit: 180
@@ -27,7 +28,7 @@ description: |
     
   Good luck!
 questions:
-  # Intro Text Question:Begin with a text question to provide instructions to the student
+  # Intro Text Question: Begin with a text question to provide instructions to the student
   - type: text
     text: |
       Some of these questions have answers that are very similar. Be sure to review all the answers for a question and not just take the first answer that looks correct.

@@ -9,32 +9,6 @@ from bs4.element import Tag, NavigableString
 from datetime import datetime
 from typing import Protocol, TypeAlias
 from collections import defaultdict
-from strictyaml import Map, Str, Int, Seq, Bool, Optional, load
-
-schema = Map({
-    "title": Str(),
-    "type": Str(),
-    "settings": Map({
-        "name": Str(),
-        "position": Int(),
-        "published": Bool(),
-    }),
-    "sections": Seq(Str()),
-    "students": Seq(Str()),
-    "assignments": Seq(Map({
-        "title": Str(),
-        "position": Int(),
-        "published": Bool(),
-        "unlock_at": Optional(Str()),
-        "due_at": Optional(Str()),
-        "lock_at": Optional(Str()),
-        "points_possible": Optional(Int()),
-    })),
-    "replacements": Seq(Map({
-        "key": Str(),
-        "value": Str(),
-    })),
-})
 
 from jinja2 import Environment
 
@@ -547,41 +521,40 @@ class AssignmentParser:
         settings = {"name": settings_tag["title"]}
 
         adder = AttributeAdder(settings, settings_tag)
-        adder("position")
-        adder("submission_types", "none", formatter=self.parser.get_list)
-        adder("allowed_extensions", "", formatter=self.parser.get_list)
-        adder("turnitin_enabled", False, formatter=self.parser.get_bool)
+        adder("allowed_attempts", formatter=lambda x: -1 if x == "not_graded" else x),
+        adder("allowed_extensions", "", formatter=self.parser.get_list),
+        adder("annotatable_attachment_id"),
+        adder("assignment_group", new_name="assignment_group_id", formatter=self.group_indexer),
+        adder("assignment_overrides"),
+        adder("automatic_peer_reviews", False, formatter=self.parser.get_bool),
+        adder("available_from", new_name="unlock_at", formatter=self.date_formatter),
+        adder("available_to", new_name="lock_at", formatter=self.date_formatter),
+        adder("due_at", formatter=self.date_formatter),
+        adder("external_tool_tag_attributes", "", formatter=self.parser.get_dict),
+        adder("final_grader_id"),
+        adder("grade_group_students_individually", False, formatter=self.parser.get_bool),
+        adder("grading_standard_id"),
+        adder("grading_type", "points"),
+        adder("grader_comments_visible_to_graders", False, formatter=self.parser.get_bool),
+        adder("grader_count"),
+        adder("grader_names_visible_to_final_grader", False, formatter=self.parser.get_bool),
+        adder("graders_anonymous_to_graders", False, formatter=self.parser.get_bool),
+        adder("group_category", new_name="group_category_id"),
+        adder("hide_in_gradebook", False, formatter=self.parser.get_bool),
+        adder("integration_data"),
+        adder("moderated_grading", False, formatter=self.parser.get_bool),
+        adder("notify_of_update", False, formatter=self.parser.get_bool),
+        adder("omit_from_final_grade", False, formatter=self.parser.get_bool),
+        adder("only_visible_to_overrides", False, formatter=self.parser.get_bool),
+        adder("peer_reviews", False, formatter=self.parser.get_bool),
+        adder("points_possible"),
+        adder("position"),
+        adder("published", False, formatter=self.parser.get_bool),
+        adder("quiz_lti"),
+        adder("submission_types", "none", formatter=self.parser.get_list),
+        adder("turnitin_enabled", False, formatter=self.parser.get_bool),
+        adder("turnitin_settings"),
         adder("vericite_enabled", False, formatter=self.parser.get_bool)
-        adder("turnitin_settings")
-        adder("integration_data")
-        adder("peer_reviews", False, formatter=self.parser.get_bool)
-        adder("automatic_peer_reviews", False, formatter=self.parser.get_bool)
-        adder("notify_of_update", False, formatter=self.parser.get_bool)
-        adder("group_category", new_name="group_category_id")
-        adder("grade_group_students_individually", False, formatter=self.parser.get_bool)
-        adder("external_tool_tag_attributes", "", formatter=self.parser.get_dict)
-        adder("points_possible")
-        adder("grading_type", "points")
-        adder("available_from", new_name="unlock_at", formatter=self.date_formatter)
-        adder("due_at", formatter=self.date_formatter)
-        adder("available_to", new_name="lock_at", formatter=self.date_formatter)
-        adder("assignment_group", new_name="assignment_group_id", formatter=self.group_indexer)
-        adder("assignment_overrides")
-        adder("only_visible_to_overrides", False, formatter=self.parser.get_bool)
-        adder("published", False, formatter=self.parser.get_bool)
-        adder("grading_standard_id")
-        adder("omit_from_final_grade", False, formatter=self.parser.get_bool)
-        adder("hide_in_gradebook", False, formatter=self.parser.get_bool)
-        adder("quiz_lti")
-        adder("moderated_grading", False, formatter=self.parser.get_bool)
-        adder("grader_count")
-        adder("final_grader_id")
-        adder("grader_comments_visible_to_graders", False, formatter=self.parser.get_bool)
-        adder("graders_anonymous_to_graders", False, formatter=self.parser.get_bool)
-        adder("grader_names_visible_to_final_grader", False, formatter=self.parser.get_bool)
-        adder("anonymous_grading", False, formatter=self.parser.get_bool)
-        adder("allowed_attempts", formatter=lambda x: -1 if x == "not_graded" else x)
-        adder("annotatable_attachment_id")
 
         return settings
 
