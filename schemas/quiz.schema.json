@@ -1,13 +1,13 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/beanlab/mdx-canvas/tree/yaml/schemas/quiz.json",
+  "$id": "https://github.com/beanlab/mdx-canvas/tree/yaml/schemas/quiz.schema.json",
   "title": "Quiz",
   "type": "object",
   "properties": {
     "questions": {
       "type": "array",
         "items": {
-          "$ref": "./question.json",
+          "$ref": "./question.schema.json",
           "description": "The questions on the quiz.",
           "required": true,
           "minItems": 1,

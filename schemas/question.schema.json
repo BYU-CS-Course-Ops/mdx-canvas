@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/beanlab/mdx-canvas/tree/yaml/schemas/question.json",
+  "$id": "https://github.com/beanlab/mdx-canvas/tree/yaml/schemas/question.schema.json",
   "title": "Question",
   "type": "object",
   "properties": {
