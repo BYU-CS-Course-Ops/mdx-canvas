@@ -1,7 +1,8 @@
 from strictyaml import Map, Str, Int, Seq, Optional, Any, Enum, MapPattern, Bool
+from question_schema import question_schema
 
 # Define the schema for the yaml file
-schema = Map({
+document_schema = Map({
     "title": Str(),
     "type": Enum(["assignment", "quiz", "page"]),
     "description": Str(),
@@ -28,6 +29,7 @@ schema = Map({
     Optional("published"): Bool(),
     Optional("one_time_results"): Bool(),
     Optional("only_visible_to_overrides"): Bool(),
+    Optional("questions"): Seq(question_schema),
 
     # Assignment specific fields
     Optional("position"): Int(),

@@ -85,20 +85,20 @@ A document could contain multiple tags, such as an assignment and an override. T
 After getting the tag, the document parser identifies the appropriate element parser to use, then calls the parser's `parse` function on the `Tag`.
 
 ```python
-	parser = self.element_processors.get(tag.name, None)  
-	if parser:  
-	    elements = parser.parse(tag)
+    parser = self.child_walkers.get(tag.name, None)
+if parser:
+	elements = parser.parse(tag)
 ```
 
-The element parsers are defined  when the Document Parser is constructed. Each element parser corresponds to a different `Tag`. 
+The element parsers are defined  when the Document Parser is constructed. Each element parser corresponds to a different `Tag`.
 
 ```python
-self.element_processors = {  
-    "quiz": QuizParser(self.markdown_processor, group_indexer, self.date_formatter),  
-    "assignment": AssignmentParser(self.markdown_processor, group_indexer, self.date_formatter),  
-    "page": PageParser(self.markdown_processor, self.date_formatter),  
-    "module": ModuleParser(),  
-    "override": OverrideParser(self.date_formatter)  
+self.child_walkers = {
+	"quiz": QuizParser(self.markdown_processor, group_indexer, self.date_formatter),
+	"assignment": AssignmentParser(self.markdown_processor, group_indexer, self.date_formatter),
+	"page": PageParser(self.markdown_processor, self.date_formatter),
+	"module": ModuleParser(),
+	"override": OverrideParser(self.date_formatter)
 }
 ```
 
