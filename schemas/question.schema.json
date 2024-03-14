@@ -76,7 +76,12 @@
               "type": "object",
               "properties": {
                 "left": {"type": "string"},
-                "right": {"type": "string"}
+                "right": {"type": "string"},
+                "distractor": {"type": "string"},
+                "oneOf": [
+                  {"required": ["correct", "incorrect"]},
+                  {"required": ["distractor"]}
+                ]
               }
             }
           }

@@ -636,6 +636,8 @@ questions:
           right: "Filter pattern"
         - left: "Code Block D"
           right: "Accumulator pattern"
+        - distractor: "Code Block A"
+        - distractor: "Code Block B"
   # Q12, Unpack Tuples:
   - type: multiple_choice # Question 12
     text: | # Q12 text

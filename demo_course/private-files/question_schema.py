@@ -9,8 +9,9 @@ question_schema = Map({
         Optional("correct"): Seq(Str()),
         Optional("incorrect"): Seq(Str()),
         Optional("pairs"): Seq(Map({
-            "left": Str(),
-            "right": Str()
+            Optional("left"): Str(),
+            Optional("right"): Str(),
+            Optional("distractor"): Str()
         }))
     })
 })
