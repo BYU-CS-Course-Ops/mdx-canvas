@@ -24,6 +24,7 @@ from bs4 import BeautifulSoup
 
 from .extensions import BlackInlineCodeExtension
 from .parser import DocumentParser, make_iso
+from .yaml_parser import DocumentWalker, parse_yaml
 
 
 def readfile(filepath: Path):
@@ -486,22 +487,34 @@ def post_document(course: Course, time_zone, file_path: Path, delete: bool = Fal
     """
 
     print(f"Parsing file ({file_path.name}) ...  ", end="")
-    if "mdx" not in file_path.name:
-        print_red("Error: File must be a mdx file")
-        return
 
     assignment_groups = list(course.get_assignment_groups())
     names_to_ids = {g.name: g.id for g in assignment_groups}
 
-    # Provide processing functions, so that the parser needs no access to a canvas course
-    parser = DocumentParser(
-        path_to_resources=file_path.parent,
-        path_to_canvas_files=file_path.parent,
-        markdown_processor=lambda text: process_markdown(text, course, file_path.parent),
-        time_zone=time_zone,
-        group_identifier=lambda group_name: get_group_id(course, group_name, names_to_ids),
-    )
-    document_object = parser.parse(file_path.read_text())
+    if "yaml" in file_path.name:
+        walker = DocumentWalker(
+            path_to_resources=file_path.parent,
+            path_to_canvas_files=file_path.parent,
+            markdown_processor=lambda text: process_markdown(text, course, file_path.parent),
+            time_zone=time_zone,
+            group_identifier=lambda group_name: get_group_id(course, group_name, names_to_ids)
+        )
+        document = parse_yaml(file_path)
+        document_object = walker.walk(document)
+        with open("midterm_yaml.json", "w") as j_file:
+            j_file.write(json.dumps(document_object, indent=4))
+    else:
+        # Provide processing functions, so that the parser needs no access to a canvas course
+        parser = DocumentParser(
+            path_to_resources=file_path.parent,
+            path_to_canvas_files=file_path.parent,
+            markdown_processor=lambda text: process_markdown(text, course, file_path.parent),
+            time_zone=time_zone,
+            group_identifier=lambda group_name: get_group_id(course, group_name, names_to_ids),
+        )
+        document_object = parser.parse(file_path.read_text())
+        with open("midterm.json", "w") as j_file:
+            j_file.write(json.dumps(document_object, indent=4))
 
     course_folders = list(course.get_folders())
 

@@ -1,19 +1,20 @@
 # parse the yaml file and return the data
 import json
 from pathlib import Path
+import signal
 
 from typing import Callable, Union
 
 import pytz
 from datetime import datetime
-from typing import Protocol, TypeAlias
+from typing import TypeAlias
 from collections import defaultdict
 
 from jinja2 import Environment
 
 ResourceExtractor: TypeAlias = Callable[[str], tuple[str, list]]
 
-from strictyaml import load, Map, Str, Int, Seq, Optional, Any, Enum, MapPattern, YAMLError, Bool
+from strictyaml import load
 
 from document_schema import document_schema
 
@@ -51,26 +52,29 @@ def make_iso(date: datetime | str | None, time_zone: str) -> str:
         raise TypeError("Date must be a datetime object or a string")
 
 
-def parse_yaml(file_path: str) -> dict:
+def parse_yaml(file_path: Path) -> dict:
     with open(file_path, 'r') as file:
         text = file.read()
     
     document = load(text, document_schema).data
     return document
 
+
 class QuestionWalker:
     def __init__(self, markdown_processor: ResourceExtractor):
         self.markdown_processor = markdown_processor
-        
+    
     def walk(self, question: dict):
         new_question = {}
+        resources = []
         for key, value in question.items():
             if key == "text":
-                new_question[key], new_question["resources"] = self.markdown_processor(value)
+                new_question[key], res = self.markdown_processor(value)
+                resources.extend(res)
             else:
                 new_question[key] = value
-        return new_question
-        
+        return new_question, resources
+
 
 class QuizWalker:
     def __init__(self, markdown_processor: ResourceExtractor, group_identifier: Callable, date_formatter: Callable,
@@ -80,17 +84,25 @@ class QuizWalker:
         self.date_formatter = date_formatter
         self.parse_template_data = parse_template_data
         self.question_walker = QuestionWalker(markdown_processor)
-        
+    
     def walk(self, quiz: dict):
-        new_quiz = {}
+        new_quiz = {"resources": []}
         for key, value in quiz.items():
             if key in ["due_at", "lock_at", "unlock_at", "show_correct_answers_at", "hide_correct_answers_at"]:
                 new_quiz[key] = self.date_formatter(value)
+            elif key == "title":
+                new_quiz["name"] = value
+            elif key == "assignment_group":
+                new_quiz["assignment_group_id"] = self.group_identifier(value)
             else:
                 new_quiz[key] = value
         
         if new_quiz.get("questions"):
-            new_quiz["questions"] = [self.question_walker.walk(question) for question in new_quiz["questions"]]
+            new_quiz["questions"] = []
+            for question in new_quiz["questions"]:
+                new_question, res = self.question_walker.walk(question)
+                new_quiz["questions"].append(new_question)
+                new_quiz["resources"].extend(res)
         
         return new_quiz
 
