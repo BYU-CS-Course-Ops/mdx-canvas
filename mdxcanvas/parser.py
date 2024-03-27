@@ -8,11 +8,21 @@ from bs4 import BeautifulSoup
 from bs4.element import Tag, NavigableString
 from datetime import datetime
 from typing import Protocol, TypeAlias
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 
 from jinja2 import Environment
 
 ResourceExtractor: TypeAlias = Callable[[str], tuple[str, list]]
+
+
+def order_elements(element: dict) -> OrderedDict:
+    new_list = []
+    for key, value in element.items():
+        if isinstance(value, dict):
+            new_list.append((key, order_elements(value)))
+        else:
+            new_list.append((key, value))
+    return OrderedDict(sorted(element.items(), key=lambda x: x[0]))
 
 
 def get_corrects_and_incorrects(question_tag):
@@ -428,16 +438,15 @@ class QuizParser:
     def parse(self, quiz_tag: Tag):
         quiz = {
             "type": "quiz",
+            "name": quiz_tag["title"],
             "questions": [],
             "resources": [],
-            "replacements": [],
-            "settings": {}
+            "replacements": []
         }
+        quiz.update(self.parse_quiz_settings(quiz_tag))
+        
         for tag in quiz_tag.find_all():
-            if tag.name == "settings":
-                quiz["settings"] = self.parse_quiz_settings(tag)
-                quiz["name"] = quiz["settings"]["title"]
-            elif tag.name == "template-arguments":
+            if tag.name == "template-arguments":
                 quiz["replacements"] = self.template(tag)
             elif tag.name == "question":
                 question, res = self.parse_question(tag)
@@ -450,7 +459,7 @@ class QuizParser:
             elif tag.name == "description":
                 description, res = self.markdown_processor(get_text_contents(tag))
                 quiz["resources"].extend(res)
-                quiz["settings"]["description"] = description
+                quiz["description"] = description
         return quiz
 
     def parse_quiz_settings(self, settings_tag):
@@ -626,11 +635,12 @@ class DocumentParser:
         for tag in soup.children:
             parser = self.element_processors.get(tag.name, None)
             if parser:
-                elements = parser.parse(tag)
-                if not isinstance(elements, list):
-                    elements = [elements]
-                for element in elements:
-                    new_elements = self.create_elements_from_template(element)
+                templates = parser.parse(tag)
+                if not isinstance(templates, list):
+                    templates = [templates]
+                templates = [order_elements(template) for template in templates]
+                for template in templates:
+                    new_elements = self.create_elements_from_template(template)
                     document.extend(new_elements)
         return document
 

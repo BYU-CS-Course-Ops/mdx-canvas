@@ -4,6 +4,7 @@ from pathlib import Path
 import signal
 
 from typing import Callable, Union
+from collections import OrderedDict
 
 import pytz
 from datetime import datetime
@@ -67,10 +68,14 @@ class TextQuestionWalker:
     def walk(self, question: dict):
         question, resources = self.markdown_processor(question["text"])
         return {"question_text": question, "question_type": "text_only_question"}, resources
-        
 
 
-class MultipleChoiceQuestionWalker:
+class TrueFalseQuestionWalker:
+    def __init__(self, markdown_processor: ResourceExtractor):
+        self.markdown_processor = markdown_processor
+
+
+class MultipleCommonQuestionWalker:
     def __init__(self, markdown_processor: ResourceExtractor):
         self.markdown_processor = markdown_processor
     
@@ -81,38 +86,38 @@ class MultipleChoiceQuestionWalker:
         corrects = [answer["correct"] for answer in answers if answer.get("correct", False)]
         incorrects = [answer["incorrect"] for answer in answers if answer.get("incorrect", False)]
         
-        if len(corrects) != 1:
-            raise ValueError("Multiple choice questions must have exactly one correct answer")
-        
         answers = []
         for answer in corrects + incorrects:
             answer_text, res = self.markdown_processor(answer)
             resources.extend(res)
             answers.append({
-                "answer_html": self.markdown_processor(answer_text),
+                "answer_html": answer_text,
                 "answer_weight": 100 if answer in corrects else 0
             })
         
         new_question = {
             "question_text": text,
-            "question_type": "multiple_choice_question",
+            "question_type": "multiple_answers_question" if question["type"] == "multiple_answers" else "multiple_choice_question",
             "points_possible": question.get("points_possible", 1),
             "correct_comments": question.get("correct_comments"),
             "incorrect_comments": question.get("incorrect_comments"),
             "answers": answers
         }
         return new_question, resources
+
+
+class MultipleChoiceQuestionWalker:
+    def __init__(self, markdown_processor: ResourceExtractor):
+        self.markdown_processor = markdown_processor
+        self.multiple_answers_walker = MultipleCommonQuestionWalker(markdown_processor)
     
-
-
-class TrueFalseQuestionWalker:
-    def __init__(self, markdown_processor: ResourceExtractor):
-        self.markdown_processor = markdown_processor
-
-
-class MultipleAnswersQuestionWalker:
-    def __init__(self, markdown_processor: ResourceExtractor):
-        self.markdown_processor = markdown_processor
+    def walk(self, question: dict):
+        corrects = [a["correct"] for a in question["answers"] if a.get("correct", False)]
+        
+        if len(corrects) != 1:
+            raise ValueError("Multiple choice questions must have exactly one correct answer")
+        
+        return self.multiple_answers_walker.walk(question)
 
 
 class MatchingQuestionWalker:
@@ -146,7 +151,7 @@ class MatchingQuestionWalker:
             "matching_answer_incorrect_matches": distractor_text
         }
         return new_question, resources
-        
+
 
 class QuestionWalker:
     def __init__(self, markdown_processor: ResourceExtractor):
@@ -155,17 +160,15 @@ class QuestionWalker:
             "text": TextQuestionWalker(markdown_processor),
             "multiple_choice": MultipleChoiceQuestionWalker(markdown_processor),
             "true_false": TrueFalseQuestionWalker(markdown_processor),
-            "multiple_answers": MultipleAnswersQuestionWalker(markdown_processor),
+            "multiple_answers": MultipleCommonQuestionWalker(markdown_processor),
             "matching": MatchingQuestionWalker(markdown_processor),
         }
-        
     
     def walk(self, question: dict):
         if child_walker := self.child_walkers.get(question["type"]):
             return child_walker.walk(question)
         else:
             raise ValueError(f"Invalid question type: {question['type']}")
-            
 
 
 class QuizWalker:
@@ -178,7 +181,12 @@ class QuizWalker:
         self.question_walker = QuestionWalker(markdown_processor)
     
     def walk(self, quiz: dict):
-        new_quiz = {"resources": []}
+        new_quiz = {
+            "resources": [], "one_question_at_a_time": False,
+            "one_time_results": False,
+            "published": False,
+            "cant_go_back": False,
+        }
         for key, value in quiz.items():
             if key in ["due_at", "lock_at", "unlock_at", "show_correct_answers_at", "hide_correct_answers_at"]:
                 new_quiz[key] = self.date_formatter(value)
@@ -223,6 +231,16 @@ class OverrideWalker:
         self.parse_template_data = parse_template_data
 
 
+def order_elements(element: dict) -> OrderedDict:
+    new_list = []
+    for key, value in element.items():
+        if isinstance(value, dict):
+            new_list.append((key, order_elements(value)))
+        else:
+            new_list.append((key, value))
+    return OrderedDict(sorted(element.items(), key=lambda x: x[0]))
+
+
 class DocumentWalker:
     def __init__(self, path_to_resources: Path, path_to_canvas_files: Path, markdown_processor: ResourceExtractor,
                  time_zone: str,
@@ -253,6 +271,7 @@ class DocumentWalker:
             templates = child_walker.walk(document)
             if not isinstance(templates, list):
                 templates = [templates]
+            templates = [order_elements(template) for template in templates]
             for template in templates:
                 new_documents.extend(self.create_elements_from_template(template))
         return new_documents
