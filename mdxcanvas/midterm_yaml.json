@@ -1,5 +1,31 @@
 [
     {
+        "resources": [
+            [
+                "d5071082-ea08-411e-959e-85c51e894286",
+                "../demo_course/private-files/resources/q2_start_world.png"
+            ],
+            [
+                "8d02b026-bdfa-47dc-91b6-d925515a1d93",
+                "../demo_course/private-files/resources/q2_end_result.png"
+            ],
+            [
+                "cc3f089c-72f1-4df3-9f77-e35198287320",
+                "../demo_course/private-files/resources/q3_empty_world.png"
+            ],
+            [
+                "2f204804-7110-4b42-8079-4766b2a64057",
+                "../demo_course/private-files/resources/q3_end_result.png"
+            ],
+            [
+                "3d7e7ca6-49fe-4f80-8b14-9d3373fbee1d",
+                "../demo_course/private-files/resources/q4_start_world.png"
+            ],
+            [
+                "71bc73d7-a84f-4c7d-b2d3-a0e3ac34d96b",
+                "../demo_course/private-files/resources/q4_end_result.png"
+            ]
+        ],
         "type": "quiz",
         "name": "Midterm",
         "quiz_type": "assignment",
@@ -17,13 +43,11 @@
         "questions": [
             {
                 "type": "text",
-                "text": "<p>Some of these questions have answers that are very similar. Be sure to review all the answers for a question and not just take the first answer that looks correct.</p>",
-                "resources": []
+                "text": "<p>Some of these questions have answers that are very similar. Be sure to review all the answers for a question and not just take the first answer that looks correct.</p>"
             },
             {
                 "type": "multiple_choice",
                 "text": "<p>Which image will the following code produce?</p>\n<pre class=\"codehilite\"><code class=\"language-python\">from byubit import Bit\n\ndef move_paint(bit, color):\n    bit.move()\n    bit.paint(color)\n\n  @Bit.empty_world(5, 3)\n  def run(bit):\n      color = 'blue'\n      move_paint(bit, color)\n      color = 'green'\n      move_paint(bit, 'red')\n      move_paint(bit, color)\n\n  if __name__ == '__main__':\n      run(Bit.new_bit)\n</code></pre>",
-                "resources": [],
                 "answers": {
                     "correct": [
                         "<img src=\"resources/q1_bit_blue_red_green_T.png\" alt=\"blue, red, green\" style=\"width: 200px;\"/>\n"
@@ -37,17 +61,7 @@
             },
             {
                 "type": "multiple_choice",
-                "text": "<p>Given the following starting world named <code style=\"color: #000000\">rgb</code>:</p>\n<p><p><img alt=\"starting world\" id=\"resources/q2_start_world.png\" src=\"/courses/20736/files/aae77239-15ea-453e-9b74-a3fc02790044/preview\" style=\"width: 300px;\"/></p></p>\n<p>Which block of code will produce the following end result:</p>\n<p><p><img alt=\"ending world\" id=\"resources/q2_end_result.png\" src=\"/courses/20736/files/5c2bf966-67fa-4c32-8e61-471e8bea160e/preview\" style=\"width: 300px;\"/></p></p>",
-                "resources": [
-                    [
-                        "aae77239-15ea-453e-9b74-a3fc02790044",
-                        "../demo_course/private-files/resources/q2_start_world.png"
-                    ],
-                    [
-                        "5c2bf966-67fa-4c32-8e61-471e8bea160e",
-                        "../demo_course/private-files/resources/q2_end_result.png"
-                    ]
-                ],
+                "text": "<p>Given the following starting world named <code style=\"color: #000000\">rgb</code>:</p>\n<p><p><img alt=\"starting world\" id=\"resources/q2_start_world.png\" src=\"/courses/20736/files/d5071082-ea08-411e-959e-85c51e894286/preview\" style=\"width: 300px;\"/></p></p>\n<p>Which block of code will produce the following end result:</p>\n<p><p><img alt=\"ending world\" id=\"resources/q2_end_result.png\" src=\"/courses/20736/files/8d02b026-bdfa-47dc-91b6-d925515a1d93/preview\" style=\"width: 300px;\"/></p></p>",
                 "answers": {
                     "correct": [
                         "```python\nfrom byubit import Bit\n\n@Bit.worlds('rgb')\ndef run(bit):\n    while bit.front_clear():\n        bit.move()\n        if bit.is_red():\n            bit.paint('green')\n        elif bit.is_green():\n            bit.paint('blue')\n        else:\n            bit.erase()\n\nif __name__ == '__main__':\n    run(Bit.new_bit)\n```\n"
@@ -61,17 +75,7 @@
             },
             {
                 "type": "multiple_choice",
-                "text": "<p>Starting with this world:</p>\n<p><p><img alt=\"empty world\" id=\"resources/q3_empty_world.png\" src=\"/courses/20736/files/4da15902-b7ba-4ba2-9832-60a10048c53f/preview\" style=\"width: 200px;\"/></p></p>\n<p>Which code snippet produces this result:</p>\n<p><p><img alt=\"ending world\" id=\"resources/q3_end_result.png\" src=\"/courses/20736/files/1479433e-eed0-4f4d-8d93-0835bbbe32a5/preview\" style=\"width: 200px;\"/></p></p>",
-                "resources": [
-                    [
-                        "4da15902-b7ba-4ba2-9832-60a10048c53f",
-                        "../demo_course/private-files/resources/q3_empty_world.png"
-                    ],
-                    [
-                        "1479433e-eed0-4f4d-8d93-0835bbbe32a5",
-                        "../demo_course/private-files/resources/q3_end_result.png"
-                    ]
-                ],
+                "text": "<p>Starting with this world:</p>\n<p><p><img alt=\"empty world\" id=\"resources/q3_empty_world.png\" src=\"/courses/20736/files/cc3f089c-72f1-4df3-9f77-e35198287320/preview\" style=\"width: 200px;\"/></p></p>\n<p>Which code snippet produces this result:</p>\n<p><p><img alt=\"ending world\" id=\"resources/q3_end_result.png\" src=\"/courses/20736/files/2f204804-7110-4b42-8079-4766b2a64057/preview\" style=\"width: 200px;\"/></p></p>",
                 "answers": {
                     "correct": [
                         "```python\nfrom byubit import Bit\n\n@Bit.empty_world(4, 4)\ndef run(bit):\n    while not bit.is_blue():\n        while bit.front_clear():\n            bit.paint('blue')\n            bit.move()\n        bit.left()\n\nrun(Bit.new_bit)\n```\n"
@@ -85,17 +89,7 @@
             },
             {
                 "type": "multiple_choice",
-                "text": "<p>Bit starts in the following world <code style=\"color: #000000\">red_bars</code>:</p>\n<p><p><img alt=\"starting world\" id=\"resources/q4_start_world.png\" src=\"/courses/20736/files/6ef72046-3999-438a-adf5-0930017f06cb/preview\" style=\"width: 250px;\"/></p></p>\n<p>Which of the following implementations of <code style=\"color: #000000\">draw_bar</code> will produce the following result?</p>\n<p><p><img alt=\"ending world\" id=\"resources/q4_end_result.png\" src=\"/courses/20736/files/a429df26-2364-461f-bca9-9a581a052e60/preview\" style=\"width: 250px;\"/></p></p>",
-                "resources": [
-                    [
-                        "6ef72046-3999-438a-adf5-0930017f06cb",
-                        "../demo_course/private-files/resources/q4_start_world.png"
-                    ],
-                    [
-                        "a429df26-2364-461f-bca9-9a581a052e60",
-                        "../demo_course/private-files/resources/q4_end_result.png"
-                    ]
-                ],
+                "text": "<p>Bit starts in the following world <code style=\"color: #000000\">red_bars</code>:</p>\n<p><p><img alt=\"starting world\" id=\"resources/q4_start_world.png\" src=\"/courses/20736/files/3d7e7ca6-49fe-4f80-8b14-9d3373fbee1d/preview\" style=\"width: 250px;\"/></p></p>\n<p>Which of the following implementations of <code style=\"color: #000000\">draw_bar</code> will produce the following result?</p>\n<p><p><img alt=\"ending world\" id=\"resources/q4_end_result.png\" src=\"/courses/20736/files/71bc73d7-a84f-4c7d-b2d3-a0e3ac34d96b/preview\" style=\"width: 250px;\"/></p></p>",
                 "answers": {
                     "correct": [
                         "```python\ndef draw_bar(bit):\n    bit.left()\n    go(bit, 'red')\n    bit.right()\n    bit.right()\n    go(bit, None)\n    bit.left()\n```\n"
@@ -110,7 +104,6 @@
             {
                 "type": "multiple_choice",
                 "text": "<p>What does the following code print?</p>\n<pre class=\"codehilite\"><code class=\"language-python\">  def function1(a):\n      return a + 2\n\n  def function2(a):\n      return function1(a) - 5\n\n  def main():\n      result = function2(3)\n      print(result)\n\n  if __name__ == '__main__':\n      main()\n</code></pre>",
-                "resources": [],
                 "answers": {
                     "correct": [
                         "`0`"
@@ -125,7 +118,6 @@
             {
                 "type": "multiple_choice",
                 "text": "<p>Which block of code could produce the following dialog:</p>\n<p><code style=\"color: #000000\">text\n  Give me a fruit: pear\n      Those are fine.\n  Give me a fruit: banana\n      Those are fine.\n  Give me a fruit: apple\n      I like that!\n      Goodbye!</code></p>",
-                "resources": [],
                 "answers": {
                     "correct": [
                         "```python\ndef main():\n    while True:\n        fruit = input('Give me a fruit: ')\n        if fruit == 'apple':\n            print('I like that!')\n            break\n        elif fruit == 'durian':\n            print('No thank you!')\n        else:\n            print('Those are fine.')\n    print('Goodbye!')\n\nif __name__ == '__main__':\n    main()\n```\n"
@@ -140,7 +132,6 @@
             {
                 "type": "multiple_choice",
                 "text": "<p>Which of the following dialogs is <strong>NOT</strong> possible with this code?</p>\n<pre class=\"codehilite\"><code class=\"language-python\">def want_pets():\n    pets = []\n    while True:\n        pet = input('What pet do you want? ')\n        if pet == '':\n            break\n        if pet == 'dinosaur':\n            print('I want one too!')\n        pets.append(pet)\n    print(f'You want {len(pets)} pets.')\n    if len(pets) &gt; 3:\n        print(\"That's too many!\")\n\nif __name__ == '__main__':\n    want_pets()\n</code></pre>",
-                "resources": [],
                 "answers": {
                     "correct": [
                         "```text\n  What pet do you want? gerbil\n  What pet do you want? dinosaur\n  I want one too!\n  What pet do you want? dinosaur\n  I want one too!\n  What pet do you want? fish\n  What pet do you want?\n  You want 3 pets.\n```\n"
@@ -155,7 +146,6 @@
             {
                 "type": "multiple_choice",
                 "text": "<p>What will the following block of code print?</p>\n<pre class=\"codehilite\"><code class=\"language-python\">def loop(numbers):\n    for number in numbers:\n        if number % 2 == 0:\n            print(number)\n\ndef dance(fruits):\n    for kiwi in fruits:\n        print(f'I like {kiwi}')\n\ndef main():\n    numbers = [1, 4, 5, 8, 9, 12]\n    dance(numbers)\n    loop(numbers)\n\nif __name__ == '__main__':\n    main()\n</code></pre>",
-                "resources": [],
                 "answers": {
                     "correct": [
                         "```text\n  I like 1\n  I like 4\n  I like 5\n  I like 8\n  I like 9\n  I like 12\n  4\n  8\n  12\n  ```\n"
@@ -170,7 +160,6 @@
             {
                 "type": "multiple_choice",
                 "text": "<p>Consider the following code and output.</p>\n<pre class=\"codehilite\"><code class=\"language-python\">def just_keepers(things):\n    keepers = []\n    for thing in things:\n        if keep_it(thing):\n            keepers.append(thing)\n    return keepers\n\nif __name__ == '__main__':\n    stuff = just_keepers([-7, 4, 12, 2, -3])\n    print(stuff)\n</code></pre>\n<pre class=\"codehilite\"><code class=\"language-text\">[-7, 12]\n</code></pre>\n<p>Which version of <code style=\"color: #000000\">keep_it</code> could be used to produce that output?</p>",
-                "resources": [],
                 "answers": {
                     "correct": [
                         "```python\ndef keep_it(thing):\n    return thing > 7 or thing < -5\n```\n"
@@ -185,7 +174,6 @@
             {
                 "type": "matching",
                 "text": "<p>Match each <code style=\"color: #000000\">list</code> pattern with the scenario it serves.</p>",
-                "resources": [],
                 "answers": {
                     "pairs": [
                         {
@@ -210,7 +198,6 @@
             {
                 "type": "matching",
                 "text": "<p>Match each block of code with the pattern it demonstrates:</p>\n<p>Code Block A:</p>\n<pre class=\"codehilite\"><code class=\"language-python\">def find_optimal_venue(venues):\n    optimal = None\n    for venue in venues:\n        if optimal is None or score(optimal) &lt; score(venue):\n            optimal = venue\n    return optimal\n</code></pre>\n<p>Code Block B:</p>\n<pre class=\"codehilite\"><code class=\"language-python\">def convert_to_metric(mileage_reports):\n    new_reports = []\n    for origin, destination, miles, time in mileage_reports:\n        kilometers = convert_to_km(miles)\n        new_reports.append((origin, destination, kilometers, time))\n    return new_reports\n</code></pre>\n<p>Code Block C:</p>\n<pre class=\"codehilite\"><code class=\"language-python\">def identify_priority_cases(cases):\n    priorities = []\n    for case in cases:\n        if is_priority(case):\n            priorities.append(case)\n    return priorities\n</code></pre>\n<p>Code Block D:</p>\n<pre class=\"codehilite\"><code class=\"language-python\">def count_points(games):\n    total = 0\n    for game in games:\n        team1, team2, team1_points, team2_points, location, date = game\n        total = total + team1_points + team2_points\n    return total\n</code></pre>",
-                "resources": [],
                 "answers": {
                     "pairs": [
                         {
@@ -241,7 +228,6 @@
             {
                 "type": "multiple_choice",
                 "text": "<p>Consider the following code:</p>\n<pre class=\"codehilite\"><code class=\"language-python\">students = [\n('Wright', 'John', 'economics', 'Oregon'),\n('Sanchez-Moreno', 'Rosamaria', 'computer science', 'Florida')\n]\n</code></pre>\n<p>Which code will loop through a list of student tuples and unpack them into variables?</p>",
-                "resources": [],
                 "answers": {
                     "correct": [
                         "```python\nfor last, first, major, state in students:\n    print(f'{first} {last} -- {major} major, from {state}')\n```\n"
@@ -256,7 +242,6 @@
             {
                 "type": "multiple_answers",
                 "text": "<p>In which of the following cases would this function return <code style=\"color: #000000\">None</code>? (Mark all that apply)</p>",
-                "resources": [],
                 "answers": {
                     "correct": [
                         "```text\nFirst name: Adam\nLast name:\nAge: 4\n```\n",
@@ -271,7 +256,6 @@
             {
                 "type": "multiple_choice",
                 "text": "<p>You need to write a function that gets a person's sandwich toppings.</p>\n<ul>\n<li>If they ask for onions, you need to say those are out.</li>\n<li>Otherwise, add the topping to a list of toppings and return the list.</li>\n</ul>\n<p>Which of these functions accomplishes this?</p>",
-                "resources": [],
                 "answers": {
                     "correct": [
                         "```python\ndef get_toppings():\n    toppings = []\n    while True:\n        topping = input(\"Topping: \")\n        if topping == '':\n            break\n        if topping == 'onions':\n            print('Sorry we are out of onions.')\n        else:\n            toppings.append(topping)\n\n    return toppings\n```\n"

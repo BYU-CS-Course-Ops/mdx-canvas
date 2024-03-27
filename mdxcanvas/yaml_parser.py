@@ -60,20 +60,51 @@ def parse_yaml(file_path: Path) -> dict:
     return document
 
 
-class QuestionWalker:
+class TextQuestionWalker:
     def __init__(self, markdown_processor: ResourceExtractor):
         self.markdown_processor = markdown_processor
     
     def walk(self, question: dict):
-        new_question = {}
-        resources = []
-        for key, value in question.items():
-            if key == "text":
-                new_question[key], res = self.markdown_processor(value)
-                resources.extend(res)
-            else:
-                new_question[key] = value
-        return new_question, resources
+        return self.markdown_processor(question["text"])
+        
+
+class MultipleChoiceQuestionWalker:
+    def __init__(self, markdown_processor: ResourceExtractor):
+        self.markdown_processor = markdown_processor
+    
+    def walk(self, question: dict):
+        return self.markdown_processor(question["text"])
+
+
+class TrueFalseQuestionWalker:
+    def __init__(self, markdown_processor: ResourceExtractor):
+        self.markdown_processor = markdown_processor
+
+
+class MultipleAnswersQuestionWalker:
+    def __init__(self, markdown_processor: ResourceExtractor):
+        self.markdown_processor = markdown_processor
+
+
+
+
+class QuestionWalker:
+    def __init__(self, markdown_processor: ResourceExtractor):
+        self.markdown_processor = markdown_processor
+        self.child_walkers = {
+            "text": TextQuestionWalker(markdown_processor),
+            "multiple_choice": MultipleChoiceQuestionWalker(markdown_processor),
+            "true_false": TrueFalseQuestionWalker(markdown_processor),
+            "multiple_answers": MultipleAnswersQuestionWalker(markdown_processor),
+        }
+        
+    
+    def walk(self, question: dict):
+        if child_walker := self.child_walkers.get(question["type"]):
+            return child_walker.walk(question)
+        else:
+            raise ValueError(f"Invalid question type: {question['type']}")
+            
 
 
 class QuizWalker:
@@ -94,15 +125,14 @@ class QuizWalker:
                 new_quiz["name"] = value
             elif key == "assignment_group":
                 new_quiz["assignment_group_id"] = self.group_identifier(value)
+            elif key == "questions":
+                new_quiz["questions"] = []
+                for question in value:
+                    new_question, res = self.question_walker.walk(question)
+                    new_quiz["questions"].append(new_question)
+                    new_quiz["resources"].extend(res)
             else:
                 new_quiz[key] = value
-        
-        if new_quiz.get("questions"):
-            new_quiz["questions"] = []
-            for question in new_quiz["questions"]:
-                new_question, res = self.question_walker.walk(question)
-                new_quiz["questions"].append(new_question)
-                new_quiz["resources"].extend(res)
         
         return new_quiz
 

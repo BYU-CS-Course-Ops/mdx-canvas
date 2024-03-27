@@ -246,14 +246,13 @@ def modify_assignment(course, element, delete: bool):
 
 def modify_quiz(course: Course, element, delete: bool):
     name = element["name"]
-    settings: dict = element["settings"]
     print("Getting quiz from canvas")
     if canvas_quiz := get_quiz(course, name, delete):
         canvas_quiz: Quiz
         print(f"Editing canvas quiz {name} ...  ", end="")
-        canvas_quiz.edit(quiz=element["settings"])
+        canvas_quiz.edit(quiz=element)
     else:
-        canvas_quiz = create_quiz(course, element, name, settings)
+        canvas_quiz = create_quiz(course, element, name, element)
 
     replace_questions(canvas_quiz, element["questions"])
     canvas_quiz.edit()
