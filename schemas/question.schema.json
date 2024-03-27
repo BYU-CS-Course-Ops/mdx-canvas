@@ -59,39 +59,14 @@
       "description": "no description"
     },
     "answers": {
-      "type": "object",
-        "description": "The possible answers to the question. The structure of this object depends upon the type of question being used.",
-        "properties": {
-          "correct": {
-            "type": "array",
-            "items": {"type": "string"}
-          },
-          "incorrect": {
-            "type": "array",
-            "items": {"type": "string"}
-          },
-          "pairs": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "left": {"type": "string"},
-                "right": {"type": "string"},
-                "distractor": {"type": "string"},
-                "oneOf": [
-                  {"required": ["correct", "incorrect"]},
-                  {"required": ["distractor"]}
-                ]
-              }
-            }
-          }
-        },
-        "anyOf": [
-          {"required": ["correct"]},
-          {"required": ["incorrect"]},
-          {"required": ["pairs"]}
-        ],
-        "additionalProperties": false
+      "type": "array",
+      "description": "The possible answers to the question. The structure of this object depends upon the type of question being used.",
+      "items": {
+        "$ref": "./answer.schema.json",
+        "required": true,
+        "minItems": 1,
+        "additionalItems": false
+      }
     }
   }
 }

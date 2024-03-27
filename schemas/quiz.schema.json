@@ -6,14 +6,14 @@
   "properties": {
     "questions": {
       "type": "array",
-        "items": {
-          "$ref": "./question.schema.json",
-          "description": "The questions on the quiz.",
-          "required": true,
-          "minItems": 1,
-          "uniqueItems": true,
-          "additionalItems": false
-        }
+      "items": {
+        "$ref": "./question.schema.json",
+        "description": "The questions on the quiz.",
+        "required": true,
+        "minItems": 1,
+        "uniqueItems": true,
+        "additionalItems": false
+      }
     },
     "title": {
       "type": "string",

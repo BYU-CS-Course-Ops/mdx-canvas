@@ -65,15 +65,44 @@ class TextQuestionWalker:
         self.markdown_processor = markdown_processor
     
     def walk(self, question: dict):
-        return self.markdown_processor(question["text"])
+        question, resources = self.markdown_processor(question["text"])
+        return {"question_text": question, "question_type": "text_only_question"}, resources
         
+
 
 class MultipleChoiceQuestionWalker:
     def __init__(self, markdown_processor: ResourceExtractor):
         self.markdown_processor = markdown_processor
     
     def walk(self, question: dict):
-        return self.markdown_processor(question["text"])
+        text, resources = self.markdown_processor(question["text"])
+        
+        answers = question["answers"]
+        corrects = [answer["correct"] for answer in answers if answer.get("correct", False)]
+        incorrects = [answer["incorrect"] for answer in answers if answer.get("incorrect", False)]
+        
+        if len(corrects) != 1:
+            raise ValueError("Multiple choice questions must have exactly one correct answer")
+        
+        answers = []
+        for answer in corrects + incorrects:
+            answer_text, res = self.markdown_processor(answer)
+            resources.extend(res)
+            answers.append({
+                "answer_html": self.markdown_processor(answer_text),
+                "answer_weight": 100 if answer in corrects else 0
+            })
+        
+        new_question = {
+            "question_text": text,
+            "question_type": "multiple_choice_question",
+            "points_possible": question.get("points_possible", 1),
+            "correct_comments": question.get("correct_comments"),
+            "incorrect_comments": question.get("incorrect_comments"),
+            "answers": answers
+        }
+        return new_question, resources
+    
 
 
 class TrueFalseQuestionWalker:
@@ -86,7 +115,38 @@ class MultipleAnswersQuestionWalker:
         self.markdown_processor = markdown_processor
 
 
-
+class MatchingQuestionWalker:
+    def __init__(self, markdown_processor: ResourceExtractor):
+        self.markdown_processor = markdown_processor
+    
+    def walk(self, question: dict):
+        text, resources = self.markdown_processor(question["text"])
+        
+        answers = []
+        for pair in question["answers"]:
+            left, right = pair["left"], pair["right"]
+            left_text, left_res = self.markdown_processor(left)
+            right_text, right_res = self.markdown_processor(right)
+            resources.extend(left_res)
+            resources.extend(right_res)
+            answers.append({
+                "left": left_text,
+                "right": right_text
+            })
+        
+        distractor_text = question.get("distractors", None)
+        
+        new_question = {
+            "question_text": text,
+            "question_type": "matching_question",
+            "points_possible": question.get("points_possible", 1),
+            "correct_comments": question.get("correct_comments"),
+            "incorrect_comments": question.get("incorrect_comments"),
+            "answers": answers,
+            "matching_answer_incorrect_matches": distractor_text
+        }
+        return new_question, resources
+        
 
 class QuestionWalker:
     def __init__(self, markdown_processor: ResourceExtractor):
@@ -96,6 +156,7 @@ class QuestionWalker:
             "multiple_choice": MultipleChoiceQuestionWalker(markdown_processor),
             "true_false": TrueFalseQuestionWalker(markdown_processor),
             "multiple_answers": MultipleAnswersQuestionWalker(markdown_processor),
+            "matching": MatchingQuestionWalker(markdown_processor),
         }
         
     

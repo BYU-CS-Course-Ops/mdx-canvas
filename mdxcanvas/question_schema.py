@@ -5,13 +5,11 @@ question_schema = Map({
     "type": Enum(["multiple_choice", "multiple_answers", "text", "matching"]),
     "text": Str(),
     Optional("points"): Int(),
-    Optional("answers"): Map({
-        Optional("correct"): Seq(Str()),
-        Optional("incorrect"): Seq(Str()),
-        Optional("pairs"): Seq(Map({
-            Optional("left"): Str(),
-            Optional("right"): Str(),
-            Optional("distractor"): Str()
-        }))
-    })
+    Optional("answers"): Seq(Map({
+        Optional("correct"): Str(),
+        Optional("incorrect"): Str(),
+        Optional("left"): Str(),
+        Optional("right"): Str(),
+        Optional("distractor"): Str()
+    })),
 })

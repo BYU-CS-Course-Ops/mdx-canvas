@@ -25,7 +25,7 @@ description: |
   Turn off your phone. Close all applications except your browser, and close all tabs except this one.
   
   To start the test, you will need the passcode **start-midterm**. Only start the test once you intend to take and complete it.
-    
+  
   Good luck!
 questions:
   # Intro Text Question: Begin with a text question to provide instructions to the student
@@ -56,16 +56,14 @@ questions:
             run(Bit.new_bit)
       ```
     answers:
-      correct: # Q1 correct answer
-      - | 
-        <img src="resources/q1_bit_blue_red_green_T.png" alt="blue, red, green" style="width: 200px;"/>
-      incorrect: # Q1 incorrect answers
-      - |
-        <img src='resources/q1_bit_blue_blue_blue_F.png' alt='blue, blue, blue' style='width: 200px;'/>
-      - |
-        <img src='resources/q1_bit_blue_green_green_F.png' alt='blue, green, green' style='width: 200px;'/>
-      - |
-        <img src='resources/q1_bit_blue_red_red_F.png' alt='blue, red, red' style='width: 200px;'/>
+      - correct: |
+          <img src="resources/q1_bit_blue_red_green_T.png" alt="blue, red, green" style="width: 200px;"/>
+      - incorrect: |
+          <img src='resources/q1_bit_blue_blue_blue_F.png' alt='blue, blue, blue' style='width: 200px;'/>
+      - incorrect: |
+          <img src='resources/q1_bit_blue_green_green_F.png' alt='blue, green, green' style='width: 200px;'/>
+      - incorrect: |
+          <img src='resources/q1_bit_blue_red_red_F.png' alt='blue, red, red' style='width: 200px;'/>
   # Q2, RGB:
   - type: multiple_choice # Question 2
     text: | # Q2 text
@@ -77,82 +75,80 @@ questions:
       
       <img src="resources/q2_end_result.png" alt="ending world" style="width: 300px;"/>
     answers:
-      correct: # Q2 correct answer
-      - | 
-        ```python
-        from byubit import Bit
-        
-        @Bit.worlds('rgb')
-        def run(bit):
+      - correct: |
+          ```python
+          from byubit import Bit
+          
+          @Bit.worlds('rgb')
+          def run(bit):
             while bit.front_clear():
-                bit.move()
-                if bit.is_red():
-                    bit.paint('green')
-                elif bit.is_green():
-                    bit.paint('blue')
-                else:
-                    bit.erase()
-        
-        if __name__ == '__main__':
+              bit.move()
+              if bit.is_red():
+                bit.paint('green')
+              elif bit.is_green():
+                bit.paint('blue')
+              else:
+                bit.erase()
+          
+          if __name__ == '__main__':
             run(Bit.new_bit)
-        ```
-      incorrect: # Q2 incorrect answers
-      - | # Q2 incorrect answer 1
-        ```python
-        from byubit import Bit
-        
-        @Bit.worlds('rgb')
-        def run(bit):
+          ```
+      - incorrect: | # Q2 incorrect answer 1
+          ```python
+          from byubit import Bit
+          
+          @Bit.worlds('rgb')
+          def run(bit):
+              while bit.front_clear():
+                  bit.move()
+                  if bit.is_red():
+                      bit.paint('green')
+                  if bit.is_green():
+                      bit.paint('blue')
+                  else:
+                      bit.erase()
+          
+          if __name__ == '__main__':
+              run(Bit.new_bit)
+          ```
+      - incorrect: | # Q2 incorrect answer 2
+          ```python
+          from byubit import Bit
+          
+          @Bit.worlds('rgb')
+          def run(bit):
             while bit.front_clear():
-                bit.move()
-                if bit.is_red():
-                    bit.paint('green')
-                if bit.is_green():
-                    bit.paint('blue')
-                else:
-                    bit.erase()
-        
-        if __name__ == '__main__':
+              bit.move()
+              if bit.is_red():
+                bit.paint('green')
+              elif bit.is_blue():
+                bit.erase()
+              else:
+                bit.paint('blue')
+          
+          if __name__ == '__main__':
             run(Bit.new_bit)
-        ```
-      - | # Q2 incorrect answer 2
-        ```python
-        from byubit import Bit
-        
-        @Bit.worlds('rgb')
-        def run(bit):
+          ```
+      - incorrect: | # Q2 incorrect answer 3
+          ```python
+          from byubit import Bit
+          
+          @Bit.worlds('rgb')
+          def run(bit):
             while bit.front_clear():
-                bit.move()
-                if bit.is_red():
-                    bit.paint('green')
-                elif bit.is_blue():
-                    bit.erase()
-                else:
-                    bit.paint('blue')
-        
-        if __name__ == '__main__':
+              bit.move()
+              if bit.is_red():
+                bit.paint('green')
+              elif bit.is_green():
+                bit.paint('blue')
+              elif bit.is_blue():
+                bit.erase()
+              else:
+                bit.paint('red')
+          
+          if __name__ == '__main__':
             run(Bit.new_bit)
-        ```
-      - | # Q2 incorrect answer 3
-        ```python
-        from byubit import Bit
-        
-        @Bit.worlds('rgb')
-        def run(bit):
-            while bit.front_clear():
-                bit.move()
-                if bit.is_red():
-                    bit.paint('green')
-                elif bit.is_green():
-                    bit.paint('blue')
-                elif bit.is_blue():
-                    bit.erase()
-                else:
-                    bit.paint('red')
-        
-        if __name__ == '__main__':
-            run(Bit.new_bit)
-        ```
+          ```
   # Q3, Blue Box:
   - type: multiple_choice # Question 3
     text: | # Q3 text
@@ -164,67 +160,65 @@ questions:
       
       <img src="resources/q3_end_result.png" alt="ending world" style="width: 200px;"/>
     answers:
-      correct:  # Q3 correct answer
-      - |
-        ```python
-        from byubit import Bit
-        
-        @Bit.empty_world(4, 4)
-        def run(bit):
+      - correct: |
+          ```python
+          from byubit import Bit
+          
+          @Bit.empty_world(4, 4)
+          def run(bit):
             while not bit.is_blue():
-                while bit.front_clear():
-                    bit.paint('blue')
-                    bit.move()
-                bit.left()
-        
-        run(Bit.new_bit)
-        ```
-      incorrect: # Q3 incorrect answers
-      - | # Q3 incorrect answer 1
-        ```python
-        from byubit import Bit
-        
-        @Bit.empty_world(4, 4)
-        def run(bit):
+              while bit.front_clear():
+                bit.paint('blue')
+                bit.move()
+              bit.left()
+          
+          run(Bit.new_bit)
+          ```
+      - incorrect: | # Q3 incorrect answer 1
+          ```python
+          from byubit import Bit
+          
+          @Bit.empty_world(4, 4)
+          def run(bit):
             while not bit.front_clear():
-                while bit.front_clear():
-                    bit.paint('blue')
-                    bit.move()
-                bit.left()
-
-        if __name__ == '__main__':
+              while bit.front_clear():
+                bit.paint('blue')
+                bit.move()
+              bit.left()
+          
+          if __name__ == '__main__':
             run(Bit.new_bit)
-        ```
-      - | # Q3 incorrect answer 2
-        ```python
-        from byubit import Bit
-        
-        @Bit.empty_world(4, 4)
-        def run(bit):
+          ```
+      - incorrect: | # Q3 incorrect answer 2
+          ```python
+          from byubit import Bit
+          
+          @Bit.empty_world(4, 4)
+          def run(bit):
             while not bit.is_blue():
-                while bit.front_clear():
-                    bit.paint('blue')
-                    bit.move()
-                bit.left()
-
-        if __name__ == '__main__':
+              while bit.front_clear():
+                bit.paint('blue')
+                bit.move()
+              bit.left()
+          
+          if __name__ == '__main__':
             run(Bit.new_bit)
-        ```
-      - | # Q3 incorrect answer 3
-        ```python
-        from byubit import Bit
-        
-        @Bit.empty_world(4, 4)
-        def run(bit):
+          ```
+      - incorrect: | # Q3 incorrect answer 3
+          ```python
+          from byubit import Bit
+          
+          @Bit.empty_world(4, 4)
+          def run(bit):
             while not bit.is_blue():
-                while bit.front_clear():
-                    bit.move()
-                    bit.paint('blue')
-                bit.left()
-
-        if __name__ == '__main__':
+              while bit.front_clear():
+                bit.move()
+                bit.paint('blue')
+              bit.left()
+          
+          if __name__ == '__main__':
             run(Bit.new_bit)
-        ```
+          ```
   # Q4, Red Bars:
   - type: multiple_choice # Question 4
     text: | # Q4 text
@@ -236,47 +230,45 @@ questions:
       
       <img src="resources/q4_end_result.png" alt="ending world" style="width: 250px;"/>
     answers:
-      correct: # Q4 correct answer
-      - |
-        ```python
-        def draw_bar(bit):
+      - correct: |
+          ```python
+          def draw_bar(bit):
             bit.left()
             go(bit, 'red')
             bit.right()
             bit.right()
             go(bit, None)
             bit.left()
-        ```
-      incorrect: # Q4 incorrect answers
-        - | # Q4 incorrect answer 1
-          ```python
-          def draw_bar(bit):
-              go(bit, 'red')
-              bit.left()
-              bit.left()
-              go(bit, 'red')
           ```
-        - | # Q4 incorrect answer 2
+      - incorrect: | # Q4 incorrect answer 1
           ```python
           def draw_bar(bit):
+          go(bit, 'red')
+          bit.left()
+          bit.left()
+          go(bit, 'red')
+          ```
+          - incorrect: | # Q4 incorrect answer 2
+            ```python
+            def draw_bar(bit):
               bit.left()
               while bit.front_clear():
-                  go(bit, None)
-                  bit.left()
-                  bit.left()
-                  go(bit, 'red')
-                  bit.left()
-          ```
-        - | # Q4 incorrect answer 3
-          ```python
-          def draw_bar(bit):
+                go(bit, None)
+                bit.left()
+                bit.left()
+                go(bit, 'red')
+                bit.left()
+            ```
+          - incorrect: | # Q4 incorrect answer 3
+            ```python
+            def draw_bar(bit):
               bit.left()
               go(bit, None)
               bit.right()
               bit.right()
               go(bit, 'red')
               bit.left()
-          ```
+            ```
   # Q5, Mystery Functions:
   - type: multiple_choice # Question 5
     text: | # Q5 text
@@ -297,12 +289,10 @@ questions:
             main()
       ```
     answers:
-      correct:  # Q5 correct answer
-      - "`0`"
-      incorrect: # Q5 incorrect answers
-      - "`-2`"
-      - "`3`"
-      - "`1`"
+      - correct: "`0`"
+      - incorrect: "`-2`"
+      - incorrect: "`3`"
+      - incorrect: "`1`"
   # Q6, I like Fruit:
   - type: multiple_choice # Question 6
     text: | # Q6 text
@@ -318,75 +308,73 @@ questions:
             Goodbye!
         ```
     answers:
-      correct: # Q6 correct answer
-      - |
-        ```python
-        def main():
+      - correct: |
+          ```python
+          def main():
             while True:
-                fruit = input('Give me a fruit: ')
-                if fruit == 'apple':
-                    print('I like that!')
-                    break
-                elif fruit == 'durian':
-                    print('No thank you!')
-                else:
-                    print('Those are fine.')
+              fruit = input('Give me a fruit: ')
+                  if fruit == 'apple':
+                                                                             print('I like that!')
+                                                                             break
+              elif fruit == 'durian':
+                print('No thank you!')
+              else:
+                print('Those are fine.')
             print('Goodbye!')
-        
-        if __name__ == '__main__':
+          
+          if __name__ == '__main__':
             main()
-        ```
-      incorrect: # Q6 incorrect answers
-      - | # Q6 incorrect answer 1
-        ```python
-        def main():
+          ```
+      - incorrect: | # Q6 incorrect answer 1
+          ```python
+          def main():
             while True:
-                fruit = input('Give me a fruit: ')
-                if fruit == 'apple':
-                    print('I like that!')
-                    return
-                else:
-                    print('Those are fine.')
+              fruit = input('Give me a fruit: ')
+                  if fruit == 'apple':
+                                                                             print('I like that!')
+                                                                             return
+              else:
+                print('Those are fine.')
             print('Goodbye!')
-    
-        if __name__ == '__main__':
+          
+          if __name__ == '__main__':
             main()
-        ```
-      - | # Q6 incorrect answer 2
-        ```python
-        def main():
+          ```
+      - incorrect: | # Q6 incorrect answer 2
+          ```python
+          def main():
             while True:
-                fruit = input('Give me a fruit: ')
-                if fruit == 'apple':
-                    print('I like that!')
-                    break
-                elif fruit == 'banana':
-                    print('Those are ok.')
-                else:
-                    print('Those are fine.')
+              fruit = input('Give me a fruit: ')
+                  if fruit == 'apple':
+                                                                             print('I like that!')
+                                                                             break
+              elif fruit == 'banana':
+                print('Those are ok.')
+              else:
+                print('Those are fine.')
             print('Goodbye!')
-    
-        if __name__ == '__main__':
+          
+          if __name__ == '__main__':
             main()
-        ```
-      - | # Q6 incorrect answer 3
-        ```python
-        def main():
-            while True:
-                fruit = input('Give me a fruit: ')
-                if fruit == 'pear':
-                    print('Those are fine.')
-                    break
-                elif fruit == 'banana':
-                    print('Those are fine.')
-                    break
-                else:
-                    print('I like that!')
-            print('Goodbye!')
-    
-        if __name__ == '__main__':
+          ```
+      - incorrect: | # Q6 incorrect answer 3
+          ```python
+          def main():
+              while True:
+                  fruit = input('Give me a fruit: ')
+                      if fruit == 'pear':
+                         print('Those are fine.')
+                         break
+                  elif fruit == 'banana':
+                      print('Those are fine.')
+                      break
+                  else:
+                      print('I like that!')
+              print('Goodbye!')
+          
+          if __name__ == '__main__':
             main()
-        ```
+          ```
   # Q7, Pets:
   - type: multiple_choice # Question 7
     text: | # Q7 text
@@ -410,9 +398,8 @@ questions:
           want_pets()
       ```
     answers:
-      correct: # Q7 correct answer
-      - |
-        ```text
+      - correct: |
+          ```text
           What pet do you want? gerbil
           What pet do you want? dinosaur
           I want one too!
@@ -421,32 +408,31 @@ questions:
           What pet do you want? fish
           What pet do you want?
           You want 3 pets.
-        ```
-      incorrect: # Q7 incorrect answers
-          - | # Q7 incorrect answer 1
-              ```text
-              What pet do you want? dog
-              What pet do you want? cat
-              What pet do you want? bird
-              What pet do you want? horse
-              What pet do you want?
-              You want 4 pets.
-              That's too many!
-              ```
-          - | # Q7 incorrect answer 2
-              ```text
-              What pet do you want?
-              You want 0 pets.
-              ```
-          - | # Q7 incorrect answer 3
-              ```text
-              What pet do you want? dog
-              What pet do you want? dinosaur
-              I want one too!
-              What pet do you want? fish
-              What pet do you want?
-              You want 3 pets.
-              ```
+          ```
+      - incorrect: | # Q7 incorrect answer 1
+          ```text
+          What pet do you want? dog
+          What pet do you want? cat
+          What pet do you want? bird
+          What pet do you want? horse
+          What pet do you want?
+          You want 4 pets.
+          That's too many!
+          ```
+      - incorrect: | # Q7 incorrect answer 2
+          ```text
+          What pet do you want?
+          You want 0 pets.
+          ```
+      - incorrect: | # Q7 incorrect answer 3
+          ```text
+          What pet do you want? dog
+          What pet do you want? dinosaur
+          I want one too!
+          What pet do you want? fish
+          What pet do you want?
+          You want 3 pets.
+          ```
 
   # Q8, Modulo 2:
   - type: multiple_choice # Question 8
@@ -472,9 +458,8 @@ questions:
           main()
       ```
     answers:
-      correct: # Q8 correct answer
-      - |
-        ```text
+      - correct: |
+          ```text
           I like 1
           I like 4
           I like 5
@@ -485,40 +470,39 @@ questions:
           8
           12
           ```
-      incorrect: # Q8 incorrect answers
-        - | # Q8 incorrect answer 1
-            ```text
-            I like 1
-            I like 5
-            I like 9
-            1
-            5
-            9
-            ```
-        - | # Q8 incorrect answer 2
-            ```text
-            I like {kiwi}
-            I like {kiwi}
-            I like {kiwi}
-            I like {kiwi}
-            I like {kiwi}
-            I like {kiwi}
-            4
-            8
-            12
-            ```
-        - | # Q8 incorrect answer 3
-            ```text
-            I like 1
-            I like 4
-            I like 5
-            I like 8
-            I like 9
-            I like 12
-            1
-            5
-            9
-            ```
+      - incorrect: | # Q8 incorrect answer 1
+          ```text
+          I like 1
+          I like 5
+          I like 9
+          1
+          5
+          9
+          ```
+      - incorrect: | # Q8 incorrect answer 2
+          ```text
+          I like {kiwi}
+          I like {kiwi}
+          I like {kiwi}
+          I like {kiwi}
+          I like {kiwi}
+          I like {kiwi}
+          4
+          8
+          12
+          ```
+      - incorrect: | # Q8 incorrect answer 3
+          ```text
+          I like 1
+          I like 4
+          I like 5
+          I like 8
+          I like 9
+          I like 12
+          1
+          5
+          9
+          ```
   # Q9, Keepers:
   - type: multiple_choice # Question 9
     text: | # Q9 text
@@ -541,47 +525,44 @@ questions:
       ```
       Which version of `keep_it` could be used to produce that output?
     answers:
-      correct: # Q9 correct answer
-      - |
-        ```python
-        def keep_it(thing):
+      - correct: |
+          ```python
+          def keep_it(thing):
             return thing > 7 or thing < -5
-        ```
-      incorrect: # Q9 incorrect answers
-      - | # Q9 incorrect answer 1
-        ```python
-        def keep_it(thing):
+          ```
+      - incorrect: | # Q9 incorrect answer 1
+          ```python
+          def keep_it(thing):
             return thing > 8 and thing < -6
-        ```
-      - | # Q9 incorrect answer 2
-        ```python
-        def keep_it(thing):
+          ```
+      - incorrect: | # Q9 incorrect answer 2
+          ```python
+          def keep_it(thing):
             if thing >= 12:
-                return True
+              return True
             elif thing < 0:
-                return True
+              return True
             else:
-                return False
-        ```
-      - | # Q9 incorrect answer 3
-        ```python
-        def keep_it(thing):
+              return False
+          ```
+      - incorrect: | # Q9 incorrect answer 3
+          ```python
+          def keep_it(thing):
             return thing > -3 or thing < 9
-        ```
+          ```
   # Q10, List Patterns:
   - type: matching # Question 10
     text: | # Q10 text
-        Match each `list` pattern with the scenario it serves.
+      Match each `list` pattern with the scenario it serves.
     answers:
-      pairs:
-        - left: "You want to add an exclamation point to each word in a list."
-          right: "Mapping pattern"
-        - left: "Eligibility is defined by highest grade, then by earliest application. You want to find the most eligible applicant."
-          right: "Selection pattern"
-        - left: "A purchase record has information about the number of items, date, and total purchase price. You want to find the total spent across a batch of purchases."
-          right: "Accumulator pattern"
-        - left: "You have a list of speech transcripts. You want only the speeches that mention prayer."
-          right: "Filter pattern"
+      - left: "You want to add an exclamation point to each word in a list."
+        right: "Mapping pattern"
+      - left: "Eligibility is defined by highest grade, then by earliest application. You want to find the most eligible applicant."
+        right: "Selection pattern"
+      - left: "A purchase record has information about the number of items, date, and total purchase price. You want to find the total spent across a batch of purchases."
+        right: "Accumulator pattern"
+      - left: "You have a list of speech transcripts. You want only the speeches that mention prayer."
+        right: "Filter pattern"
   # Q11, Code Patterns:
   - type: matching # Question 11
     text: | # Q11 text
@@ -627,17 +608,14 @@ questions:
           return total
       ```
     answers:
-      pairs:
-        - left: "Code Block A"
-          right: "Selection pattern"
-        - left: "Code Block B"
-          right: "Mapping pattern"
-        - left: "Code Block C"
-          right: "Filter pattern"
-        - left: "Code Block D"
-          right: "Accumulator pattern"
-        - distractor: "Code Block A"
-        - distractor: "Code Block B"
+      - left: "Code Block A"
+        right: "Selection pattern"
+      - left: "Code Block B"
+        right: "Mapping pattern"
+      - left: "Code Block C"
+        right: "Filter pattern"
+      - left: "Code Block D"
+        right: "Accumulator pattern"
   # Q12, Unpack Tuples:
   - type: multiple_choice # Question 12
     text: | # Q12 text
@@ -651,59 +629,55 @@ questions:
       ```
       Which code will loop through a list of student tuples and unpack them into variables?
     answers:
-      correct: # Q12 correct answer
-      - |
-        ```python
-        for last, first, major, state in students:
+      - correct: |
+          ```python
+          for last, first, major, state in students:
             print(f'{first} {last} -- {major} major, from {state}')
-        ```
-      incorrect: # Q12 incorrect answers
-        - | # Q12 incorrect answer 1
+          ```
+      - incorrect: | # Q12 incorrect answer 1
           ```python
           for every student in students:
               print(f'{student.first} {student.last} -- {student.major} major, from {student.state}')
           ```
-        - | # Q12 incorrect answer 2
+      - incorrect: | # Q12 incorrect answer 2
           ```python
           while True:
-              print(f'{first} {last} -- {major} major, from {state}')
+            print(f'{first} {last} -- {major} major, from {state}')
           ```
-        - | # Q12 incorrect answer 3
+      - incorrect: | # Q12 incorrect answer 3
           ```python
           for students in last, first, major, state:
-              print(f'{first} {last} -- {major} major, from {state}')
+            print(f'{first} {last} -- {major} major, from {state}')
           ```
   # Q13, Return None:
   - type: multiple_answers # Question 13
     text: | # Q13 text
       In which of the following cases would this function return `None`? (Mark all that apply)
     answers:
-      correct:  # Q13 correct answers
-      - | # Q13 correct answer 1
-        ```text
-        First name: Adam
-        Last name:
-        Age: 4
-        ```
-      - | # Q13 correct answer 2
-        ```text
-        First name: 
-        Last name: de Souza
-        Age: 5
-        ```
-      - | # Q13 correct answer 3
-        ```text
-        First name: Preet
-        Last name: Bharara
-        Age: 2
-        ```
-      incorrect: # Q13 incorrect answers
-      - | # Q13 incorrect answer 1
-        ```text
-        First name: Sarah
-        Last name: Page
-        Age: 10
-        ```
+      - correct: | # Q13 correct answer 1
+          ```text
+          First name: Adam
+          Last name:
+          Age: 4
+          ```
+      - correct: | # Q13 correct answer 2
+          ```text
+          First name:
+          Last name: de Souza
+          Age: 5
+          ```
+      - correct: | # Q13 correct answer 3
+          ```text
+          First name: Preet
+          Last name: Bharara
+          Age: 2
+          ```
+      - incorrect: | # Q13 incorrect answer 1
+          ```text
+          First name: Sarah
+          Last name: Page
+          Age: 10
+          ```
   # Q14, Sandwich Toppings:
   - type: multiple_choice # Question 14
     text: | # Q14 text
@@ -714,24 +688,22 @@ questions:
       
       Which of these functions accomplishes this?
     answers:
-      correct: # Q14 correct answer
-      - |
-        ```python
-        def get_toppings():
+      - correct: |
+          ```python
+          def get_toppings():
             toppings = []
             while True:
-                topping = input("Topping: ")
-                if topping == '':
-                    break
-                if topping == 'onions':
-                    print('Sorry we are out of onions.')
-                else:
-                    toppings.append(topping)
-        
-            return toppings
-        ```
-      incorrect: # Q14 incorrect answers
-        - | # Q14 incorrect answer 1
+              topping = input("Topping: ")
+                  if topping == '':
+                      break
+                  if topping == 'onions':
+                      print('Sorry we are out of onions.')
+                  else:
+                      toppings.append(topping)
+          
+              return toppings
+          ```
+      - incorrect: | # Q14 incorrect answer 1
           ```python
           def get_toppings():
               toppings = []
@@ -745,7 +717,7 @@ questions:
           
               return toppings
           ```
-        - | # Q14 incorrect answer 2
+      - incorrect: | # Q14 incorrect answer 2
           ```python
           def get_toppings():
               toppings = []
@@ -759,18 +731,15 @@ questions:
           
               return toppings
           ```
-        - | # Q14 incorrect answer 3
+      - incorrect: | # Q14 incorrect answer 3
           ```python
           def get_toppings():
-              while True:
-                  topping = input("Topping: ")
-                  if topping is None:
-                      break
-                  elif topping == 'onions':
-                      print('Sorry we are out of onions.')
-                  else:
-                      return topping
+            while True:
+              topping = input("Topping: ")
+                if topping is None:
+                  break
+                elif topping == 'onions':
+                  print('Sorry we are out of onions.')
+                else:
+                  return topping
           ```
-          
-  
-  
