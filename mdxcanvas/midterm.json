@@ -1,7 +1,7 @@
 [
     {
         "access_code": "start-midterm",
-        "allowed_attempts": "1",
+        "allowed_attempts": 1,
         "assignment_group_id": 104463,
         "cant_go_back": false,
         "description": "<p>Please read and understand the following instructions before taking the midterm.</p>\n<p>This is an exam. You are on your honor to treat this exam appropriately. You are not allowed to consult any material or people during this exam.</p>\n<p>You have 180 minutes (3 hours) to take this test. Most students will finish in under 90 minutes. If you need an accommodation, contact your instructor.</p>\n<p>Prepare your exam space. Find a location where you can work uninterrupted and free from distraction for the full test-taking period.\u00a0</p>\n<p><strong>You are encouraged to have scratch paper available.</strong></p>\n<p>Turn off your phone. Close all applications except your browser, and close all tabs except this one.</p>\n<p>To start the test, you will need the passcode <strong>start-midterm</strong>. Only start the test once you intend to take and complete it.</p>\n<p>Good luck!</p>",
@@ -25,25 +25,25 @@
                 "incorrect_comments": null,
                 "answers": [
                     {
-                        "answer_html": "<p><p><img alt=\"blue, red, green\" id=\"resources/q1_bit_blue_red_green_T.png\" src=\"/courses/20736/files/3159e378-113f-4c38-bccd-6cb4710f0e30/preview\" style=\"width: 200px;\"/></p></p>",
+                        "answer_html": "<p><p><img alt=\"blue, red, green\" id=\"resources/q1_bit_blue_red_green_T.png\" src=\"/courses/20736/files/13b7bd45-0565-49f1-8405-1b534de19d97/preview\" style=\"width: 200px;\"/></p></p>",
                         "answer_weight": 100
                     },
                     {
-                        "answer_html": "<p><p><img alt=\"blue, blue, blue\" id=\"resources/q1_bit_blue_blue_blue_F.png\" src=\"/courses/20736/files/22beb7b1-89d8-4ae7-b964-5c1f15e1da05/preview\" style=\"width: 200px;\"/></p></p>",
+                        "answer_html": "<p><p><img alt=\"blue, blue, blue\" id=\"resources/q1_bit_blue_blue_blue_F.png\" src=\"/courses/20736/files/a87d1b1a-c51d-4716-a127-50f20e75af6d/preview\" style=\"width: 200px;\"/></p></p>",
                         "answer_weight": 0
                     },
                     {
-                        "answer_html": "<p><p><img alt=\"blue, green, green\" id=\"resources/q1_bit_blue_green_green_F.png\" src=\"/courses/20736/files/8ecb5724-08c2-41ba-ab6b-b1c985c9c708/preview\" style=\"width: 200px;\"/></p></p>",
+                        "answer_html": "<p><p><img alt=\"blue, green, green\" id=\"resources/q1_bit_blue_green_green_F.png\" src=\"/courses/20736/files/3e5230e2-2080-4d73-ba93-92d131c00bf6/preview\" style=\"width: 200px;\"/></p></p>",
                         "answer_weight": 0
                     },
                     {
-                        "answer_html": "<p><p><img alt=\"blue, red, red\" id=\"resources/q1_bit_blue_red_red_F.png\" src=\"/courses/20736/files/9d1f9fcb-079e-49db-bd2a-c9c9f9ce798a/preview\" style=\"width: 200px;\"/></p></p>",
+                        "answer_html": "<p><p><img alt=\"blue, red, red\" id=\"resources/q1_bit_blue_red_red_F.png\" src=\"/courses/20736/files/f1e522e6-3491-4721-b8bc-74b1cdf1ef93/preview\" style=\"width: 200px;\"/></p></p>",
                         "answer_weight": 0
                     }
                 ]
             },
             {
-                "question_text": "<p>Given the following starting world named <code style=\"color: #000000\">rgb</code>:</p>\n<p><p><img alt=\"starting world\" id=\"resources/q2_start_world.png\" src=\"/courses/20736/files/2c2748ca-8fd6-4a94-8950-aaba71f32f04/preview\" style=\"width: 300px;\"/></p></p>\n<p>Which block of code will produce the following end result:</p>\n<p><p><img alt=\"ending world\" id=\"resources/q2_end_result.png\" src=\"/courses/20736/files/3a4232ef-daec-4306-aa9f-086de1e814a1/preview\" style=\"width: 300px;\"/></p></p>",
+                "question_text": "<p>Given the following starting world named <code style=\"color: #000000\">rgb</code>:</p>\n<p><p><img alt=\"starting world\" id=\"resources/q2_start_world.png\" src=\"/courses/20736/files/e0a72cc9-3bff-4f79-927d-92b865398738/preview\" style=\"width: 300px;\"/></p></p>\n<p>Which block of code will produce the following end result:</p>\n<p><p><img alt=\"ending world\" id=\"resources/q2_end_result.png\" src=\"/courses/20736/files/eab0b3cb-021e-4677-aad1-0f944254b4ae/preview\" style=\"width: 300px;\"/></p></p>",
                 "question_type": "multiple_choice_question",
                 "points_possible": 1,
                 "correct_comments": null,
@@ -68,7 +68,7 @@
                 ]
             },
             {
-                "question_text": "<p>Starting with this world:</p>\n<p><p><img alt=\"empty world\" id=\"resources/q3_empty_world.png\" src=\"/courses/20736/files/4de49b88-45dd-42b7-8829-6b2f35832a8b/preview\" style=\"width: 200px;\"/></p></p>\n<p>Which code snippet produces this result:</p>\n<p><p><img alt=\"ending world\" id=\"resources/q3_end_result.png\" src=\"/courses/20736/files/fcb49c6d-fa09-4464-b441-2b1ae0c0bee9/preview\" style=\"width: 200px;\"/></p></p>",
+                "question_text": "<p>Starting with this world:</p>\n<p><p><img alt=\"empty world\" id=\"resources/q3_empty_world.png\" src=\"/courses/20736/files/f21185c2-a8d8-4d38-a35c-894ef77c02d6/preview\" style=\"width: 200px;\"/></p></p>\n<p>Which code snippet produces this result:</p>\n<p><p><img alt=\"ending world\" id=\"resources/q3_end_result.png\" src=\"/courses/20736/files/f3885338-f096-45bd-ac6a-d6314d565065/preview\" style=\"width: 200px;\"/></p></p>",
                 "question_type": "multiple_choice_question",
                 "points_possible": 1,
                 "correct_comments": null,
@@ -93,7 +93,7 @@
                 ]
             },
             {
-                "question_text": "<p>Bit starts in the following world <code style=\"color: #000000\">red_bars</code>:</p>\n<p><p><img alt=\"starting world\" id=\"resources/q4_start_world.png\" src=\"/courses/20736/files/56dd83d4-a643-45b1-a259-904e1c4fb77b/preview\" style=\"width: 250px;\"/></p></p>\n<p>Which of the following implementations of <code style=\"color: #000000\">draw_bar</code> will produce the following result?</p>\n<p><p><img alt=\"ending world\" id=\"resources/q4_end_result.png\" src=\"/courses/20736/files/8dbeeec4-0a2b-465d-bc68-1b5a1566e33d/preview\" style=\"width: 250px;\"/></p></p>\n<pre class=\"codehilite\"><code class=\"language-python\">from byubit import Bit\n\ndef go(bit, color):\n    while bit.front_clear():\n        bit.move()\n        if color is not None:\n            bit.paint(color)\n\ndef draw_bar(bit):\n    pass\n\n@Bit.worlds('red_bars')\ndef run(bit):\n    while bit.front_clear():\n        bit.move()\n        if bit.is_red():\n            draw_bar(bit)\n\nif __name__ == '__main__':\n    run(Bit.new_bit)\n</code></pre>",
+                "question_text": "<p>Bit starts in the following world <code style=\"color: #000000\">red_bars</code>:</p>\n<p><p><img alt=\"starting world\" id=\"resources/q4_start_world.png\" src=\"/courses/20736/files/2643aa26-23ba-4297-be59-48b3dd7f2ffb/preview\" style=\"width: 250px;\"/></p></p>\n<p>Which of the following implementations of <code style=\"color: #000000\">draw_bar</code> will produce the following result?</p>\n<p><p><img alt=\"ending world\" id=\"resources/q4_end_result.png\" src=\"/courses/20736/files/0bcaf187-a89a-49c8-bcd2-088db694c89a/preview\" style=\"width: 250px;\"/></p></p>\n<pre class=\"codehilite\"><code class=\"language-python\">from byubit import Bit\n\ndef go(bit, color):\n    while bit.front_clear():\n        bit.move()\n        if color is not None:\n            bit.paint(color)\n\ndef draw_bar(bit):\n    pass\n\n@Bit.worlds('red_bars')\ndef run(bit):\n    while bit.front_clear():\n        bit.move()\n        if bit.is_red():\n            draw_bar(bit)\n\nif __name__ == '__main__':\n    run(Bit.new_bit)\n</code></pre>",
                 "question_type": "multiple_choice_question",
                 "points_possible": 1,
                 "correct_comments": null,
@@ -382,43 +382,43 @@
         "replacements": [],
         "resources": [
             [
-                "3159e378-113f-4c38-bccd-6cb4710f0e30",
+                "13b7bd45-0565-49f1-8405-1b534de19d97",
                 "../demo_course/private-files/resources/q1_bit_blue_red_green_T.png"
             ],
             [
-                "22beb7b1-89d8-4ae7-b964-5c1f15e1da05",
+                "a87d1b1a-c51d-4716-a127-50f20e75af6d",
                 "../demo_course/private-files/resources/q1_bit_blue_blue_blue_F.png"
             ],
             [
-                "8ecb5724-08c2-41ba-ab6b-b1c985c9c708",
+                "3e5230e2-2080-4d73-ba93-92d131c00bf6",
                 "../demo_course/private-files/resources/q1_bit_blue_green_green_F.png"
             ],
             [
-                "9d1f9fcb-079e-49db-bd2a-c9c9f9ce798a",
+                "f1e522e6-3491-4721-b8bc-74b1cdf1ef93",
                 "../demo_course/private-files/resources/q1_bit_blue_red_red_F.png"
             ],
             [
-                "2c2748ca-8fd6-4a94-8950-aaba71f32f04",
+                "e0a72cc9-3bff-4f79-927d-92b865398738",
                 "../demo_course/private-files/resources/q2_start_world.png"
             ],
             [
-                "3a4232ef-daec-4306-aa9f-086de1e814a1",
+                "eab0b3cb-021e-4677-aad1-0f944254b4ae",
                 "../demo_course/private-files/resources/q2_end_result.png"
             ],
             [
-                "4de49b88-45dd-42b7-8829-6b2f35832a8b",
+                "f21185c2-a8d8-4d38-a35c-894ef77c02d6",
                 "../demo_course/private-files/resources/q3_empty_world.png"
             ],
             [
-                "fcb49c6d-fa09-4464-b441-2b1ae0c0bee9",
+                "f3885338-f096-45bd-ac6a-d6314d565065",
                 "../demo_course/private-files/resources/q3_end_result.png"
             ],
             [
-                "56dd83d4-a643-45b1-a259-904e1c4fb77b",
+                "2643aa26-23ba-4297-be59-48b3dd7f2ffb",
                 "../demo_course/private-files/resources/q4_start_world.png"
             ],
             [
-                "8dbeeec4-0a2b-465d-bc68-1b5a1566e33d",
+                "0bcaf187-a89a-49c8-bcd2-088db694c89a",
                 "../demo_course/private-files/resources/q4_end_result.png"
             ]
         ],
@@ -427,7 +427,7 @@
         "show_correct_answers_at": "2024-03-13T00:00:00-06:00",
         "show_correct_answers_last_attempt": false,
         "shuffle_answers": true,
-        "time_limit": "180",
+        "time_limit": 180,
         "title": "Midterm",
         "type": "quiz",
         "unlock_at": "2024-03-04T00:00:00-07:00"

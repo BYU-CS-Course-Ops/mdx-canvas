@@ -186,12 +186,19 @@ class QuizWalker:
             "one_time_results": False,
             "published": False,
             "cant_go_back": False,
+            "scoring_policy": "keep_highest",
+            "show_correct_answers": True,
+            "show_correct_answers_last_attempt": False,
         }
         for key, value in quiz.items():
             if key in ["due_at", "lock_at", "unlock_at", "show_correct_answers_at", "hide_correct_answers_at"]:
                 new_quiz[key] = self.date_formatter(value)
             elif key == "title":
                 new_quiz["name"] = value
+                new_quiz["title"] = value
+            elif key == "description":
+                new_quiz["description"], res = self.markdown_processor(quiz["description"])
+                new_quiz["resources"].extend(res)
             elif key == "assignment_group":
                 new_quiz["assignment_group_id"] = self.group_identifier(value)
             elif key == "questions":

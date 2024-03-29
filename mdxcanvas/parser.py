@@ -163,15 +163,18 @@ class Processor(Protocol):
 
 
 class AttributeAdder:
-    def __init__(self, settings: dict, settings_tag: Tag):
+    def __init__(self, settings: dict, settings_tag: Tag, parser):
         self.settings = settings
         self.settings_tag = settings_tag
+        self.parser = parser
 
-    def __call__(self, attribute, default=None, new_name=None, formatter=None):
+    def __call__(self, attribute, default=None, new_name=None, formatter=None, typ=None):
         if attribute in self.settings_tag.attrs or default is not None:
             value = self.settings_tag.get(attribute, default)
             if formatter:
                 value = formatter(value)
+            if typ:
+                value = self.parser.parse(value, typ)
             self.settings[new_name if new_name else attribute] = value
 
 
@@ -305,13 +308,26 @@ class TextQuestionProcessor:
 
 
 class Parser:
-    @staticmethod
-    def get_list(string):
+    def __init__(self):
+        pass
+    
+    def parse(self, string, typ):
+        if typ == str:
+            return string
+        elif typ == int:
+            return self.get_int(string)
+        elif typ == bool:
+            return self.get_bool(string)
+        elif typ == list:
+            return self.get_list(string)
+        elif typ == dict:
+            return self.get_dict(string)
+    
+    def get_list(self, string):
         items = string.strip().split(',')
         return [cell.strip() for cell in items if cell.strip()]
 
-    @staticmethod
-    def get_bool(string):
+    def get_bool(self, string):
         # Forgiving boolean parser
         if isinstance(string, bool):
             return string
@@ -323,11 +339,13 @@ class Parser:
         else:
             raise ValueError(f"Invalid boolean value: {string}")
 
-    @staticmethod
-    def get_dict(string):
+    def get_dict(self, string):
         # Assumes the string is a comma-separated list of key-value pairs
         # Example: "key1=value1, key2=value2 "
         return dict(cell.strip().split('=') for cell in string.split(',') if cell.strip())
+    
+    def get_int(self, string):
+        return int(string)
 
 
 class OverrideParser:
@@ -359,7 +377,7 @@ class OverrideParser:
         settings = {
             "title": tag["title"],
         }
-        adder = AttributeAdder(settings, tag)
+        adder = AttributeAdder(settings, tag, self.parser)
         adder("available_from", new_name="unlock_at", formatter=self.date_formatter)
         adder("due_at", formatter=self.date_formatter)
         adder("available_to", new_name="lock_at", formatter=self.date_formatter)
@@ -375,7 +393,7 @@ class ModuleParser:
             "name": module_tag["title"],
             "position": module_tag["position"],
         }
-        AttributeAdder(settings, module_tag)("published", False, formatter=self.parser.get_bool)
+        AttributeAdder(settings, module_tag, self.parser)("published", False, bool)
         return settings
 
     def parse(self, module_tag: Tag):
@@ -406,15 +424,15 @@ class ModuleParser:
             "type": self.casing[tag.name],
         }
 
-        adder = AttributeAdder(item, tag)
-        adder("position")
-        adder("indent")
+        adder = AttributeAdder(item, tag, self.parser)
+        adder("position", int)
+        adder("indent", int)
         adder("page_url")
         adder("external_url")
-        adder("new_tab", True, formatter=self.parser.get_bool)
+        adder("new_tab", True, bool)
         adder("completion_requirement")
         adder("iframe")
-        adder("published", False, formatter=self.parser.get_bool)
+        adder("published", False, bool)
         return item
 
 
@@ -465,28 +483,27 @@ class QuizParser:
     def parse_quiz_settings(self, settings_tag):
         settings = {"title": settings_tag["title"]}
 
-        adder = AttributeAdder(settings, settings_tag)
+        adder = AttributeAdder(settings, settings_tag, self.parser)
 
         adder("quiz_type", "assignment")
         adder("assignment_group", None, "assignment_group_id", formatter=self.group_indexer)
-        adder("time_limit")
-        adder("points_possible")
-        adder("shuffle_answers", False, formatter=self.parser.get_bool)
-        adder("hide_results", formatter=self.parser.get_bool)
-        adder("show_correct_answers", True, formatter=self.parser.get_bool)
-        adder("show_correct_answers_last_attempt", False, formatter=self.parser.get_bool)
+        adder("time_limit", None, typ=int)
+        adder("shuffle_answers", False, typ=bool)
+        adder("hide_results", typ=str)
+        adder("show_correct_answers", True, typ=bool)
+        adder("show_correct_answers_last_attempt", False, typ=bool)
         adder("show_correct_answers_at", None, formatter=self.date_formatter)
         adder("hide_correct_answers_at", None, formatter=self.date_formatter)
-        adder("allowed_attempts")
+        adder("allowed_attempts", -1, typ=int)
         adder("scoring_policy", "keep_highest")
-        adder("one_question_at_a_time", False, formatter=self.parser.get_bool)
-        adder("cant_go_back", False, formatter=self.parser.get_bool)
+        adder("one_question_at_a_time", False, typ=bool)
+        adder("cant_go_back", False, typ=bool)
         adder("available_from", None, "unlock_at", formatter=self.date_formatter)
         adder("due_at", None, formatter=self.date_formatter)
         adder("available_to", None, "lock_at", formatter=self.date_formatter)
         adder("access_code")
-        adder("published", False, formatter=self.parser.get_bool)
-        adder("one_time_results", False, formatter=self.parser.get_bool)
+        adder("published", False, typ=bool)
+        adder("one_time_results", False, typ=bool)
 
         return settings
 
@@ -529,41 +546,41 @@ class AssignmentParser:
     def parse_assignment_settings(self, settings_tag):
         settings = {"name": settings_tag["title"]}
 
-        adder = AttributeAdder(settings, settings_tag)
+        adder = AttributeAdder(settings, settings_tag, self.parser)
         adder("allowed_attempts", formatter=lambda x: -1 if x == "not_graded" else x),
-        adder("allowed_extensions", "", formatter=self.parser.get_list),
+        adder("allowed_extensions", "", typ=list),
         adder("annotatable_attachment_id"),
         adder("assignment_group", new_name="assignment_group_id", formatter=self.group_indexer),
         adder("assignment_overrides"),
-        adder("automatic_peer_reviews", False, formatter=self.parser.get_bool),
+        adder("automatic_peer_reviews", False, typ=bool),
         adder("available_from", new_name="unlock_at", formatter=self.date_formatter),
         adder("available_to", new_name="lock_at", formatter=self.date_formatter),
         adder("due_at", formatter=self.date_formatter),
-        adder("external_tool_tag_attributes", "", formatter=self.parser.get_dict),
+        adder("external_tool_tag_attributes", "", typ=dict),
         adder("final_grader_id"),
-        adder("grade_group_students_individually", False, formatter=self.parser.get_bool),
+        adder("grade_group_students_individually", False, typ=bool),
         adder("grading_standard_id"),
         adder("grading_type", "points"),
-        adder("grader_comments_visible_to_graders", False, formatter=self.parser.get_bool),
+        adder("grader_comments_visible_to_graders", False, typ=bool),
         adder("grader_count"),
-        adder("grader_names_visible_to_final_grader", False, formatter=self.parser.get_bool),
-        adder("graders_anonymous_to_graders", False, formatter=self.parser.get_bool),
+        adder("grader_names_visible_to_final_grader", False, typ=bool),
+        adder("graders_anonymous_to_graders", False, typ=bool),
         adder("group_category", new_name="group_category_id"),
-        adder("hide_in_gradebook", False, formatter=self.parser.get_bool),
+        adder("hide_in_gradebook", False, typ=bool),
         adder("integration_data"),
-        adder("moderated_grading", False, formatter=self.parser.get_bool),
-        adder("notify_of_update", False, formatter=self.parser.get_bool),
-        adder("omit_from_final_grade", False, formatter=self.parser.get_bool),
-        adder("only_visible_to_overrides", False, formatter=self.parser.get_bool),
-        adder("peer_reviews", False, formatter=self.parser.get_bool),
+        adder("moderated_grading", False, typ=bool),
+        adder("notify_of_update", False, typ=bool),
+        adder("omit_from_final_grade", False, typ=bool),
+        adder("only_visible_to_overrides", False, typ=bool),
+        adder("peer_reviews", False, typ=bool),
         adder("points_possible"),
         adder("position"),
-        adder("published", False, formatter=self.parser.get_bool),
+        adder("published", False, typ=bool),
         adder("quiz_lti"),
-        adder("submission_types", "none", formatter=self.parser.get_list),
-        adder("turnitin_enabled", False, formatter=self.parser.get_bool),
+        adder("submission_types", "none", typ=list),
+        adder("turnitin_enabled", False, typ=bool),
         adder("turnitin_settings"),
-        adder("vericite_enabled", False, formatter=self.parser.get_bool)
+        adder("vericite_enabled", False, typ=bool)
 
         return settings
 
@@ -582,9 +599,9 @@ class PageParser:
         }
         adder = AttributeAdder(settings, page_tag)
         adder("editing_roles", "teachers")
-        adder("notify_of_update", False, formatter=self.parser.get_bool)
-        adder("published", False, formatter=self.parser.get_bool)
-        adder("front_page", False, formatter=self.parser.get_bool)
+        adder("notify_of_update", False, typ=bool)
+        adder("published", False, typ=bool)
+        adder("front_page", False, typ=bool)
         adder("publish_at", formatter=self.date_formatter)
         return settings
 
