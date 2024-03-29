@@ -82,16 +82,16 @@ questions:
           @Bit.worlds('rgb')
           def run(bit):
             while bit.front_clear():
-              bit.move()
-              if bit.is_red():
-                bit.paint('green')
-              elif bit.is_green():
-                bit.paint('blue')
-              else:
-                bit.erase()
+                bit.move()
+                if bit.is_red():
+                    bit.paint('green')
+                elif bit.is_green():
+                    bit.paint('blue')
+                else:
+                    bit.erase()
           
           if __name__ == '__main__':
-            run(Bit.new_bit)
+              run(Bit.new_bit)
           ```
       - incorrect: | # Q2 incorrect answer 1
           ```python
@@ -117,17 +117,17 @@ questions:
           
           @Bit.worlds('rgb')
           def run(bit):
-            while bit.front_clear():
-              bit.move()
-              if bit.is_red():
-                bit.paint('green')
-              elif bit.is_blue():
-                bit.erase()
-              else:
-                bit.paint('blue')
+              while bit.front_clear():
+                  bit.move()
+                  if bit.is_red():
+                      bit.paint('green')
+                  elif bit.is_blue():
+                      bit.erase()
+                  else:
+                      bit.paint('blue')
           
           if __name__ == '__main__':
-            run(Bit.new_bit)
+              run(Bit.new_bit)
           ```
       - incorrect: | # Q2 incorrect answer 3
           ```python
@@ -135,19 +135,19 @@ questions:
           
           @Bit.worlds('rgb')
           def run(bit):
-            while bit.front_clear():
-              bit.move()
-              if bit.is_red():
-                bit.paint('green')
-              elif bit.is_green():
-                bit.paint('blue')
-              elif bit.is_blue():
-                bit.erase()
-              else:
-                bit.paint('red')
+              while bit.front_clear():
+                  bit.move()
+                  if bit.is_red():
+                      bit.paint('green')
+                  elif bit.is_green():
+                      bit.paint('blue')
+                  elif bit.is_blue():
+                      bit.erase()
+                  else:
+                      bit.paint('red')
           
           if __name__ == '__main__':
-            run(Bit.new_bit)
+              run(Bit.new_bit)
           ```
   # Q3, Blue Box:
   - type: multiple_choice # Question 3
@@ -166,11 +166,11 @@ questions:
           
           @Bit.empty_world(4, 4)
           def run(bit):
-            while not bit.is_blue():
-              while bit.front_clear():
-                bit.paint('blue')
-                bit.move()
-              bit.left()
+              while not bit.is_blue():
+                  while bit.front_clear():
+                      bit.paint('blue')
+                      bit.move()
+                  bit.left()
           
           run(Bit.new_bit)
           ```
@@ -180,14 +180,14 @@ questions:
           
           @Bit.empty_world(4, 4)
           def run(bit):
-            while not bit.front_clear():
-              while bit.front_clear():
-                bit.paint('blue')
-                bit.move()
-              bit.left()
+              while not bit.front_clear():
+                  while bit.front_clear():
+                      bit.paint('blue')
+                      bit.move()
+                  bit.left()
           
           if __name__ == '__main__':
-            run(Bit.new_bit)
+              run(Bit.new_bit)
           ```
       - incorrect: | # Q3 incorrect answer 2
           ```python
@@ -196,13 +196,13 @@ questions:
           @Bit.empty_world(4, 4)
           def run(bit):
             while not bit.is_blue():
-              while bit.front_clear():
-                bit.paint('blue')
-                bit.move()
-              bit.left()
+                while bit.front_clear():
+                    bit.paint('blue')
+                    bit.move()
+                bit.left()
           
           if __name__ == '__main__':
-            run(Bit.new_bit)
+              run(Bit.new_bit)
           ```
       - incorrect: | # Q3 incorrect answer 3
           ```python
@@ -210,14 +210,14 @@ questions:
           
           @Bit.empty_world(4, 4)
           def run(bit):
-            while not bit.is_blue():
-              while bit.front_clear():
-                bit.move()
-                bit.paint('blue')
-              bit.left()
+              while not bit.is_blue():
+                  while bit.front_clear():
+                      bit.move()
+                      bit.paint('blue')
+                  bit.left()
           
           if __name__ == '__main__':
-            run(Bit.new_bit)
+              run(Bit.new_bit)
           ```
   # Q4, Red Bars:
   - type: multiple_choice # Question 4
@@ -233,12 +233,12 @@ questions:
       - correct: |
           ```python
           def draw_bar(bit):
-            bit.left()
-            go(bit, 'red')
-            bit.right()
-            bit.right()
-            go(bit, None)
-            bit.left()
+              bit.left()
+              go(bit, 'red')
+              bit.right()
+              bit.right()
+              go(bit, None)
+              bit.left()
           ```
       - incorrect: | # Q4 incorrect answer 1
           ```python
@@ -251,23 +251,23 @@ questions:
           - incorrect: | # Q4 incorrect answer 2
             ```python
             def draw_bar(bit):
-              bit.left()
-              while bit.front_clear():
-                go(bit, None)
                 bit.left()
-                bit.left()
-                go(bit, 'red')
-                bit.left()
+                while bit.front_clear():
+                    go(bit, None)
+                    bit.left()
+                    bit.left()
+                    go(bit, 'red')
+                    bit.left()
             ```
           - incorrect: | # Q4 incorrect answer 3
             ```python
             def draw_bar(bit):
-              bit.left()
-              go(bit, None)
-              bit.right()
-              bit.right()
-              go(bit, 'red')
-              bit.left()
+                bit.left()
+                go(bit, None)
+                bit.right()
+                bit.right()
+                go(bit, 'red')
+                bit.left()
             ```
   # Q5, Mystery Functions:
   - type: multiple_choice # Question 5
@@ -311,31 +311,31 @@ questions:
       - correct: |
           ```python
           def main():
-            while True:
-              fruit = input('Give me a fruit: ')
-                  if fruit == 'apple':
-                                                                             print('I like that!')
-                                                                             break
-              elif fruit == 'durian':
-                print('No thank you!')
-              else:
-                print('Those are fine.')
-            print('Goodbye!')
+              while True:
+                  fruit = input('Give me a fruit: ')
+                      if fruit == 'apple':
+                         print('I like that!')
+                         break
+                  elif fruit == 'durian':
+                      print('No thank you!')
+                  else:
+                      print('Those are fine.')
+              print('Goodbye!')
           
           if __name__ == '__main__':
-            main()
+              main()
           ```
       - incorrect: | # Q6 incorrect answer 1
           ```python
           def main():
-            while True:
-              fruit = input('Give me a fruit: ')
+              while True:
+                  fruit = input('Give me a fruit: ')
                   if fruit == 'apple':
-                                                                             print('I like that!')
-                                                                             return
-              else:
-                print('Those are fine.')
-            print('Goodbye!')
+                     print('I like that!')
+                     return
+                  else:
+                      print('Those are fine.')
+              print('Goodbye!')
           
           if __name__ == '__main__':
             main()
@@ -343,19 +343,19 @@ questions:
       - incorrect: | # Q6 incorrect answer 2
           ```python
           def main():
-            while True:
-              fruit = input('Give me a fruit: ')
+              while True:
+                  fruit = input('Give me a fruit: ')
                   if fruit == 'apple':
-                                                                             print('I like that!')
-                                                                             break
-              elif fruit == 'banana':
-                print('Those are ok.')
-              else:
-                print('Those are fine.')
+                     print('I like that!')
+                     break
+                  elif fruit == 'banana':
+                      print('Those are ok.')
+                  else:
+                      print('Those are fine.')
             print('Goodbye!')
           
           if __name__ == '__main__':
-            main()
+              main()
           ```
       - incorrect: | # Q6 incorrect answer 3
           ```python
@@ -373,7 +373,7 @@ questions:
               print('Goodbye!')
           
           if __name__ == '__main__':
-            main()
+              main()
           ```
   # Q7, Pets:
   - type: multiple_choice # Question 7
@@ -528,27 +528,27 @@ questions:
       - correct: |
           ```python
           def keep_it(thing):
-            return thing > 7 or thing < -5
+              return thing > 7 or thing < -5
           ```
       - incorrect: | # Q9 incorrect answer 1
           ```python
           def keep_it(thing):
-            return thing > 8 and thing < -6
+              return thing > 8 and thing < -6
           ```
       - incorrect: | # Q9 incorrect answer 2
           ```python
           def keep_it(thing):
-            if thing >= 12:
-              return True
-            elif thing < 0:
-              return True
-            else:
-              return False
+              if thing >= 12:
+                  return True
+              elif thing < 0:
+                  return True
+              else:
+                  return False
           ```
       - incorrect: | # Q9 incorrect answer 3
           ```python
           def keep_it(thing):
-            return thing > -3 or thing < 9
+              return thing > -3 or thing < 9
           ```
   # Q10, List Patterns:
   - type: matching # Question 10
@@ -632,7 +632,7 @@ questions:
       - correct: |
           ```python
           for last, first, major, state in students:
-            print(f'{first} {last} -- {major} major, from {state}')
+              print(f'{first} {last} -- {major} major, from {state}')
           ```
       - incorrect: | # Q12 incorrect answer 1
           ```python
@@ -642,12 +642,12 @@ questions:
       - incorrect: | # Q12 incorrect answer 2
           ```python
           while True:
-            print(f'{first} {last} -- {major} major, from {state}')
+              print(f'{first} {last} -- {major} major, from {state}')
           ```
       - incorrect: | # Q12 incorrect answer 3
           ```python
           for students in last, first, major, state:
-            print(f'{first} {last} -- {major} major, from {state}')
+              print(f'{first} {last} -- {major} major, from {state}')
           ```
   # Q13, Return None:
   - type: multiple_answers # Question 13
@@ -693,15 +693,15 @@ questions:
           def get_toppings():
             toppings = []
             while True:
-              topping = input("Topping: ")
-                  if topping == '':
-                      break
-                  if topping == 'onions':
-                      print('Sorry we are out of onions.')
-                  else:
-                      toppings.append(topping)
+                topping = input("Topping: ")
+                    if topping == '':
+                        break
+                    if topping == 'onions':
+                        print('Sorry we are out of onions.')
+                    else:
+                        toppings.append(topping)
           
-              return toppings
+            return toppings
           ```
       - incorrect: | # Q14 incorrect answer 1
           ```python
@@ -734,12 +734,12 @@ questions:
       - incorrect: | # Q14 incorrect answer 3
           ```python
           def get_toppings():
-            while True:
-              topping = input("Topping: ")
-                if topping is None:
-                  break
-                elif topping == 'onions':
-                  print('Sorry we are out of onions.')
-                else:
-                  return topping
+              while True:
+                  topping = input("Topping: ")
+                  if topping is None:
+                      break
+                  elif topping == 'onions':
+                      print('Sorry we are out of onions.')
+                  else:
+                      return topping
           ```
