@@ -18,39 +18,39 @@
                 "question_type": "text_only_question"
             },
             {
-                "question_text": "<p>Which image will the following code produce?</p>\n<pre class=\"codehilite\"><code class=\"language-python\">from byubit import Bit\n\ndef move_paint(bit, color):\n    bit.move()\n    bit.paint(color)\n\n  @Bit.empty_world(5, 3)\n  def run(bit):\n      color = 'blue'\n      move_paint(bit, color)\n      color = 'green'\n      move_paint(bit, 'red')\n      move_paint(bit, color)\n\n  if __name__ == '__main__':\n      run(Bit.new_bit)\n</code></pre>",
+                "question_text": "<p>Which image will the following code produce?</p>\n<pre class=\"codehilite\"><code class=\"language-python\">from byubit import Bit\n\ndef move_paint(bit, color):\n    bit.move()\n    bit.paint(color)\n\n@Bit.empty_world(5, 3)\ndef run(bit):\n    color = 'blue'\n    move_paint(bit, color)\n    color = 'green'\n    move_paint(bit, 'red')\n    move_paint(bit, color)\n\nif __name__ == '__main__':\n    run(Bit.new_bit)\n</code></pre>",
                 "question_type": "multiple_choice_question",
                 "points_possible": 1,
                 "correct_comments": null,
                 "incorrect_comments": null,
                 "answers": [
                     {
-                        "answer_html": "<p><p><img alt=\"blue, red, green\" id=\"resources/q1_bit_blue_red_green_T.png\" src=\"/courses/20736/files/1e9a6232-127a-4fc0-b6a4-67356283c02c/preview\" style=\"width: 200px;\"/></p></p>",
+                        "answer_html": "<p><p><img alt=\"blue, red, green\" id=\"resources/q1_bit_blue_red_green_T.png\" src=\"/courses/20736/files/11462780209022121052/preview\" style=\"width: 200px;\"/></p></p>",
                         "answer_weight": 100
                     },
                     {
-                        "answer_html": "<p><p><img alt=\"blue, blue, blue\" id=\"resources/q1_bit_blue_blue_blue_F.png\" src=\"/courses/20736/files/833e6365-e5ee-4c47-929f-c22af1886aae/preview\" style=\"width: 200px;\"/></p></p>",
+                        "answer_html": "<p><p><img alt=\"blue, blue, blue\" id=\"resources/q1_bit_blue_blue_blue_F.png\" src=\"/courses/20736/files/44877973180647209078/preview\" style=\"width: 200px;\"/></p></p>",
                         "answer_weight": 0
                     },
                     {
-                        "answer_html": "<p><p><img alt=\"blue, green, green\" id=\"resources/q1_bit_blue_green_green_F.png\" src=\"/courses/20736/files/d71ebb57-3938-4f3a-9d3e-5ccf10bd2f6e/preview\" style=\"width: 200px;\"/></p></p>",
+                        "answer_html": "<p><p><img alt=\"blue, green, green\" id=\"resources/q1_bit_blue_green_green_F.png\" src=\"/courses/20736/files/41840023245654186422/preview\" style=\"width: 200px;\"/></p></p>",
                         "answer_weight": 0
                     },
                     {
-                        "answer_html": "<p><p><img alt=\"blue, red, red\" id=\"resources/q1_bit_blue_red_red_F.png\" src=\"/courses/20736/files/979788e5-4fd4-4fca-97c8-afcf9eb34c24/preview\" style=\"width: 200px;\"/></p></p>",
+                        "answer_html": "<p><p><img alt=\"blue, red, red\" id=\"resources/q1_bit_blue_red_red_F.png\" src=\"/courses/20736/files/42253890383365722590/preview\" style=\"width: 200px;\"/></p></p>",
                         "answer_weight": 0
                     }
                 ]
             },
             {
-                "question_text": "<p>Given the following starting world named <code style=\"color: #000000\">rgb</code>:</p>\n<p><p><img alt=\"starting world\" id=\"resources/q2_start_world.png\" src=\"/courses/20736/files/df1ed201-c60b-4a71-9c03-bdeeb130554b/preview\" style=\"width: 300px;\"/></p></p>\n<p>Which block of code will produce the following end result:</p>\n<p><p><img alt=\"ending world\" id=\"resources/q2_end_result.png\" src=\"/courses/20736/files/3d4028d6-5249-4d1c-ade0-00ea7df8b2a2/preview\" style=\"width: 300px;\"/></p></p>",
+                "question_text": "<p>Given the following starting world named <code style=\"color: #000000\">rgb</code>:</p>\n<p><p><img alt=\"starting world\" id=\"resources/q2_start_world.png\" src=\"/courses/20736/files/51528703659566156539/preview\" style=\"width: 300px;\"/></p></p>\n<p>Which block of code will produce the following end result:</p>\n<p><p><img alt=\"ending world\" id=\"resources/q2_end_result.png\" src=\"/courses/20736/files/81062429125199854244/preview\" style=\"width: 300px;\"/></p></p>",
                 "question_type": "multiple_choice_question",
                 "points_possible": 1,
                 "correct_comments": null,
                 "incorrect_comments": null,
                 "answers": [
                     {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">from byubit import Bit\n\n@Bit.worlds('rgb')\ndef run(bit):\n  while bit.front_clear():\n      bit.move()\n      if bit.is_red():\n          bit.paint('green')\n      elif bit.is_green():\n          bit.paint('blue')\n      else:\n          bit.erase()\n\nif __name__ == '__main__':\n    run(Bit.new_bit)\n</code></pre>",
+                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">from byubit import Bit\n\n@Bit.worlds('rgb')\ndef run(bit):\n    while bit.front_clear():\n        bit.move()\n        if bit.is_red():\n            bit.paint('green')\n        elif bit.is_green():\n            bit.paint('blue')\n        else:\n            bit.erase()\n\nif __name__ == '__main__':\n    run(Bit.new_bit)\n</code></pre>",
                         "answer_weight": 100
                     },
                     {
@@ -68,7 +68,7 @@
                 ]
             },
             {
-                "question_text": "<p>Starting with this world:</p>\n<p><p><img alt=\"empty world\" id=\"resources/q3_empty_world.png\" src=\"/courses/20736/files/3ebcbfdb-2e91-4011-a650-45750af52ec7/preview\" style=\"width: 200px;\"/></p></p>\n<p>Which code snippet produces this result:</p>\n<p><p><img alt=\"ending world\" id=\"resources/q3_end_result.png\" src=\"/courses/20736/files/33d7c5e3-6265-4d43-95f7-b44d59107a4c/preview\" style=\"width: 200px;\"/></p></p>",
+                "question_text": "<p>Starting with this world:</p>\n<p><p><img alt=\"empty world\" id=\"resources/q3_empty_world.png\" src=\"/courses/20736/files/36399828276203806010/preview\" style=\"width: 200px;\"/></p></p>\n<p>Which code snippet produces this result:</p>\n<p><p><img alt=\"ending world\" id=\"resources/q3_end_result.png\" src=\"/courses/20736/files/59838485916761717045/preview\" style=\"width: 200px;\"/></p></p>",
                 "question_type": "multiple_choice_question",
                 "points_possible": 1,
                 "correct_comments": null,
@@ -87,13 +87,13 @@
                         "answer_weight": 0
                     },
                     {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">from byubit import Bit\n\n@Bit.empty_world(4, 4)\ndef run(bit):\n  while not bit.is_blue():\n      while bit.front_clear():\n          bit.paint('blue')\n          bit.move()\n      bit.left()\n\nif __name__ == '__main__':\n    run(Bit.new_bit)\n</code></pre>",
+                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">from byubit import Bit\n\n@Bit.empty_world(4, 4)\ndef run(bit):\n    while not bit.is_blue():\n        bit.move()\n        bit.paint('blue')\n        if not bit.front_clear():\n            bit.left()\n\nif __name__ == '__main__':\n    run(Bit.new_bit)\n</code></pre>",
                         "answer_weight": 0
                     }
                 ]
             },
             {
-                "question_text": "<p>Bit starts in the following world <code style=\"color: #000000\">red_bars</code>:</p>\n<p><p><img alt=\"starting world\" id=\"resources/q4_start_world.png\" src=\"/courses/20736/files/519b1554-f131-4b64-b377-1cfc9e7496c4/preview\" style=\"width: 250px;\"/></p></p>\n<p>Which of the following implementations of <code style=\"color: #000000\">draw_bar</code> will produce the following result?</p>\n<p><p><img alt=\"ending world\" id=\"resources/q4_end_result.png\" src=\"/courses/20736/files/132f32a6-a481-4d76-b0c7-dd70dfb3bfc6/preview\" style=\"width: 250px;\"/></p></p>",
+                "question_text": "<p>Bit starts in the following world <code style=\"color: #000000\">red_bars</code>:</p>\n<p><p><img alt=\"starting world\" id=\"resources/q4_start_world.png\" src=\"/courses/20736/files/58629647584395046343/preview\" style=\"width: 250px;\"/></p></p>\n<p>Which of the following implementations of <code style=\"color: #000000\">draw_bar</code> will produce the following result?</p>\n<p><p><img alt=\"ending world\" id=\"resources/q4_end_result.png\" src=\"/courses/20736/files/14987915108209766451/preview\" style=\"width: 250px;\"/></p></p>\n<pre class=\"codehilite\"><code class=\"language-python\">from byubit import Bit\n\ndef go(bit, color):\n    while bit.front_clear():\n        bit.move()\n        if color is not None:\n            bit.paint(color)\n\ndef draw_bar(bit):\n    pass\n\n@Bit.worlds('red_bars')\ndef run(bit):\n    while bit.front_clear():\n        bit.move()\n        if bit.is_red():\n            draw_bar(bit)\n\nif __name__ == '__main__':\n    run(Bit.new_bit)\n</code></pre>",
                 "question_type": "multiple_choice_question",
                 "points_possible": 1,
                 "correct_comments": null,
@@ -104,7 +104,7 @@
                         "answer_weight": 100
                     },
                     {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">def draw_bar(bit):\ngo(bit, 'red')\nbit.left()\nbit.left()\ngo(bit, 'red')\n</code></pre>",
+                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">def draw_bar(bit):\n    go(bit, 'red')\n    bit.left()\n    bit.left()\n    go(bit, 'red')\n</code></pre>",
                         "answer_weight": 0
                     },
                     {
@@ -118,7 +118,7 @@
                 ]
             },
             {
-                "question_text": "<p>What does the following code print?</p>\n<pre class=\"codehilite\"><code class=\"language-python\">  def function1(a):\n      return a + 2\n\n\n  def function2(a):\n      return function1(a) - 5\n\n\n  def main():\n      result = function2(3)\n      print(result)\n\n  if __name__ == '__main__':\n      main()\n</code></pre>",
+                "question_text": "<p>What does the following code print?</p>\n<pre class=\"codehilite\"><code class=\"language-python\">def function1(a):\n    return a + 2\n\n\ndef function2(a):\n    return function1(a) - 5\n\n\ndef main():\n    result = function2(3)\n    print(result)\n\nif __name__ == '__main__':\n    main()\n</code></pre>",
                 "question_type": "multiple_choice_question",
                 "points_possible": 1,
                 "correct_comments": null,
@@ -143,26 +143,26 @@
                 ]
             },
             {
-                "question_text": "<p>Which block of code could produce the following dialog:</p>\n<p><code style=\"color: #000000\">text\n  Give me a fruit: pear\n      Those are fine.\n  Give me a fruit: banana\n      Those are fine.\n  Give me a fruit: apple\n      I like that!\n      Goodbye!</code></p>",
+                "question_text": "<p>Which block of code could produce the following dialog:</p>\n<pre class=\"codehilite\"><code class=\"language-text\">Give me a fruit: pear\nThose are fine.\nGive me a fruit: banana\nThose are fine.\nGive me a fruit: apple\nI like that!\nGoodbye!\n</code></pre>",
                 "question_type": "multiple_choice_question",
                 "points_possible": 1,
                 "correct_comments": null,
                 "incorrect_comments": null,
                 "answers": [
                     {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">def main():\n    while True:\n        fruit = input('Give me a fruit: ')\n            if fruit == 'apple':\n               print('I like that!')\n               break\n        elif fruit == 'durian':\n            print('No thank you!')\n        else:\n            print('Those are fine.')\n    print('Goodbye!')\n\nif __name__ == '__main__':\n    main()\n</code></pre>",
+                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">def main():\n    while True:\n        fruit = input('Give me a fruit: ')\n        if fruit == 'apple':\n            print('I like that!')\n            break\n        elif fruit == 'durian':\n            print('No thank you!')\n        else:\n            print('Those are fine.')\n    print('Goodbye!')\n\nif __name__ == '__main__':\n    main()\n</code></pre>",
                         "answer_weight": 100
                     },
                     {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">def main():\n    while True:\n        fruit = input('Give me a fruit: ')\n        if fruit == 'apple':\n           print('I like that!')\n           return\n        else:\n            print('Those are fine.')\n    print('Goodbye!')\n\nif __name__ == '__main__':\n  main()\n</code></pre>",
+                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">def main():\n    while True:\n        fruit = input('Give me a fruit: ')\n        if fruit == 'apple':\n            print('I like that!')\n            return\n        else:\n            print('Those are fine.')\n    print('Goodbye!')\n\nif __name__ == '__main__':\n    main()\n</code></pre>",
                         "answer_weight": 0
                     },
                     {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">def main():\n    while True:\n        fruit = input('Give me a fruit: ')\n        if fruit == 'apple':\n           print('I like that!')\n           break\n        elif fruit == 'banana':\n            print('Those are ok.')\n        else:\n            print('Those are fine.')\n  print('Goodbye!')\n\nif __name__ == '__main__':\n    main()\n</code></pre>",
+                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">def main():\n    while True:\n        fruit = input('Give me a fruit: ')\n        if fruit == 'apple':\n            print('I like that!')\n            break\n        elif fruit == 'banana':\n            print('Those are ok.')\n        else:\n            print('Those are fine.')\n    print('Goodbye!')\n\nif __name__ == '__main__':\n    main()\n</code></pre>",
                         "answer_weight": 0
                     },
                     {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">def main():\n    while True:\n        fruit = input('Give me a fruit: ')\n            if fruit == 'pear':\n               print('Those are fine.')\n               break\n        elif fruit == 'banana':\n            print('Those are fine.')\n            break\n        else:\n            print('I like that!')\n    print('Goodbye!')\n\nif __name__ == '__main__':\n    main()\n</code></pre>",
+                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">def main():\n    while True:\n        fruit = input('Give me a fruit: ')\n        if fruit == 'pear':\n            print('Those are fine.')\n            break\n        elif fruit == 'banana':\n            print('Those are fine.')\n            break\n        else:\n            print('I like that!')\n    print('Goodbye!')\n\nif __name__ == '__main__':\n    main()\n</code></pre>",
                         "answer_weight": 0
                     }
                 ]
@@ -175,19 +175,19 @@
                 "incorrect_comments": null,
                 "answers": [
                     {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-text\">What pet do you want? gerbil\nWhat pet do you want? dinosaur\nI want one too!\nWhat pet do you want? dinosaur\nI want one too!\nWhat pet do you want? fish\nWhat pet do you want?\nYou want 3 pets.\n</code></pre>",
+                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-text\">What pet do you want? gerbil\nWhat pet do you want? dinosaur\nI want one too!\nWhat pet do you want? dinosaur\nI want one too!\nWhat pet do you want? fish\nWhat pet do you want? \nYou want 3 pets.\n</code></pre>",
                         "answer_weight": 100
                     },
                     {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-text\">What pet do you want? dog\nWhat pet do you want? cat\nWhat pet do you want? bird\nWhat pet do you want? horse\nWhat pet do you want?\nYou want 4 pets.\nThat's too many!\n</code></pre>",
+                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-text\">What pet do you want? dog\nWhat pet do you want? cat\nWhat pet do you want? bird\nWhat pet do you want? horse\nWhat pet do you want? \nYou want 4 pets.\nThat's too many!\n</code></pre>",
                         "answer_weight": 0
                     },
                     {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-text\">What pet do you want?\nYou want 0 pets.\n</code></pre>",
+                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-text\">What pet do you want? \nYou want 0 pets.\n</code></pre>",
                         "answer_weight": 0
                     },
                     {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-text\">What pet do you want? dog\nWhat pet do you want? dinosaur\nI want one too!\nWhat pet do you want? fish\nWhat pet do you want?\nYou want 3 pets.\n</code></pre>",
+                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-text\">What pet do you want? dog\nWhat pet do you want? dinosaur\nI want one too!\nWhat pet do you want? fish\nWhat pet do you want? \nYou want 3 pets.\n</code></pre>",
                         "answer_weight": 0
                     }
                 ]
@@ -250,20 +250,24 @@
                 "incorrect_comments": null,
                 "answers": [
                     {
-                        "left": "<p>You want to add an exclamation point to each word in a list.</p>",
-                        "right": "<p>Mapping pattern</p>"
+                        "answer_match_left": "You want to add an exclamation point to each word in a list.",
+                        "answer_match_right": "Mapping pattern",
+                        "answer_weight": 100
                     },
                     {
-                        "left": "<p>Eligibility is defined by highest grade, then by earliest application. You want to find the most eligible applicant.</p>",
-                        "right": "<p>Selection pattern</p>"
+                        "answer_match_left": "Eligibility is defined by highest grade, then by earliest application. You want to find the most eligible applicant.",
+                        "answer_match_right": "Selection pattern",
+                        "answer_weight": 100
                     },
                     {
-                        "left": "<p>A purchase record has information about the number of items, date, and total purchase price. You want to find the total spent across a batch of purchases.</p>",
-                        "right": "<p>Accumulator pattern</p>"
+                        "answer_match_left": "A purchase record has information about the number of items, date, and total purchase price. You want to find the total spent across a batch of purchases.",
+                        "answer_match_right": "Accumulator pattern",
+                        "answer_weight": 100
                     },
                     {
-                        "left": "<p>You have a list of speech transcripts. You want only the speeches that mention prayer.</p>",
-                        "right": "<p>Filter pattern</p>"
+                        "answer_match_left": "You have a list of speech transcripts. You want only the speeches that mention prayer.",
+                        "answer_match_right": "Filter pattern",
+                        "answer_weight": 100
                     }
                 ],
                 "matching_answer_incorrect_matches": null
@@ -276,26 +280,30 @@
                 "incorrect_comments": null,
                 "answers": [
                     {
-                        "left": "<p>Code Block A</p>",
-                        "right": "<p>Selection pattern</p>"
+                        "answer_match_left": "Code Block A",
+                        "answer_match_right": "Selection pattern",
+                        "answer_weight": 100
                     },
                     {
-                        "left": "<p>Code Block B</p>",
-                        "right": "<p>Mapping pattern</p>"
+                        "answer_match_left": "Code Block B",
+                        "answer_match_right": "Mapping pattern",
+                        "answer_weight": 100
                     },
                     {
-                        "left": "<p>Code Block C</p>",
-                        "right": "<p>Filter pattern</p>"
+                        "answer_match_left": "Code Block C",
+                        "answer_match_right": "Filter pattern",
+                        "answer_weight": 100
                     },
                     {
-                        "left": "<p>Code Block D</p>",
-                        "right": "<p>Accumulator pattern</p>"
+                        "answer_match_left": "Code Block D",
+                        "answer_match_right": "Accumulator pattern",
+                        "answer_weight": 100
                     }
                 ],
                 "matching_answer_incorrect_matches": null
             },
             {
-                "question_text": "<p>Consider the following code:</p>\n<pre class=\"codehilite\"><code class=\"language-python\">students = [\n('Wright', 'John', 'economics', 'Oregon'),\n('Sanchez-Moreno', 'Rosamaria', 'computer science', 'Florida')\n]\n</code></pre>\n<p>Which code will loop through a list of student tuples and unpack them into variables?</p>",
+                "question_text": "<p>Consider the following code:</p>\n<pre class=\"codehilite\"><code class=\"language-python\">students = [\n    ('Wright', 'John', 'economics', 'Oregon'),\n    ('Sanchez-Moreno', 'Rosamaria', 'computer science', 'Florida')\n]\n</code></pre>\n<p>Which code will loop through a list of student tuples and unpack them into variables?</p>",
                 "question_type": "multiple_choice_question",
                 "points_possible": 1,
                 "correct_comments": null,
@@ -327,11 +335,11 @@
                 "incorrect_comments": null,
                 "answers": [
                     {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-text\">First name: Adam\nLast name:\nAge: 4\n</code></pre>",
+                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-text\">First name: Adam\nLast name: \nAge: 4\n</code></pre>",
                         "answer_weight": 100
                     },
                     {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-text\">First name:\nLast name: de Souza\nAge: 5\n</code></pre>",
+                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-text\">First name: \nLast name: de Souza\nAge: 5\n</code></pre>",
                         "answer_weight": 100
                     },
                     {
@@ -373,43 +381,43 @@
         "quiz_type": "assignment",
         "resources": [
             [
-                "1e9a6232-127a-4fc0-b6a4-67356283c02c",
+                "11462780209022121052",
                 "../demo_course/private-files/resources/q1_bit_blue_red_green_T.png"
             ],
             [
-                "833e6365-e5ee-4c47-929f-c22af1886aae",
+                "44877973180647209078",
                 "../demo_course/private-files/resources/q1_bit_blue_blue_blue_F.png"
             ],
             [
-                "d71ebb57-3938-4f3a-9d3e-5ccf10bd2f6e",
+                "41840023245654186422",
                 "../demo_course/private-files/resources/q1_bit_blue_green_green_F.png"
             ],
             [
-                "979788e5-4fd4-4fca-97c8-afcf9eb34c24",
+                "42253890383365722590",
                 "../demo_course/private-files/resources/q1_bit_blue_red_red_F.png"
             ],
             [
-                "df1ed201-c60b-4a71-9c03-bdeeb130554b",
+                "51528703659566156539",
                 "../demo_course/private-files/resources/q2_start_world.png"
             ],
             [
-                "3d4028d6-5249-4d1c-ade0-00ea7df8b2a2",
+                "81062429125199854244",
                 "../demo_course/private-files/resources/q2_end_result.png"
             ],
             [
-                "3ebcbfdb-2e91-4011-a650-45750af52ec7",
+                "36399828276203806010",
                 "../demo_course/private-files/resources/q3_empty_world.png"
             ],
             [
-                "33d7c5e3-6265-4d43-95f7-b44d59107a4c",
+                "59838485916761717045",
                 "../demo_course/private-files/resources/q3_end_result.png"
             ],
             [
-                "519b1554-f131-4b64-b377-1cfc9e7496c4",
+                "58629647584395046343",
                 "../demo_course/private-files/resources/q4_start_world.png"
             ],
             [
-                "132f32a6-a481-4d76-b0c7-dd70dfb3bfc6",
+                "14987915108209766451",
                 "../demo_course/private-files/resources/q4_end_result.png"
             ]
         ],

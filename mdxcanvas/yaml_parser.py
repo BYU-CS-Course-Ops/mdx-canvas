@@ -130,13 +130,10 @@ class MatchingQuestionWalker:
         answers = []
         for pair in question["answers"]:
             left, right = pair["left"], pair["right"]
-            left_text, left_res = self.markdown_processor(left)
-            right_text, right_res = self.markdown_processor(right)
-            resources.extend(left_res)
-            resources.extend(right_res)
             answers.append({
-                "left": left_text,
-                "right": right_text
+                "answer_match_left": left,
+                "answer_match_right": right,
+                "answer_weight": 100
             })
         
         distractor_text = question.get("distractors", None)
