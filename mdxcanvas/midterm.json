@@ -25,25 +25,25 @@
                 "incorrect_comments": null,
                 "answers": [
                     {
-                        "answer_html": "<p><p><img alt=\"blue, red, green\" id=\"resources/q1_bit_blue_red_green_T.png\" src=\"/courses/20736/files/13b7bd45-0565-49f1-8405-1b534de19d97/preview\" style=\"width: 200px;\"/></p></p>",
+                        "answer_html": "<p><p><img alt=\"blue, red, green\" id=\"resources/q1_bit_blue_red_green_T.png\" src=\"/courses/20736/files/f472bae9-8c78-4df6-9f78-e72fcf28a13d/preview\" style=\"width: 200px;\"/></p></p>",
                         "answer_weight": 100
                     },
                     {
-                        "answer_html": "<p><p><img alt=\"blue, blue, blue\" id=\"resources/q1_bit_blue_blue_blue_F.png\" src=\"/courses/20736/files/a87d1b1a-c51d-4716-a127-50f20e75af6d/preview\" style=\"width: 200px;\"/></p></p>",
+                        "answer_html": "<p><p><img alt=\"blue, blue, blue\" id=\"resources/q1_bit_blue_blue_blue_F.png\" src=\"/courses/20736/files/35f2c218-5418-4f7a-a16e-0d8c0168ad42/preview\" style=\"width: 200px;\"/></p></p>",
                         "answer_weight": 0
                     },
                     {
-                        "answer_html": "<p><p><img alt=\"blue, green, green\" id=\"resources/q1_bit_blue_green_green_F.png\" src=\"/courses/20736/files/3e5230e2-2080-4d73-ba93-92d131c00bf6/preview\" style=\"width: 200px;\"/></p></p>",
+                        "answer_html": "<p><p><img alt=\"blue, green, green\" id=\"resources/q1_bit_blue_green_green_F.png\" src=\"/courses/20736/files/bd987188-da35-467f-a75e-66b90dfbc4b8/preview\" style=\"width: 200px;\"/></p></p>",
                         "answer_weight": 0
                     },
                     {
-                        "answer_html": "<p><p><img alt=\"blue, red, red\" id=\"resources/q1_bit_blue_red_red_F.png\" src=\"/courses/20736/files/f1e522e6-3491-4721-b8bc-74b1cdf1ef93/preview\" style=\"width: 200px;\"/></p></p>",
+                        "answer_html": "<p><p><img alt=\"blue, red, red\" id=\"resources/q1_bit_blue_red_red_F.png\" src=\"/courses/20736/files/5d1aa9ea-7ac6-4943-b73d-95720f597521/preview\" style=\"width: 200px;\"/></p></p>",
                         "answer_weight": 0
                     }
                 ]
             },
             {
-                "question_text": "<p>Given the following starting world named <code style=\"color: #000000\">rgb</code>:</p>\n<p><p><img alt=\"starting world\" id=\"resources/q2_start_world.png\" src=\"/courses/20736/files/e0a72cc9-3bff-4f79-927d-92b865398738/preview\" style=\"width: 300px;\"/></p></p>\n<p>Which block of code will produce the following end result:</p>\n<p><p><img alt=\"ending world\" id=\"resources/q2_end_result.png\" src=\"/courses/20736/files/eab0b3cb-021e-4677-aad1-0f944254b4ae/preview\" style=\"width: 300px;\"/></p></p>",
+                "question_text": "<p>Given the following starting world named <code style=\"color: #000000\">rgb</code>:</p>\n<p><p><img alt=\"starting world\" id=\"resources/q2_start_world.png\" src=\"/courses/20736/files/5589243e-edb5-4829-a47f-4adfd41ac6ee/preview\" style=\"width: 300px;\"/></p></p>\n<p>Which block of code will produce the following end result:</p>\n<p><p><img alt=\"ending world\" id=\"resources/q2_end_result.png\" src=\"/courses/20736/files/5532e602-d251-44bf-a07e-e279a69b153e/preview\" style=\"width: 300px;\"/></p></p>",
                 "question_type": "multiple_choice_question",
                 "points_possible": 1,
                 "correct_comments": null,
@@ -68,7 +68,7 @@
                 ]
             },
             {
-                "question_text": "<p>Starting with this world:</p>\n<p><p><img alt=\"empty world\" id=\"resources/q3_empty_world.png\" src=\"/courses/20736/files/f21185c2-a8d8-4d38-a35c-894ef77c02d6/preview\" style=\"width: 200px;\"/></p></p>\n<p>Which code snippet produces this result:</p>\n<p><p><img alt=\"ending world\" id=\"resources/q3_end_result.png\" src=\"/courses/20736/files/f3885338-f096-45bd-ac6a-d6314d565065/preview\" style=\"width: 200px;\"/></p></p>",
+                "question_text": "<p>Starting with this world:</p>\n<p><p><img alt=\"empty world\" id=\"resources/q3_empty_world.png\" src=\"/courses/20736/files/875db63b-c501-49f3-9cca-d5bcffe0b585/preview\" style=\"width: 200px;\"/></p></p>\n<p>Which code snippet produces this result:</p>\n<p><p><img alt=\"ending world\" id=\"resources/q3_end_result.png\" src=\"/courses/20736/files/b9695c4e-679b-4b32-a2be-76217ffa729f/preview\" style=\"width: 200px;\"/></p></p>",
                 "question_type": "multiple_choice_question",
                 "points_possible": 1,
                 "correct_comments": null,
@@ -93,7 +93,7 @@
                 ]
             },
             {
-                "question_text": "<p>Bit starts in the following world <code style=\"color: #000000\">red_bars</code>:</p>\n<p><p><img alt=\"starting world\" id=\"resources/q4_start_world.png\" src=\"/courses/20736/files/2643aa26-23ba-4297-be59-48b3dd7f2ffb/preview\" style=\"width: 250px;\"/></p></p>\n<p>Which of the following implementations of <code style=\"color: #000000\">draw_bar</code> will produce the following result?</p>\n<p><p><img alt=\"ending world\" id=\"resources/q4_end_result.png\" src=\"/courses/20736/files/0bcaf187-a89a-49c8-bcd2-088db694c89a/preview\" style=\"width: 250px;\"/></p></p>\n<pre class=\"codehilite\"><code class=\"language-python\">from byubit import Bit\n\ndef go(bit, color):\n    while bit.front_clear():\n        bit.move()\n        if color is not None:\n            bit.paint(color)\n\ndef draw_bar(bit):\n    pass\n\n@Bit.worlds('red_bars')\ndef run(bit):\n    while bit.front_clear():\n        bit.move()\n        if bit.is_red():\n            draw_bar(bit)\n\nif __name__ == '__main__':\n    run(Bit.new_bit)\n</code></pre>",
+                "question_text": "<p>Bit starts in the following world <code style=\"color: #000000\">red_bars</code>:</p>\n<p><p><img alt=\"starting world\" id=\"resources/q4_start_world.png\" src=\"/courses/20736/files/c7199be0-6e1b-4ac4-8f62-e429443447e5/preview\" style=\"width: 250px;\"/></p></p>\n<p>Which of the following implementations of <code style=\"color: #000000\">draw_bar</code> will produce the following result?</p>\n<p><p><img alt=\"ending world\" id=\"resources/q4_end_result.png\" src=\"/courses/20736/files/e3ba9649-65c8-4eab-8b41-36ecad1694e1/preview\" style=\"width: 250px;\"/></p></p>\n<pre class=\"codehilite\"><code class=\"language-python\">from byubit import Bit\n\ndef go(bit, color):\n    while bit.front_clear():\n        bit.move()\n        if color is not None:\n            bit.paint(color)\n\ndef draw_bar(bit):\n    pass\n\n@Bit.worlds('red_bars')\ndef run(bit):\n    while bit.front_clear():\n        bit.move()\n        if bit.is_red():\n            draw_bar(bit)\n\nif __name__ == '__main__':\n    run(Bit.new_bit)\n</code></pre>",
                 "question_type": "multiple_choice_question",
                 "points_possible": 1,
                 "correct_comments": null,
@@ -382,43 +382,43 @@
         "replacements": [],
         "resources": [
             [
-                "13b7bd45-0565-49f1-8405-1b534de19d97",
+                "f472bae9-8c78-4df6-9f78-e72fcf28a13d",
                 "../demo_course/private-files/resources/q1_bit_blue_red_green_T.png"
             ],
             [
-                "a87d1b1a-c51d-4716-a127-50f20e75af6d",
+                "35f2c218-5418-4f7a-a16e-0d8c0168ad42",
                 "../demo_course/private-files/resources/q1_bit_blue_blue_blue_F.png"
             ],
             [
-                "3e5230e2-2080-4d73-ba93-92d131c00bf6",
+                "bd987188-da35-467f-a75e-66b90dfbc4b8",
                 "../demo_course/private-files/resources/q1_bit_blue_green_green_F.png"
             ],
             [
-                "f1e522e6-3491-4721-b8bc-74b1cdf1ef93",
+                "5d1aa9ea-7ac6-4943-b73d-95720f597521",
                 "../demo_course/private-files/resources/q1_bit_blue_red_red_F.png"
             ],
             [
-                "e0a72cc9-3bff-4f79-927d-92b865398738",
+                "5589243e-edb5-4829-a47f-4adfd41ac6ee",
                 "../demo_course/private-files/resources/q2_start_world.png"
             ],
             [
-                "eab0b3cb-021e-4677-aad1-0f944254b4ae",
+                "5532e602-d251-44bf-a07e-e279a69b153e",
                 "../demo_course/private-files/resources/q2_end_result.png"
             ],
             [
-                "f21185c2-a8d8-4d38-a35c-894ef77c02d6",
+                "875db63b-c501-49f3-9cca-d5bcffe0b585",
                 "../demo_course/private-files/resources/q3_empty_world.png"
             ],
             [
-                "f3885338-f096-45bd-ac6a-d6314d565065",
+                "b9695c4e-679b-4b32-a2be-76217ffa729f",
                 "../demo_course/private-files/resources/q3_end_result.png"
             ],
             [
-                "2643aa26-23ba-4297-be59-48b3dd7f2ffb",
+                "c7199be0-6e1b-4ac4-8f62-e429443447e5",
                 "../demo_course/private-files/resources/q4_start_world.png"
             ],
             [
-                "0bcaf187-a89a-49c8-bcd2-088db694c89a",
+                "e3ba9649-65c8-4eab-8b41-36ecad1694e1",
                 "../demo_course/private-files/resources/q4_end_result.png"
             ]
         ],

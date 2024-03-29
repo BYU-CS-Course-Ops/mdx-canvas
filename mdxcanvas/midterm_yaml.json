@@ -25,32 +25,32 @@
                 "incorrect_comments": null,
                 "answers": [
                     {
-                        "answer_html": "<p><p><img alt=\"blue, red, green\" id=\"resources/q1_bit_blue_red_green_T.png\" src=\"/courses/20736/files/ba777c91-a407-4558-bfd8-047dd50459bd/preview\" style=\"width: 200px;\"/></p></p>",
+                        "answer_html": "<p><p><img alt=\"blue, red, green\" id=\"resources/q1_bit_blue_red_green_T.png\" src=\"/courses/20736/files/1e9a6232-127a-4fc0-b6a4-67356283c02c/preview\" style=\"width: 200px;\"/></p></p>",
                         "answer_weight": 100
                     },
                     {
-                        "answer_html": "<p><p><img alt=\"blue, blue, blue\" id=\"resources/q1_bit_blue_blue_blue_F.png\" src=\"/courses/20736/files/3809023a-df3f-4130-ab12-6376b352afda/preview\" style=\"width: 200px;\"/></p></p>",
+                        "answer_html": "<p><p><img alt=\"blue, blue, blue\" id=\"resources/q1_bit_blue_blue_blue_F.png\" src=\"/courses/20736/files/833e6365-e5ee-4c47-929f-c22af1886aae/preview\" style=\"width: 200px;\"/></p></p>",
                         "answer_weight": 0
                     },
                     {
-                        "answer_html": "<p><p><img alt=\"blue, green, green\" id=\"resources/q1_bit_blue_green_green_F.png\" src=\"/courses/20736/files/71edae38-5f23-4889-bd01-119e087128a3/preview\" style=\"width: 200px;\"/></p></p>",
+                        "answer_html": "<p><p><img alt=\"blue, green, green\" id=\"resources/q1_bit_blue_green_green_F.png\" src=\"/courses/20736/files/d71ebb57-3938-4f3a-9d3e-5ccf10bd2f6e/preview\" style=\"width: 200px;\"/></p></p>",
                         "answer_weight": 0
                     },
                     {
-                        "answer_html": "<p><p><img alt=\"blue, red, red\" id=\"resources/q1_bit_blue_red_red_F.png\" src=\"/courses/20736/files/d0da72f3-72f3-400d-b4f0-f674e69227de/preview\" style=\"width: 200px;\"/></p></p>",
+                        "answer_html": "<p><p><img alt=\"blue, red, red\" id=\"resources/q1_bit_blue_red_red_F.png\" src=\"/courses/20736/files/979788e5-4fd4-4fca-97c8-afcf9eb34c24/preview\" style=\"width: 200px;\"/></p></p>",
                         "answer_weight": 0
                     }
                 ]
             },
             {
-                "question_text": "<p>Given the following starting world named <code style=\"color: #000000\">rgb</code>:</p>\n<p><p><img alt=\"starting world\" id=\"resources/q2_start_world.png\" src=\"/courses/20736/files/161b2266-d1a3-47be-8e02-8109b58423ff/preview\" style=\"width: 300px;\"/></p></p>\n<p>Which block of code will produce the following end result:</p>\n<p><p><img alt=\"ending world\" id=\"resources/q2_end_result.png\" src=\"/courses/20736/files/91651fbb-58ef-4d6c-89aa-679c1a58377a/preview\" style=\"width: 300px;\"/></p></p>",
+                "question_text": "<p>Given the following starting world named <code style=\"color: #000000\">rgb</code>:</p>\n<p><p><img alt=\"starting world\" id=\"resources/q2_start_world.png\" src=\"/courses/20736/files/df1ed201-c60b-4a71-9c03-bdeeb130554b/preview\" style=\"width: 300px;\"/></p></p>\n<p>Which block of code will produce the following end result:</p>\n<p><p><img alt=\"ending world\" id=\"resources/q2_end_result.png\" src=\"/courses/20736/files/3d4028d6-5249-4d1c-ade0-00ea7df8b2a2/preview\" style=\"width: 300px;\"/></p></p>",
                 "question_type": "multiple_choice_question",
                 "points_possible": 1,
                 "correct_comments": null,
                 "incorrect_comments": null,
                 "answers": [
                     {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">from byubit import Bit\n\n@Bit.worlds('rgb')\ndef run(bit):\n  while bit.front_clear():\n    bit.move()\n    if bit.is_red():\n      bit.paint('green')\n    elif bit.is_green():\n      bit.paint('blue')\n    else:\n      bit.erase()\n\nif __name__ == '__main__':\n  run(Bit.new_bit)\n</code></pre>",
+                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">from byubit import Bit\n\n@Bit.worlds('rgb')\ndef run(bit):\n  while bit.front_clear():\n      bit.move()\n      if bit.is_red():\n          bit.paint('green')\n      elif bit.is_green():\n          bit.paint('blue')\n      else:\n          bit.erase()\n\nif __name__ == '__main__':\n    run(Bit.new_bit)\n</code></pre>",
                         "answer_weight": 100
                     },
                     {
@@ -58,59 +58,67 @@
                         "answer_weight": 0
                     },
                     {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">from byubit import Bit\n\n@Bit.worlds('rgb')\ndef run(bit):\n  while bit.front_clear():\n    bit.move()\n    if bit.is_red():\n      bit.paint('green')\n    elif bit.is_blue():\n      bit.erase()\n    else:\n      bit.paint('blue')\n\nif __name__ == '__main__':\n  run(Bit.new_bit)\n</code></pre>",
+                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">from byubit import Bit\n\n@Bit.worlds('rgb')\ndef run(bit):\n    while bit.front_clear():\n        bit.move()\n        if bit.is_red():\n            bit.paint('green')\n        elif bit.is_blue():\n            bit.erase()\n        else:\n            bit.paint('blue')\n\nif __name__ == '__main__':\n    run(Bit.new_bit)\n</code></pre>",
                         "answer_weight": 0
                     },
                     {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">from byubit import Bit\n\n@Bit.worlds('rgb')\ndef run(bit):\n  while bit.front_clear():\n    bit.move()\n    if bit.is_red():\n      bit.paint('green')\n    elif bit.is_green():\n      bit.paint('blue')\n    elif bit.is_blue():\n      bit.erase()\n    else:\n      bit.paint('red')\n\nif __name__ == '__main__':\n  run(Bit.new_bit)\n</code></pre>",
+                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">from byubit import Bit\n\n@Bit.worlds('rgb')\ndef run(bit):\n    while bit.front_clear():\n        bit.move()\n        if bit.is_red():\n            bit.paint('green')\n        elif bit.is_green():\n            bit.paint('blue')\n        elif bit.is_blue():\n            bit.erase()\n        else:\n            bit.paint('red')\n\nif __name__ == '__main__':\n    run(Bit.new_bit)\n</code></pre>",
                         "answer_weight": 0
                     }
                 ]
             },
             {
-                "question_text": "<p>Starting with this world:</p>\n<p><p><img alt=\"empty world\" id=\"resources/q3_empty_world.png\" src=\"/courses/20736/files/0721abe1-7b1d-4e74-8c29-c129c30bba5f/preview\" style=\"width: 200px;\"/></p></p>\n<p>Which code snippet produces this result:</p>\n<p><p><img alt=\"ending world\" id=\"resources/q3_end_result.png\" src=\"/courses/20736/files/47af53fc-651c-49e9-b0e4-cb019153a463/preview\" style=\"width: 200px;\"/></p></p>",
+                "question_text": "<p>Starting with this world:</p>\n<p><p><img alt=\"empty world\" id=\"resources/q3_empty_world.png\" src=\"/courses/20736/files/3ebcbfdb-2e91-4011-a650-45750af52ec7/preview\" style=\"width: 200px;\"/></p></p>\n<p>Which code snippet produces this result:</p>\n<p><p><img alt=\"ending world\" id=\"resources/q3_end_result.png\" src=\"/courses/20736/files/33d7c5e3-6265-4d43-95f7-b44d59107a4c/preview\" style=\"width: 200px;\"/></p></p>",
                 "question_type": "multiple_choice_question",
                 "points_possible": 1,
                 "correct_comments": null,
                 "incorrect_comments": null,
                 "answers": [
                     {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">from byubit import Bit\n\n@Bit.empty_world(4, 4)\ndef run(bit):\n  while not bit.is_blue():\n    while bit.front_clear():\n      bit.paint('blue')\n      bit.move()\n    bit.left()\n\nrun(Bit.new_bit)\n</code></pre>",
+                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">from byubit import Bit\n\n@Bit.empty_world(4, 4)\ndef run(bit):\n    while not bit.is_blue():\n        while bit.front_clear():\n            bit.paint('blue')\n            bit.move()\n        bit.left()\n\nrun(Bit.new_bit)\n</code></pre>",
                         "answer_weight": 100
                     },
                     {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">from byubit import Bit\n\n@Bit.empty_world(4, 4)\ndef run(bit):\n  while not bit.front_clear():\n    while bit.front_clear():\n      bit.paint('blue')\n      bit.move()\n    bit.left()\n\nif __name__ == '__main__':\n  run(Bit.new_bit)\n</code></pre>",
+                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">from byubit import Bit\n\n@Bit.empty_world(4, 4)\ndef run(bit):\n    while not bit.front_clear():\n        while bit.front_clear():\n            bit.paint('blue')\n            bit.move()\n        bit.left()\n\nif __name__ == '__main__':\n    run(Bit.new_bit)\n</code></pre>",
                         "answer_weight": 0
                     },
                     {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">from byubit import Bit\n\n@Bit.empty_world(4, 4)\ndef run(bit):\n  while not bit.is_blue():\n    while bit.front_clear():\n      bit.paint('blue')\n      bit.move()\n    bit.left()\n\nif __name__ == '__main__':\n  run(Bit.new_bit)\n</code></pre>",
+                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">from byubit import Bit\n\n@Bit.empty_world(4, 4)\ndef run(bit):\n    while not bit.is_blue():\n        while bit.front_clear():\n            bit.move()\n            bit.paint('blue')\n        bit.left()\n\nif __name__ == '__main__':\n    run(Bit.new_bit)\n</code></pre>",
                         "answer_weight": 0
                     },
                     {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">from byubit import Bit\n\n@Bit.empty_world(4, 4)\ndef run(bit):\n  while not bit.is_blue():\n    while bit.front_clear():\n      bit.move()\n      bit.paint('blue')\n    bit.left()\n\nif __name__ == '__main__':\n  run(Bit.new_bit)\n</code></pre>",
+                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">from byubit import Bit\n\n@Bit.empty_world(4, 4)\ndef run(bit):\n  while not bit.is_blue():\n      while bit.front_clear():\n          bit.paint('blue')\n          bit.move()\n      bit.left()\n\nif __name__ == '__main__':\n    run(Bit.new_bit)\n</code></pre>",
                         "answer_weight": 0
                     }
                 ]
             },
             {
-                "question_text": "<p>Bit starts in the following world <code style=\"color: #000000\">red_bars</code>:</p>\n<p><p><img alt=\"starting world\" id=\"resources/q4_start_world.png\" src=\"/courses/20736/files/e9f6cbe5-ffd6-41b6-a4d7-f9f08be4bddc/preview\" style=\"width: 250px;\"/></p></p>\n<p>Which of the following implementations of <code style=\"color: #000000\">draw_bar</code> will produce the following result?</p>\n<p><p><img alt=\"ending world\" id=\"resources/q4_end_result.png\" src=\"/courses/20736/files/1a608740-86a6-4d7d-93d4-4f4614ff73a0/preview\" style=\"width: 250px;\"/></p></p>",
+                "question_text": "<p>Bit starts in the following world <code style=\"color: #000000\">red_bars</code>:</p>\n<p><p><img alt=\"starting world\" id=\"resources/q4_start_world.png\" src=\"/courses/20736/files/519b1554-f131-4b64-b377-1cfc9e7496c4/preview\" style=\"width: 250px;\"/></p></p>\n<p>Which of the following implementations of <code style=\"color: #000000\">draw_bar</code> will produce the following result?</p>\n<p><p><img alt=\"ending world\" id=\"resources/q4_end_result.png\" src=\"/courses/20736/files/132f32a6-a481-4d76-b0c7-dd70dfb3bfc6/preview\" style=\"width: 250px;\"/></p></p>",
                 "question_type": "multiple_choice_question",
                 "points_possible": 1,
                 "correct_comments": null,
                 "incorrect_comments": null,
                 "answers": [
                     {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">def draw_bar(bit):\n  bit.left()\n  go(bit, 'red')\n  bit.right()\n  bit.right()\n  go(bit, None)\n  bit.left()\n</code></pre>",
+                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">def draw_bar(bit):\n    bit.left()\n    go(bit, 'red')\n    bit.right()\n    bit.right()\n    go(bit, None)\n    bit.left()\n</code></pre>",
                         "answer_weight": 100
                     },
                     {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">def draw_bar(bit):\ngo(bit, 'red')\nbit.left()\nbit.left()\ngo(bit, 'red')\n</code></pre>\n<ul>\n<li>incorrect: | # Q4 incorrect answer 2\n  <code style=\"color: #000000\">python\n  def draw_bar(bit):\n    bit.left()\n    while bit.front_clear():\n      go(bit, None)\n      bit.left()\n      bit.left()\n      go(bit, 'red')\n      bit.left()</code></li>\n<li>incorrect: | # Q4 incorrect answer 3\n  <code style=\"color: #000000\">python\n  def draw_bar(bit):\n    bit.left()\n    go(bit, None)\n    bit.right()\n    bit.right()\n    go(bit, 'red')\n    bit.left()</code></li>\n</ul>",
+                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">def draw_bar(bit):\ngo(bit, 'red')\nbit.left()\nbit.left()\ngo(bit, 'red')\n</code></pre>",
+                        "answer_weight": 0
+                    },
+                    {
+                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">def draw_bar(bit):\n    bit.left()\n    while bit.front_clear():\n        go(bit, None)\n        bit.left()\n        bit.left()\n        go(bit, 'red')\n        bit.left()\n</code></pre>",
+                        "answer_weight": 0
+                    },
+                    {
+                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">def draw_bar(bit):\n    bit.left()\n    go(bit, None)\n    bit.right()\n    bit.right()\n    go(bit, 'red')\n    bit.left()\n</code></pre>",
                         "answer_weight": 0
                     }
                 ]
             },
             {
-                "question_text": "<p>What does the following code print?</p>\n<pre class=\"codehilite\"><code class=\"language-python\">  def function1(a):\n      return a + 2\n\n  def function2(a):\n      return function1(a) - 5\n\n  def main():\n      result = function2(3)\n      print(result)\n\n  if __name__ == '__main__':\n      main()\n</code></pre>",
+                "question_text": "<p>What does the following code print?</p>\n<pre class=\"codehilite\"><code class=\"language-python\">  def function1(a):\n      return a + 2\n\n\n  def function2(a):\n      return function1(a) - 5\n\n\n  def main():\n      result = function2(3)\n      print(result)\n\n  if __name__ == '__main__':\n      main()\n</code></pre>",
                 "question_type": "multiple_choice_question",
                 "points_possible": 1,
                 "correct_comments": null,
@@ -142,19 +150,19 @@
                 "incorrect_comments": null,
                 "answers": [
                     {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">def main():\n  while True:\n    fruit = input('Give me a fruit: ')\n        if fruit == 'apple':\n                                                                   print('I like that!')\n                                                                   break\n    elif fruit == 'durian':\n      print('No thank you!')\n    else:\n      print('Those are fine.')\n  print('Goodbye!')\n\nif __name__ == '__main__':\n  main()\n</code></pre>",
+                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">def main():\n    while True:\n        fruit = input('Give me a fruit: ')\n            if fruit == 'apple':\n               print('I like that!')\n               break\n        elif fruit == 'durian':\n            print('No thank you!')\n        else:\n            print('Those are fine.')\n    print('Goodbye!')\n\nif __name__ == '__main__':\n    main()\n</code></pre>",
                         "answer_weight": 100
                     },
                     {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">def main():\n  while True:\n    fruit = input('Give me a fruit: ')\n        if fruit == 'apple':\n                                                                   print('I like that!')\n                                                                   return\n    else:\n      print('Those are fine.')\n  print('Goodbye!')\n\nif __name__ == '__main__':\n  main()\n</code></pre>",
+                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">def main():\n    while True:\n        fruit = input('Give me a fruit: ')\n        if fruit == 'apple':\n           print('I like that!')\n           return\n        else:\n            print('Those are fine.')\n    print('Goodbye!')\n\nif __name__ == '__main__':\n  main()\n</code></pre>",
                         "answer_weight": 0
                     },
                     {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">def main():\n  while True:\n    fruit = input('Give me a fruit: ')\n        if fruit == 'apple':\n                                                                   print('I like that!')\n                                                                   break\n    elif fruit == 'banana':\n      print('Those are ok.')\n    else:\n      print('Those are fine.')\n  print('Goodbye!')\n\nif __name__ == '__main__':\n  main()\n</code></pre>",
+                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">def main():\n    while True:\n        fruit = input('Give me a fruit: ')\n        if fruit == 'apple':\n           print('I like that!')\n           break\n        elif fruit == 'banana':\n            print('Those are ok.')\n        else:\n            print('Those are fine.')\n  print('Goodbye!')\n\nif __name__ == '__main__':\n    main()\n</code></pre>",
                         "answer_weight": 0
                     },
                     {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">def main():\n    while True:\n        fruit = input('Give me a fruit: ')\n            if fruit == 'pear':\n               print('Those are fine.')\n               break\n        elif fruit == 'banana':\n            print('Those are fine.')\n            break\n        else:\n            print('I like that!')\n    print('Goodbye!')\n\nif __name__ == '__main__':\n  main()\n</code></pre>",
+                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">def main():\n    while True:\n        fruit = input('Give me a fruit: ')\n            if fruit == 'pear':\n               print('Those are fine.')\n               break\n        elif fruit == 'banana':\n            print('Those are fine.')\n            break\n        else:\n            print('I like that!')\n    print('Goodbye!')\n\nif __name__ == '__main__':\n    main()\n</code></pre>",
                         "answer_weight": 0
                     }
                 ]
@@ -217,19 +225,19 @@
                 "incorrect_comments": null,
                 "answers": [
                     {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">def keep_it(thing):\n  return thing &gt; 7 or thing &lt; -5\n</code></pre>",
+                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">def keep_it(thing):\n    return thing &gt; 7 or thing &lt; -5\n</code></pre>",
                         "answer_weight": 100
                     },
                     {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">def keep_it(thing):\n  return thing &gt; 8 and thing &lt; -6\n</code></pre>",
+                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">def keep_it(thing):\n    return thing &gt; 8 and thing &lt; -6\n</code></pre>",
                         "answer_weight": 0
                     },
                     {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">def keep_it(thing):\n  if thing &gt;= 12:\n    return True\n  elif thing &lt; 0:\n    return True\n  else:\n    return False\n</code></pre>",
+                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">def keep_it(thing):\n    if thing &gt;= 12:\n        return True\n    elif thing &lt; 0:\n        return True\n    else:\n        return False\n</code></pre>",
                         "answer_weight": 0
                     },
                     {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">def keep_it(thing):\n  return thing &gt; -3 or thing &lt; 9\n</code></pre>",
+                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">def keep_it(thing):\n    return thing &gt; -3 or thing &lt; 9\n</code></pre>",
                         "answer_weight": 0
                     }
                 ]
@@ -294,7 +302,7 @@
                 "incorrect_comments": null,
                 "answers": [
                     {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">for last, first, major, state in students:\n  print(f'{first} {last} -- {major} major, from {state}')\n</code></pre>",
+                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">for last, first, major, state in students:\n    print(f'{first} {last} -- {major} major, from {state}')\n</code></pre>",
                         "answer_weight": 100
                     },
                     {
@@ -302,11 +310,11 @@
                         "answer_weight": 0
                     },
                     {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">while True:\n  print(f'{first} {last} -- {major} major, from {state}')\n</code></pre>",
+                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">while True:\n    print(f'{first} {last} -- {major} major, from {state}')\n</code></pre>",
                         "answer_weight": 0
                     },
                     {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">for students in last, first, major, state:\n  print(f'{first} {last} -- {major} major, from {state}')\n</code></pre>",
+                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">for students in last, first, major, state:\n    print(f'{first} {last} -- {major} major, from {state}')\n</code></pre>",
                         "answer_weight": 0
                     }
                 ]
@@ -344,7 +352,7 @@
                 "incorrect_comments": null,
                 "answers": [
                     {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">def get_toppings():\n  toppings = []\n  while True:\n    topping = input(\"Topping: \")\n        if topping == '':\n            break\n        if topping == 'onions':\n            print('Sorry we are out of onions.')\n        else:\n            toppings.append(topping)\n\n    return toppings\n</code></pre>",
+                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">def get_toppings():\n  toppings = []\n  while True:\n      topping = input(\"Topping: \")\n          if topping == '':\n              break\n          if topping == 'onions':\n              print('Sorry we are out of onions.')\n          else:\n              toppings.append(topping)\n\n  return toppings\n</code></pre>",
                         "answer_weight": 100
                     },
                     {
@@ -356,7 +364,7 @@
                         "answer_weight": 0
                     },
                     {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">def get_toppings():\n  while True:\n    topping = input(\"Topping: \")\n      if topping is None:\n        break\n      elif topping == 'onions':\n        print('Sorry we are out of onions.')\n      else:\n        return topping\n</code></pre>",
+                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">def get_toppings():\n    while True:\n        topping = input(\"Topping: \")\n        if topping is None:\n            break\n        elif topping == 'onions':\n            print('Sorry we are out of onions.')\n        else:\n            return topping\n</code></pre>",
                         "answer_weight": 0
                     }
                 ]
@@ -365,43 +373,43 @@
         "quiz_type": "assignment",
         "resources": [
             [
-                "ba777c91-a407-4558-bfd8-047dd50459bd",
+                "1e9a6232-127a-4fc0-b6a4-67356283c02c",
                 "../demo_course/private-files/resources/q1_bit_blue_red_green_T.png"
             ],
             [
-                "3809023a-df3f-4130-ab12-6376b352afda",
+                "833e6365-e5ee-4c47-929f-c22af1886aae",
                 "../demo_course/private-files/resources/q1_bit_blue_blue_blue_F.png"
             ],
             [
-                "71edae38-5f23-4889-bd01-119e087128a3",
+                "d71ebb57-3938-4f3a-9d3e-5ccf10bd2f6e",
                 "../demo_course/private-files/resources/q1_bit_blue_green_green_F.png"
             ],
             [
-                "d0da72f3-72f3-400d-b4f0-f674e69227de",
+                "979788e5-4fd4-4fca-97c8-afcf9eb34c24",
                 "../demo_course/private-files/resources/q1_bit_blue_red_red_F.png"
             ],
             [
-                "161b2266-d1a3-47be-8e02-8109b58423ff",
+                "df1ed201-c60b-4a71-9c03-bdeeb130554b",
                 "../demo_course/private-files/resources/q2_start_world.png"
             ],
             [
-                "91651fbb-58ef-4d6c-89aa-679c1a58377a",
+                "3d4028d6-5249-4d1c-ade0-00ea7df8b2a2",
                 "../demo_course/private-files/resources/q2_end_result.png"
             ],
             [
-                "0721abe1-7b1d-4e74-8c29-c129c30bba5f",
+                "3ebcbfdb-2e91-4011-a650-45750af52ec7",
                 "../demo_course/private-files/resources/q3_empty_world.png"
             ],
             [
-                "47af53fc-651c-49e9-b0e4-cb019153a463",
+                "33d7c5e3-6265-4d43-95f7-b44d59107a4c",
                 "../demo_course/private-files/resources/q3_end_result.png"
             ],
             [
-                "e9f6cbe5-ffd6-41b6-a4d7-f9f08be4bddc",
+                "519b1554-f131-4b64-b377-1cfc9e7496c4",
                 "../demo_course/private-files/resources/q4_start_world.png"
             ],
             [
-                "1a608740-86a6-4d7d-93d4-4f4614ff73a0",
+                "132f32a6-a481-4d76-b0c7-dd70dfb3bfc6",
                 "../demo_course/private-files/resources/q4_end_result.png"
             ]
         ],

@@ -195,11 +195,11 @@ questions:
           
           @Bit.empty_world(4, 4)
           def run(bit):
-            while not bit.is_blue():
-                while bit.front_clear():
-                    bit.paint('blue')
-                    bit.move()
-                bit.left()
+              while not bit.is_blue():
+                  while bit.front_clear():
+                      bit.move()
+                      bit.paint('blue')
+                  bit.left()
           
           if __name__ == '__main__':
               run(Bit.new_bit)
@@ -211,14 +211,14 @@ questions:
           @Bit.empty_world(4, 4)
           def run(bit):
               while not bit.is_blue():
-                  while bit.front_clear():
-                      bit.move()
-                      bit.paint('blue')
-                  bit.left()
-          
+                  bit.move()
+                  bit.paint('blue')
+                  if not bit.front_clear():
+                      bit.left()
           if __name__ == '__main__':
               run(Bit.new_bit)
           ```
+
   # Q4, Red Bars:
   - type: multiple_choice # Question 4
     text: | # Q4 text
@@ -248,27 +248,27 @@ questions:
           bit.left()
           go(bit, 'red')
           ```
-          - incorrect: | # Q4 incorrect answer 2
-            ```python
-            def draw_bar(bit):
-                bit.left()
-                while bit.front_clear():
-                    go(bit, None)
-                    bit.left()
-                    bit.left()
-                    go(bit, 'red')
-                    bit.left()
-            ```
-          - incorrect: | # Q4 incorrect answer 3
-            ```python
-            def draw_bar(bit):
-                bit.left()
-                go(bit, None)
-                bit.right()
-                bit.right()
-                go(bit, 'red')
-                bit.left()
-            ```
+      - incorrect: | # Q4 incorrect answer 2
+          ```python
+          def draw_bar(bit):
+              bit.left()
+              while bit.front_clear():
+                  go(bit, None)
+                  bit.left()
+                  bit.left()
+                  go(bit, 'red')
+                  bit.left()
+          ```
+      - incorrect: | # Q4 incorrect answer 3
+          ```python
+          def draw_bar(bit):
+              bit.left()
+              go(bit, None)
+              bit.right()
+              bit.right()
+              go(bit, 'red')
+              bit.left()
+          ```
   # Q5, Mystery Functions:
   - type: multiple_choice # Question 5
     text: | # Q5 text
@@ -278,8 +278,10 @@ questions:
         def function1(a):
             return a + 2
       
+      
         def function2(a):
             return function1(a) - 5
+      
       
         def main():
             result = function2(3)
