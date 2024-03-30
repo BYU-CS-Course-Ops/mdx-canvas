@@ -335,7 +335,7 @@
                 "incorrect_comments": null,
                 "answers": [
                     {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-text\">First name: Adam\nLast name:\nAge: 4\n</code></pre>",
+                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-text\">First name: Adam\nLast name: \nAge: 4\n</code></pre>",
                         "answer_weight": 100
                     },
                     {
