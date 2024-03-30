@@ -328,7 +328,7 @@
                 ]
             },
             {
-                "question_text": "<p>In which of the following cases would this function return <code style=\"color: #000000\">None</code>? (Mark all that apply)</p>",
+                "question_text": "<p>Consider the following code:</p>\n<pre class=\"codehilite\"><code class=\"language-python\">def get_participant():\n    first = input('First name: ')\n    last = input('Last name: ')\n    age = int(input('Age: '))\n    if first == '' or last == '' or age &lt; 3:\n        return None\n\n    return (first, last, age)\n</code></pre>\n<p>In which of the following cases would this function return <code style=\"color: #000000\">None</code>? (Mark all that apply)</p>",
                 "question_type": "multiple_answers_question",
                 "points_possible": 1,
                 "correct_comments": null,
@@ -360,7 +360,7 @@
                 "incorrect_comments": null,
                 "answers": [
                     {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">def get_toppings():\n  toppings = []\n  while True:\n      topping = input(\"Topping: \")\n          if topping == '':\n              break\n          if topping == 'onions':\n              print('Sorry we are out of onions.')\n          else:\n              toppings.append(topping)\n\n  return toppings\n</code></pre>",
+                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">def get_toppings():\n    toppings = []\n    while True:\n        topping = input(\"Topping: \")\n        if topping == '':\n            break\n        if topping == 'onions':\n            print('Sorry we are out of onions.')\n        else:\n            toppings.append(topping)\n\nreturn toppings\n</code></pre>",
                         "answer_weight": 100
                     },
                     {

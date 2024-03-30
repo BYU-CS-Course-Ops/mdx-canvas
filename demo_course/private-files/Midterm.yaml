@@ -656,32 +656,47 @@ questions:
                 ('Sanchez-Moreno', 'Rosamaria', 'computer science', 'Florida')
             ]
             ```
+            
             Which code will loop through a list of student tuples and unpack them into variables?
         answers:
-            -   correct: |
-                    ```python
-                    for last, first, major, state in students:
-                        print(f'{first} {last} -- {major} major, from {state}')
-                    ```
-            -   incorrect: | # Q12 incorrect answer 1
-                    ```python
-                    for every student in students:
-                        print(f'{student.first} {student.last} -- {student.major} major, from {student.state}')
-                    ```
-            -   incorrect: | # Q12 incorrect answer 2
-                    ```python
-                    while True:
-                        print(f'{first} {last} -- {major} major, from {state}')
-                    ```
-            -   incorrect: | # Q12 incorrect answer 3
-                    ```python
-                    for students in last, first, major, state:
-                        print(f'{first} {last} -- {major} major, from {state}')
-                    ```
+        -  correct: | # Q12 correct answer 1
+                ```python
+                for last, first, major, state in students:
+                    print(f'{first} {last} -- {major} major, from {state}')
+                ```
+        -   incorrect: | # Q12 incorrect answer 1
+                ```python
+                for every student in students:
+                    print(f'{student.first} {student.last} -- {student.major} major, from {student.state}')
+                ```
+        -   incorrect: | # Q12 incorrect answer 2
+                ```python
+                while True:
+                    print(f'{first} {last} -- {major} major, from {state}')
+                ```
+        -   incorrect: | # Q12 incorrect answer 3
+                ```python
+                for students in last, first, major, state:
+                    print(f'{first} {last} -- {major} major, from {state}')
+                ```
     # Q13, Return None:
     -   type: multiple_answers # Question 13
         text: | # Q13 text
+            Consider the following code:
+
+            ```python
+            def get_participant():
+                first = input('First name: ')
+                last = input('Last name: ')
+                age = int(input('Age: '))
+                if first == '' or last == '' or age < 3:
+                    return None
+            
+                return (first, last, age)
+            ```
+            
             In which of the following cases would this function return `None`? (Mark all that apply)
+            
         answers:
             -   correct: | # Q13 correct answer 1
                     ```text
@@ -720,17 +735,17 @@ questions:
             -   correct: |
                     ```python
                     def get_toppings():
-                      toppings = []
-                      while True:
-                          topping = input("Topping: ")
-                              if topping == '':
-                                  break
-                              if topping == 'onions':
-                                  print('Sorry we are out of onions.')
-                              else:
-                                  toppings.append(topping)
-                    
-                      return toppings
+                        toppings = []
+                        while True:
+                            topping = input("Topping: ")
+                            if topping == '':
+                                break
+                            if topping == 'onions':
+                                print('Sorry we are out of onions.')
+                            else:
+                                toppings.append(topping)
+
+                    return toppings
                     ```
             -   incorrect: | # Q14 incorrect answer 1
                     ```python

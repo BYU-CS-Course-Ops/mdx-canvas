@@ -97,7 +97,8 @@ class MultipleCommonQuestionWalker:
         
         new_question = {
             "question_text": text,
-            "question_type": "multiple_answers_question" if question["type"] == "multiple_answers" else "multiple_choice_question",
+            "question_type": "multiple_answers_question" if question[
+                                                                "type"] == "multiple_answers" else "multiple_choice_question",
             "points_possible": question.get("points_possible", 1),
             "correct_comments": question.get("correct_comments"),
             "incorrect_comments": question.get("incorrect_comments"),
@@ -115,7 +116,12 @@ class MultipleChoiceQuestionWalker:
         corrects = [a["correct"] for a in question["answers"] if a.get("correct", False)]
         
         if len(corrects) != 1:
-            raise ValueError("Multiple choice questions must have exactly one correct answer")
+            print(question["answers"])
+            raise ValueError(f"Multiple choice questions must have exactly one correct answer.\n"
+                             f"Question: \n"
+                             f"\t{question['text']}\n"
+                             f"Correct answers given: \n"
+                             f"\t" + "\n\t".join(corrects))
         
         return self.multiple_answers_walker.walk(question)
 
