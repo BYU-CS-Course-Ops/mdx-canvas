@@ -9,6 +9,7 @@ from bs4.element import Tag, NavigableString
 from datetime import datetime
 from typing import Protocol, TypeAlias
 from collections import defaultdict, OrderedDict
+from mdxcanvas.templating import Templater
 
 from jinja2 import Environment
 
@@ -597,7 +598,7 @@ class PageParser:
             "name": page_tag["title"],
             "body": "",
         }
-        adder = AttributeAdder(settings, page_tag)
+        adder = AttributeAdder(settings, page_tag, self.parser)
         adder("editing_roles", "teachers")
         adder("notify_of_update", False, typ=bool)
         adder("published", False, typ=bool)
@@ -634,6 +635,7 @@ class DocumentParser:
         self.jinja_env.globals.update(zip=zip, split_list=lambda sl: [s.strip() for s in sl.split(';')])
 
         parser = Parser()
+        self.templater = Templater()
 
         self.element_processors = {
             "quiz": QuizParser(self.markdown_processor, group_identifier, self.date_formatter,
@@ -657,34 +659,10 @@ class DocumentParser:
                     templates = [templates]
                 templates = [order_elements(template) for template in templates]
                 for template in templates:
-                    new_elements = self.create_elements_from_template(template)
+                    new_elements = self.templater.create_elements_from_template(template)
                     document.extend(new_elements)
         return document
-
-    def create_elements_from_template(self, element_template):
-        if not (all_replacements := element_template.get("replacements", None)):
-            return [element_template]
-
-        # Element template is an object, turn it into text
-        template_text = json.dumps(element_template, indent=4)
-
-        # Use the text to create a jinja template
-        template = self.jinja_env.from_string(template_text)
-
-        elements = []
-        for context in all_replacements:
-            for key, value in context.items():
-                context[key] = value.replace('"', '\\"')
-            # For each replacement, create an object from the template
-            rendered = template.render(context)
-            element = json.loads(rendered)
-            elements.append(element)
-
-        # Replacements become unnecessary after creating the elements
-        for element in elements:
-            del element["replacements"]
-        return elements
-
+    
     def parse_template_data(self, template_tag):
         """
         Parses a template tag into a list of dictionaries
@@ -714,14 +692,16 @@ class DocumentParser:
             # Remove whitespace and empty headers
             headers = [h.strip() for h in headers.split('|') if h.strip()]
             lines = [line for left_bar, *line, right_bar in [line.split('|') for line in lines]]
-
+        
         data = []
         for line in lines:
             line = [phrase.strip() for phrase in line]
-
+            
             replacements = defaultdict(dict)
             for header, value in zip(headers, line):
                 replacements[header] = value
-
+            
             data.append(replacements)
         return data
+
+    
