@@ -745,7 +745,7 @@ questions:
                             else:
                                 toppings.append(topping)
 
-                    return toppings
+                        return toppings
                     ```
             -   incorrect: | # Q14 incorrect answer 1
                     ```python

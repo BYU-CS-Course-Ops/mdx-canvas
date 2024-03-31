@@ -360,7 +360,7 @@
                 "incorrect_comments": null,
                 "answers": [
                     {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">def get_toppings():\n    toppings = []\n    while True:\n        topping = input(\"Topping: \")\n        if topping == '':\n            break\n        if topping == 'onions':\n            print('Sorry we are out of onions.')\n        else:\n            toppings.append(topping)\n\nreturn toppings\n</code></pre>",
+                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">def get_toppings():\n    toppings = []\n    while True:\n        topping = input(\"Topping: \")\n        if topping == '':\n            break\n        if topping == 'onions':\n            print('Sorry we are out of onions.')\n        else:\n            toppings.append(topping)\n\n    return toppings\n</code></pre>",
                         "answer_weight": 100
                     },
                     {
