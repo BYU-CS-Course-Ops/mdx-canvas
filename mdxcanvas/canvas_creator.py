@@ -4,6 +4,7 @@ from datetime import datetime
 import json
 import os
 import textwrap
+import pygments
 
 import uuid
 import argparse
