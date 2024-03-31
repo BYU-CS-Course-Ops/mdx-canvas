@@ -31,4 +31,22 @@ class Templater:
             del element["replacements"]
         return elements
     
+    def parse_psv(self, headers, lines):
+        """
+        Parse a pipe-separated value (PSV) file into a list of dictionaries.
+        """
+        # Remove whitespace and empty headers
+        headers = [h.strip() for h in headers.split('|') if h.strip()]
+        lines = [line for left_bar, *line, right_bar in [line.split('|') for line in lines]]
+        data = []
+        for line in lines:
+            line = [phrase.strip() for phrase in line]
+            
+            replacements = defaultdict(dict)
+            for header, value in zip(headers, line):
+                replacements[header] = value
+            
+            data.append(replacements)
+        return data
+    
     

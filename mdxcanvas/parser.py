@@ -459,8 +459,7 @@ class QuizParser:
             "type": "quiz",
             "name": quiz_tag["title"],
             "questions": [],
-            "resources": [],
-            "replacements": []
+            "resources": []
         }
         quiz.update(self.parse_quiz_settings(quiz_tag))
         
@@ -526,7 +525,6 @@ class AssignmentParser:
             "name": "",
             "type": "assignment",
             "resources": [],
-            "replacements": [],
             "settings": {}
         }
         for tag in assignment_tag.find_all():
@@ -635,16 +633,16 @@ class DocumentParser:
         self.jinja_env.globals.update(zip=zip, split_list=lambda sl: [s.strip() for s in sl.split(';')])
 
         parser = Parser()
-        self.templater = Templater()
+        self.templater = Templater(self.jinja_env, self.path_to_files)
 
         self.element_processors = {
             "quiz": QuizParser(self.markdown_processor, group_identifier, self.date_formatter,
-                               self.parse_template_data, parser),
+                               self.parse_mdx_template_data, parser),
             "assignment": AssignmentParser(self.markdown_processor, group_identifier, self.date_formatter,
-                                           self.parse_template_data, parser),
+                                           self.parse_mdx_template_data, parser),
             "page": PageParser(self.markdown_processor, self.date_formatter, parser),
             "module": ModuleParser(parser),
-            "override": OverrideParser(self.date_formatter, self.parse_template_data, parser)
+            "override": OverrideParser(self.date_formatter, self.parse_mdx_template_data, parser)
         }
 
     def parse(self, text):
@@ -663,7 +661,7 @@ class DocumentParser:
                     document.extend(new_elements)
         return document
     
-    def parse_template_data(self, template_tag):
+    def parse_mdx_template_data(self, template_tag):
         """
         Parses a template tag into a list of dictionaries
         Each dictionary will become a canvas object
@@ -685,23 +683,12 @@ class DocumentParser:
         ]
         """
         if template_tag.get("filename"):
-            csv = (self.path_to_files / template_tag.get("filename")).read_text()
-            headers, *lines = csv.split('\n')
+            psv = (self.path_to_files / template_tag.get("filename")).read_text()
+            headers, *lines = psv.split('\n')
         else:
             headers, separator, *lines = get_text_contents(template_tag).strip().split('\n')
-            # Remove whitespace and empty headers
-            headers = [h.strip() for h in headers.split('|') if h.strip()]
-            lines = [line for left_bar, *line, right_bar in [line.split('|') for line in lines]]
         
-        data = []
-        for line in lines:
-            line = [phrase.strip() for phrase in line]
-            
-            replacements = defaultdict(dict)
-            for header, value in zip(headers, line):
-                replacements[header] = value
-            
-            data.append(replacements)
-        return data
+        return self.templater.parse_psv(headers, lines)
+        
 
     

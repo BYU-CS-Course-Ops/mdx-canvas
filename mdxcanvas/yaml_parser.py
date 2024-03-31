@@ -13,6 +13,8 @@ from collections import defaultdict
 
 from jinja2 import Environment
 
+from mdxcanvas.templating import Templater
+
 ResourceExtractor: TypeAlias = Callable[[str], tuple[str, list]]
 
 from strictyaml import load
@@ -262,6 +264,10 @@ class DocumentWalker:
         
         self.jinja_env = Environment()
         # This enables us to use the zip function in template documents
+        self.jinja_env.globals.update(zip=zip, split_list=lambda sl: [s.strip() for s in sl.split(';')])
+        
+        self.templater = Templater(self.jinja_env, self.path_to_files)
+        # This enables us to use the zip function in template documents
         
         self.jinja_env.globals.update(zip=zip, split_list=lambda sl: [s.strip() for s in sl.split(';')])
         
@@ -283,32 +289,9 @@ class DocumentWalker:
                 templates = [templates]
             templates = [order_elements(template) for template in templates]
             for template in templates:
-                new_documents.extend(self.create_elements_from_template(template))
+                new_documents.extend(self.templater.create_elements_from_template(template))
         return new_documents
     
-    def create_elements_from_template(self, element_template):
-        if not (all_replacements := element_template.get("replacements", None)):
-            return [element_template]
-        
-        # Element template is an object, turn it into text
-        template_text = json.dumps(element_template, indent=4)
-        
-        # Use the text to create a jinja template
-        template = self.jinja_env.from_string(template_text)
-        
-        elements = []
-        for context in all_replacements:
-            for key, value in context.items():
-                context[key] = value.replace('"', '\\"')
-            # For each replacement, create an object from the template
-            rendered = template.render(context)
-            element = json.loads(rendered)
-            elements.append(element)
-        
-        # Replacements become unnecessary after creating the elements
-        for element in elements:
-            del element["replacements"]
-        return elements
     
     def parse_template_data(self, template):
         """
