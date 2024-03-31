@@ -1,434 +1,663 @@
 [
     {
-        "access_code": "start-midterm",
+        "access_code": "start-final",
         "allowed_attempts": 1,
-        "assignment_group_id": 104463,
+        "assignment_group_id": 100080,
         "cant_go_back": false,
-        "description": "<p>Please read and understand the following instructions before taking the midterm.</p>\n<p>This is an exam. You are on your honor to treat this exam appropriately. You are not allowed to consult any material or people during this exam.</p>\n<p>You have 180 minutes (3 hours) to take this test. Most students will finish in under 90 minutes. If you need an accommodation, contact your instructor.</p>\n<p>Prepare your exam space. Find a location where you can work uninterrupted and free from distraction for the full test-taking period.\u00a0</p>\n<p><strong>You are encouraged to have scratch paper available.</strong></p>\n<p>Turn off your phone. Close all applications except your browser, and close all tabs except this one.</p>\n<p>To start the test, you will need the passcode <strong>start-midterm</strong>. Only start the test once you intend to take and complete it.</p>\n<p>Good luck!</p>",
-        "due_at": "2024-03-08T23:59:00-07:00",
-        "hide_correct_answers_at": "2024-04-02T00:00:00-06:00",
-        "lock_at": "2024-03-08T23:59:00-07:00",
-        "name": "Midterm",
+        "description": "<h3>Before taking the exam</h3>\n<p>Please take the course completion survey: Course Completion Survey</p>\n<h2>Final Exam Instructions</h2>\n<p><strong>Please read and understand the following instructions before taking the final exam (scroll down).</strong></p>\n<p>This is an exam. You are on your honor to treat this exam appropriately. You are not allowed to consult any material or people during this exam.</p>\n<p>Please do not discuss the content of this exam with others.</p>\n<p>You have 240 minutes (4 hours) to take this test. Most students will finish in under 90 minutes. If you need an accommodation, contact your instructor before you start the exam.</p>\n<p>Prepare your exam space. Find a location where you can work uninterrupted and free from distraction for the full test-taking period. </p>\n<p>You are encouraged to have scratch paper available. </p>\n<p>Turn off your phone. Close all applications except your browser, and close all tabs except this one.</p>\n<p>Only start the test once you intend to take and complete it. To start the test, you will need the passcode: <strong>start-final</strong>. </p>\n<p>Good luck!</p>",
+        "due_at": "2024-04-24T23:59:00-06:00",
+        "lock_at": "2024-04-24T23:59:00-06:00",
+        "name": "Final",
         "one_question_at_a_time": false,
         "one_time_results": false,
         "published": false,
         "questions": [
             {
-                "question_text": "<p>Some of these questions have answers that are very similar. Be sure to review all the answers for a question and not just take the first answer that looks correct.</p>",
+                "question_text": "<h2>Instructions</h2>\n<p>The questions on this exam are divided into 8 sections.</p>\n<p>Each section begins with a section header that presents a programming question, followed by True/False questions that present possible solutions to the problem in the section header. If the possible solution is valid, mark it as True. If it is not a valid solution, mark it as False.\u00a0</p>\n<p><strong>There may be more than one valid solution in each section.</strong></p>\n<p>You can think of each section as a single select-all-that-apply problem, where you get a point for each item you identify correctly as being a valid or invalid solution to the problem.</p>",
                 "question_type": "text_only_question"
             },
             {
-                "question_text": "<p>Which image will the following code produce?</p>\n<pre class=\"codehilite\"><code class=\"language-python\">from byubit import Bit\n\ndef move_paint(bit, color):\n    bit.move()\n    bit.paint(color)\n\n@Bit.empty_world(5, 3)\ndef run(bit):\n    color = 'blue'\n    move_paint(bit, color)\n    color = 'green'\n    move_paint(bit, 'red')\n    move_paint(bit, color)\n\nif __name__ == '__main__':\n    run(Bit.new_bit)\n</code></pre>",
-                "question_type": "multiple_choice_question",
+                "question_text": "<h1>Questions 1-4</h1>\n<p>Given the program <code style=\"color: #000000\">counting.py</code>, where the number of uppercase, lowercase, and digits are printed, which implementation(s) of <code style=\"color: #000000\">count_characters</code> correctly produce the following execution?</p>\n<p><strong><code style=\"color: #000000\">counting.py</code></strong></p>\n<pre class=\"codehilite\"><code class=\"language-python\">def count_characters(input_string): ...\n\n\ndef main():\n    input_string = input('Input: ')\n    counts = count_characters(input_string)\n    print(counts)\n\n\nif __name__ == '__main__':\n    main()\n</code></pre>\n<p><strong>Execution</strong></p>\n<pre class=\"codehilite\"><code class=\"language-text\">python counting.py\nInput: I LOVE pie (not 3.14)\n(5, 6, 3)\n</code></pre>",
+                "question_type": "text_only_question"
+            },
+            {
+                "question_text": "<pre class=\"codehilite\"><code class=\"language-python\">def count_characters(input_string):\n    upper_count, lower_count, digit_count = 0, 0, 0\n    for char in input_string:\n        if char.upper():\n            upper_count += 1\n        if char.lower():\n            lower_count += 1\n        if char.isdigit():\n            digit_count += 1\n    return (upper_count, lower_count, digit_count)\n</code></pre>",
+                "question_type": "true_false_question",
                 "points_possible": 1,
-                "correct_comments": null,
-                "incorrect_comments": null,
                 "answers": [
                     {
-                        "answer_html": "<p><p><img alt=\"blue, red, green\" id=\"resources/q1_bit_blue_red_green_T.png\" src=\"/courses/20736/files/11462780209022121052/preview\" style=\"width: 200px;\"/></p></p>",
+                        "answer_text": "True",
                         "answer_weight": 100
                     },
                     {
-                        "answer_html": "<p><p><img alt=\"blue, blue, blue\" id=\"resources/q1_bit_blue_blue_blue_F.png\" src=\"/courses/20736/files/44877973180647209078/preview\" style=\"width: 200px;\"/></p></p>",
-                        "answer_weight": 0
-                    },
-                    {
-                        "answer_html": "<p><p><img alt=\"blue, green, green\" id=\"resources/q1_bit_blue_green_green_F.png\" src=\"/courses/20736/files/41840023245654186422/preview\" style=\"width: 200px;\"/></p></p>",
-                        "answer_weight": 0
-                    },
-                    {
-                        "answer_html": "<p><p><img alt=\"blue, red, red\" id=\"resources/q1_bit_blue_red_red_F.png\" src=\"/courses/20736/files/42253890383365722590/preview\" style=\"width: 200px;\"/></p></p>",
+                        "answer_text": "False",
                         "answer_weight": 0
                     }
                 ]
             },
             {
-                "question_text": "<p>Given the following starting world named <code style=\"color: #000000\">rgb</code>:</p>\n<p><p><img alt=\"starting world\" id=\"resources/q2_start_world.png\" src=\"/courses/20736/files/51528703659566156539/preview\" style=\"width: 300px;\"/></p></p>\n<p>Which block of code will produce the following end result:</p>\n<p><p><img alt=\"ending world\" id=\"resources/q2_end_result.png\" src=\"/courses/20736/files/81062429125199854244/preview\" style=\"width: 300px;\"/></p></p>",
-                "question_type": "multiple_choice_question",
+                "question_text": "<pre class=\"codehilite\"><code class=\"language-python\">def count_characters(input_string):\n    upper_count = input_string.count('isupper')\n    lower_count = input_string.count('islower')\n    digit_count = input_string.count('isdigit')\n    return (upper_count, lower_count, digit_count)\n</code></pre>",
+                "question_type": "true_false_question",
                 "points_possible": 1,
-                "correct_comments": null,
-                "incorrect_comments": null,
                 "answers": [
                     {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">from byubit import Bit\n\n@Bit.worlds('rgb')\ndef run(bit):\n    while bit.front_clear():\n        bit.move()\n        if bit.is_red():\n            bit.paint('green')\n        elif bit.is_green():\n            bit.paint('blue')\n        else:\n            bit.erase()\n\nif __name__ == '__main__':\n    run(Bit.new_bit)\n</code></pre>",
+                        "answer_text": "True",
                         "answer_weight": 100
                     },
                     {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">from byubit import Bit\n\n@Bit.worlds('rgb')\ndef run(bit):\n    while bit.front_clear():\n        bit.move()\n        if bit.is_red():\n            bit.paint('green')\n        if bit.is_green():\n            bit.paint('blue')\n        else:\n            bit.erase()\n\nif __name__ == '__main__':\n    run(Bit.new_bit)\n</code></pre>",
-                        "answer_weight": 0
-                    },
-                    {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">from byubit import Bit\n\n@Bit.worlds('rgb')\ndef run(bit):\n    while bit.front_clear():\n        bit.move()\n        if bit.is_red():\n            bit.paint('green')\n        elif bit.is_blue():\n            bit.erase()\n        else:\n            bit.paint('blue')\n\nif __name__ == '__main__':\n    run(Bit.new_bit)\n</code></pre>",
-                        "answer_weight": 0
-                    },
-                    {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">from byubit import Bit\n\n@Bit.worlds('rgb')\ndef run(bit):\n    while bit.front_clear():\n        bit.move()\n        if bit.is_red():\n            bit.paint('green')\n        elif bit.is_green():\n            bit.paint('blue')\n        elif bit.is_blue():\n            bit.erase()\n        else:\n            bit.paint('red')\n\nif __name__ == '__main__':\n    run(Bit.new_bit)\n</code></pre>",
+                        "answer_text": "False",
                         "answer_weight": 0
                     }
                 ]
             },
             {
-                "question_text": "<p>Starting with this world:</p>\n<p><p><img alt=\"empty world\" id=\"resources/q3_empty_world.png\" src=\"/courses/20736/files/36399828276203806010/preview\" style=\"width: 200px;\"/></p></p>\n<p>Which code snippet produces this result:</p>\n<p><p><img alt=\"ending world\" id=\"resources/q3_end_result.png\" src=\"/courses/20736/files/59838485916761717045/preview\" style=\"width: 200px;\"/></p></p>",
-                "question_type": "multiple_choice_question",
+                "question_text": "<pre class=\"codehilite\"><code class=\"language-python\">def count_characters(input_string):\n    upper_count, lower_count, digit_count = 0, 0, 0\n    for word in input_string.split():\n        if word.isupper():\n            upper_count += 1\n        elif word.islower():\n            lower_count += 1\n        elif word.isdigit():\n            digit_count += 1\n    return (upper_count, lower_count, digit_count)\n</code></pre>",
+                "question_type": "true_false_question",
                 "points_possible": 1,
-                "correct_comments": null,
-                "incorrect_comments": null,
                 "answers": [
                     {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">from byubit import Bit\n\n@Bit.empty_world(4, 4)\ndef run(bit):\n    while not bit.is_blue():\n        while bit.front_clear():\n            bit.paint('blue')\n            bit.move()\n        bit.left()\n\nrun(Bit.new_bit)\n</code></pre>",
+                        "answer_text": "True",
                         "answer_weight": 100
                     },
                     {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">from byubit import Bit\n\n@Bit.empty_world(4, 4)\ndef run(bit):\n    while not bit.front_clear():\n        while bit.front_clear():\n            bit.paint('blue')\n            bit.move()\n        bit.left()\n\nif __name__ == '__main__':\n    run(Bit.new_bit)\n</code></pre>",
-                        "answer_weight": 0
-                    },
-                    {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">from byubit import Bit\n\n@Bit.empty_world(4, 4)\ndef run(bit):\n    while not bit.is_blue():\n        while bit.front_clear():\n            bit.move()\n            bit.paint('blue')\n        bit.left()\n\nif __name__ == '__main__':\n    run(Bit.new_bit)\n</code></pre>",
-                        "answer_weight": 0
-                    },
-                    {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">from byubit import Bit\n\n@Bit.empty_world(4, 4)\ndef run(bit):\n    while not bit.is_blue():\n        bit.move()\n        bit.paint('blue')\n        if not bit.front_clear():\n            bit.left()\n\nif __name__ == '__main__':\n    run(Bit.new_bit)\n</code></pre>",
+                        "answer_text": "False",
                         "answer_weight": 0
                     }
                 ]
             },
             {
-                "question_text": "<p>Bit starts in the following world <code style=\"color: #000000\">red_bars</code>:</p>\n<p><p><img alt=\"starting world\" id=\"resources/q4_start_world.png\" src=\"/courses/20736/files/58629647584395046343/preview\" style=\"width: 250px;\"/></p></p>\n<p>Which of the following implementations of <code style=\"color: #000000\">draw_bar</code> will produce the following result?</p>\n<p><p><img alt=\"ending world\" id=\"resources/q4_end_result.png\" src=\"/courses/20736/files/14987915108209766451/preview\" style=\"width: 250px;\"/></p></p>\n<pre class=\"codehilite\"><code class=\"language-python\">from byubit import Bit\n\ndef go(bit, color):\n    while bit.front_clear():\n        bit.move()\n        if color is not None:\n            bit.paint(color)\n\ndef draw_bar(bit):\n    pass\n\n@Bit.worlds('red_bars')\ndef run(bit):\n    while bit.front_clear():\n        bit.move()\n        if bit.is_red():\n            draw_bar(bit)\n\nif __name__ == '__main__':\n    run(Bit.new_bit)\n</code></pre>",
-                "question_type": "multiple_choice_question",
+                "question_text": "<pre class=\"codehilite\"><code class=\"language-python\">def count_characters(input_string):\n    upper_count, lower_count, digit_count = 0, 0, 0\n    for char in input_string:\n        if char.isupper():\n            upper_count += 1\n        elif char.islower():\n            lower_count += 1\n        elif char.isdigit():\n            digit_count += 1\n    return (upper_count, lower_count, digit_count)\n</code></pre>",
+                "question_type": "true_false_question",
                 "points_possible": 1,
-                "correct_comments": null,
-                "incorrect_comments": null,
                 "answers": [
                     {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">def draw_bar(bit):\n    bit.left()\n    go(bit, 'red')\n    bit.right()\n    bit.right()\n    go(bit, None)\n    bit.left()\n</code></pre>",
+                        "answer_text": "True",
                         "answer_weight": 100
                     },
                     {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">def draw_bar(bit):\n    go(bit, 'red')\n    bit.left()\n    bit.left()\n    go(bit, 'red')\n</code></pre>",
-                        "answer_weight": 0
-                    },
-                    {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">def draw_bar(bit):\n    bit.left()\n    while bit.front_clear():\n        go(bit, None)\n        bit.left()\n        bit.left()\n        go(bit, 'red')\n        bit.left()\n</code></pre>",
-                        "answer_weight": 0
-                    },
-                    {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">def draw_bar(bit):\n    bit.left()\n    go(bit, None)\n    bit.right()\n    bit.right()\n    go(bit, 'red')\n    bit.left()\n</code></pre>",
+                        "answer_text": "False",
                         "answer_weight": 0
                     }
                 ]
             },
             {
-                "question_text": "<p>What does the following code print?</p>\n<pre class=\"codehilite\"><code class=\"language-python\">def function1(a):\n    return a + 2\n\n\ndef function2(a):\n    return function1(a) - 5\n\n\ndef main():\n    result = function2(3)\n    print(result)\n\nif __name__ == '__main__':\n    main()\n</code></pre>",
-                "question_type": "multiple_choice_question",
+                "question_text": "<h1>Questions 5-8</h1>\n<p>Write a program that replaces all the spaces with underscores, and all the lowercase 'e's with uppercase 'E's.</p>\n<p>Which solutions are valid implementations of this program?</p>",
+                "question_type": "text_only_question"
+            },
+            {
+                "question_text": "<pre class=\"codehilite\"><code class=\"language-python\">import sys\n\n\ndef fix(original_string):\n    return original_string.replace(' ', '_').replace('e', 'E')\n\n\nif __name__ == '__main__':\n    print(fix(sys.argv[1]))\n</code></pre>",
+                "question_type": "true_false_question",
                 "points_possible": 1,
-                "correct_comments": null,
-                "incorrect_comments": null,
                 "answers": [
                     {
-                        "answer_html": "<p><code style=\"color: #000000\">0</code></p>",
+                        "answer_text": "True",
                         "answer_weight": 100
                     },
                     {
-                        "answer_html": "<p><code style=\"color: #000000\">-2</code></p>",
-                        "answer_weight": 0
-                    },
-                    {
-                        "answer_html": "<p><code style=\"color: #000000\">3</code></p>",
-                        "answer_weight": 0
-                    },
-                    {
-                        "answer_html": "<p><code style=\"color: #000000\">1</code></p>",
+                        "answer_text": "False",
                         "answer_weight": 0
                     }
                 ]
             },
             {
-                "question_text": "<p>Which block of code could produce the following dialog:</p>\n<pre class=\"codehilite\"><code class=\"language-text\">Give me a fruit: pear\nThose are fine.\nGive me a fruit: banana\nThose are fine.\nGive me a fruit: apple\nI like that!\nGoodbye!\n</code></pre>",
-                "question_type": "multiple_choice_question",
+                "question_text": "<pre class=\"codehilite\"><code class=\"language-python\">import sys\n\n\ndef fix(original_string):\n    modified_string = original_string.replace(' ', '_')\n    modified_string.replace('e', 'E')\n    return modified_string\n\n\nif __name__ == '__main__':\n    print(fix(sys.argv[1]))\n</code></pre>",
+                "question_type": "true_false_question",
                 "points_possible": 1,
-                "correct_comments": null,
-                "incorrect_comments": null,
                 "answers": [
                     {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">def main():\n    while True:\n        fruit = input('Give me a fruit: ')\n        if fruit == 'apple':\n            print('I like that!')\n            break\n        elif fruit == 'durian':\n            print('No thank you!')\n        else:\n            print('Those are fine.')\n    print('Goodbye!')\n\nif __name__ == '__main__':\n    main()\n</code></pre>",
+                        "answer_text": "True",
                         "answer_weight": 100
                     },
                     {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">def main():\n    while True:\n        fruit = input('Give me a fruit: ')\n        if fruit == 'apple':\n            print('I like that!')\n            return\n        else:\n            print('Those are fine.')\n    print('Goodbye!')\n\nif __name__ == '__main__':\n    main()\n</code></pre>",
-                        "answer_weight": 0
-                    },
-                    {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">def main():\n    while True:\n        fruit = input('Give me a fruit: ')\n        if fruit == 'apple':\n            print('I like that!')\n            break\n        elif fruit == 'banana':\n            print('Those are ok.')\n        else:\n            print('Those are fine.')\n    print('Goodbye!')\n\nif __name__ == '__main__':\n    main()\n</code></pre>",
-                        "answer_weight": 0
-                    },
-                    {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">def main():\n    while True:\n        fruit = input('Give me a fruit: ')\n        if fruit == 'pear':\n            print('Those are fine.')\n            break\n        elif fruit == 'banana':\n            print('Those are fine.')\n            break\n        else:\n            print('I like that!')\n    print('Goodbye!')\n\nif __name__ == '__main__':\n    main()\n</code></pre>",
+                        "answer_text": "False",
                         "answer_weight": 0
                     }
                 ]
             },
             {
-                "question_text": "<p>Which of the following dialogs is <strong>NOT</strong> possible with this code?</p>\n<pre class=\"codehilite\"><code class=\"language-python\">def want_pets():\n    pets = []\n    while True:\n        pet = input('What pet do you want? ')\n        if pet == '':\n            break\n        if pet == 'dinosaur':\n            print('I want one too!')\n        pets.append(pet)\n    print(f'You want {len(pets)} pets.')\n    if len(pets) &gt; 3:\n        print(\"That's too many!\")\n\nif __name__ == '__main__':\n    want_pets()\n</code></pre>",
-                "question_type": "multiple_choice_question",
+                "question_text": "<pre class=\"codehilite\"><code class=\"language-python\">import sys\n\n\ndef fix(original_string):\n    modified_string = original_string.replace(' ', '_')\n    modified_string = original_string.replace('e', 'E')\n    return modified_string\n\n\nif __name__ == '__main__':\n    print(fix(sys.argv[1]))\n</code></pre>",
+                "question_type": "true_false_question",
                 "points_possible": 1,
-                "correct_comments": null,
-                "incorrect_comments": null,
                 "answers": [
                     {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-text\">What pet do you want? gerbil\nWhat pet do you want? dinosaur\nI want one too!\nWhat pet do you want? dinosaur\nI want one too!\nWhat pet do you want? fish\nWhat pet do you want? \nYou want 3 pets.\n</code></pre>",
+                        "answer_text": "True",
                         "answer_weight": 100
                     },
                     {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-text\">What pet do you want? dog\nWhat pet do you want? cat\nWhat pet do you want? bird\nWhat pet do you want? horse\nWhat pet do you want? \nYou want 4 pets.\nThat's too many!\n</code></pre>",
-                        "answer_weight": 0
-                    },
-                    {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-text\">What pet do you want? \nYou want 0 pets.\n</code></pre>",
-                        "answer_weight": 0
-                    },
-                    {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-text\">What pet do you want? dog\nWhat pet do you want? dinosaur\nI want one too!\nWhat pet do you want? fish\nWhat pet do you want? \nYou want 3 pets.\n</code></pre>",
+                        "answer_text": "False",
                         "answer_weight": 0
                     }
                 ]
             },
             {
-                "question_text": "<p>What will the following block of code print?</p>\n<pre class=\"codehilite\"><code class=\"language-python\">def loop(numbers):\n    for number in numbers:\n        if number % 2 == 0:\n            print(number)\n\ndef dance(fruits):\n    for kiwi in fruits:\n        print(f'I like {kiwi}')\n\ndef main():\n    numbers = [1, 4, 5, 8, 9, 12]\n    dance(numbers)\n    loop(numbers)\n\nif __name__ == '__main__':\n    main()\n</code></pre>",
-                "question_type": "multiple_choice_question",
+                "question_text": "<pre class=\"codehilite\"><code class=\"language-python\">import sys\n\n\ndef fix(original_string):\n    modified_string = ''\n    for char in original_string:\n        if char == ' ':\n            modified_string += '_'\n        elif char == 'e':\n            modified_string += 'E'\n    return modified_string\n\n\nif __name__ == '__main__':\n    print(fix(sys.argv[1]))\n</code></pre>",
+                "question_type": "true_false_question",
                 "points_possible": 1,
-                "correct_comments": null,
-                "incorrect_comments": null,
                 "answers": [
                     {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-text\">I like 1\nI like 4\nI like 5\nI like 8\nI like 9\nI like 12\n4\n8\n12\n</code></pre>",
+                        "answer_text": "True",
                         "answer_weight": 100
                     },
                     {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-text\">I like 1\nI like 5\nI like 9\n1\n5\n9\n</code></pre>",
-                        "answer_weight": 0
-                    },
-                    {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-text\">I like {kiwi}\nI like {kiwi}\nI like {kiwi}\nI like {kiwi}\nI like {kiwi}\nI like {kiwi}\n4\n8\n12\n</code></pre>",
-                        "answer_weight": 0
-                    },
-                    {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-text\">I like 1\nI like 4\nI like 5\nI like 8\nI like 9\nI like 12\n1\n5\n9\n</code></pre>",
+                        "answer_text": "False",
                         "answer_weight": 0
                     }
                 ]
             },
             {
-                "question_text": "<p>Consider the following code and output.</p>\n<pre class=\"codehilite\"><code class=\"language-python\">def just_keepers(things):\n    keepers = []\n    for thing in things:\n        if keep_it(thing):\n            keepers.append(thing)\n    return keepers\n\nif __name__ == '__main__':\n    stuff = just_keepers([-7, 4, 12, 2, -3])\n    print(stuff)\n</code></pre>\n<pre class=\"codehilite\"><code class=\"language-text\">[-7, 12]\n</code></pre>\n<p>Which version of <code style=\"color: #000000\">keep_it</code> could be used to produce that output?</p>",
-                "question_type": "multiple_choice_question",
+                "question_text": "<h1>Questions 9-13</h1>\n<p>The following code is found in the file <code style=\"color: #000000\">print_words.py</code>.</p>\n<pre class=\"codehilite\"><code class=\"language-python\">import sys\n\n\ndef get_plain_words(text):\n    punctuations = '.,!?'\n    words = text.split()\n    stripped_words = []\n\n    for word in words:\n        stripped_word = word.strip(punctuations).lower()\n        stripped_words.append(stripped_word)\n\n    return stripped_words\n\n\nif __name__ == '__main__':\n    text = sys.argv[1]\n    result = get_plain_words(text)\n    for word in result:\n        print(word)\n</code></pre>\n<p>Which options demonstrate a valid execution of <code style=\"color: #000000\">print_words.py</code>.</p>",
+                "question_type": "text_only_question"
+            },
+            {
+                "question_text": "<pre class=\"codehilite\"><code class=\"language-text\">python print_words.py 'Hello! How are you today?'\nhello\nhow\nare\nyou\ntoday\n</code></pre>",
+                "question_type": "true_false_question",
                 "points_possible": 1,
-                "correct_comments": null,
-                "incorrect_comments": null,
                 "answers": [
                     {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">def keep_it(thing):\n    return thing &gt; 7 or thing &lt; -5\n</code></pre>",
+                        "answer_text": "True",
                         "answer_weight": 100
                     },
                     {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">def keep_it(thing):\n    return thing &gt; 8 and thing &lt; -6\n</code></pre>",
-                        "answer_weight": 0
-                    },
-                    {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">def keep_it(thing):\n    if thing &gt;= 12:\n        return True\n    elif thing &lt; 0:\n        return True\n    else:\n        return False\n</code></pre>",
-                        "answer_weight": 0
-                    },
-                    {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">def keep_it(thing):\n    return thing &gt; -3 or thing &lt; 9\n</code></pre>",
+                        "answer_text": "False",
                         "answer_weight": 0
                     }
                 ]
             },
             {
-                "question_text": "<p>Match each <code style=\"color: #000000\">list</code> pattern with the scenario it serves.</p>",
-                "question_type": "matching_question",
+                "question_text": "<pre class=\"codehilite\"><code class=\"language-text\">python print_words.py Do you know the muffin man? \ndo\nyou\nknow\nthe\nmuffin\nman?\n</code></pre>",
+                "question_type": "true_false_question",
                 "points_possible": 1,
-                "correct_comments": null,
-                "incorrect_comments": null,
                 "answers": [
                     {
-                        "answer_match_left": "You want to add an exclamation point to each word in a list.",
-                        "answer_match_right": "Mapping pattern",
+                        "answer_text": "True",
                         "answer_weight": 100
                     },
                     {
-                        "answer_match_left": "Eligibility is defined by highest grade, then by earliest application. You want to find the most eligible applicant.",
-                        "answer_match_right": "Selection pattern",
-                        "answer_weight": 100
-                    },
-                    {
-                        "answer_match_left": "A purchase record has information about the number of items, date, and total purchase price. You want to find the total spent across a batch of purchases.",
-                        "answer_match_right": "Accumulator pattern",
-                        "answer_weight": 100
-                    },
-                    {
-                        "answer_match_left": "You have a list of speech transcripts. You want only the speeches that mention prayer.",
-                        "answer_match_right": "Filter pattern",
-                        "answer_weight": 100
-                    }
-                ],
-                "matching_answer_incorrect_matches": null
-            },
-            {
-                "question_text": "<p>Match each block of code with the pattern it demonstrates:</p>\n<p>Code Block A:</p>\n<pre class=\"codehilite\"><code class=\"language-python\">def find_optimal_venue(venues):\n    optimal = None\n    for venue in venues:\n        if optimal is None or score(optimal) &lt; score(venue):\n            optimal = venue\n    return optimal\n</code></pre>\n<p>Code Block B:</p>\n<pre class=\"codehilite\"><code class=\"language-python\">def convert_to_metric(mileage_reports):\n    new_reports = []\n    for origin, destination, miles, time in mileage_reports:\n        kilometers = convert_to_km(miles)\n        new_reports.append((origin, destination, kilometers, time))\n    return new_reports\n</code></pre>\n<p>Code Block C:</p>\n<pre class=\"codehilite\"><code class=\"language-python\">def identify_priority_cases(cases):\n    priorities = []\n    for case in cases:\n        if is_priority(case):\n            priorities.append(case)\n    return priorities\n</code></pre>\n<p>Code Block D:</p>\n<pre class=\"codehilite\"><code class=\"language-python\">def count_points(games):\n    total = 0\n    for game in games:\n        team1, team2, team1_points, team2_points, location, date = game\n        total = total + team1_points + team2_points\n    return total\n</code></pre>",
-                "question_type": "matching_question",
-                "points_possible": 1,
-                "correct_comments": null,
-                "incorrect_comments": null,
-                "answers": [
-                    {
-                        "answer_match_left": "Code Block A",
-                        "answer_match_right": "Selection pattern",
-                        "answer_weight": 100
-                    },
-                    {
-                        "answer_match_left": "Code Block B",
-                        "answer_match_right": "Mapping pattern",
-                        "answer_weight": 100
-                    },
-                    {
-                        "answer_match_left": "Code Block C",
-                        "answer_match_right": "Filter pattern",
-                        "answer_weight": 100
-                    },
-                    {
-                        "answer_match_left": "Code Block D",
-                        "answer_match_right": "Accumulator pattern",
-                        "answer_weight": 100
-                    }
-                ],
-                "matching_answer_incorrect_matches": null
-            },
-            {
-                "question_text": "<p>Consider the following code:</p>\n<pre class=\"codehilite\"><code class=\"language-python\">students = [\n    ('Wright', 'John', 'economics', 'Oregon'),\n    ('Sanchez-Moreno', 'Rosamaria', 'computer science', 'Florida')\n]\n</code></pre>\n<p>Which code will loop through a list of student tuples and unpack them into variables?</p>",
-                "question_type": "multiple_choice_question",
-                "points_possible": 1,
-                "correct_comments": null,
-                "incorrect_comments": null,
-                "answers": [
-                    {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">for last, first, major, state in students:\n    print(f'{first} {last} -- {major} major, from {state}')\n</code></pre>",
-                        "answer_weight": 100
-                    },
-                    {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">for every student in students:\n    print(f'{student.first} {student.last} -- {student.major} major, from {student.state}')\n</code></pre>",
-                        "answer_weight": 0
-                    },
-                    {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">while True:\n    print(f'{first} {last} -- {major} major, from {state}')\n</code></pre>",
-                        "answer_weight": 0
-                    },
-                    {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">for students in last, first, major, state:\n    print(f'{first} {last} -- {major} major, from {state}')\n</code></pre>",
+                        "answer_text": "False",
                         "answer_weight": 0
                     }
                 ]
             },
             {
-                "question_text": "<p>Consider the following code:</p>\n<pre class=\"codehilite\"><code class=\"language-python\">def get_participant():\n    first = input('First name: ')\n    last = input('Last name: ')\n    age = int(input('Age: '))\n    if first == '' or last == '' or age &lt; 3:\n        return None\n\n    return (first, last, age)\n</code></pre>\n<p>In which of the following cases would this function return <code style=\"color: #000000\">None</code>? (Mark all that apply)</p>",
-                "question_type": "multiple_answers_question",
+                "question_text": "<pre class=\"codehilite\"><code class=\"language-text\">python print_words.py \"3.1415 begins pi.\"\n31415\nbegins\npi\n</code></pre>",
+                "question_type": "true_false_question",
                 "points_possible": 1,
-                "correct_comments": null,
-                "incorrect_comments": null,
                 "answers": [
                     {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-text\">First name: Adam\nLast name: \nAge: 4\n</code></pre>",
+                        "answer_text": "True",
                         "answer_weight": 100
                     },
                     {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-text\">First name: \nLast name: de Souza\nAge: 5\n</code></pre>",
-                        "answer_weight": 100
-                    },
-                    {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-text\">First name: Preet\nLast name: Bharara\nAge: 2\n</code></pre>",
-                        "answer_weight": 100
-                    },
-                    {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-text\">First name: Sarah\nLast name: Page\nAge: 10\n</code></pre>",
+                        "answer_text": "False",
                         "answer_weight": 0
                     }
                 ]
             },
             {
-                "question_text": "<p>You need to write a function that gets a person's sandwich toppings.</p>\n<ul>\n<li>If they ask for onions, you need to say those are out.</li>\n<li>Otherwise, add the topping to a list of toppings and return the list.</li>\n</ul>\n<p>Which of these functions accomplishes this?</p>",
-                "question_type": "multiple_choice_question",
+                "question_text": "<pre class=\"codehilite\"><code class=\"language-text\">python print_words.py \"My favorite color is BLUE.\"\nMy\nfavorite\ncolor\nis\nBLUE\n</code></pre>",
+                "question_type": "true_false_question",
                 "points_possible": 1,
-                "correct_comments": null,
-                "incorrect_comments": null,
                 "answers": [
                     {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">def get_toppings():\n    toppings = []\n    while True:\n        topping = input(\"Topping: \")\n        if topping == '':\n            break\n        if topping == 'onions':\n            print('Sorry we are out of onions.')\n        else:\n            toppings.append(topping)\n\n    return toppings\n</code></pre>",
+                        "answer_text": "True",
                         "answer_weight": 100
                     },
                     {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">def get_toppings():\n    toppings = []\n    while topping != 'onion':\n        topping = input(\"Topping: \")\n\n    if topping == 'onions':\n        print('Sorry we are out of onions.')\n\n    toppings.append(topping)\n\n    return toppings\n</code></pre>",
+                        "answer_text": "False",
+                        "answer_weight": 0
+                    }
+                ]
+            },
+            {
+                "question_text": "<pre class=\"codehilite\"><code class=\"language-text\">python print_words.py \"To get bit to move, use bit.move()\"\nto\nget\nbit\nto\nmove\nuse\nbit.move()\n</code></pre>",
+                "question_type": "true_false_question",
+                "points_possible": 1,
+                "answers": [
+                    {
+                        "answer_text": "True",
+                        "answer_weight": 100
+                    },
+                    {
+                        "answer_text": "False",
+                        "answer_weight": 0
+                    }
+                ]
+            },
+            {
+                "question_text": "<h1>Questions 14-17</h1>\n<p>Select all of the following programs that can increase the number in the middle of each CSV row by 1.</p>\n<p><strong>Execution</strong></p>\n<pre class=\"codehilite\"><code class=\"language-text\">python add_one.py input.txt output.txt\n</code></pre>\n<p><strong><code style=\"color: #000000\">input.txt</code></strong></p>\n<pre class=\"codehilite\"><code class=\"language-text\">quail,10,Provo\nrobin,3,Provo\njunco,1,Orem\n</code></pre>\n<p><strong><code style=\"color: #000000\">output.txt</code></strong></p>\n<pre class=\"codehilite\"><code class=\"language-text\">quail,11,Provo\nrobin,4,Provo\njunco,2,Orem\n</code></pre>",
+                "question_type": "text_only_question"
+            },
+            {
+                "question_text": "<pre class=\"codehilite\"><code class=\"language-python\">import sys\n\n\ndef add_one(line):\n    tokens = line.split(',')\n    new_tokens = []\n    for token in tokens:\n        if token.isdigit():\n            token = str(int(token) + 1)\n        new_tokens.append(token)\n    return ','.join(new_tokens)\n\n\ndef main(input_file, output_file):\n    with open(input_file) as file:\n        lines = file.readlines()\n\n    new_lines = []\n    for line in lines:\n        new_lines.append(add_one(line))\n\n    with open(output_file, 'w') as file:\n        file.writelines(new_lines)\n\n\nif __name__ == '__main__':\n    main(sys.argv[1], sys.argv[2])\n</code></pre>",
+                "question_type": "true_false_question",
+                "points_possible": 1,
+                "answers": [
+                    {
+                        "answer_text": "True",
+                        "answer_weight": 100
+                    },
+                    {
+                        "answer_text": "False",
+                        "answer_weight": 0
+                    }
+                ]
+            },
+            {
+                "question_text": "<pre class=\"codehilite\"><code class=\"language-python\">import sys\n\n\ndef main(input_file, output_file):\n    with open(input_file) as file:\n        text = file.read()\n\n    new_text = ''\n    for c in text:\n        if c.isdigit():\n            c = c + 1\n        new_text += c\n\n    with open(output_file, 'w') as file:\n        file.write(new_text)\n\n\nif __name__ == '__main__':\n    main(sys.argv[1], sys.argv[2])\n</code></pre>",
+                "question_type": "true_false_question",
+                "points_possible": 1,
+                "answers": [
+                    {
+                        "answer_text": "True",
+                        "answer_weight": 100
+                    },
+                    {
+                        "answer_text": "False",
+                        "answer_weight": 0
+                    }
+                ]
+            },
+            {
+                "question_text": "<pre class=\"codehilite\"><code class=\"language-python\">import sys\n\n\ndef add_one(line):\n    tokens = line.split(',')\n    new_num = str(int(tokens[1]) + 1)\n    new_tokens = [tokens[0], new_num, tokens[2]]\n    return ','.join(new_tokens)\n\n\ndef main(input_file, output_file):\n    with open(input_file) as file:\n        lines = file.readlines()\n\n    new_lines = []\n    for line in lines:\n        new_lines.append(add_one(line))\n\n    with open(output_file, 'w') as file:\n        file.writelines(new_lines)\n\n\nif __name__ == '__main__':\n    main(sys.argv[1], sys.argv[2])\n</code></pre>",
+                "question_type": "true_false_question",
+                "points_possible": 1,
+                "answers": [
+                    {
+                        "answer_text": "True",
+                        "answer_weight": 100
+                    },
+                    {
+                        "answer_text": "False",
+                        "answer_weight": 0
+                    }
+                ]
+            },
+            {
+                "question_text": "<pre class=\"codehilite\"><code class=\"language-python\">import sys\n\n\ndef add_one(line):\n    tokens = line.split(',')\n    new_num = tokens[1] + 1\n    new_tokens = [tokens[0], new_num, tokens[2]]\n    return ','.join(new_tokens)\n\n\ndef main(input_file, output_file):\n    with open(input_file) as file:\n        lines = file.readlines()\n\n    new_lines = []\n    for line in lines:\n        new_lines.append(add_one(line))\n\n    with open(output_file, 'w') as file:\n        file.writelines(new_lines)\n\n\nif __name__ == '__main__':\n    main(sys.argv[1], sys.argv[2])\n</code></pre>",
+                "question_type": "true_false_question",
+                "points_possible": 1,
+                "answers": [
+                    {
+                        "answer_text": "True",
+                        "answer_weight": 100
+                    },
+                    {
+                        "answer_text": "False",
+                        "answer_weight": 0
+                    }
+                ]
+            },
+            {
+                "question_text": "<h1>Midway Question</h1>\n<p>What does the following expression evaluate to?</p>\n<pre class=\"codehilite\"><code class=\"language-python\">not False\n</code></pre>",
+                "question_type": "true_false_question",
+                "points_possible": 1,
+                "answers": [
+                    {
+                        "answer_text": "True",
                         "answer_weight": 0
                     },
                     {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">def get_toppings():\n    toppings = []\n    while True:\n        topping = input(\"Topping: \")\n        if topping == '':\n            print('Sorry we are out of onions.')\n            break\n\n        toppings.append(topping)\n\n    return toppings\n</code></pre>",
+                        "answer_text": "False",
+                        "answer_weight": 100
+                    }
+                ]
+            },
+            {
+                "question_text": "<h1>Questions 19-23</h1>\n<p>Which code blocks correctly compare two strings, character by character, and print only the characters that match?</p>\n<p>Examples:</p>\n<pre class=\"codehilite\"><code>python matches.py hourse house\nhou\n</code></pre>\n<pre class=\"codehilite\"><code>python matches.py bolus torus\nous\n</code></pre>\n<pre class=\"codehilite\"><code>python matches.py banana fruitcake\n</code></pre>\n<p>Select all that apply.</p>",
+                "question_type": "text_only_question"
+            },
+            {
+                "question_text": "<pre class=\"codehilite\"><code class=\"language-python\">import sys\n\n\ndef main(word1, word2):\n    matches = ''\n    for letter in word1:\n        if letter in word2:\n            matches += letter\n    print(matches)\n\n\nif __name__ == '__main__':\n    main(sys.argv[1], sys.argv[2])\n</code></pre>",
+                "question_type": "true_false_question",
+                "points_possible": 1,
+                "answers": [
+                    {
+                        "answer_text": "True",
+                        "answer_weight": 100
+                    },
+                    {
+                        "answer_text": "False",
+                        "answer_weight": 0
+                    }
+                ]
+            },
+            {
+                "question_text": "<pre class=\"codehilite\"><code class=\"language-python\">import sys\n\n\ndef main(word1, word2):\n    matches = ''\n    for w1, w2 in zip(word1, word2):\n        if w1 == w2:\n            matches += w1\n    print(matches)\n\n\nif __name__ == '__main__':\n    main(sys.argv[1], sys.argv[2])\n</code></pre>",
+                "question_type": "true_false_question",
+                "points_possible": 1,
+                "answers": [
+                    {
+                        "answer_text": "True",
+                        "answer_weight": 100
+                    },
+                    {
+                        "answer_text": "False",
+                        "answer_weight": 0
+                    }
+                ]
+            },
+            {
+                "question_text": "<pre class=\"codehilite\"><code class=\"language-python\">import sys\n\n\ndef main(word1, word2):\n    matches = ''\n    if word1 in word2:\n        for letter in word1:\n            matches += letter\n    print(matches)\n\n\nif __name__ == '__main__':\n    main(sys.argv[1], sys.argv[2])\n</code></pre>",
+                "question_type": "true_false_question",
+                "points_possible": 1,
+                "answers": [
+                    {
+                        "answer_text": "True",
+                        "answer_weight": 100
+                    },
+                    {
+                        "answer_text": "False",
+                        "answer_weight": 0
+                    }
+                ]
+            },
+            {
+                "question_text": "<pre class=\"codehilite\"><code class=\"language-python\">import sys\n\n\ndef main(word1, word2):\n    matches = ''\n    for i in range(len(word1)):\n        if i &lt; len(word2) and word1[i] == word2[i]:\n            matches += word1[i]\n    print(matches)\n\n\nif __name__ == '__main__':\n    main(sys.argv[1], sys.argv[2])\n</code></pre>",
+                "question_type": "true_false_question",
+                "points_possible": 1,
+                "answers": [
+                    {
+                        "answer_text": "True",
+                        "answer_weight": 100
+                    },
+                    {
+                        "answer_text": "False",
+                        "answer_weight": 0
+                    }
+                ]
+            },
+            {
+                "question_text": "<pre class=\"codehilite\"><code class=\"language-python\">import sys\n\n\ndef main(word1, word2):\n    for c1, c2 in zip(word1, word2):\n        if c1 == c2:\n            print(c1)\n\n\nif __name__ == '__main__':\n    main(sys.argv[1], sys.argv[2])\n</code></pre>",
+                "question_type": "true_false_question",
+                "points_possible": 1,
+                "answers": [
+                    {
+                        "answer_text": "True",
+                        "answer_weight": 100
+                    },
+                    {
+                        "answer_text": "False",
+                        "answer_weight": 0
+                    }
+                ]
+            },
+            {
+                "question_text": "<h1>Questions 24-30</h1>\n<p>Consider the following program:</p>\n<p><strong><code style=\"color: #000000\">subs.py</code></strong></p>\n<pre class=\"codehilite\"><code class=\"language-python\">import sys\n\n\ndef substitute(text, substitutions): ...\n\n\ndef main(text, substitutions):\n    text = substitute(text, substitutions)\n    print(text)\n\n\nif __name__ == '__main__':\n\n    options = {\n        \"bird\": \"feathered critter\",\n        \"fish\": \"wet critter\",\n        \"dog\": \"happy critter\",\n        \"cat\": \"furry critter\"\n    }\n    main(sys.argv[1], options)\n</code></pre>\n<p>Which of the following implementations of <code style=\"color: #000000\">substitute</code> can produce this execution:</p>\n<pre class=\"codehilite\"><code class=\"language-text\">python subs.py \"My dog likes to watch the fish swim. My cat wants to catch the bird in the tree.\"\nMy happy critter likes to watch the wet critter swim. My furry critter wants to catch the feathered critter in the tree.\n</code></pre>",
+                "question_type": "text_only_question"
+            },
+            {
+                "question_text": "<pre class=\"codehilite\"><code class=\"language-python\">def substitute(text, substitutions):\n    for key, value in substitutions.items():\n        text = text.replace(key, value)\n    return text\n</code></pre>",
+                "question_type": "true_false_question",
+                "points_possible": 1,
+                "answers": [
+                    {
+                        "answer_text": "True",
+                        "answer_weight": 100
+                    },
+                    {
+                        "answer_text": "False",
+                        "answer_weight": 0
+                    }
+                ]
+            },
+            {
+                "question_text": "<pre class=\"codehilite\"><code class=\"language-python\">def substitute(text, substitutions):\n    new_words = []\n    for word in text.split():\n        if word in substitutions:\n            new_words.append(substitutions[word])\n        else:\n            new_words.append(word)\n    return ' '.join(new_words)\n</code></pre>",
+                "question_type": "true_false_question",
+                "points_possible": 1,
+                "answers": [
+                    {
+                        "answer_text": "True",
+                        "answer_weight": 100
+                    },
+                    {
+                        "answer_text": "False",
+                        "answer_weight": 0
+                    }
+                ]
+            },
+            {
+                "question_text": "<pre class=\"codehilite\"><code class=\"language-python\">def substitute(text, substitutions):\n    new_text = ''\n    for word in text:\n        if word in substitutions:\n            new_text += substitutions[word]\n        else:\n            new_text += word\n    return new_text\n</code></pre>",
+                "question_type": "true_false_question",
+                "points_possible": 1,
+                "answers": [
+                    {
+                        "answer_text": "True",
+                        "answer_weight": 100
+                    },
+                    {
+                        "answer_text": "False",
+                        "answer_weight": 0
+                    }
+                ]
+            },
+            {
+                "question_text": "<pre class=\"codehilite\"><code class=\"language-python\">def substitute(text, substitutions):\n    new_text = ''\n    for word in text.split():\n        if word in substitutions:\n            new_text += substitutions[word]\n        else:\n            new_text += word\n    return new_text\n</code></pre>",
+                "question_type": "true_false_question",
+                "points_possible": 1,
+                "answers": [
+                    {
+                        "answer_text": "True",
+                        "answer_weight": 100
+                    },
+                    {
+                        "answer_text": "False",
+                        "answer_weight": 0
+                    }
+                ]
+            },
+            {
+                "question_text": "<pre class=\"codehilite\"><code class=\"language-python\">def substitute(text, substitutions):\n    new_words = []\n    for word in text.split():\n        for key, value in substitutions.items():\n            if key in word:\n                word = word.replace(key, value)\n        new_words.append(word)\n    return ' '.join(new_words\n</code></pre>",
+                "question_type": "true_false_question",
+                "points_possible": 1,
+                "answers": [
+                    {
+                        "answer_text": "True",
+                        "answer_weight": 100
+                    },
+                    {
+                        "answer_text": "False",
+                        "answer_weight": 0
+                    }
+                ]
+            },
+            {
+                "question_text": "<pre class=\"codehilite\"><code class=\"language-python\">def substitute(text, substitutions):\n    new_words = []\n    for word in text.split():\n        if word in substitutions:\n            word = substitutions[word]\n        new_words.append(word)\n    return ' '.join(new_words)\n</code></pre>",
+                "question_type": "true_false_question",
+                "points_possible": 1,
+                "answers": [
+                    {
+                        "answer_text": "True",
+                        "answer_weight": 100
+                    },
+                    {
+                        "answer_text": "False",
+                        "answer_weight": 0
+                    }
+                ]
+            },
+            {
+                "question_text": "<pre class=\"codehilite\"><code class=\"language-python\">def substitute(text, substitutions):\n    for key, value in substitutions:\n        text.replace(key, value)\n    return text\n</code></pre>",
+                "question_type": "true_false_question",
+                "points_possible": 1,
+                "answers": [
+                    {
+                        "answer_text": "True",
+                        "answer_weight": 100
+                    },
+                    {
+                        "answer_text": "False",
+                        "answer_weight": 0
+                    }
+                ]
+            },
+            {
+                "question_text": "<h1>Questions 31-35</h1>\n<p>Given the program:</p>\n<p><strong><code style=\"color: #000000\">counts.py</code></strong></p>\n<pre class=\"codehilite\"><code class=\"language-python\">import sys\n\n\ndef count_letters(text): ...\n\n\ndef main(text):\n    counts = count_letters(text)\n    print(counts)\n\n\nif __name__ == '__main__':\n    main(sys.argv[1])\n</code></pre>\n<p>Which of the following implementations of <code style=\"color: #000000\">count_letters</code> will produce the following output:</p>\n<pre class=\"codehilite\"><code class=\"language-text\">python counts.py 'Apples, bananas, pears!'\n{'a': 5, 'p': 3, 'l': 1, 'e': 2, 's': 3, 'b': 1, 'n': 2, 'r': 1}\n</code></pre>",
+                "question_type": "text_only_question"
+            },
+            {
+                "question_text": "<pre class=\"codehilite\"><code class=\"language-python\">def count_letters(text):\n    counts = {}\n    for letter in 'abcdefghijklmnopqrstuvwxyz':\n        counts[letter] = 0\n\n    for letter in text.lower():\n        if letter.isalnum():\n            counts[letter] += 1\n\n    return counts\n</code></pre>",
+                "question_type": "true_false_question",
+                "points_possible": 1,
+                "answers": [
+                    {
+                        "answer_text": "True",
+                        "answer_weight": 100
+                    },
+                    {
+                        "answer_text": "False",
+                        "answer_weight": 0
+                    }
+                ]
+            },
+            {
+                "question_text": "<pre class=\"codehilite\"><code class=\"language-python\">def count_letters(text):\n    counts = {}\n    for letter in text:\n        if letter not in counts:\n            counts[letter] = 0\n        counts[letter] += 1    \n    return counts\n</code></pre>",
+                "question_type": "true_false_question",
+                "points_possible": 1,
+                "answers": [
+                    {
+                        "answer_text": "True",
+                        "answer_weight": 100
+                    },
+                    {
+                        "answer_text": "False",
+                        "answer_weight": 0
+                    }
+                ]
+            },
+            {
+                "question_text": "<pre class=\"codehilite\"><code class=\"language-python\">def count_letters(text):\n    counts = {}\n    for letter in text:\n        if letter.lower() not in counts:\n            counts[letter] = 0\n        counts[letter] += 1    \n    return counts\n</code></pre>",
+                "question_type": "true_false_question",
+                "points_possible": 1,
+                "answers": [
+                    {
+                        "answer_text": "True",
+                        "answer_weight": 100
+                    },
+                    {
+                        "answer_text": "False",
+                        "answer_weight": 0
+                    }
+                ]
+            },
+            {
+                "question_text": "<pre class=\"codehilite\"><code class=\"language-python\">def count_letters(text):\n    counts = {}\n    for letter in text.lower():\n        if not letter.isalnum():\n            break\n        elif letter not in counts:\n            counts[letter] = 0\n        counts[letter] += 1\n    return counts\n</code></pre>",
+                "question_type": "true_false_question",
+                "points_possible": 1,
+                "answers": [
+                    {
+                        "answer_text": "True",
+                        "answer_weight": 100
+                    },
+                    {
+                        "answer_text": "False",
+                        "answer_weight": 0
+                    }
+                ]
+            },
+            {
+                "question_text": "<pre class=\"codehilite\"><code class=\"language-python\">def count_letters(text):\n    counts = {}\n    for letter in text.lower():\n        if letter.isalnum():\n            if letter not in counts:\n                counts[letter] = 0\n            counts[letter] += 1\n    return counts\n</code></pre>",
+                "question_type": "true_false_question",
+                "points_possible": 1,
+                "answers": [
+                    {
+                        "answer_text": "True",
+                        "answer_weight": 100
+                    },
+                    {
+                        "answer_text": "False",
+                        "answer_weight": 0
+                    }
+                ]
+            },
+            {
+                "question_text": "<h1>Questions 36-39</h1>\n<p>Given the following program:</p>\n<p><strong><code style=\"color: #000000\">group_words.py</code></strong></p>\n<pre class=\"codehilite\"><code class=\"language-python\">import sys\n\n\ndef make_groups(text): ...\n\n\ndef main(text):\n    groups = make_groups(text)\n    print(groups)\n\n\nif __name__ == '__main__':\n    main(sys.argv[1])\n</code></pre>\n<p>Which implementations of <code style=\"color: #000000\">make_groups</code> can produce the following output?</p>\n<pre class=\"codehilite\"><code>python group_words.py 'I, Nephi, having been born of goodly parents...'\n{1: ['i'],\n 5: ['nephi'],\n 6: ['having', 'goodly'],\n 4: ['been', 'born'],\n 2: ['of'],\n 7: ['parents']}\n</code></pre>",
+                "question_type": "text_only_question"
+            },
+            {
+                "question_text": "<pre class=\"codehilite\"><code class=\"language-python\">def make_groups(text):\n    groups = {}\n    for word in text.lower().split():\n        word = word.strip('.,!?')\n        key = len(word)\n        if key not in groups:\n            groups[key] = []\n        groups[key].append(word)\n    return groups\n</code></pre>",
+                "question_type": "true_false_question",
+                "points_possible": 1,
+                "answers": [
+                    {
+                        "answer_text": "True",
+                        "answer_weight": 100
+                    },
+                    {
+                        "answer_text": "False",
+                        "answer_weight": 0
+                    }
+                ]
+            },
+            {
+                "question_text": "<pre class=\"codehilite\"><code class=\"language-python\">def make_groups(text):\n    groups = {}\n    for word in text.split():\n        word = word.strip('.,!?').lower()\n        key = len(word)\n        if key not in groups:\n            groups[key] = [word]\n        else:\n            groups[key].append(word)\n    return groups\n</code></pre>",
+                "question_type": "true_false_question",
+                "points_possible": 1,
+                "answers": [
+                    {
+                        "answer_text": "True",
+                        "answer_weight": 100
+                    },
+                    {
+                        "answer_text": "False",
+                        "answer_weight": 0
+                    }
+                ]
+            },
+            {
+                "question_text": "<pre class=\"codehilite\"><code class=\"language-python\">def make_groups(text):\n    groups = {}\n    for word in text:\n        word = word.strip('.,!?').lower()\n        if word.lower() not in groups:\n            groups[word.lower()] = []\n        groups[word.lower()].append(word)\n    return groups\n</code></pre>",
+                "question_type": "true_false_question",
+                "points_possible": 1,
+                "answers": [
+                    {
+                        "answer_text": "True",
+                        "answer_weight": 100
+                    },
+                    {
+                        "answer_text": "False",
+                        "answer_weight": 0
+                    }
+                ]
+            },
+            {
+                "question_text": "<pre class=\"codehilite\"><code class=\"language-python\">def make_groups(text):\n    groups = {}\n    for word in text.split():\n        word = word.strip('.,!?')\n        key = len(word.lower())\n        if key not in groups:\n            groups[key] = []\n        groups[key].append(word)\n    return groups\n</code></pre>",
+                "question_type": "true_false_question",
+                "points_possible": 1,
+                "answers": [
+                    {
+                        "answer_text": "True",
+                        "answer_weight": 100
+                    },
+                    {
+                        "answer_text": "False",
+                        "answer_weight": 0
+                    }
+                ]
+            },
+            {
+                "question_text": "<h1>Last Question</h1>\n<p>What does this expression evaluate to?</p>\n<pre class=\"codehilite\"><code class=\"language-python\">1 == \"pig\"\n</code></pre>",
+                "question_type": "true_false_question",
+                "points_possible": 1,
+                "answers": [
+                    {
+                        "answer_text": "True",
                         "answer_weight": 0
                     },
                     {
-                        "answer_html": "<pre class=\"codehilite\"><code class=\"language-python\">def get_toppings():\n    while True:\n        topping = input(\"Topping: \")\n        if topping is None:\n            break\n        elif topping == 'onions':\n            print('Sorry we are out of onions.')\n        else:\n            return topping\n</code></pre>",
-                        "answer_weight": 0
+                        "answer_text": "False",
+                        "answer_weight": 100
                     }
                 ]
             }
         ],
         "quiz_type": "assignment",
-        "resources": [
-            [
-                "11462780209022121052",
-                "../demo_course/private-files/resources/q1_bit_blue_red_green_T.png"
-            ],
-            [
-                "44877973180647209078",
-                "../demo_course/private-files/resources/q1_bit_blue_blue_blue_F.png"
-            ],
-            [
-                "41840023245654186422",
-                "../demo_course/private-files/resources/q1_bit_blue_green_green_F.png"
-            ],
-            [
-                "42253890383365722590",
-                "../demo_course/private-files/resources/q1_bit_blue_red_red_F.png"
-            ],
-            [
-                "51528703659566156539",
-                "../demo_course/private-files/resources/q2_start_world.png"
-            ],
-            [
-                "81062429125199854244",
-                "../demo_course/private-files/resources/q2_end_result.png"
-            ],
-            [
-                "36399828276203806010",
-                "../demo_course/private-files/resources/q3_empty_world.png"
-            ],
-            [
-                "59838485916761717045",
-                "../demo_course/private-files/resources/q3_end_result.png"
-            ],
-            [
-                "58629647584395046343",
-                "../demo_course/private-files/resources/q4_start_world.png"
-            ],
-            [
-                "14987915108209766451",
-                "../demo_course/private-files/resources/q4_end_result.png"
-            ]
-        ],
+        "resources": [],
         "scoring_policy": "keep_highest",
-        "show_correct_answers": true,
-        "show_correct_answers_at": "2024-03-13T00:00:00-06:00",
+        "show_correct_answers": false,
         "show_correct_answers_last_attempt": false,
         "shuffle_answers": true,
-        "time_limit": 180,
-        "title": "Midterm",
+        "time_limit": 240,
+        "title": "Final",
         "type": "quiz",
-        "unlock_at": "2024-03-04T00:00:00-07:00"
+        "unlock_at": "2024-04-19T00:00:00-06:00"
     }
 ]

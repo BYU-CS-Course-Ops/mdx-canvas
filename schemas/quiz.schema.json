@@ -5,19 +5,23 @@
   "type": "object",
   "properties": {
     "questions": {
-      "type": "array",
+    "type": "array",
       "items": {
-        "$ref": "./question.schema.json",
-        "description": "The questions on the quiz.",
-        "required": true,
-        "minItems": 1,
-        "uniqueItems": true,
-        "additionalItems": false
-      }
+        "$ref": "./question.schema.json"
+      },
+      "description": "The questions on the quiz.",
+      "required": true,
+      "minItems": 1,
+      "uniqueItems": true,
+      "additionalItems": false,
+      "unevaluatedItems": false
     },
     "title": {
       "type": "string",
       "description": "The title of the quiz."
+    },
+    "type": {
+      "const": "quiz"
     },
     "description": {
       "type": "string",
@@ -130,5 +134,6 @@
   "required": [
       "questions"
   ],
+  "additionalProperties": false,
   "unevaluatedProperties": false
 }

@@ -27,6 +27,7 @@
         "matching",
         "multiple_answers",
         "multiple_choice",
+        "multiple_tf",
         "multiple_dropdowns",
         "numerical",
         "short_answer",
@@ -68,5 +69,21 @@
         "additionalItems": false
       }
     }
-  }
+  },
+  "required": [
+    "text",
+    "type"
+  ],
+  "if": {
+    "properties": {
+      "type": {
+        "const": "text"
+      }
+    }
+  },
+  "else": {
+    "required": ["answers"]
+  },
+  "additionalProperties": false,
+  "unevaluatedProperties": false
 }

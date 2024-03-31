@@ -75,6 +75,24 @@ class TextQuestionWalker:
 class TrueFalseQuestionWalker:
     def __init__(self, markdown_processor: ResourceExtractor):
         self.markdown_processor = markdown_processor
+    
+    def walk(self, question):
+        text, resources = self.markdown_processor(question["text"])
+        correct = question.get("correct", False)
+        
+        new_question = {
+            "question_text": text,
+            "question_type": "true_false_question",
+            "points_possible": question.get("points_possible", 1),
+            "answers": [
+                {"answer_text": "True", "answer_weight": 100 if correct else 0},
+                {"answer_text": "False", "answer_weight": 0 if correct else 100}
+            ]
+        }
+        for key in ["correct_comments", "incorrect_comments"]:
+            if question.get(key):
+                new_question[key] = question[key]
+        return new_question, resources
 
 
 class MultipleCommonQuestionWalker:
@@ -158,6 +176,42 @@ class MatchingQuestionWalker:
         return new_question, resources
 
 
+class MultipleTrueFalseQuestionWalker:
+    def __init__(self, markdown_processor: ResourceExtractor):
+        self.markdown_processor = markdown_processor
+        self.true_false_walker = TrueFalseQuestionWalker(markdown_processor)
+        self.text_walker = TextQuestionWalker(markdown_processor)
+        
+    def walk(self, question: dict):
+        """
+        Breaks up a multiple true/false question into multiple true/false questions
+        Uses the text as the text to a text_only_question
+        Correct answers are converted to a true_false_question where True is the correct answer
+        Incorrect answers are converted to a true_false_question where False is the correct answer
+        """
+        new_questions = []
+        text, resources = self.markdown_processor(question["text"])
+        
+        q, r = self.text_walker.walk({"text": text})
+        new_questions.append(q)
+        resources.extend(r)
+        
+        for answer in question["answers"]:
+            correct = answer.get("correct", False)
+            tf_question = {
+                "type": "true_false",
+                "text": answer["correct" if correct else "incorrect"],
+                "points_possible": question.get("points_possible", 1),
+                "correct": f"{correct}",
+                "incorrect": f"{not correct}"
+            }
+            q, r = self.true_false_walker.walk(tf_question)
+            new_questions.append(q)
+            resources.extend(r)
+        
+        return new_questions, resources
+
+
 class QuestionWalker:
     def __init__(self, markdown_processor: ResourceExtractor):
         self.markdown_processor = markdown_processor
@@ -167,6 +221,7 @@ class QuestionWalker:
             "true_false": TrueFalseQuestionWalker(markdown_processor),
             "multiple_answers": MultipleCommonQuestionWalker(markdown_processor),
             "matching": MatchingQuestionWalker(markdown_processor),
+            "multiple_tf": MultipleTrueFalseQuestionWalker(markdown_processor)
         }
     
     def walk(self, question: dict):
@@ -209,8 +264,10 @@ class QuizWalker:
             elif key == "questions":
                 new_quiz["questions"] = []
                 for question in value:
-                    new_question, res = self.question_walker.walk(question)
-                    new_quiz["questions"].append(new_question)
+                    new_questions, res = self.question_walker.walk(question)
+                    if not isinstance(new_questions, list):
+                        new_questions = [new_questions]
+                    new_quiz["questions"].extend(new_questions)
                     new_quiz["resources"].extend(res)
             else:
                 new_quiz[key] = value
