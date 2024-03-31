@@ -4,9 +4,10 @@ from datetime import datetime
 import json
 import os
 import textwrap
+from typing import Any
+
 import pygments
 
-import uuid
 import argparse
 from xml.etree import ElementTree as etree
 
@@ -87,14 +88,20 @@ def create_resource_folder(course, quiz_title: str, course_folders):
                              hidden=True)
 
 
+def generate_n_digit_id(n: int, obj: Any) -> str:
+    """
+    Deterministic number generator for a given object.
+    """
+    number_generator = random.Random(obj)
+    return str(number_generator.randint(10 ** n, 10 ** (n + 1) - 1))
+
+
 def get_img_html(image_name, alt_text, style, course, image_folder: Path):
     """
     Returns the html for an image, and the path to the resource, so it can later be uploaded to Canvas.
     After uploading, the correct resource id must be substituted for the fake id using a text replace.
     """
-    number_generator = random.Random(f"{image_name}{alt_text}{style}")
-    str_len = 19
-    fake_object_id = str(number_generator.randint(10 ** str_len, 10 ** (str_len + 1) - 1))
+    fake_object_id = generate_n_digit_id(19, f"{image_name}{alt_text}{style}")
     style_text = f'style="{style}"' if style else ""
     html_text = f'<p><img id="{image_name}" src="/courses/{course.id}/files/{fake_object_id}/preview" alt="{alt_text}" {style_text}/></p>'
     resource = (fake_object_id, str(image_folder / image_name))
