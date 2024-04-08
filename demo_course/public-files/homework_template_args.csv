@@ -1,26 +1,26 @@
- Id | Title                     | Due_At | Late_Due | Website_URL
- 1a | Introduction to Bit       | Sep 12 |          | introduction-to-bit
- 1b | Functions                 | Sep 14 |          | functions
- 1c | While                     | Sep 19 |          | while
- 2a | If and Else               | Sep 21 |          | if
- 2b | Conditions                | Sep 26 |          | conditions
- 2c | Decomposition             | Sep 28 |          | decomposition
- 2d | Variables                 | Oct 03 |          | variables
- 3a | Input Format              | Oct 05 |          | interactive-programs
- 3b | Input Loops               | Oct 10 |          | input-loops
- 3c | Lists                     | Oct 12 |          | lists
- 3d | List Patterns             | Oct 17 |          | list-patterns
- 3e | Tuples                    | Oct 19 |          | tuples
- 3f | Structured Data           | Oct 24 |          | structured-data
- 4a | Strings                   | Nov 02 |          | strings
- 4b | Substrings                | Nov 07 |          | substrings
- 4c | Program Arguments         | Nov 09 |          | program-arguments
- 4d | Reading and Writing Files | Nov 14 |          | files
- 4e | Split and Join            | Nov 16 |          | split-and-join
- 4f | Random and Coiteration    | Nov 21 |          | random-coiteration
- 5a | Dictionaries              | Nov 30 |          | dictionaries
- 5b | Creating Dictionaries     | Dec 05 |          | building-dictionaries
- 5c | Counting                  | Dec 07 |          | counting
- 5d | Grouping                  | Dec 12 |          | grouping
- 6a | Mutability                | Dec 14 |          | mutability
- 6b | Grids                     | Dec 16 |          | grids
+Id,Title,Due_At,Late_Due,Website_URL
+1a,Introduction to Bit,Sep 12,,introduction-to-bit
+1b,Functions,Sep 14,,functions
+1c,While,Sep 19,,while
+2a,If and Else,Sep 21,,if
+2b,Conditions,Sep 26,,conditions
+2c,Decomposition,Sep 28,,decomposition
+2d,Variables,Oct 03,,variables
+3a,Input Format,Oct 05,,interactive-programs
+3b,Input Loops,Oct 10,,input-loops
+3c,Lists,Oct 12,,lists
+3d,List Patterns,Oct 17,,list-patterns
+3e,Tuples,Oct 19,,tuples
+3f,Structured Data,Oct 24,,structured-data
+4a,Strings,Nov 02,,strings
+4b,Substrings,Nov 07,,substrings
+4c,Program Arguments,Nov 09,,program-arguments
+4d,Reading and Writing Files,Nov 14,,files
+4e,Split and Join,Nov 16,,split-and-join
+4f,Random and Coiteration,Nov 21,,random-coiteration
+5a,Dictionaries,Nov 30,,dictionaries
+5b,Creating Dictionaries,Dec 05,,building-dictionaries
+5c,Counting,Dec 07,,counting
+5d,Grouping,Dec 12,,grouping
+6a,Mutability,Dec 14,,mutability
+6b,Grids,Dec 16,,grids
