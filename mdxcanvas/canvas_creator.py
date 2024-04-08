@@ -1,10 +1,13 @@
+import random
 import re
 from datetime import datetime
 import json
 import os
 import textwrap
-
 import uuid
+
+import pygments
+
 import argparse
 from xml.etree import ElementTree as etree
 
@@ -24,6 +27,7 @@ from bs4 import BeautifulSoup
 
 from .extensions import BlackInlineCodeExtension
 from .parser import DocumentParser, make_iso
+from .yaml_parser import DocumentWalker, parse_yaml
 
 
 def readfile(filepath: Path):
@@ -84,12 +88,19 @@ def create_resource_folder(course, quiz_title: str, course_folders):
                              hidden=True)
 
 
+def generate_id(string: str) -> str:
+    """
+    Deterministic id generator for a given string.
+    """
+    return str(uuid.UUID(int=random.Random(string).getrandbits(128), version=4))
+
+
 def get_img_html(image_name, alt_text, style, course, image_folder: Path):
     """
     Returns the html for an image, and the path to the resource, so it can later be uploaded to Canvas.
     After uploading, the correct resource id must be substituted for the fake id using a text replace.
     """
-    fake_object_id = str(uuid.uuid4())
+    fake_object_id = generate_id(f"{image_name}{alt_text}{style}")
     style_text = f'style="{style}"' if style else ""
     html_text = f'<p><img id="{image_name}" src="/courses/{course.id}/files/{fake_object_id}/preview" alt="{alt_text}" {style_text}/></p>'
     resource = (fake_object_id, str(image_folder / image_name))
@@ -245,14 +256,13 @@ def modify_assignment(course, element, delete: bool):
 
 def modify_quiz(course: Course, element, delete: bool):
     name = element["name"]
-    settings: dict = element["settings"]
     print("Getting quiz from canvas")
     if canvas_quiz := get_quiz(course, name, delete):
         canvas_quiz: Quiz
         print(f"Editing canvas quiz {name} ...  ", end="")
-        canvas_quiz.edit(quiz=element["settings"])
+        canvas_quiz.edit(quiz=element)
     else:
-        canvas_quiz = create_quiz(course, element, name, settings)
+        canvas_quiz = create_quiz(course, element, name, element)
 
     replace_questions(canvas_quiz, element["questions"])
     canvas_quiz.edit()
@@ -486,22 +496,30 @@ def post_document(course: Course, time_zone, file_path: Path, delete: bool = Fal
     """
 
     print(f"Parsing file ({file_path.name}) ...  ", end="")
-    if "mdx" not in file_path.name:
-        print_red("Error: File must be a mdx file")
-        return
 
     assignment_groups = list(course.get_assignment_groups())
     names_to_ids = {g.name: g.id for g in assignment_groups}
 
-    # Provide processing functions, so that the parser needs no access to a canvas course
-    parser = DocumentParser(
-        path_to_resources=file_path.parent,
-        path_to_canvas_files=file_path.parent,
-        markdown_processor=lambda text: process_markdown(text, course, file_path.parent),
-        time_zone=time_zone,
-        group_identifier=lambda group_name: get_group_id(course, group_name, names_to_ids),
-    )
-    document_object = parser.parse(file_path.read_text())
+    if "yaml" in file_path.name:
+        walker = DocumentWalker(
+            path_to_resources=file_path.parent,
+            path_to_canvas_files=file_path.parent,
+            markdown_processor=lambda text: process_markdown(text, course, file_path.parent),
+            time_zone=time_zone,
+            group_identifier=lambda group_name: get_group_id(course, group_name, names_to_ids)
+        )
+        document = parse_yaml(file_path)
+        document_object = walker.walk(document)
+    else:
+        # Provide processing functions, so that the parser needs no access to a canvas course
+        parser = DocumentParser(
+            path_to_resources=file_path.parent,
+            path_to_canvas_files=file_path.parent,
+            markdown_processor=lambda text: process_markdown(text, course, file_path.parent),
+            time_zone=time_zone,
+            group_identifier=lambda group_name: get_group_id(course, group_name, names_to_ids),
+        )
+        document_object = parser.parse(file_path.read_text())
 
     course_folders = list(course.get_folders())
 

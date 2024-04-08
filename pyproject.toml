@@ -14,6 +14,8 @@ CanvasAPI = "^3.2.0"
 pytz = "^2024.1 "
 beautifulsoup4 = "^4.12.0"
 Pygments = "^2.17.2"
+strictyaml = "^1.7.3"
+
 
 [tool.poetry.group.dev.dependencies]
 python-dotenv = "^1.0.1"
