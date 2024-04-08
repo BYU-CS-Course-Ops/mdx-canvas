@@ -22,7 +22,7 @@ from markdown.extensions.codehilite import makeExtension as makeCodehiliteExtens
 from pathlib import Path
 from bs4 import BeautifulSoup
 
-from .extensions import BlackInlineCodeExtension
+from .extensions import BlackInlineCodeExtension, CustomTagExtension
 from .parser import DocumentParser, make_iso
 
 
@@ -30,6 +30,26 @@ def readfile(filepath: Path):
     with open(filepath) as file:
         return file.read()
 
+
+def upload_zip(course: Course, folder_name: str, zip_path: Path):
+    """
+    Uploads a zip file to Canvas, and returns the id of the uploaded file.
+    """
+    print(f"Uploading {zip_path.name} ... ", end="")
+    folder = get_canvas_folder(course, folder_name)
+    file_id = str(course.upload(zip_path)[1]["id"])
+    print("Done")
+    return file_id
+
+
+def link_to_zip(course: Course, folder_name: str, zip_path: Path):
+    """
+    Returns a function that takes a file path, and uploads it to Canvas.
+    """
+    def upload_file(file_path: Path):
+        return upload_zip(course, folder_name, file_path)
+    
+    return upload_file(zip_path)
 
 def get_fancy_html(markdown_or_file: str, files_folder=None):
     """
