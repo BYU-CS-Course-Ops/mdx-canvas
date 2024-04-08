@@ -5,6 +5,7 @@ import json
 import os
 import textwrap
 from typing import Any
+import uuid
 
 import pygments
 
@@ -88,12 +89,11 @@ def create_resource_folder(course, quiz_title: str, course_folders):
                              hidden=True)
 
 
-def generate_n_digit_id(n: int, obj: Any) -> str:
+def generate_id(string: str) -> str:
     """
-    Deterministic number generator for a given object.
+    Deterministic id generator for a given string.
     """
-    number_generator = random.Random(obj)
-    return str(number_generator.randint(10 ** n, 10 ** (n + 1) - 1))
+    return str(uuid.UUID(int=random.Random(string).getrandbits(128), version=4))
 
 
 def get_img_html(image_name, alt_text, style, course, image_folder: Path):
@@ -101,7 +101,7 @@ def get_img_html(image_name, alt_text, style, course, image_folder: Path):
     Returns the html for an image, and the path to the resource, so it can later be uploaded to Canvas.
     After uploading, the correct resource id must be substituted for the fake id using a text replace.
     """
-    fake_object_id = generate_n_digit_id(19, f"{image_name}{alt_text}{style}")
+    fake_object_id = generate_id(f"{image_name}{alt_text}{style}")
     style_text = f'style="{style}"' if style else ""
     html_text = f'<p><img id="{image_name}" src="/courses/{course.id}/files/{fake_object_id}/preview" alt="{alt_text}" {style_text}/></p>'
     resource = (fake_object_id, str(image_folder / image_name))
@@ -511,8 +511,6 @@ def post_document(course: Course, time_zone, file_path: Path, delete: bool = Fal
         )
         document = parse_yaml(file_path)
         document_object = walker.walk(document)
-        with open("midterm_yaml.json", "w") as j_file:
-            j_file.write(json.dumps(document_object, indent=4))
     else:
         # Provide processing functions, so that the parser needs no access to a canvas course
         parser = DocumentParser(
@@ -523,8 +521,6 @@ def post_document(course: Course, time_zone, file_path: Path, delete: bool = Fal
             group_identifier=lambda group_name: get_group_id(course, group_name, names_to_ids),
         )
         document_object = parser.parse(file_path.read_text())
-        with open("midterm.json", "w") as j_file:
-            j_file.write(json.dumps(document_object, indent=4))
 
     course_folders = list(course.get_folders())
 
