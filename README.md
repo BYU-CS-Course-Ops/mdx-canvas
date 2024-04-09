@@ -1,4 +1,4 @@
-# mdx-canvas
+# local-canvas
 
 Storing canvas content in structured files
 for easy editing, sharing, and version control.
