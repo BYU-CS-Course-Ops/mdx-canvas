@@ -1,15 +1,14 @@
 {% set type = "lab" %}
 {% set content = "lab_template_args.csv" %}
 
-<quiz>
-<settings title="Lab {{ Id }} Quiz"
+<quiz
+    title="Lab {{ Id }} Quiz"
     due_at="{{ Due_At }}, {{ Year }}, 8:00 AM"
     available_from="{{ Start_Date }}, {{ Year }}, 12:00 AM"
     available_to="{{ End_Date }}, {{ Year }}, 11:59 PM"
     assignment_group="Labs"
     shuffle_answers="False"
     allowed_attempts="-1">
-</settings>
 
 <description>
 
