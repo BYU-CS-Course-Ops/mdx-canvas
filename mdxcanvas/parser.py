@@ -695,6 +695,7 @@ class DocumentParser:
 
             replacements = defaultdict(dict)
             for header, value in zip(headers, line):
+                
                 replacements[header] = value
 
             data.append(replacements)

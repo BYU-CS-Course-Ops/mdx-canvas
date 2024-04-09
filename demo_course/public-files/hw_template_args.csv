@@ -1,4 +1,5 @@
-Id,Title,Due_At,Late_Due,Website_URL
+Id,Title,Due_At,Late_Due,Website_URL,Quiz
+0,Getting Started,,,,1
 1a,Introduction to Bit,Sep 12,,introduction-to-bit
 1b,Functions,Sep 14,,functions
 1c,While,Sep 19,,while

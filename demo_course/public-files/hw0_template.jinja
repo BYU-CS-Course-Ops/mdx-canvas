@@ -1,15 +1,18 @@
+{% set type = "hw" %}
+{% set content = "hw_template_args.csv" %}
+
 <quiz>
 
 <settings title="Homework 0 - Getting Started"
-          due_at="Dec 21, 2023, 11:59 PM"
-          available_from="Dec 16, 2023, 12:00 AM"
-          available_to="Dec 21, 2023, 11:59 PM"
+          due_at="{{ Due_At }}, {{ Year }}, 11:59 PM"
+          available_from="{{ Start }}, {{ Year }}, 12:00 AM"
+          available_to="{{ Late_Due }}, {{ Year }}, 11:59 PM"
           points_possible="30"
           assignment_group="Homework"
           shuffle_answers="True"
           time_limit="240"
           allowed_attempts="1"
-          show_correct_answers_at="Dec 21, 2023, 11:59 PM">
+          show_correct_answers_at="{{ Late_Due }}, {{ Year }}, 11:59 PM">
 </settings>
 
 <description>
@@ -20,7 +23,7 @@
 
 <question type="true-false">
     <correct>
-        I have read and understood [the guide about the file system](https://spring2023.byucs110.org/guide/getting-started/file-system/)
+        I have read and understood [the guide about the file system](https://{{ Term }}.byucs110.org/guide/getting-started/file-system/)
     </correct>
 </question>
 

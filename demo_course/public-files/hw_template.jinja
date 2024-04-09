@@ -1,9 +1,11 @@
+{% set type = "hw" %}
+{% set content = "hw_template_args.csv" %}
+
 <assignment>
-{/* <template-arguments filename="homework_template_args.csv" /> */}
 
 <settings title="Homework {{ Id }} - {{ Title }}" 
     due_at="{{ Due_At }}, {{ Year }}, 8:00 AM"
-    available_from="{{ Start_Date }}, {{ Year }}, 12:00 AM" 
+    available_from="{{ Start_Date }}, {{ Year }}, 12:00 AM"
     available_to="{{ Late_Due }}, {{ Year }}, 11:59 PM" 
     points_possible="30" 
     assignment_group="Homework" 

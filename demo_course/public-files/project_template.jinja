@@ -1,3 +1,6 @@
+{% set type = "project" %}
+{% set content = "project_template_args.csv" %}
+
 <assignment>
 
 <template-arguments>
@@ -5,7 +8,7 @@
 </template-arguments>
 <settings title="{{ Title }}" 
     due_at="{{ Due_At }}, {{ Year }}, 8:00 AM"
-    available_from="{{ Start }}, {{ Year }}, 12:00 AM" 
+    available_from="{{ Start_Date }}, {{ Year }}, 12:00 AM"
     available_to="{{ Late_Due }}, {{ Year }}, 11:59 PM" 
     points_possible="150" 
     assignment_group="Projects" 
