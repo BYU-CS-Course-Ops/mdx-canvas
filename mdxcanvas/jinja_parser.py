@@ -2,8 +2,8 @@ import csv
 from pathlib import Path
 from jinja2 import Environment, FileSystemLoader, Template
 
-TEMPLATE = Path('../demo_course/public-files/')
-GLOBAL_ARGS = '../demo_course/public-files/global_template_args.csv'
+TEMPLATE_PATH = Path('../demo_course/public-files/canvas-templates/')
+GLOBAL_PATH = '../demo_course/public-files/template-args/global_template_args.csv'
 
 
 def get_content(csv_file: csv) -> list[dict[str, str]]:
@@ -40,7 +40,7 @@ def get_content(csv_file: csv) -> list[dict[str, str]]:
     ]
     """
     global_content = {}
-    with open(GLOBAL_ARGS, 'r') as global_file:
+    with open(GLOBAL_PATH, 'r') as global_file:
         global_reader = csv.DictReader(global_file)
         for row in global_reader:
             global_content = row
@@ -56,12 +56,12 @@ def get_content(csv_file: csv) -> list[dict[str, str]]:
 
 class JinjaParser:
     def __init__(self, template_path: str):
-        self.env = Environment(loader=FileSystemLoader(TEMPLATE))
+        self.env = Environment(loader=FileSystemLoader(TEMPLATE_PATH))
         self.template = self.env.get_template(template_path)
 
         self.get_template_info()
 
-        self.content = get_content(TEMPLATE / self.csv_file)
+        self.content = get_content(TEMPLATE_PATH / self.csv_file)
 
         self.assignments = self.render()
 
@@ -88,7 +88,7 @@ class JinjaParser:
 
     def _get_template(self, assignment: dict[str, str]) -> Template:
         if self.type == 'hw' and assignment.get("Id") == "0":
-            template = self.env.get_template('hw0_template.jinja')
+            template = self.env.get_template('HwZeroTemplate.jinja')
         else:
             template = self.template
         return template
@@ -119,5 +119,5 @@ class JinjaParser:
 
 
 if __name__ == "__main__":
-    parser = JinjaParser('hw_template.jinja')
-    # print(parser.assignments)
+    parser = JinjaParser('HwTemplate.jinja')
+    print(parser.assignments)

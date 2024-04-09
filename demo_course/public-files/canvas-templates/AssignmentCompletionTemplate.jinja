@@ -1,13 +1,14 @@
-<assignment>
+{% set type = "survey" %}
+{% set content = "../template-args/survey_template_args.csv" %}
 
-<settings title="Assignment Completion Surveys" 
+<assignment
+    title="Assignment Completion Surveys"
     due_at="{{ End_Date }}, {{ Year }}, 11:59 PM"
     available_from="{{ Start_Date }}, {{ Year }}, 12:00 AM"
     available_to="{{ End_Date }}, {{ Year }}, 11:59 PM"
     points_possible="10" 
     assignment_group="Final" 
-    submission_types="not_graded"
-</settings>
+    submission_types="not_graded">
 
 <description>
     This is extra credit.
