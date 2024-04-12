@@ -55,7 +55,7 @@ def make_iso(date: datetime | str | None, time_zone: str) -> str:
         raise TypeError("Date must be a datetime object or a string")
 
 
-def parse_yaml(text: str) -> dict:
+def parse_yaml(text: str) -> list:
     document = load(text, document_schema).data
     return document
 
