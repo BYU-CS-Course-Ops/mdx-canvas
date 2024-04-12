@@ -2,7 +2,7 @@ from strictyaml import Map, Str, Int, Seq, Optional, Any, Enum, MapPattern, Bool
 from question_schema import question_schema
 
 # Define the schema for the yaml file
-document_schema = Map({
+document_schema = Seq(Map({
     "title": Str(),
     "type": Enum(["assignment", "quiz", "page"]),
     "description": Str(),
@@ -74,5 +74,5 @@ document_schema = Map({
     Optional("front_page"): Bool(),
     Optional("publish_at"): Str()
 
-})
+}))
 
