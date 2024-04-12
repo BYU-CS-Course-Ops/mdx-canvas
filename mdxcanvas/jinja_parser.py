@@ -3,19 +3,28 @@ import csv
 from jinja2 import Environment, FileSystemLoader, Template
 
 
+def split_list(input_string):
+    return input_string.split(';')
+
 class JinjaParser:
-    def __init__(self, template_path: str):
+    def __init__(self):
+        pass
+
+    def parse(self, template_path: str):
         self.dir_path = os.path.dirname(template_path)
         self.filename = os.path.basename(template_path)
 
         self.env = Environment(loader=FileSystemLoader(self.dir_path))
+        self.env.globals.update(split_list=split_list)
+        self.env.globals.update(zip=zip)
+
         self.template = self.env.get_template(self.filename)
 
         self.get_template_info()
 
         self.content = self.get_content()
 
-        self.assignments = self.render()
+        return self.render()
 
     def get_template_info(self):
         """
@@ -31,8 +40,7 @@ class JinjaParser:
             self.type = template_vars['type']
             self.csv_file = f"{self.dir_path}/{template_vars['content']}"
             self.global_file = f"{self.dir_path}/{template_vars['global_content']}"
-            if self.type == "hw":
-                self.alternate = template_vars['alternate_temp']
+            self.alternate = template_vars.get('alternate_temp')
         except KeyError:
             raise KeyError('The template is missing the type, content, or global_content variable')
 
@@ -118,13 +126,12 @@ class JinjaParser:
         rendered_assignments = []
         for assignment in self.content:
             template = self._get_template(assignment)
-
-            content = template.render(assignment)
-
+            content = template.render(assignment, var=assignment)
             rendered_assignments.append(content)
-
         return ''.join(rendered_assignments)
 
 
-if __name__ == "__main__":
-    parser = JinjaParser('../demo_course/public-files/template-material/ProjectTemplate.jinja')
+if __name__ == '__main__':
+    parser = JinjaParser()
+    print(parser.parse('../demo_course/public-files/template-material/DayTemplate.jinja'))
+
