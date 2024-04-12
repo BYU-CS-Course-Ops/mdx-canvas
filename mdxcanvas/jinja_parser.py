@@ -6,34 +6,51 @@ from jinja2 import Environment, FileSystemLoader, Template
 def split_list(input_string):
     return input_string.split(';')
 
-class JinjaParser:
-    def __init__(self):
-        pass
 
-    def parse(self, template_path: str):
+class JinjaParser:
+
+    def parse(self, template_path: str) -> str:
+        """
+        Parses the content of the template using the Jinja2 templating engine
+
+        Args:
+            template_path (str): The path to the template file
+
+        Returns:
+            str: The rendered content of the assignments
+        """
+        # Get the directory path and filename of the template
         self.dir_path = os.path.dirname(template_path)
         self.filename = os.path.basename(template_path)
 
+        # Creates a jinja environment and updates the appropriate variables
         self.env = Environment(loader=FileSystemLoader(self.dir_path))
         self.env.globals.update(split_list=split_list)
         self.env.globals.update(zip=zip)
 
+        # Load the template
         self.template = self.env.get_template(self.filename)
 
+        # Get the template information and content
         self.get_template_info()
-
         self.content = self.get_content()
 
+        # Render the content
         return self.render()
 
     def get_template_info(self):
         """
-        Extracts the csv file and type of assignment from the template
+        Extracts information from the template module and sets instance variables accordingly.
 
-        {% set type = "type" %}
-        {% set content = "type_template_args.csv" %}
-        {% set global_content = "global_template_args.csv" %}
-        {% set alternate_temp = "alternate_temp.jinja" %}
+        This method populates the following instance variables:
+
+        - self.type: The type of the template.
+        - self.csv_file: The path to the CSV file associated with the template content.
+        - self.global_file: The path to the global file associated with the template.
+        - self.alternate: An optional alternate template.
+
+        Raises:
+            KeyError: If the template is missing the type, content, or global_content variable
         """
         template_vars = self.template.module.__dict__
         try:
@@ -46,34 +63,34 @@ class JinjaParser:
 
     def get_content(self) -> list[dict[str, str]]:
         """
-        Reads a csv file where each row represents a new assignment
-        and returns a list of dictionaries where each dictionary
-        represents an assignment with its variables.
+        Creates a list of dictionary where each dictionary is a
+        new assignment.
 
-        header1,header2,header3,...,headerN
-        first,value2,value3,...,valueN
-        second,value2,value3,...,valueN
-        ...
-        last,value2,value3,...,valueN
+        Returns:
+            list[dict[str, str]]: A list of dictionaries where each dictionary
+            is a new assignment of the global args and the assignments args
 
+        Example:
+        --------
+        >>> self.get_content()
         [
             {
-                'header1': 'first',
-                'header2': 'value2',
+                'title': 'example 1',
+                'due_at': 'Jan 3',
                 ...,
-                'headerN': 'valueN'
+                'late_date': 'Jan 13'
             },
             {
-                'header1': 'second',
-                'header3': 'value3',
+                'title': 'example 2',
+                'due_at': 'Jan 5',
                 ...,
-                'headerN': 'valueN'},
+                'late_date': 'Jan 15'},
             ...
             {
-                'header1': 'last',
-                'header3': 'value3',
+                'title': 'example 3',
+                'due_at': 'Jan 7',
                 ...,
-                'headerN': 'valueN'
+                'late_date': 'Jan 17'
             }
         ]
         """
@@ -91,15 +108,17 @@ class JinjaParser:
 
         return assignment_content
 
-    def _get_filename(self, assignment: dict[str, str]) -> str:
-        if 'Id' not in assignment:
-            filename = f'{self.type}-{assignment["Title"]}'
-        else:
-            filename = f'{self.type}-{assignment["Id"]}'
-        return filename
-
     def _get_template(self, assignment: dict[str, str]) -> Template:
-        if self.type == 'hw' and assignment.get("Id") == "0":
+        """
+        Gets the appropriate template for the current assignment
+
+        Args:
+            assignment (dict[str, str]): The current assignment
+
+        Returns:
+            Template: The appropriate template for the current assignment
+        """
+        if self.type == 'hw' and assignment.get("Id") == "0":  # HW 0 is a special case
             template = self.env.get_template(self.alternate)
         else:
             template = self.template
@@ -107,31 +126,28 @@ class JinjaParser:
 
     def render(self) -> str:
         """
-        Returns the contents of the assignments rendered with the template
-        as a giant string
+        Renders the content of the assignments using the template
 
+        Returns:
+            str: The rendered content of the assignments
+
+        Example:
+        --------
+        >>> self.render()
         "<quiz
-            title="Homework 0 - Getting Started"
-            due_at="{{ Due_At }}, {{ Year }}, 11:59 PM"
-            available_from="{{ Start }}, {{ Year }}, 12:00 AM"
-            ...
-        >
+            title="example 1 - example assignment 1"
+            due_at="Jan 3, 2024, 11:59 PM"
+            available_from="Jan 5, 2024, 12:00 AM"
+            ...>
         <assignment
-            title="Homework 1a - Getting Started"
-            due_at="{{ Due_At }}, {{ Year }}, 11:59 PM"
-            available_from="{{ Start }}, {{ Year }}, 12:00 AM"
-            ...
-        >"
+            title="example 2 - example assignment 2"
+            due_at="Jan 5, 2024, 11:59 PM"
+            available_from="Jan 15, 2024, 12:00 AM"
+            ...>"
         """
         rendered_assignments = []
         for assignment in self.content:
             template = self._get_template(assignment)
-            content = template.render(assignment, var=assignment)
+            content = template.render(assignment, var=assignment)  # var is only needed for the DayTemplate
             rendered_assignments.append(content)
         return ''.join(rendered_assignments)
-
-
-if __name__ == '__main__':
-    parser = JinjaParser()
-    print(parser.parse('../demo_course/public-files/template-material/DayTemplate.jinja'))
-
