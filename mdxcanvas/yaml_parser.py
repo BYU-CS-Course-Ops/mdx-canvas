@@ -55,10 +55,7 @@ def make_iso(date: datetime | str | None, time_zone: str) -> str:
         raise TypeError("Date must be a datetime object or a string")
 
 
-def parse_yaml(file_path: Path) -> dict:
-    with open(file_path, 'r') as file:
-        text = file.read()
-    
+def parse_yaml(text: str) -> dict:
     document = load(text, document_schema).data
     return document
 
@@ -338,15 +335,16 @@ class DocumentWalker:
             "override": OverrideWalker(self.date_formatter, self.parse_template_data)
         }
     
-    def walk(self, document: dict):
+    def walk(self, documents: list):
         new_documents = []
-        if child_walker := self.child_walkers.get(document["type"]):
-            templates = child_walker.walk(document)
-            if not isinstance(templates, list):
-                templates = [templates]
-            templates = [order_elements(template) for template in templates]
-            for template in templates:
-                new_documents.extend(self.templater.create_elements_from_template(template))
+        for document in documents:
+            if child_walker := self.child_walkers.get(document["type"]):
+                templates = child_walker.walk(document)
+                if not isinstance(templates, list):
+                    templates = [templates]
+                templates = [order_elements(template) for template in templates]
+                for template in templates:
+                    new_documents.extend(self.templater.create_elements_from_template(template))
         return new_documents
     
     
