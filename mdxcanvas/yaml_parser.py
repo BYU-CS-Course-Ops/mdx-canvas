@@ -75,7 +75,7 @@ class TrueFalseQuestionWalker:
     
     def walk(self, question):
         text, resources = self.markdown_processor(question["text"])
-        correct = question.get("correct", False)
+        correct = question.get("correct")
         
         new_question = {
             "question_text": text,
@@ -199,8 +199,7 @@ class MultipleTrueFalseQuestionWalker:
                 "type": "true_false",
                 "text": answer["correct" if correct else "incorrect"],
                 "points_possible": question.get("points_possible", 1),
-                "correct": f"{correct}",
-                "incorrect": f"{not correct}"
+                "correct": correct,
             }
             q, r = self.true_false_walker.walk(tf_question)
             new_questions.append(q)
@@ -385,9 +384,3 @@ class DocumentWalker:
             data.append(replacements)
         return data
 
-
-if __name__ == "__main__":
-    document = parse_yaml("Midterm.yaml")
-    walker = DocumentWalker(Path("resources"), Path("canvas_files"), lambda x: (x, []), "US/Eastern")
-    document = walker.walk(document)
-    print(document)
