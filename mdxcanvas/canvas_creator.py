@@ -25,7 +25,7 @@ from markdown.extensions.codehilite import makeExtension as makeCodehiliteExtens
 from pathlib import Path
 from bs4 import BeautifulSoup
 
-from jinja_parser import JinjaParser
+from jinja_parser import process_jinja
 
 from .extensions import BlackInlineCodeExtension
 from .parser import DocumentParser, make_iso
@@ -502,10 +502,8 @@ def post_document(course: Course, time_zone, file_path: Path, delete: bool = Fal
     assignment_groups = list(course.get_assignment_groups())
     names_to_ids = {g.name: g.id for g in assignment_groups}
 
-    jinjaParser = JinjaParser()
-
     if "jinja" in file_path.name:
-        content = jinjaParser.parse(str(file_path))
+        content = process_jinja(file_path)
     else:
         content = file_path.read_text()
 

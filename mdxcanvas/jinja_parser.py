@@ -1,153 +1,73 @@
-import os
 import csv
-from jinja2 import Environment, FileSystemLoader, Template
+import json
+
+import jinja2 as jj
+
+from pathlib import Path
 
 
-def split_list(input_string):
-    return input_string.split(';')
+def _process_jinja(template: jj.Template, global_args, arg_sets) -> str:
+    content = []
+    for args in arg_sets:
+        content.append(template.render(
+            **global_args,
+            **args
+        ))
+    return '\n'.join(content)
 
 
-class JinjaParser:
+def process_jinja(template_file: Path) -> str:
+    """
+    Takes a jinja template file and renders it with the given arguments.
+    The template file contains comments which store the global and local arguments.
 
-    def parse(self, template_path: str) -> str:
-        """
-        Parses the content of the template using the Jinja2 templating engine
+    :param template_file: The path to the jinja template file
+    :return: The rendered jinja template as a string
 
-        Args:
-            template_path (str): The path to the template file
+    Examples:
+    ----------
+    >>> template_file.read_text()
+    {# global.json #}
+    {# local.csv #}
 
-        Returns:
-            str: The rendered content of the assignments
-        """
-        # Get the directory path and filename of the template
-        self.dir_path = os.path.dirname(template_path)
-        self.filename = os.path.basename(template_path)
+    >>> process_jinja(Path("template.jinja")
+    "<assignment
+        title="Day 1"
+        description="This is the first day of the course"
+        due_date="2021-01-01"
+        points_possible="10"
+        submission_types="online_upload">
+    </assignment>
+    <quiz
+        title="Quiz 1"
+        description="This is the first quiz of the course"
+        due_date="2021-01-01"
+        points_possible="10">
+    </quiz>"
+    """
+    template = template_file.read_text()
 
-        # Creates a jinja environment and updates the appropriate variables
-        self.env = Environment(loader=FileSystemLoader(self.dir_path))
-        self.env.globals.update(split_list=split_list)
-        self.env.globals.update(zip=zip)
+    global_args = {}
+    arg_sets = [{}]
 
-        # Load the template
-        self.template = self.env.get_template(self.filename)
+    # Finds the global and template argument paths
+    for line in template.splitlines():
+        if not line.startswith('{#'):  # i.e. commented line in jinja
+            break  # only look at initial commented lines
+        line = line.strip("{}# '\"")
 
-        # Get the template information and content
-        self.get_template_info()
-        self.content = self.get_content()
+        if line.endswith('.json'):
+            global_args_file = (template_file.parent / line).resolve()
+            global_args = json.loads(global_args_file.read_text())
 
-        # Render the content
-        return self.render()
+        elif line.endswith('.csv'):
+            args_file = (template_file.parent / line).resolve()
+            arg_sets = list(csv.DictReader(args_file.read_text().splitlines()))
 
-    def get_template_info(self):
-        """
-        Extracts information from the template module and sets instance variables accordingly.
+    jj_template = jj.Environment().from_string(template)
+    global_args |= dict(zip=zip, split_list=lambda x: x.split(';'))
+    return _process_jinja(jj_template, global_args, arg_sets)
 
-        This method populates the following instance variables:
 
-        - self.type: The type of the template.
-        - self.csv_file: The path to the CSV file associated with the template content.
-        - self.global_file: The path to the global file associated with the template.
-        - self.alternate: An optional alternate template.
-
-        Raises:
-            KeyError: If the template is missing the type, content, or global_content variable
-        """
-        template_vars = self.template.module.__dict__
-        try:
-            self.type = template_vars['type']
-            self.csv_file = f"{self.dir_path}/{template_vars['content']}"
-            self.global_file = f"{self.dir_path}/{template_vars['global_content']}"
-            self.alternate = template_vars.get('alternate_temp')
-        except KeyError:
-            raise KeyError('The template is missing the type, content, or global_content variable')
-
-    def get_content(self) -> list[dict[str, str]]:
-        """
-        Creates a list of dictionary where each dictionary is a
-        new assignment.
-
-        Returns:
-            list[dict[str, str]]: A list of dictionaries where each dictionary
-            is a new assignment of the global args and the assignments args
-
-        Example:
-        --------
-        >>> self.get_content()
-        [
-            {
-                'title': 'example 1',
-                'due_at': 'Jan 3',
-                ...,
-                'late_date': 'Jan 13'
-            },
-            {
-                'title': 'example 2',
-                'due_at': 'Jan 5',
-                ...,
-                'late_date': 'Jan 15'},
-            ...
-            {
-                'title': 'example 3',
-                'due_at': 'Jan 7',
-                ...,
-                'late_date': 'Jan 17'
-            }
-        ]
-        """
-        global_content = {}
-        with open(self.global_file, 'r') as global_file:
-            global_reader = csv.DictReader(global_file)
-            for row in global_reader:
-                global_content = row
-
-        assignment_content = []
-        with open(self.csv_file, 'r') as assignment_file:
-            assignment_reader = csv.DictReader(assignment_file)
-            for row in assignment_reader:
-                assignment_content.append({**global_content, **row})
-
-        return assignment_content
-
-    def _get_template(self, assignment: dict[str, str]) -> Template:
-        """
-        Gets the appropriate template for the current assignment
-
-        Args:
-            assignment (dict[str, str]): The current assignment
-
-        Returns:
-            Template: The appropriate template for the current assignment
-        """
-        if self.type == 'hw' and assignment.get("Id") == "0":  # HW 0 is a special case
-            template = self.env.get_template(self.alternate)
-        else:
-            template = self.template
-        return template
-
-    def render(self) -> str:
-        """
-        Renders the content of the assignments using the template
-
-        Returns:
-            str: The rendered content of the assignments
-
-        Example:
-        --------
-        >>> self.render()
-        "<quiz
-            title="example 1 - example assignment 1"
-            due_at="Jan 3, 2024, 11:59 PM"
-            available_from="Jan 5, 2024, 12:00 AM"
-            ...>
-        <assignment
-            title="example 2 - example assignment 2"
-            due_at="Jan 5, 2024, 11:59 PM"
-            available_from="Jan 15, 2024, 12:00 AM"
-            ...>"
-        """
-        rendered_assignments = []
-        for assignment in self.content:
-            template = self._get_template(assignment)
-            content = template.render(assignment, var=assignment)  # var is only needed for the DayTemplate
-            rendered_assignments.append(content)
-        return ''.join(rendered_assignments)
+if __name__ == '__main__':
+    print(process_jinja(Path("../demo_course/public-files/template-material/DayTemplate.jinja")))

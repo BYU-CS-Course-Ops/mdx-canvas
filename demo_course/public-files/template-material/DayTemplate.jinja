@@ -1,19 +1,5 @@
-{% set type = "day" %}
-{% set content = "day_template_args.csv" %}
-{% set global_content = "global_template_args.csv" %}
-{% if var %}
-    {% set var_dict = var %}
-{% else %}
-    {% set var_dict = {
-         'Video_names': '',
-         'Video_links': '',
-         'Code_Buddy_ID': '',
-         'Include_Setup': '',
-         'Practice_displays': '',
-         'Practice_links': ''
-        }
-%}
-{% endif %}
+{#  "day_template_args.csv" #}
+{# "global_template_args.json" #}
 
 <assignment
     title="{{ Day_Name }}"
@@ -32,22 +18,22 @@
                 <div class="bs-row">
                     <div class="bs-col-md kl_solid_border kl_border_radius_5" style="border-width: 7px; border-color: #002e5d; margin-right: 10px; margin-bottom: 10px; margin-left: 10px;">
                         <h4 class="kl_border_radius_5" style="color: #ffffff; text-align: center; margin-top: 15px; background-color: #002e5d; border-color: #002e5d;"><span class="" style="font-size: 18pt; background-color: #002e5d; color: #ffffff; border-color: #002e5d; margin-right: 0px; margin-bottom: 0px; margin-left: 0px;">Videos</span></h4>
-                        {% for name, link in zip(split_list(var_dict["Video_names"]), split_list(var_dict["Video_links"])) %}
+                        {% for name, link in zip(split_list(Video_names), split_list(Video_links)) %}
                             <p><a class="ytp-share-panel-link ytp-no-contextmenu" title="Share link" href="https://youtu.be/{{ link }}" target="_blank" rel="noopener" aria-label="Share link">{{ name }}</a></p>
                         {% endfor %}
                     </div>
-                    {% if var_dict["Code_Buddy_ID"] %}
+                    {% if Code_Buddy_ID %}
                         <div class="bs-col-md kl_solid_border kl_border_radius_5" style="border-width: 7px; border-color: #002e5d; padding-bottom: 20px; margin-right: 10px; margin-bottom: 10px; margin-left: 10px;">
                             <h4 class="kl_border_radius_5" style="color: #ffffff; text-align: center; margin-top: 15px; background-color: #002e5d; border-color: #002e5d;"><span class="" style="font-size: 18pt; background-color: #002e5d; color: #ffffff;">CodeBuddy</span></h4>
                             <p><a class="inline_disabled" href="https://codebuddy.byu.edu/assignment/31/{{ Code_Buddy_ID }}" target="_blank" rel="noopener">{{ Day_Title }}</a></p>
-                            {% if var_dict["Include_Setup"] %}
+                            {% if Include_Setup %}
                                 <p><a class="inline_disabled" href="https://docs.google.com/document/d/1bQ5p47oM5JoO_NqOw9ZvuG1WMS9M12SqkVcEGEpNYSQ/edit" target="_blank" rel="noopener">Set up your CodeBuddy account</a></p>
                             {% endif %}
                         </div>
                     {% else %}{% endif %}
                     <div class="bs-col-md kl_solid_border kl_border_radius_5" style="border-width: 7px; border-color: #002e5d; margin-left: 10px; color: #000000; margin-right: 10px; margin-bottom: 10px;">
                         <h4 class="kl_border_radius_5" style="color: #ffffff; text-align: center; margin-top: 15px; background-color: #002e5d; border-color: #002e5d;"><span class="" style="font-size: 18pt; background-color: #002e5d; color: #ffffff;">Practice</span></h4>
-                        {% for display, link in zip(split_list(var_dict["Practice_displays"]), split_list(var_dict["Practice_links"])) %}
+                        {% for display, link in zip(split_list(Practice_displays), split_list(Practice_links)) %}
                             <p><a class="underline decoration-lightblue" href="https://fall2023.byucs110.org/{{ link }}"> {{Day_Title}} - {{ display }}</a><span>&nbsp;</span></p>
                         {% endfor %}
                         <p><a class="underline decoration-lightblue" href="https://byu.az1.qualtrics.com/jfe/form/SV_8uJA1ajIcubxzwi?term=20233">Assignment Completion Quiz</a><span>&nbsp;</span></p>
@@ -63,42 +49,3 @@
 
 </description>
 </assignment>
-
-
-<override>
-<template-arguments>
-
-| Day_Name | Due_At |
-|----------|--------|
-| Day 1    | Sep 5  |
-| Day 2    | Sep 7  |
-| Day 3    | Sep 12 |
-| Day 4    | Sep 14 |
-| Day 5    | Sep 19 |
-| Day 6    | Sep 21 |
-| Day 7    | Sep 26 |
-| Day 8    | Sep 28 |
-| Day 9    | Oct 3  |
-| Day 10   | Oct 5  |
-| Day 11   | Oct 10 |
-| Day 12   | Oct 12 |
-| Day 13   | Oct 17 |
-| Day 14   | Oct 19 |
-| Day 15   | Oct 31 |
-| Day 16   | Nov 2  |
-| Day 17   | Nov 7  |
-| Day 18   | Nov 9  |
-| Day 19   | Nov 14 |
-| Day 20   | Nov 16 |
-| Day 21   | Nov 28 |
-| Day 22   | Nov 30 |
-| Day 23   | Dec 5  |
-| Day 24   | Dec 7  |
-| Day 25   | Dec 12 |
-| Day 26   | Dec 14 |
-
-
-</template-arguments>
-<section>BeanLab Testing Section 1</section>
-<assignment title="{{ Day_Name }}" due_at="{{ Due_At }}, 2023, 11:59 PM"></assignment>
-</override>
