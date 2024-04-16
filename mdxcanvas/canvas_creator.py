@@ -18,6 +18,7 @@ from canvasapi.assignment import Assignment
 from canvasapi.quiz import Quiz
 from canvasapi.course import Course
 from canvasapi.module import Module
+from canvasapi.folder import Folder
 
 import markdown as md
 from markdown.extensions.codehilite import makeExtension as makeCodehiliteExtension
@@ -37,27 +38,25 @@ def readfile(filepath: Path):
         return file.read()
 
 
-def upload_zip(course: Course, folder_name: str, zip_path: Path):
+def upload_zip(folder: Folder, zip_path: Path):
     """
     Uploads a zip file to Canvas, and returns the id of the uploaded file.
     """
     print(f"Uploading {zip_path.name} ... ", end="")
-    folder = get_canvas_folder(course, folder_name)
-    file_id = str(course.upload(zip_path)[1]["id"])
+    folder.upload(zip_path)
     print("Done")
-    return file_id
 
 
-def link_to_zip(course: Course, folder_name: str, zip_path: Path):
+def link_to_zip(folder: Folder, zip_path: Path):
     """
     Returns a function that takes a file path, and uploads it to Canvas.
     """
     def upload_file(file_path: Path):
-        return upload_zip(course, folder_name, file_path)
+        return upload_zip(folder, file_path)
     
     return upload_file(zip_path)
 
-def get_fancy_html(markdown_or_file: str, files_folder=None):
+def get_fancy_html(markdown_or_file: str, course: Course, files_folder: Path = None, canvas_folder: Folder = None):
     """
     Converts markdown to html, and adds syntax highlighting to code blocks.
     """
@@ -75,7 +74,11 @@ def get_fancy_html(markdown_or_file: str, files_folder=None):
 
         # This forces the color of inline code to be black
         # as a workaround for Canvas's super-ugly default red :P
-        BlackInlineCodeExtension()
+        BlackInlineCodeExtension(),
+        
+        CustomTagExtension({
+            "zip": lambda props: link_to_zip(canvas_folder, props["filename"])
+        })
     ])
     return fenced
 
@@ -84,7 +87,7 @@ def print_red(string):
     print(f"\033[91m{string}\033[00m")
 
 
-def get_canvas_folder(course: Course, folder_name: str, parent_folder_path=""):
+def get_canvas_folder(course: Course, folder_name: str, parent_folder_path="") -> Folder:
     """
     Retrieves an object representing a digital folder in Canvas. If the folder does not exist, it is created.
     """
@@ -145,12 +148,12 @@ def process_images(html, course: Course, image_folder):
     return str(soup), resources
 
 
-def process_markdown(markdown_or_file: str, course: Course, image_folder, files_folder=None):
+def process_markdown(markdown_or_file: str, course: Course, image_folder, files_folder=None, canvas_folder: Folder = None):
     """
     Converts markdown to html, and adds syntax highlighting to code blocks.
     Then, finds all the images in the html, and replaces them with html that links to the image in Canvas.
     """
-    html = get_fancy_html(markdown_or_file, files_folder)
+    html = get_fancy_html(markdown_or_file, course, files_folder, canvas_folder)
     return process_images(html, course, image_folder)
 
 

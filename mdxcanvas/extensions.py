@@ -25,20 +25,37 @@ class BlackInlineCodeExtension(Extension):
         md.inlinePatterns.register(BlackInlineCodeProcessor(BACKTICK_RE), 'backtick', 190)
 
 
+class ZipTagProcessor(HtmlBlockPreprocessor):
+    def run(self, lines: list[str]) -> list[str]:
+        soup = BeautifulSoup("\n".join(lines), "html.parser")
+        document = []
+        for tag in soup.find_all("zip"):
+            # Create a new div element
+            div = Tag(name="div")
+            div["class"] = "zip"
+            # Add the contents of the zip tag to the div
+            for child in tag.children:
+                if isinstance(child, NavigableString):
+                    div.append(child)
+                else:
+                    div.append(child.prettify())
+            # Replace the zip tag with the div
+            tag.replace_with(div)
+        return str(soup).split("\n")
+
+
 class CustomXMLTagProcessor(HtmlBlockPreprocessor):
+    custom_tag_processors = {
+        "zip": ZipTagProcessor
+    }
+    
     def __init__(self, md):
         super().__init__(md)
-        self.custom_tag_processors = {}
-    
     
     def run(self, lines: list[str]) -> list[str]:
         soup = BeautifulSoup("\n".join(lines), "html.parser")
         document = []
         return super().run(lines)
-    
-    def add_custom_tag_processor(self, name, processor):
-        self.custom_tag_processors[name] = processor
-        
 
 
 class CustomTagExtension(Extension):
@@ -46,10 +63,8 @@ class CustomTagExtension(Extension):
     # used in markdown.preprocessors.py to register the original
     # HTMLBlockPreprocessor.
     # By reusing the same name, it overrides the original processor with ours
+    def __init__(self, *args, **kwargs):
+        super().__init__()
+    
     def extendMarkdown(self, md):
-        name = 'html_block'
-        if name in self:
-            processor = self[name]
-            processor.add_custom_tag_processor('custom', lambda tag: tag)
-        else:
-            md.preprocessors.register(CustomXMLTagProcessor(md), 'html_block', 20)
+        md.preprocessors.register(CustomXMLTagProcessor(md), 'html_block', 20)
