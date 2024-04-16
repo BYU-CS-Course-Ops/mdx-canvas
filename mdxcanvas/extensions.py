@@ -6,7 +6,9 @@ from markdown.extensions import Extension
 
 from markdown.preprocessors import HtmlBlockPreprocessor
 from bs4 import BeautifulSoup
-from bs4.element import Tag, NavigableString
+from bs4.element import Tag, NavigableString, PageElement
+
+from typing import Protocol
 
 
 class BlackInlineCodeProcessor(BacktickInlineProcessor):
@@ -44,18 +46,27 @@ class ZipTagProcessor(HtmlBlockPreprocessor):
         return str(soup).split("\n")
 
 
-class CustomXMLTagProcessor(HtmlBlockPreprocessor):
-    custom_tag_processors = {
-        "zip": ZipTagProcessor
-    }
+# Make a Protocol for any tag processor, it should take a Tag and return a Tag
+# This way we can define a type hint for the tag_processors dictionary
+class TagProcessor(Protocol):
+    def __call__(self, tag: Tag) -> Tag:
+        ...
     
-    def __init__(self, md):
+
+class CustomHTMLBlockTagProcessor(HtmlBlockPreprocessor):
+    tag_processors: dict[str, TagProcessor]
+    
+    def __init__(self, md, tag_processors: dict[str, TagProcessor]):
         super().__init__(md)
+        self.custom_tag_processors = tag_processors
     
     def run(self, lines: list[str]) -> list[str]:
         soup = BeautifulSoup("\n".join(lines), "html.parser")
-        document = []
-        return super().run(lines)
+        for tag in soup.find_all():
+            if tag.name in self.custom_tag_processors:
+                processor = self.custom_tag_processors[tag.name]
+                tag.replace_with(processor(tag))
+        return str(soup).split("\n")
 
 
 class CustomTagExtension(Extension):
@@ -63,8 +74,9 @@ class CustomTagExtension(Extension):
     # used in markdown.preprocessors.py to register the original
     # HTMLBlockPreprocessor.
     # By reusing the same name, it overrides the original processor with ours
-    def __init__(self, *args, **kwargs):
+    def __init__(self, tag_processors):
         super().__init__()
+        self.tag_processors = tag_processors
     
     def extendMarkdown(self, md):
-        md.preprocessors.register(CustomXMLTagProcessor(md), 'html_block', 20)
+        md.preprocessors.register(CustomHTMLBlockTagProcessor(md, self.tag_processors), 'html_block', 20)
