@@ -55,10 +55,7 @@ def make_iso(date: datetime | str | None, time_zone: str) -> str:
         raise TypeError("Date must be a datetime object or a string")
 
 
-def parse_yaml(file_path: Path) -> dict:
-    with open(file_path, 'r') as file:
-        text = file.read()
-    
+def parse_yaml(text: str) -> list:
     document = load(text, document_schema).data
     return document
 
@@ -78,7 +75,7 @@ class TrueFalseQuestionWalker:
     
     def walk(self, question):
         text, resources = self.markdown_processor(question["text"])
-        correct = question.get("correct", False)
+        correct = question.get("correct")
         
         new_question = {
             "question_text": text,
@@ -202,8 +199,7 @@ class MultipleTrueFalseQuestionWalker:
                 "type": "true_false",
                 "text": answer["correct" if correct else "incorrect"],
                 "points_possible": question.get("points_possible", 1),
-                "correct": f"{correct}",
-                "incorrect": f"{not correct}"
+                "correct": correct,
             }
             q, r = self.true_false_walker.walk(tf_question)
             new_questions.append(q)
@@ -338,15 +334,16 @@ class DocumentWalker:
             "override": OverrideWalker(self.date_formatter, self.parse_template_data)
         }
     
-    def walk(self, document: dict):
+    def walk(self, documents: list):
         new_documents = []
-        if child_walker := self.child_walkers.get(document["type"]):
-            templates = child_walker.walk(document)
-            if not isinstance(templates, list):
-                templates = [templates]
-            templates = [order_elements(template) for template in templates]
-            for template in templates:
-                new_documents.extend(self.templater.create_elements_from_template(template))
+        for document in documents:
+            if child_walker := self.child_walkers.get(document["type"]):
+                templates = child_walker.walk(document)
+                if not isinstance(templates, list):
+                    templates = [templates]
+                templates = [order_elements(template) for template in templates]
+                for template in templates:
+                    new_documents.extend(self.templater.create_elements_from_template(template))
         return new_documents
     
     
@@ -387,9 +384,3 @@ class DocumentWalker:
             data.append(replacements)
         return data
 
-
-if __name__ == "__main__":
-    document = parse_yaml("Midterm.yaml")
-    walker = DocumentWalker(Path("resources"), Path("canvas_files"), lambda x: (x, []), "US/Eastern")
-    document = walker.walk(document)
-    print(document)
