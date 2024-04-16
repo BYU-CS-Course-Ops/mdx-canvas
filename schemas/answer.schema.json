@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/beanlab/mdx-canvas/tree/yaml/schemas/answer.schema.json",
+  "title": "Answer",
+  "type": "object",
+  "properties": {
+    "correct": {
+      "type": "string",
+      "description": "A correct answer to the question."
+    },
+    "incorrect": {
+      "type": "string",
+      "description": "An incorrect answer to the question."
+    },
+    "left": {
+      "type": "string",
+      "description": "A left answer to a matching question."
+    },
+    "right": {
+      "type": "string",
+      "description": "A right answer to a matching question."
+    },
+    "distractor": {
+      "type": "string",
+      "description": "An extra right match to a matching question."
+    }
+  },
+  "additionalProperties": false
+}
