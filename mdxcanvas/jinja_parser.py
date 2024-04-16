@@ -1,9 +1,8 @@
 import csv
 import json
-
 import jinja2 as jj
-
 from pathlib import Path
+from itertools import takewhile
 
 
 def _process_jinja(template: jj.Template, global_args, arg_sets) -> str:
@@ -26,17 +25,12 @@ def process_jinja(template_file: Path) -> str:
 
     Examples:
     ----------
-    >>> template_file.read_text()
-    {# global.json #}
-    {# local.csv #}
-
     >>> process_jinja(Path("template.jinja")
     "<assignment
         title="Day 1"
         description="This is the first day of the course"
         due_date="2021-01-01"
         points_possible="10"
-        submission_types="online_upload">
     </assignment>
     <quiz
         title="Quiz 1"
@@ -47,22 +41,14 @@ def process_jinja(template_file: Path) -> str:
     """
     template = template_file.read_text()
 
-    global_args = {}
-    arg_sets = [{}]
+    args_template = jj.Environment().from_string('\n'.join(takewhile(lambda x: x, template.splitlines())))
+    template_args = args_template.module.__dict__
 
-    # Finds the global and template argument paths
-    for line in template.splitlines():
-        if not line.startswith('{#'):  # i.e. commented line in jinja
-            break  # only look at initial commented lines
-        line = line.strip("{}# '\"")
+    global_args_file = (template_file.parent / template_args.get('global')).resolve()
+    global_args = json.loads(global_args_file.read_text())
 
-        if line.endswith('.json'):
-            global_args_file = (template_file.parent / line).resolve()
-            global_args = json.loads(global_args_file.read_text())
-
-        elif line.endswith('.csv'):
-            args_file = (template_file.parent / line).resolve()
-            arg_sets = list(csv.DictReader(args_file.read_text().splitlines()))
+    args_file = (template_file.parent / template_args.get('args')).resolve()
+    arg_sets = list(csv.DictReader(args_file.read_text().splitlines()))
 
     jj_template = jj.Environment().from_string(template)
     global_args |= dict(zip=zip, split_list=lambda x: x.split(';'))
