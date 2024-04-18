@@ -6,34 +6,18 @@ from pathlib import Path
 from itertools import takewhile
 
 
-def _process_multi_templates(template_folder, global_args, arg_sets):
-    folder = jj.FileSystemLoader(template_folder)
-    jj_templates = jj.Environment(loader=folder)
-    global_args |= dict(zip=zip, split_list=lambda x: x.split(';'))
-
-    content = []
-    for arg_set in arg_sets:
-        jj_template = jj_templates.get_template(arg_set.get('Filename'))
-
-        content.append(
-            jj_template.render(
-                **global_args,
-                **arg_set
-            ))
-
-    return '\n'.join(content)
-
-
-def _process_single__template(template, global_args, arg_sets):
+def _process_single__template(template, global_args, arg_sets, **kwargs):
     jj_template = jj.Environment().from_string(template)
     global_args |= dict(zip=zip, split_list=lambda x: x.split(';'))
 
     content = []
+
     for arg_set in arg_sets:
         content.append(
             jj_template.render(
                 **global_args,
-                **arg_set
+                **arg_set,
+                **kwargs
             ))
 
     return '\n'.join(content)
@@ -49,7 +33,7 @@ def process_jinja(template_file: Path, **kwargs) -> str:
 
     Example:
     ----------
-    >>> process_jinja(Path("template.jinja"))
+    # >>> process_jinja(Path("template.jinja"))
     "<assignment
         title="Day 1"
         description="This is the first day of the course"
@@ -68,19 +52,31 @@ def process_jinja(template_file: Path, **kwargs) -> str:
     args_template = jj.Environment().from_string('\n'.join(takewhile(lambda x: re.match(r' *{% *set', x), template.splitlines())))
     template_args = args_template.module.__dict__
 
-    global_args_file = (template_file.parent / template_args.get('global')).resolve()
-    global_args = json.loads(global_args_file.read_text())
+    if 'global' in template_args:
+        global_args_file = (template_file.parent / template_args.get('global')).resolve()
+        global_args = json.loads(global_args_file.read_text())
+    else:
+        global_args = {}
 
-    args_file = (template_file.parent / template_args.get('args')).resolve()
-    arg_sets = list(csv.DictReader(args_file.read_text().splitlines()))
+    if 'args' in template_args:
+        args_file = (template_file.parent / template_args.get('args')).resolve()
+        arg_sets = list(csv.DictReader(args_file.read_text().splitlines()))
+    else:
+        arg_sets = [{}]
 
     if 'templates' in template_args:
+        contents = []
         template_folder = template_file.parent.resolve()
-        return _process_multi_templates(template_folder, global_args, arg_sets)
+        for arg_set in arg_sets:
+            template_file = template_folder / arg_set['Filename']
+            content = process_jinja(template_file, **arg_set)
+            contents.append(content)
+        return '\n'.join(contents)
+
     else:
-        return _process_single__template(template, global_args, arg_sets)
+        return _process_single__template(template, global_args, arg_sets, **kwargs)
 
 
 if __name__ == '__main__':
-    # print(process_jinja(Path("../demo_course/public-files/template-material/reading-quiz-templates/ReadingQuiz.canvas.canvas.xml.jinja")))
+    # print(process_jinja(Path("../demo_course/public-files/template-material/reading-quiz-templates/ReadingQuiz.canvas.jinja")))
     print(process_jinja(Path("../demo_course/public-files/template-material/HwTemplate.canvas.xml.jinja")))
