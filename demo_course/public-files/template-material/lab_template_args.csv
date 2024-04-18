@@ -1,0 +1,27 @@
+Id,Due_At,Late_Due,Website_URL
+0,Jan 8,,getting-started
+1a,Jan 10,,introduction-to-bit
+1b,Jan 17,,functions
+1c,Jan 22,,while
+2a,Jan 24,,if
+2b,Jan 29,,conditions
+2c,Jan 31,,decomposition
+2d,Oct 03,,variables
+3a,Oct 05,,interactive-programs
+3b,Oct 10,,input-loops
+3c,Oct 12,,lists
+3d,Oct 17,,list-patterns
+3e,Oct 19,,tuples
+3f,Oct 24,,structured-data
+4a,Nov 02,,strings
+4b,Nov 07,,substrings
+4c,Nov 09,,program-arguments
+4d,Nov 14,,files
+4e,Nov 16,,split-and-join
+4f,Nov 21,,random-coiteration
+5a,Nov 30,,dictionaries
+5b,Dec 05,,building-dictionaries
+5c,Dec 07,,counting
+5d,Dec 12,,grouping
+6a,Dec 14,,mutability
+6b,Dec 16,,grids

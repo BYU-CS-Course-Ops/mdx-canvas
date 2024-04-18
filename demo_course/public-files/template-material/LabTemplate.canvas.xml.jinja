@@ -1,0 +1,27 @@
+{% set args = "lab_template_args.csv" %}
+{% set global = "global_template_args.json" %}
+
+<quiz
+    title="Lab {{ Id }} Quiz"
+    due_at="{{ Due_At }}, {{ Year }}, 8:00 AM"
+    available_from="{{ Start_Date }}, {{ Year }}, 12:00 AM"
+    available_to="{{ End_Date }}, {{ Year }}, 11:59 PM"
+    assignment_group="Labs"
+    shuffle_answers="False"
+    allowed_attempts="-1">
+
+<description>
+
+Complete {{ Title }} [found here](https://{{ Term }}.byucs110.org/labs/{{ Id }}-{{ Website_URL }})
+
+Then complete this Quiz. 
+
+</description>
+
+<question type="true-false" points="10">
+<correct>
+I completed the lab activities.
+</correct>
+</question>
+
+</quiz>

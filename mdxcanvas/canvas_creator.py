@@ -25,6 +25,8 @@ from markdown.extensions.codehilite import makeExtension as makeCodehiliteExtens
 from pathlib import Path
 from bs4 import BeautifulSoup
 
+from jinja_parser import process_jinja
+
 from .extensions import BlackInlineCodeExtension
 from .parser import DocumentParser, make_iso
 from .yaml_parser import DocumentWalker, parse_yaml
@@ -273,7 +275,7 @@ def modify_quiz(course: Course, element, delete: bool):
 def create_quiz(course, element, name, settings):
     print(f"Creating canvas quiz {name} ...  ", end="")
     try:
-        canvas_quiz = course.create_quiz(quiz=element["settings"])
+        canvas_quiz = course.create_quiz(quiz=element)
     except Exception as ex:
         print(ex)
         print()
@@ -500,6 +502,11 @@ def post_document(course: Course, time_zone, file_path: Path, delete: bool = Fal
     assignment_groups = list(course.get_assignment_groups())
     names_to_ids = {g.name: g.id for g in assignment_groups}
 
+    if "jinja" in file_path.name:
+        content = process_jinja(file_path)
+    else:
+        content = file_path.read_text()
+
     if "yaml" in file_path.name:
         walker = DocumentWalker(
             path_to_resources=file_path.parent,
@@ -508,7 +515,7 @@ def post_document(course: Course, time_zone, file_path: Path, delete: bool = Fal
             time_zone=time_zone,
             group_identifier=lambda group_name: get_group_id(course, group_name, names_to_ids)
         )
-        document = parse_yaml(file_path)
+        document = parse_yaml(content)
         document_object = walker.walk(document)
     else:
         # Provide processing functions, so that the parser needs no access to a canvas course
@@ -519,7 +526,7 @@ def post_document(course: Course, time_zone, file_path: Path, delete: bool = Fal
             time_zone=time_zone,
             group_identifier=lambda group_name: get_group_id(course, group_name, names_to_ids),
         )
-        document_object = parser.parse(file_path.read_text())
+        document_object = parser.parse(content)
 
     course_folders = list(course.get_folders())
 

@@ -68,22 +68,33 @@
         "minItems": 1,
         "additionalItems": false
       }
+    },
+    "correct": {
+      "type": "boolean",
+      "description": "Whether the question is correct or not."
     }
   },
-  "required": [
-    "text",
-    "type"
-  ],
-  "if": {
-    "properties": {
-      "type": {
-        "const": "text"
+  "required": ["text", "type"],
+  "oneOf": [
+    {
+      "properties": {
+        "type": {
+          "const": "text"
+        }
       }
+    },
+    {
+      "properties": {
+        "type": {
+          "const": "true_false"
+        }
+      },
+      "required": ["correct"]
+    },
+    {
+      "required": ["answers"]
     }
-  },
-  "else": {
-    "required": ["answers"]
-  },
+  ],
   "additionalProperties": false,
   "unevaluatedProperties": false
 }

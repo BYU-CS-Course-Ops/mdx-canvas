@@ -108,7 +108,8 @@ def get_text_contents(tag, children_tag_names: list[str] = ()):
     This function joins the text and images together.
     """
     return "".join(
-        [str(c) for c in tag.contents if isinstance(c, NavigableString) or (isinstance(c, Tag) and c.name not in children_tag_names)])
+        [str(c) for c in tag.contents if
+         isinstance(c, NavigableString) or (isinstance(c, Tag) and c.name not in children_tag_names)])
 
 
 question_types = [
@@ -131,7 +132,8 @@ class TFConverter:
     @staticmethod
     def process(correct_incorrect_tag, markdown_processor: ResourceExtractor):
         is_true = correct_incorrect_tag.name == "correct"
-        question_text, resources = markdown_processor(get_text_contents(correct_incorrect_tag, ["correct-comments", "incorrect-comments"]))
+        question_text, resources = markdown_processor(
+            get_text_contents(correct_incorrect_tag, ["correct-comments", "incorrect-comments"]))
         question = {
             "question_text": question_text,
             "question_type": 'true_false_question',
@@ -228,7 +230,8 @@ class MultipleCommonProcessor:
         corrects, incorrects = get_corrects_and_incorrects(question_tag)
         check_correct_size(corrects, self.num_correct, self.question_type)
 
-        question_text, resources = markdown_processor(get_text_contents(question_tag, ["correct", "incorrect", "correct-comments", "incorrect-comments"]))
+        question_text, resources = markdown_processor(
+            get_text_contents(question_tag, ["correct", "incorrect", "correct-comments", "incorrect-comments"]))
         answers = []
         for answer in corrects + incorrects:
             answer_html, res = markdown_processor(get_text_contents(answer))
@@ -278,7 +281,8 @@ class MatchingProcessor:
 
         distractors = question_tag.css.filter('distractors')
         distractor_text = get_text_contents(distractors[0]).strip() if len(distractors) > 0 else None
-        question_text, resources = markdown_processor(get_text_contents(question_tag, ["pair", "correct-comments", "incorrect-comments"]))
+        question_text, resources = markdown_processor(
+            get_text_contents(question_tag, ["pair", "correct-comments", "incorrect-comments"]))
         question = {
             "question_text": question_text,
             "question_type": 'matching_question',
@@ -311,7 +315,7 @@ class TextQuestionProcessor:
 class Parser:
     def __init__(self):
         pass
-    
+
     def parse(self, string, typ):
         if typ == str:
             return string
@@ -323,7 +327,7 @@ class Parser:
             return self.get_list(string)
         elif typ == dict:
             return self.get_dict(string)
-    
+
     def get_list(self, string):
         items = string.strip().split(',')
         return [cell.strip() for cell in items if cell.strip()]
@@ -344,7 +348,7 @@ class Parser:
         # Assumes the string is a comma-separated list of key-value pairs
         # Example: "key1=value1, key2=value2 "
         return dict(cell.strip().split('=') for cell in string.split(',') if cell.strip())
-    
+
     def get_int(self, string):
         return int(string)
 
@@ -462,11 +466,9 @@ class QuizParser:
             "resources": []
         }
         quiz.update(self.parse_quiz_settings(quiz_tag))
-        
+
         for tag in quiz_tag.find_all():
-            if tag.name == "template-arguments":
-                quiz["replacements"] = self.template(tag)
-            elif tag.name == "question":
+            if tag.name == "question":
                 question, res = self.parse_question(tag)
                 quiz["resources"].extend(res)
                 # if question is a  list of questions, add them all
@@ -522,24 +524,20 @@ class AssignmentParser:
 
     def parse(self, assignment_tag):
         assignment = {
-            "name": "",
             "type": "assignment",
+            "name": assignment_tag["title"],
             "resources": [],
-            "settings": {}
+            "settings": self.parse_assignment_settings(assignment_tag)
         }
+
         for tag in assignment_tag.find_all():
-            if tag.name == "settings":
-                settings = self.parse_assignment_settings(tag)
-                assignment["settings"].update(settings)
-            elif tag.name == "template-arguments":
-                assignment["replacements"] = self.template(tag)
-            elif tag.name == "description":
+            if tag.name == "description":
                 contents = get_text_contents(tag)
                 description, res = self.markdown_processor(contents)
                 assignment["settings"]["description"] = description
                 assignment["resources"].extend(res)
 
-        assignment["name"] = assignment["settings"]["name"]
+        assignment["name"] = assignment["name"]
         return assignment
 
     def parse_assignment_settings(self, settings_tag):
@@ -660,7 +658,7 @@ class DocumentParser:
                     new_elements = self.templater.create_elements_from_template(template)
                     document.extend(new_elements)
         return document
-    
+
     def parse_mdx_template_data(self, template_tag):
         """
         Parses a template tag into a list of dictionaries
@@ -687,8 +685,7 @@ class DocumentParser:
             headers, *lines = psv.split('\n')
         else:
             headers, separator, *lines = get_text_contents(template_tag).strip().split('\n')
-        
-        return self.templater.parse_psv(headers, lines)
-        
 
-    
+        return self.templater.parse_psv(headers, lines)
+
+

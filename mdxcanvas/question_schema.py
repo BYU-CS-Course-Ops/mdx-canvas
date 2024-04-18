@@ -12,4 +12,5 @@ question_schema = Map({
         Optional("right"): Str(),
         Optional("distractor"): Str()
     })),
+    Optional("correct"): Bool()
 })

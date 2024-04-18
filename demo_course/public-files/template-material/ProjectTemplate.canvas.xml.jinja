@@ -1,0 +1,21 @@
+{% set args = "project_template_args.csv" %}
+{% set global = "global_template_args.json" %}
+
+<assignment
+    title="{{ Title }}"
+    due_at="{{ Due_At }}, {{ Year }}, 8:00 AM"
+    available_from="{{ Start_Date }}, {{ Year }}, 12:00 AM"
+    available_to="{{ End_Date }}, {{ Year }}, 11:59 PM"
+    points_possible="125"
+    assignment_group="Projects" 
+    submission_types="external_tool"
+    external_tool_tag_attributes="url=https://lti.int.turnitin.com/launch/gs-proxy">
+
+<description>
+
+Complete the project by following [these instructions](https://{{ Term }}.byucs110.org/projects/{{ Website_URL }})
+
+Then upload your `.py` files to Gradescope.
+
+</description>
+</assignment>
