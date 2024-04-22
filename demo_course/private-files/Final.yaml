@@ -1,0 +1,803 @@
+-   type: quiz
+    title: Final
+    quiz_type: assignment
+    due_at: 'Apr 24, 2024, 11:59 PM'
+    unlock_at: 'Apr 19, 2024, 12:00 AM'
+    lock_at: 'Apr 24, 2024, 11:59 PM'
+    assignment_group: Exams
+    shuffle_answers: True
+    time_limit: 240
+    allowed_attempts: 1
+    show_correct_answers: False
+    access_code: start-final
+    description: |
+        ### **Before taking the exam**
+        Please take the course completion survey: [Course Completion Survey](https://byu.instructure.com/courses/22386/quizzes/414679?wrap=1)
+        
+        
+        ## Final Exam Instructions
+        **Please read and understand** the following instructions before taking the final exam (scroll down).
+        
+        This is an exam. You are on your honor to treat this exam appropriately. You are not allowed to consult any material or people during this exam.
+        
+        Please do not discuss the content of this exam with others.
+        
+        You have 240 minutes (4 hours) to take this test. Most students will finish in under 90 minutes. If you need an accommodation, contact your instructor before you start the exam.
+        
+        Prepare your exam space. Find a location where you can work uninterrupted and free from distraction for the full test-taking period. 
+        
+        **You are encouraged to have scratch paper available.**
+        
+        Turn off your phone. Close all applications except your browser, and close all tabs except this one.
+        
+        Only start the test once you intend to take and complete it. To start the test, you will need the passcode: **start-final**. 
+        
+        Good luck!
+    questions:
+        -   type: text
+            text: |
+                ## Instructions
+                
+                The questions on this exam are divided into 8 sections.
+                
+                Each section begins with a section header that presents a programming question, followed by True/False questions that present possible solutions to the problem in the section header. If the possible solution is valid, mark it as True. If it is not a valid solution, mark it as False. 
+                
+                **There may be more than one valid solution in each section.**
+                
+                You can think of each section as a single *select-all-that-apply* problem, where you get a point for each item you identify correctly as being a valid or invalid solution to the problem.
+        -   type: multiple_tf
+            text: |
+                # Questions 1-4
+                
+                Given the program `counting.py`, where the number of uppercase, lowercase, and digits are printed, which implementation(s) of `count_characters` correctly produce the following execution?
+                
+                **`counting.py`**
+                
+                ```python
+                def count_characters(input_string): ...
+                
+                
+                def main():
+                    input_string = input('Input: ')
+                    counts = count_characters(input_string)
+                    print(counts)
+                
+                
+                if __name__ == '__main__':
+                    main()
+                
+                ```
+                
+                **Execution**
+                ```text
+                python counting.py
+                Input: I LOVE pie (not 3.14)
+                (5, 6, 3)
+                ```
+            answers:
+                -   incorrect: |
+                        ```python
+                        def count_characters(input_string):
+                            upper_count = input_string.count('isupper')
+                            lower_count = input_string.count('islower')
+                            digit_count = input_string.count('isdigit')
+                            return (upper_count, lower_count, digit_count)
+                        ```
+                -   incorrect: |
+                        ```python
+                        def count_characters(input_string):
+                            upper_count, lower_count, digit_count = 0, 0, 0
+                            for char in input_string:
+                                if char.upper():
+                                    upper_count += 1
+                                if char.lower():
+                                    lower_count += 1
+                                if char.isdigit():
+                                    digit_count += 1
+                            return (upper_count, lower_count, digit_count)
+                        ```
+                -   incorrect: |
+                        ```python
+                        def count_characters(input_string):
+                            upper_count, lower_count, digit_count = 0, 0, 0
+                            for word in input_string.split():
+                                if word.isupper():
+                                    upper_count += 1
+                                elif word.islower():
+                                    lower_count += 1
+                                elif word.isdigit():
+                                    digit_count += 1
+                            return (upper_count, lower_count, digit_count)
+                        ```
+                -  correct: |
+                        ```python
+                        def count_characters(input_string):
+                            upper_count, lower_count, digit_count = 0, 0, 0
+                            for char in input_string:
+                                if char.isupper():
+                                    upper_count += 1
+                                elif char.islower():
+                                    lower_count += 1
+                                elif char.isdigit():
+                                    digit_count += 1
+                            return (upper_count, lower_count, digit_count)
+                        ```
+        -   type: multiple_tf
+            text: |
+                # Questions 5-8
+                
+                Write a program that replaces all the spaces with underscores, and all the lowercase 'e's with uppercase 'E's.
+                
+                Which solutions are valid implementations of this program?
+            answers:
+                -   incorrect: |
+                        ```python
+                        import sys
+                        
+                        
+                        def fix(original_string):
+                            modified_string = original_string.replace(' ', '_')
+                            modified_string.replace('e', 'E')
+                            return modified_string
+                        
+                        
+                        if __name__ == '__main__':
+                            print(fix(sys.argv[1]))
+                        ```
+                -   correct: |
+                        ```python
+                        import sys
+                        
+                        
+                        def fix(original_string):
+                            return original_string.replace(' ', '_').replace('e', 'E')
+                        
+                        
+                        if __name__ == '__main__':
+                            print(fix(sys.argv[1]))
+                        ```
+                -   incorrect: |
+                        ```python
+                        import sys
+                        
+                        
+                        def fix(original_string):
+                            modified_string = ''
+                            for char in original_string:
+                                if char == ' ':
+                                    modified_string += '_'
+                                elif char == 'e':
+                                    modified_string += 'E'
+                            return modified_string
+                        
+                        
+                        if __name__ == '__main__':
+                            print(fix(sys.argv[1]))
+                        ```
+                -   incorrect: |
+                        ```python
+                        import sys
+                        
+                        
+                        def fix(original_string):
+                            modified_string = original_string.replace(' ', '_')
+                            modified_string = original_string.replace('e', 'E')
+                            return modified_string
+                        
+                        
+                        if __name__ == '__main__':
+                            print(fix(sys.argv[1]))
+                        ```
+        -   type: multiple_tf
+            text: |
+                # Questions 9-13
+                
+                The following code is found in the file `print_words.py`.
+                
+                ```python
+                import sys
+                
+                
+                def get_plain_words(text):
+                    punctuations = '.,!?'
+                    words = text.split()
+                    stripped_words = []
+                
+                    for word in words:
+                        stripped_word = word.strip(punctuations).lower()
+                        stripped_words.append(stripped_word)
+                
+                    return stripped_words
+                
+                
+                if __name__ == '__main__':
+                    text = sys.argv[1]
+                    result = get_plain_words(text)
+                    for word in result:
+                        print(word)
+                ```
+                
+                Which options demonstrate a valid execution of `print_words.py`.
+            answers:
+                -   correct: |
+                        ```text
+                        python print_words.py 'Hello! How are you today?'
+                        hello
+                        how
+                        are
+                        you
+                        today
+                        ```
+                -   incorrect: |
+                        ```text
+                        python print_words.py Do you know the muffin man? 
+                        do
+                        you
+                        know
+                        the
+                        muffin
+                        man
+                        ```
+                -   incorrect: |
+                        ```text
+                        python print_words.py "3.1415 begins pi."
+                        31415
+                        begins
+                        pi
+                        ```
+                -   incorrect: |
+                        ```text
+                        python print_words.py "My favorite color is BLUE."
+                        My
+                        favorite
+                        color
+                        is
+                        BLUE
+                        ```
+                -   correct: |
+                        ```text
+                        python print_words.py "To get bit to move, use bit.move()"
+                        to
+                        get
+                        bit
+                        to
+                        move
+                        use
+                        bit.move()
+                        ```
+        -   type: multiple_tf
+            text: |
+                # Questions 14-17
+                
+                Select all of the following programs that can increase the number in the middle of each CSV row by 1.
+                
+                **Execution**
+                
+                ```text
+                python add_one.py input.txt output.txt
+                ```
+                
+                **`input.txt`**
+                ```text
+                quail,10,Provo
+                robin,3,Provo
+                junco,1,Orem
+                ```
+                
+                **`output.txt`**
+                ```text
+                quail,11,Provo
+                robin,4,Provo
+                junco,2,Orem
+                ```
+            answers:
+                -   correct: |
+                        ```python
+                        import sys
+                        
+                        
+                        def add_one(line):
+                            tokens = line.split(',')
+                            new_tokens = []
+                            for token in tokens:
+                                if token.isdigit():
+                                    token = str(int(token) + 1)
+                                new_tokens.append(token)
+                            return ','.join(new_tokens)
+                        
+                        
+                        def main(input_file, output_file):
+                            with open(input_file) as file:
+                                lines = file.readlines()
+                            
+                            new_lines = []
+                            for line in lines:
+                                new_lines.append(add_one(line))
+                            
+                            with open(output_file, 'w') as file:
+                                file.writelines(new_lines)
+                                
+                        
+                        if __name__ == '__main__':
+                            main(sys.argv[1], sys.argv[2])
+                        ```
+                -   incorrect: |
+                        ```python
+                        import sys
+                        
+                        
+                        def main(input_file, output_file):
+                            with open(input_file) as file:
+                                text = file.read()
+                            
+                            new_text = ''
+                            for c in text:
+                                if c.isdigit():
+                                    c = c + 1
+                                new_text += c
+                            
+                            with open(output_file, 'w') as file:
+                                file.write(new_text)
+                                
+                        
+                        if __name__ == '__main__':
+                            main(sys.argv[1], sys.argv[2])
+                        
+                        ```
+                -   correct: |
+                        ```python
+                        import sys
+                        
+                        
+                        def add_one(line):
+                            tokens = line.split(',')
+                            new_num = str(int(tokens[1]) + 1)
+                            new_tokens = [tokens[0], new_num, tokens[2]]
+                            return ','.join(new_tokens)
+                        
+                        
+                        def main(input_file, output_file):
+                            with open(input_file) as file:
+                                lines = file.readlines()
+                        
+                            new_lines = []
+                            for line in lines:
+                                new_lines.append(add_one(line))
+                        
+                            with open(output_file, 'w') as file:
+                                file.writelines(new_lines)
+                        
+                        
+                        if __name__ == '__main__':
+                            main(sys.argv[1], sys.argv[2])
+                        
+                        ```
+                -   incorrect: |
+                        ```python
+                        import sys
+                        
+                        
+                        def add_one(line):
+                            tokens = line.split(',')
+                            new_num = tokens[1] + 1
+                            new_tokens = [tokens[0], new_num, tokens[2]]
+                            return ','.join(new_tokens)
+                        
+                        
+                        def main(input_file, output_file):
+                            with open(input_file) as file:
+                                lines = file.readlines()
+                        
+                            new_lines = []
+                            for line in lines:
+                                new_lines.append(add_one(line))
+                        
+                            with open(output_file, 'w') as file:
+                                file.writelines(new_lines)
+                        
+                        
+                        if __name__ == '__main__':
+                            main(sys.argv[1], sys.argv[2])
+                        
+                        ```
+        -   type: true_false
+            text:  |
+                # Midway Question
+                
+                What does the following expression evaluate to?
+                
+                ```python
+                not False
+                ```
+            correct: True
+        -   type: multiple_tf
+            text: |
+                # Questions 19-23
+                
+                Which code blocks correctly compare two strings, character by character, and print only the characters that match?
+                
+                Examples:
+                ```
+                python matches.py hourse house
+                hou
+                ```
+                
+                ```
+                python matches.py bolus torus
+                ous
+                ```
+                
+                ```
+                python matches.py banana fruitcake
+                
+                ```
+                
+                
+                Select all that apply.
+            answers:
+                -   incorrect: |
+                        ```python
+                        import sys
+                        
+                        
+                        def main(word1, word2):
+                            matches = ''
+                            for letter in word1:
+                                if letter in word2:
+                                    matches += letter
+                            print(matches)
+                        
+                        
+                        if __name__ == '__main__':
+                            main(sys.argv[1], sys.argv[2])
+                        ```
+                -   correct: |
+                        ```python
+                        import sys
+                        
+                        
+                        def main(word1, word2):
+                            matches = ''
+                            for w1, w2 in zip(word1, word2):
+                                if w1 == w2:
+                                    matches += w1
+                            print(matches)
+                        
+                        
+                        if __name__ == '__main__':
+                            main(sys.argv[1], sys.argv[2])
+                        ```
+                -   incorrect: |
+                        ```python
+                        import sys
+                        
+                        
+                        def main(word1, word2):
+                            matches = ''
+                            if word1 in word2:
+                                for letter in word1:
+                                    matches += letter
+                            print(matches)
+                        
+                        
+                        if __name__ == '__main__':
+                            main(sys.argv[1], sys.argv[2])
+                        ```
+                -   correct: |
+                        ```python
+                        import sys
+                        
+                        
+                        def main(word1, word2):
+                            matches = ''
+                            for i in range(len(word1)):
+                                if i < len(word2) and word1[i] == word2[i]:
+                                    matches += word1[i]
+                            print(matches)
+                        
+                        
+                        if __name__ == '__main__':
+                            main(sys.argv[1], sys.argv[2])
+                        ```
+                -   incorrect: |
+                        ```python
+                        import sys
+                        
+                        
+                        def main(word1, word2):
+                            for c1, c2 in zip(word1, word2):
+                                if c1 == c2:
+                                    print(c1)
+                        
+                        
+                        if __name__ == '__main__':
+                            main(sys.argv[1], sys.argv[2])
+                        ```
+        -   type: multiple_tf
+            text: |
+                # Questions 24-30
+                
+                Consider the following program:
+                
+                **`subs.py`**
+                
+                ```python
+                import sys
+                
+                
+                def substitute(text, substitutions): ...
+                    
+                
+                def main(text, substitutions):
+                    text = substitute(text, substitutions)
+                    print(text)
+                    
+                    
+                if __name__ == '__main__':
+                    
+                    options = {
+                        "bird": "feathered critter",
+                        "fish": "wet critter",
+                        "dog": "happy critter",
+                        "cat": "furry critter"
+                    }
+                    main(sys.argv[1], options)
+                ```
+                
+                Which of the following implementations of `substitute` can produce this execution:
+                
+                ```text
+                python subs.py "My dog likes to watch the fish swim. My cat wants to catch the bird in the tree."
+                My happy critter likes to watch the wet critter swim. My furry critter wants to catch the feathered critter in the tree.
+                ```
+            answers:
+                -   incorrect: |
+                        ```python
+                        def substitute(text, substitutions):
+                            for key, value in substitutions.items():
+                                text = text.replace(key, value)
+                            return text
+                        ```
+                -   correct: |
+                        ```python
+                        def substitute(text, substitutions):
+                            new_words = []
+                            for word in text.split():
+                                if word in substitutions:
+                                    new_words.append(substitutions[word])
+                                else:
+                                    new_words.append(word)
+                            return ' '.join(new_words)
+                        ```
+                -   incorrect: |
+                        ```python
+                        def substitute(text, substitutions):
+                            new_text = ''
+                            for word in text:
+                                if word in substitutions:
+                                    new_text += substitutions[word]
+                                else:
+                                    new_text += word
+                            return new_text
+                        ```
+                -   incorrect: |
+                        ```python
+                        def substitute(text, substitutions):
+                            new_text = ''
+                            for word in text.split():
+                                if word in substitutions:
+                                    new_text += substitutions[word]
+                                else:
+                                    new_text += word
+                            return new_text
+                        ```
+                -   incorrect: |
+                        ```python
+                        def substitute(text, substitutions):
+                            new_words = []
+                            for word in text.split():
+                                for key, value in substitutions.items():
+                                    if key in word:
+                                        word = word.replace(key, value)
+                                new_words.append(word)
+                            return ' '.join(new_words
+                        ```
+                -   correct: |
+                        ```python
+                        def substitute(text, substitutions):
+                            new_words = []
+                            for word in text.split():
+                                if word in substitutions:
+                                    word = substitutions[word]
+                                new_words.append(word)
+                            return ' '.join(new_words)
+                        ```
+                -   incorrect: |
+                        ```python
+                        def substitute(text, substitutions):
+                            for key, value in substitutions:
+                                text.replace(key, value)
+                            return text
+                        ```
+        -   type: multiple_tf
+            text: |
+                # Questions 31-35
+                
+                Given the program:
+                
+                **`counts.py`**
+                
+                ```python
+                import sys
+                
+                
+                def count_letters(text): ...
+                    
+                
+                def main(text):
+                    counts = count_letters(text)
+                    print(counts)
+                    
+                    
+                if __name__ == '__main__':
+                    main(sys.argv[1])
+                
+                ```
+                
+                Which of the following implementations of `count_letters` will produce the following output:
+                
+                ```text
+                python counts.py 'Apples, bananas, pears!'
+                {'a': 5, 'p': 3, 'l': 1, 'e': 2, 's': 3, 'b': 1, 'n': 2, 'r': 1}
+                ```
+            answers:
+                -   incorrect: |
+                        ```python
+                        def count_letters(text):
+                            counts = {}
+                            for letter in 'abcdefghijklmnopqrstuvwxyz':
+                                counts[letter] = 0
+                        
+                            for letter in text.lower():
+                                if letter.isalnum():
+                                    counts[letter] += 1
+                                    
+                            return counts
+                        ```
+                -   incorrect: |
+                        ```python
+                        def count_letters(text):
+                            counts = {}
+                            for letter in text:
+                                if letter not in counts:
+                                    counts[letter] = 0
+                                counts[letter] += 1    
+                            return counts
+                        ```
+                -   incorrect: |
+                        ```python
+                        def count_letters(text):
+                            counts = {}
+                            for letter in text:
+                                if letter.lower() not in counts:
+                                    counts[letter] = 0
+                                counts[letter] += 1    
+                            return counts
+                        ```
+                -   incorrect: |
+                        ```python
+                        def count_letters(text):
+                            counts = {}
+                            for letter in text.lower():
+                                if not letter.isalnum():
+                                    break
+                                elif letter not in counts:
+                                    counts[letter] = 0
+                                counts[letter] += 1
+                            return counts
+                        ```
+                -   correct: |
+                        ```python
+                        def count_letters(text):
+                            counts = {}
+                            for letter in text.lower():
+                                if letter.isalnum():
+                                    if letter not in counts:
+                                        counts[letter] = 0
+                                    counts[letter] += 1
+                            return counts
+                        ```
+        -   type: multiple_tf
+            text: |
+                # Questions 36-39
+                
+                Given the following program:
+                
+                **`group_words.py`**
+                
+                ```python
+                import sys
+                
+                
+                def make_groups(text): ...
+                    
+                    
+                def main(text):
+                    groups = make_groups(text)
+                    print(groups)
+                
+                
+                if __name__ == '__main__':
+                    main(sys.argv[1])
+                ```
+                
+                Which implementations of `make_groups` can produce the following output?
+                
+                ```
+                python group_words.py 'I, Nephi, having been born of goodly parents...'
+                {1: ['i'],
+                 5: ['nephi'],
+                 6: ['having', 'goodly'],
+                 4: ['been', 'born'],
+                 2: ['of'],
+                 7: ['parents']}
+                ```
+            answers:
+                -   correct: |
+                        ```python
+                        def make_groups(text):
+                            groups = {}
+                            for word in text.lower().split():
+                                word = word.strip('.,!?')
+                                key = len(word)
+                                if key not in groups:
+                                    groups[key] = []
+                                groups[key].append(word)
+                            return groups
+                        ```
+                -   correct: |
+                        ```python
+                        def make_groups(text):
+                            groups = {}
+                            for word in text.split():
+                                word = word.strip('.,!?').lower()
+                                key = len(word)
+                                if key not in groups:
+                                    groups[key] = [word]
+                                else:
+                                    groups[key].append(word)
+                            return groups
+                        ```
+                -   incorrect: |
+                        ```python
+                        def make_groups(text):
+                            groups = {}
+                            for word in text:
+                                word = word.strip('.,!?').lower()
+                                if word.lower() not in groups:
+                                    groups[word.lower()] = []
+                                groups[word.lower()].append(word)
+                            return groups
+                        ```
+                -   incorrect: |
+                        ```python
+                        def make_groups(text):
+                            groups = {}
+                            for word in text.split():
+                                word = word.strip('.,!?')
+                                key = len(word.lower())
+                                if key not in groups:
+                                    groups[key] = []
+                                groups[key].append(word)
+                            return groups
+                        ```
+        -   type: true_false
+            text: |
+                # Last Question
+                
+                What does this expression evaluate to?
+                
+                ```python
+                1 == "pig"
+                ```
+            correct: False

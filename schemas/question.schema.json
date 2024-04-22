@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/beanlab/mdx-canvas/tree/yaml/schemas/question.schema.json",
+  "title": "Question",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "The name of the question."
+    },
+    "text": {
+      "type": "string",
+      "description": "The text of the question."
+    },
+    "quiz_group_id": {
+      "type": "integer",
+      "description": "The id of the quiz group to assign the question to."
+    },
+    "type": {
+      "type": "string",
+      "description": "The type of question. Multiple optional fields depend upon the type of question to be used.",
+      "enum": [
+        "calculated",
+        "essay",
+        "file_upload",
+        "fill_in_multiple_blanks",
+        "matching",
+        "multiple_answers",
+        "multiple_choice",
+        "multiple_tf",
+        "multiple_dropdowns",
+        "numerical",
+        "short_answer",
+        "text",
+        "true_false"
+      ]
+    },
+    "position": {
+      "type": "integer",
+      "description": "The order in which the question will be displayed in the quiz in relation to other questions."
+    },
+    "points_possible": {
+      "type": "integer",
+      "description": "The maximum amount of points received for answering this question correctly."
+    },
+    "correct_comments": {
+      "type": "string",
+      "description": "The comment to display if the student answers the question correctly."
+    },
+    "incorrect_comments": {
+      "type": "string",
+      "description": "The comment to display if the student answers incorrectly."
+    },
+    "neutral_comments": {
+      "type": "string",
+      "description": "The comment to display regardless of how the student answered."
+    },
+    "text_after_answers": {
+      "type": "string",
+      "description": "no description"
+    },
+    "answers": {
+      "type": "array",
+      "description": "The possible answers to the question. The structure of this object depends upon the type of question being used.",
+      "items": {
+        "$ref": "./answer.schema.json",
+        "required": true,
+        "minItems": 1,
+        "additionalItems": false
+      }
+    },
+    "correct": {
+      "type": "boolean",
+      "description": "Whether the question is correct or not."
+    }
+  },
+  "required": ["text", "type"],
+  "oneOf": [
+    {
+      "properties": {
+        "type": {
+          "const": "text"
+        }
+      }
+    },
+    {
+      "properties": {
+        "type": {
+          "const": "true_false"
+        }
+      },
+      "required": ["correct"]
+    },
+    {
+      "required": ["answers"]
+    }
+  ],
+  "additionalProperties": false,
+  "unevaluatedProperties": false
+}
