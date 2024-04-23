@@ -15,7 +15,7 @@ from canvasapi.module import Module
 from canvasapi.quiz import Quiz
 from markdown.extensions.codehilite import makeExtension as makeCodehiliteExtension
 
-from jinja_parser import process_jinja
+from .jinja_parser import process_jinja
 from .extensions import BlackInlineCodeExtension
 from .parser import DocumentParser, make_iso
 from .yaml_parser import DocumentWalker, parse_yaml
