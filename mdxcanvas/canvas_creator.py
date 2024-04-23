@@ -1,32 +1,21 @@
-import random
-import re
-from datetime import datetime
 import json
-import os
+import random
 import textwrap
 import uuid
-
-import pygments
-
-import argparse
-from xml.etree import ElementTree as etree
-
-import pytz
-from canvasapi import Canvas
-from canvasapi.assignment import Assignment
-
-from canvasapi.quiz import Quiz
-from canvasapi.course import Course
-from canvasapi.module import Module
+from datetime import datetime
+from pathlib import Path
 
 import markdown as md
+import pytz
+from bs4 import BeautifulSoup
+from canvasapi import Canvas
+from canvasapi.assignment import Assignment
+from canvasapi.course import Course
+from canvasapi.module import Module
+from canvasapi.quiz import Quiz
 from markdown.extensions.codehilite import makeExtension as makeCodehiliteExtension
 
-from pathlib import Path
-from bs4 import BeautifulSoup
-
 from jinja_parser import process_jinja
-
 from .extensions import BlackInlineCodeExtension
 from .parser import DocumentParser, make_iso
 from .yaml_parser import DocumentWalker, parse_yaml
