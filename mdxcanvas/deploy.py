@@ -1,7 +1,7 @@
 import argparse
 
 from pathlib import Path
-from mdxcanvas import post_document, get_course
+from .canvas_creator import post_document, get_course
 import json
 import os
 

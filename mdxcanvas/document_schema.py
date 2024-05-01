@@ -1,5 +1,5 @@
 from strictyaml import Map, Str, Int, Seq, Optional, Any, Enum, MapPattern, Bool
-from question_schema import question_schema
+from .question_schema import question_schema
 
 # Define the schema for the yaml file
 document_schema = Seq(Map({
