@@ -73,7 +73,7 @@ def link_file(course: Course, canvas_folder: Folder, resource_folder: Path, tag:
     """
     file_path = resource_folder/tag.get("path")
     file_name = tag.get("name")
-    display_text = tag.text if tag.text else file_name
+    display_text = tag.text if tag.text.strip() else file_name
     return create_file_tag(course, canvas_folder, file_path, display_text)
 
 
@@ -91,7 +91,7 @@ def link_zip(course: Course, canvas_folder: Folder, resource_folder: Path, tag: 
         for file in folder_path.iterdir():
             zipf.write(file, file.name)
     print("Done")
-    display_text = tag.text if tag.text else name
+    display_text = tag.text if tag.text.strip() else name
     return create_file_tag(course, canvas_folder, path_to_zip, display_text)
     
 
