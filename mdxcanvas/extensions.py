@@ -51,13 +51,12 @@ class CustomHTMLBlockTagProcessor(HtmlBlockPreprocessor):
 
 
 class CustomTagExtension(Extension):
-    # We use 'html_block' and 20 which are the same values
-    # used in markdown.preprocessors.py to register the original
-    # HTMLBlockPreprocessor.
+    # We use 19, which is one less than the original 'html_block'
+    # used in markdown.preprocessors.py to register the original for first priority
     # By reusing the same name, it overrides the original processor with ours
     def __init__(self, tag_processors):
         super().__init__()
         self.tag_processors = tag_processors
     
     def extendMarkdown(self, md):
-        md.preprocessors.register(CustomHTMLBlockTagProcessor(md, self.tag_processors), 'html_block', 20)
+        md.preprocessors.register(CustomHTMLBlockTagProcessor(md, self.tag_processors), 'custom_tag', 19)
