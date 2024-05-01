@@ -1,15 +1,11 @@
 import random
-import re
 from datetime import datetime
 import json
-import os
 import textwrap
 import uuid
 
+## Keep this import
 import pygments
-
-import argparse
-from xml.etree import ElementTree as etree
 
 import pytz
 from canvasapi import Canvas
