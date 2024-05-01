@@ -3,14 +3,9 @@ import random
 import textwrap
 import uuid
 from datetime import datetime
-from pathlib import Path
 
-## Keep this import
-import pygments
 
-import markdown as md
 import pytz
-from bs4 import BeautifulSoup
 from canvasapi import Canvas
 from canvasapi.assignment import Assignment
 from canvasapi.course import Course
@@ -31,6 +26,17 @@ from .jinja_parser import process_jinja
 from .extensions import BlackInlineCodeExtension, CustomTagExtension
 from .parser import DocumentParser, make_iso
 from .yaml_parser import DocumentWalker, parse_yaml
+
+
+def print_red(string):
+    print(f"\033[91m{string}\033[00m")
+
+
+# Check if pygments is installed
+try:
+    from pygments.formatters import HtmlFormatter
+except ImportError:
+    print_red("Pygments is not installed. Syntax highlighting is not enabled.")
 
 
 def readfile(filepath: Path):
