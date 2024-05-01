@@ -1,25 +1,19 @@
 # parse the yaml file and return the data
-import json
-from pathlib import Path
-import signal
-
-from typing import Callable, Union
 from collections import OrderedDict
+from collections import defaultdict
+from datetime import datetime
+from pathlib import Path
+from typing import Callable
+from typing import TypeAlias
 
 import pytz
-from datetime import datetime
-from typing import TypeAlias
-from collections import defaultdict
-
 from jinja2 import Environment
-
-from mdxcanvas.templating import Templater
-
-ResourceExtractor: TypeAlias = Callable[[str], tuple[str, list]]
-
 from strictyaml import load
 
-from document_schema import document_schema
+from .templating import Templater
+from .document_schema import document_schema
+
+ResourceExtractor: TypeAlias = Callable[[str], tuple[str, list]]
 
 
 def make_iso(date: datetime | str | None, time_zone: str) -> str:

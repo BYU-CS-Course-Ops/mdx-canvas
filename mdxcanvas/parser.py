@@ -1,17 +1,15 @@
-import json
+from collections import OrderedDict
+from datetime import datetime
 from pathlib import Path
-
 from typing import Callable, Union
+from typing import Protocol, TypeAlias
 
 import pytz
 from bs4 import BeautifulSoup
 from bs4.element import Tag, NavigableString
-from datetime import datetime
-from typing import Protocol, TypeAlias
-from collections import defaultdict, OrderedDict
-from mdxcanvas.templating import Templater
-
 from jinja2 import Environment
+
+from .templating import Templater
 
 ResourceExtractor: TypeAlias = Callable[[str], tuple[str, list]]
 
