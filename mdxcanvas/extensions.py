@@ -27,25 +27,6 @@ class BlackInlineCodeExtension(Extension):
         md.inlinePatterns.register(BlackInlineCodeProcessor(BACKTICK_RE), 'backtick', 190)
 
 
-class ZipTagProcessor(HtmlBlockPreprocessor):
-    def run(self, lines: list[str]) -> list[str]:
-        soup = BeautifulSoup("\n".join(lines), "html.parser")
-        document = []
-        for tag in soup.find_all("zip"):
-            # Create a new div element
-            div = Tag(name="div")
-            div["class"] = "zip"
-            # Add the contents of the zip tag to the div
-            for child in tag.children:
-                if isinstance(child, NavigableString):
-                    div.append(child)
-                else:
-                    div.append(child.prettify())
-            # Replace the zip tag with the div
-            tag.replace_with(div)
-        return str(soup).split("\n")
-
-
 # Make a Protocol for any tag processor, it should take a Tag and return a Tag
 # This way we can define a type hint for the tag_processors dictionary
 class TagProcessor(Protocol):
