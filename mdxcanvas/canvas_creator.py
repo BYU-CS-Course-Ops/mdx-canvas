@@ -25,6 +25,8 @@ from bs4 import BeautifulSoup, Tag
 
 from markdown.extensions.codehilite import makeExtension as makeCodehiliteExtension
 
+import zipfile
+
 from .jinja_parser import process_jinja
 from .extensions import BlackInlineCodeExtension, CustomTagExtension
 from .parser import DocumentParser, make_iso
@@ -47,19 +49,42 @@ def upload_file(folder: Folder, file_path: Path):
     return file_id
 
 
-def link_to_download(course: Course, canvas_folder: Folder, resource_folder: Path, tag: Tag) -> Tag:
+def create_file_tag(course: Course, canvas_folder: Folder, file_path: Path, text: str) -> Tag:
     """
-    Returns a tag that links to a zip file in Canvas.
-    Syntax: <zip filename="This is a file to download" path="resources/thing.zip" />
+    Returns a tag that links to a file in Canvas.
     """
-    file_path = resource_folder/tag.get("path")
-    file_name = tag.get("filename")
     file_id = upload_file(canvas_folder, file_path)
     a = Tag(name="a")
     a["href"] = f"/courses/{course.id}/files/{file_id}/preview"
-    a.append(file_name)
-    a.append(tag.text)
+    a.append(text)
     return a
+
+
+def link_file(course: Course, canvas_folder: Folder, resource_folder: Path, tag: Tag) -> Tag:
+    """
+    Returns a modified tag that links to a file in Canvas.
+    Syntax: <file path="./resources/file.txt" name="file.txt" />
+    """
+    file_path = resource_folder/tag.get("path")
+    file_name = tag.get("name")
+    return create_file_tag(course, canvas_folder, file_path, tag.text)
+
+
+def link_zip(course: Course, canvas_folder: Folder, resource_folder: Path, tag: Tag) -> Tag:
+    """
+    Zips a folder and uploads it to Canvas.
+    Syntax: <zip path="./resources/assignment" name="progresscheck1.zip" />
+    """
+    folder_to_zip = tag.get("path")
+    name = tag.get("name")
+    print(f"Zipping {folder_to_zip} ... ", end="")
+    folder_path = resource_folder / folder_to_zip
+    path_to_zip = resource_folder / name
+    with zipfile.ZipFile(path_to_zip, "w") as zipf:
+        for file in folder_path.iterdir():
+            zipf.write(file, file.name)
+    print("Done")
+    return create_file_tag(course, canvas_folder, path_to_zip, tag.text)
     
 
 def get_fancy_html(markdown_or_file: str, course: Course, canvas_folder: Folder, files_folder: Path = None):
@@ -83,7 +108,8 @@ def get_fancy_html(markdown_or_file: str, course: Course, canvas_folder: Folder,
         BlackInlineCodeExtension(),
         
         CustomTagExtension({
-            "zip": lambda tag: link_to_download(course, canvas_folder, files_folder, tag)
+            "file": lambda tag: link_file(course, canvas_folder, files_folder, tag),
+            "zip": lambda tag: link_zip(course, canvas_folder, files_folder, tag)
         })
     ])
     return fenced
