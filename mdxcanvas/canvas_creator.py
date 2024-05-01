@@ -55,14 +55,14 @@ def upload_file(folder: Folder, file_path: Path):
     return file_id
 
 
-def create_file_tag(course: Course, canvas_folder: Folder, file_path: Path, text: str) -> Tag:
+def create_file_tag(course: Course, canvas_folder: Folder, file_path: Path, display_text: str) -> Tag:
     """
     Returns a tag that links to a file in Canvas.
     """
     file_id = upload_file(canvas_folder, file_path)
     a = Tag(name="a")
     a["href"] = f"/courses/{course.id}/files/{file_id}/preview"
-    a.append(text)
+    a.append(display_text)
     return a
 
 
@@ -73,7 +73,8 @@ def link_file(course: Course, canvas_folder: Folder, resource_folder: Path, tag:
     """
     file_path = resource_folder/tag.get("path")
     file_name = tag.get("name")
-    return create_file_tag(course, canvas_folder, file_path, tag.text)
+    display_text = tag.text if tag.text else file_name
+    return create_file_tag(course, canvas_folder, file_path, display_text)
 
 
 def link_zip(course: Course, canvas_folder: Folder, resource_folder: Path, tag: Tag) -> Tag:
@@ -90,7 +91,8 @@ def link_zip(course: Course, canvas_folder: Folder, resource_folder: Path, tag: 
         for file in folder_path.iterdir():
             zipf.write(file, file.name)
     print("Done")
-    return create_file_tag(course, canvas_folder, path_to_zip, tag.text)
+    display_text = tag.text if tag.text else name
+    return create_file_tag(course, canvas_folder, path_to_zip, display_text)
     
 
 def get_fancy_html(markdown_or_file: str, course: Course, canvas_folder: Folder, files_folder: Path = None):
@@ -121,8 +123,6 @@ def get_fancy_html(markdown_or_file: str, course: Course, canvas_folder: Folder,
     return fenced
 
 
-def print_red(string):
-    print(f"\033[91m{string}\033[00m")
 
 
 def get_canvas_folder(course: Course, folder_name: str, parent_folder_path="") -> Folder:
