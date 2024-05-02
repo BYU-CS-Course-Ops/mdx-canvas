@@ -54,7 +54,7 @@ class CustomTagExtension(Extension):
     # We use 19, which is one less than the original 'html_block'
     # used in markdown.preprocessors.py to register the original for first priority
     # By reusing the same name, it overrides the original processor with ours
-    def __init__(self, tag_processors):
+    def __init__(self, tag_processors: dict[str, TagProcessor]):
         super().__init__()
         self.tag_processors = tag_processors
     
