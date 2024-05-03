@@ -30,7 +30,6 @@ from .yaml_parser import DocumentWalker, parse_yaml
 
 
 def print_red(string):
-    print(f"\033[91m{string}\033[00m")
     print(string, file=sys.stderr)
 
 
@@ -362,12 +361,14 @@ def create_quiz(course, element, name, settings):
 
 
 def debug_quiz_creation(canvas_quiz, course, settings):
+    new_settings = {"title": settings["title"]}
+    keys = list(settings.keys())
+    values = list(settings.values())
     for index in range(1, len(settings)):
-        keys = list(settings.keys())[:index]
-        values = list(settings.values())[:index]
-        print_red(f"Attempting with {dict(zip(keys, values))}")
+        new_settings[keys[index]] = values[index]
+        print_red(f"Attempting with {keys[index]}: {values[index]}")
         try:
-            canvas_quiz = course.create_quiz(quiz=dict(zip(keys, values)))
+            canvas_quiz = course.create_quiz(quiz=new_settings)
         except Exception as ex:
             print_red(f"Failed on key: {keys[-1]}, value: {values[-1]}")
             raise ex
