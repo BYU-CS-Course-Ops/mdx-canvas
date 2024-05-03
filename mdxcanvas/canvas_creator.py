@@ -1,5 +1,6 @@
 import json
 import random
+import sys
 import textwrap
 import uuid
 from datetime import datetime
@@ -36,7 +37,8 @@ def print_red(string):
 try:
     from pygments.formatters import HtmlFormatter
 except ImportError:
-    print_red("Pygments is not installed. Syntax highlighting is not enabled.")
+    print("Pygments is not installed. Syntax highlighting is not enabled.", file=sys.stderr)
+    print_red("Please install Pygments to enable syntax highlighting.")
 
 
 def readfile(filepath: Path):
@@ -48,7 +50,6 @@ def upload_file(folder: Folder, file_path: Path):
     """
     Uploads a file to Canvas, and returns the id of the uploaded file.
     """
-    
     print(f"Uploading {file_path.name} ... ", end="")
     file_id = folder.upload(file_path)[1]["id"]
     print("Done")
@@ -66,34 +67,38 @@ def create_file_tag(course: Course, canvas_folder: Folder, file_path: Path, disp
     return a
 
 
-def link_file(course: Course, canvas_folder: Folder, resource_folder: Path, tag: Tag) -> Tag:
+def link_file(course: Course, canvas_folder: Folder, parent_folder: Path, tag: Tag) -> Tag:
     """
     Returns a modified tag that links to a file in Canvas.
-    Syntax: <file path="./resources/file.txt" name="file.txt" />
+    Syntax: <file path="./resources/websters.txt" name="dictionary.txt" />Download File</file>
+    Alternate: <file path="./resources/file.txt" />
+    The alternate syntax uses the last part of the path as the file name, and the file name as the display text.
     """
-    file_path = resource_folder/tag.get("path")
-    file_name = tag.get("name")
+    file_path = parent_folder / tag.get("path")
+    file_name = tag.get("name") or file_path.name
     display_text = tag.text if tag.text.strip() else file_name
     return create_file_tag(course, canvas_folder, file_path, display_text)
 
 
-def link_zip(course: Course, canvas_folder: Folder, resource_folder: Path, tag: Tag) -> Tag:
+def link_zip(course: Course, canvas_folder: Folder, parent_folder: Path, tag: Tag) -> Tag:
     """
     Zips a folder and uploads it to Canvas.
-    Syntax: <zip path="./resources/assignment" name="progresscheck1.zip" />
+    Syntax: <zip path="./resources/assignment" name="progresscheck1.zip">Download Progress Check 1</zip>
+    Alternate: <zip path="./resources/progress_check_1" />
+    This would use progress_check_1.zip as the name, and "progress_check_1" as the display text.
     """
-    folder_to_zip = tag.get("path")
-    name = tag.get("name")
+    folder_to_zip = parent_folder / tag.get("path")
+    name = tag.get("name") or f"{folder_to_zip}.zip"
     print(f"Zipping {folder_to_zip} ... ", end="")
-    folder_path = resource_folder / folder_to_zip
-    path_to_zip = resource_folder / name
+    folder_path = parent_folder / folder_to_zip
+    path_to_zip = parent_folder / name
     with zipfile.ZipFile(path_to_zip, "w") as zipf:
         for file in folder_path.iterdir():
             zipf.write(file, file.name)
     print("Done")
     display_text = tag.text if tag.text.strip() else name
     return create_file_tag(course, canvas_folder, path_to_zip, display_text)
-    
+
 
 def get_fancy_html(markdown_or_file: str, course: Course, canvas_folder: Folder, files_folder: Path = None):
     """
@@ -114,7 +119,7 @@ def get_fancy_html(markdown_or_file: str, course: Course, canvas_folder: Folder,
         # This forces the color of inline code to be black
         # as a workaround for Canvas's super-ugly default red :P
         BlackInlineCodeExtension(),
-        
+
         CustomTagExtension({
             "file": lambda tag: link_file(course, canvas_folder, files_folder, tag),
             "zip": lambda tag: link_zip(course, canvas_folder, files_folder, tag)
