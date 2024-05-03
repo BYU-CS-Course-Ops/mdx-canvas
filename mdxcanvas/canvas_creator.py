@@ -31,14 +31,14 @@ from .yaml_parser import DocumentWalker, parse_yaml
 
 def print_red(string):
     print(f"\033[91m{string}\033[00m")
+    print(string, file=sys.stderr)
 
 
 # Check if pygments is installed
 try:
     from pygments.formatters import HtmlFormatter
 except ImportError:
-    print("Pygments is not installed. Syntax highlighting is not enabled.", file=sys.stderr)
-    print_red("Please install Pygments to enable syntax highlighting.")
+    print_red("Pygments is not installed. Syntax highlighting is not enabled.")
 
 
 def readfile(filepath: Path):
@@ -369,7 +369,7 @@ def debug_quiz_creation(canvas_quiz, course, settings):
         try:
             canvas_quiz = course.create_quiz(quiz=dict(zip(keys, values)))
         except Exception as ex:
-            print(f"Failed on key: {keys[-1]}, value: {values[-1]}")
+            print_red(f"Failed on key: {keys[-1]}, value: {values[-1]}")
             raise ex
         canvas_quiz.delete()
     return canvas_quiz
