@@ -1,0 +1,73 @@
+<quiz
+    title="Midterm"
+    due_at="May 25, 2024, 11:59 PM"
+    available_from="May 23, 2024, 12:00 AM"
+    available_to="May 25, 2024, 11:59 PM"
+    assignment_group="Midterm"
+    shuffle_answers="True"
+    time_limit="180"
+    allowed_attempts="1"
+    show_correct_answers_at="Jun 16, 2024, 12:00 AM"
+    hide_correct_answers_at="Jun 17, 2024, 12:00 AM"
+    access_code="start-midterm"
+    published="False">
+
+<description>
+
+You have 180 minutes (3 hours) to take this test.
+
+To start the test, you will need the passcode **start-midterm**.
+
+Good luck!
+</description>
+
+<question type="text">
+    To begin, download the following file: <zip path="resources/midterm_student_files" name="midterm.zip">Starter Files</zip>
+
+    You can use this pdf as a reference: <file path="resources/midterm_reference.pdf"/>
+</question>
+
+<question type = "multiple-choice">
+Which image will the following code produce?
+
+```python
+from byubit import Bit
+
+
+def turn(bit):
+    bit.left()
+    bit.move()
+    bit.left()
+
+
+@Bit.empty_world(5, 3)
+def run(bit):
+    while bit.front_clear():
+        bit.move()
+        bit.paint('green')
+    turn(bit)
+    while bit.front_clear():
+        bit.move()
+        bit.paint('blue')
+
+if __name__ == '__main__':
+    run(Bit.new_bit)
+```
+<correct>
+    <img src="resources/q1_bit_blue_right_corner_white.png" alt="blue along the right side, green along the bottom, left bottom corner is left empty." style="width: 200px;"/>
+</correct>
+
+<incorrect>
+    <img src="resources/q1_bit_blue_right_corner_green.png" alt="blue along the right side, green along the bottom, left bottom corner is green." style="width: 200px;"/>
+</incorrect>
+
+<incorrect>
+    <img src="resources/q1_bit_blue_stacked_corners_filled.png" alt="bottom row is green, middle row is blue, corners are filled." style="width: 200px;"/>
+</incorrect>
+
+<incorrect>
+    <img src="resources/q1_bit_blue_stacked_corners_empty.png" alt="bottom row is green, middle row is blue, corners are empty." style="width: 200px;"/>
+</incorrect>
+</question>
+
+</quiz>

@@ -17,7 +17,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("filename", type=Path)
     parser.add_argument("--env", type=Path, default=".env")
-    parser.add_argument("--course_info", type=Path, default="testing_course_info.json")
+    parser.add_argument("--course-info", type=Path, default="testing_course_info.json")
     args = parser.parse_args()
 
     load_dotenv(args.env)

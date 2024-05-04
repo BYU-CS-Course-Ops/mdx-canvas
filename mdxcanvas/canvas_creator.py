@@ -86,7 +86,7 @@ def link_zip(course: Course, canvas_folder: Folder, parent_folder: Path, tag: Ta
     Alternate: <zip path="./resources/progress_check_1" />
     This would use progress_check_1.zip as the name, and "progress_check_1" as the display text.
     """
-    folder_to_zip = parent_folder / tag.get("path")
+    folder_to_zip = tag.get("path")
     name = tag.get("name") or f"{folder_to_zip}.zip"
     print(f"Zipping {folder_to_zip} ... ", end="")
     folder_path = parent_folder / folder_to_zip
@@ -137,7 +137,8 @@ def get_canvas_folder(course: Course, folder_name: str, parent_folder_path="") -
     if not any(fl.name == folder_name for fl in folders):
         print(f"Created {folder_name} folder")
         course.create_folder(name=folder_name, parent_folder_path=parent_folder_path, hidden=True)
-    return [fl for fl in folders if fl.name == folder_name][0]
+    matches = [fl for fl in folders if fl.name == folder_name]
+    return matches[0]
 
 
 def create_resource_folder(course, quiz_title: str, course_folders):
