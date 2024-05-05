@@ -21,11 +21,15 @@ def entry():
     with open(args.course_info) as f:
         course_settings = json.load(f)
 
-    main(api_url=course_settings["CANVAS_API_URL"],
-         api_token=os.getenv("CANVAS_API_TOKEN"),
-         course_id=course_settings["CANVAS_COURSE_ID"],
-         time_zone=course_settings["LOCAL_TIME_ZONE"],
-         file_path=args.filename)
+    try:
+        main(api_url=course_settings["CANVAS_API_URL"],
+             api_token=os.getenv("CANVAS_API_TOKEN"),
+             course_id=course_settings["CANVAS_COURSE_ID"],
+             time_zone=course_settings["LOCAL_TIME_ZONE"],
+             file_path=args.filename)
+    except AttributeError:
+        raise AttributeError("CANVAS_API_TOKEN variable may not be set. "
+                             "Set your canvas api token to the CANVAS_API_TOKEN environment variable.")
 
 
 if __name__ == '__main__':
