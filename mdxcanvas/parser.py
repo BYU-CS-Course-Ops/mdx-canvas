@@ -306,7 +306,7 @@ class MatchingProcessor:
 class TextQuestionProcessor:
     @staticmethod
     def process(question_tag, markdown_processor: ResourceExtractor):
-        question_text, resources = markdown_processor(get_text_contents(question_tag, ["correct", "incorrect"]))
+        question_text, resources = markdown_processor(get_text_contents(question_tag))
         question = {
             "question_text": question_text,
             "question_type": 'text_only_question',
