@@ -205,8 +205,6 @@ class TrueFalseProcessor:
 class MultipleTrueFalseProcessor:
     @staticmethod
     def process(question_tag, markdown_processor: ResourceExtractor):
-        heading_question, resources = process(TextQuestionProcessor(), question_tag, markdown_processor)
-        questions = [heading_question]
         header_question_text, resources = markdown_processor(get_text_contents(question_tag, ["correct", "incorrect", "correct-comments", "incorrect-comments"]))
         header_question = {
             "question_text": header_question_text,
