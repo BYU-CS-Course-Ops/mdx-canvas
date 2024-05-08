@@ -53,9 +53,9 @@ def run(bit):
 if __name__ == '__main__':
     run(Bit.new_bit)
 ```
-<correct>
+<incorrect>
     <img src="resources/q1_bit_blue_right_corner_white.png" alt="blue along the right side, green along the bottom, left bottom corner is left empty." style="width: 200px;"/>
-</correct>
+</incorrect>
 
 <incorrect>
     <img src="resources/q1_bit_blue_right_corner_green.png" alt="blue along the right side, green along the bottom, left bottom corner is green." style="width: 200px;"/>
@@ -65,9 +65,9 @@ if __name__ == '__main__':
     <img src="resources/q1_bit_blue_stacked_corners_filled.png" alt="bottom row is green, middle row is blue, corners are filled." style="width: 200px;"/>
 </incorrect>
 
-<incorrect>
+<correct>
     <img src="resources/q1_bit_blue_stacked_corners_empty.png" alt="bottom row is green, middle row is blue, corners are empty." style="width: 200px;"/>
-</incorrect>
+</correct>
 </question>
 
 </quiz>
