@@ -96,7 +96,10 @@ def link_zip(course: Course, canvas_folder: Folder, parent_folder: Path, tag: Ta
             zipf.write(file, file.name)
     print("Done")
     display_text = tag.text if tag.text.strip() else name
-    return create_file_tag(course, canvas_folder, path_to_zip, display_text)
+    tag = create_file_tag(course, canvas_folder, path_to_zip, display_text)
+    # Then delete the zip
+    path_to_zip.unlink()
+    return tag
 
 
 def get_fancy_html(markdown_or_file: str, course: Course, canvas_folder: Folder, files_folder: Path = None):
