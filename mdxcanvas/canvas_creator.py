@@ -139,7 +139,7 @@ def get_canvas_folder(course: Course, folder_name: str, parent_folder_path="") -
     folders = list(course.get_folders())
     if not any(fl.name == folder_name for fl in folders):
         print(f"Created {folder_name} folder")
-        course.create_folder(name=folder_name, parent_folder_path=parent_folder_path, hidden=True)
+        return course.create_folder(name=folder_name, parent_folder_path=parent_folder_path, hidden=True)
     matches = [fl for fl in folders if fl.name == folder_name]
     return matches[0]
 
