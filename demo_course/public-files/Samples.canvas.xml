@@ -1,20 +1,21 @@
-# Sample Assignment
-<assignment>
-<settings title="Sample Assignment"
+<!--Sample Assignment-->
+<assignment
+    title="Sample Assignment"
     submission_types="not_graded"
     only_visible_to_overrides="True"
     published="False"
     points_possible="0"
-    assignment_group="Homework">
-</settings>
+    assignment_group="Homework"
+>
 
 <description>
 </description>
 </assignment>
 
-# Sample Quiz
-<quiz>
-<settings title="Sample Quiz" 
+<!--Sample Quiz-->
+
+<quiz
+    title="Sample Quiz"
     due_at="Dec 21, 2023, 11:59 PM" 
     available_from="Dec 16, 2023, 12:00 AM"
     available_to="Dec 21, 2023, 11:59 PM" 
@@ -26,7 +27,6 @@
     published="False"
     access_code="start-final"
 >
-</settings>
 
 <description>
 These instructions are seen before taking the quiz.

@@ -1,24 +1,43 @@
 import json
 import random
+import sys
 import textwrap
 import uuid
 from datetime import datetime
-from pathlib import Path
 
-import markdown as md
+
 import pytz
-from bs4 import BeautifulSoup
 from canvasapi import Canvas
 from canvasapi.assignment import Assignment
 from canvasapi.course import Course
 from canvasapi.module import Module
+from canvasapi.folder import Folder
 from canvasapi.quiz import Quiz
+
+import markdown as md
+
+from pathlib import Path
+from bs4 import BeautifulSoup, Tag
+
 from markdown.extensions.codehilite import makeExtension as makeCodehiliteExtension
 
+import zipfile
+
 from .jinja_parser import process_jinja
-from .extensions import BlackInlineCodeExtension
+from .extensions import BlackInlineCodeExtension, CustomTagExtension
 from .parser import DocumentParser, make_iso
 from .yaml_parser import DocumentWalker, parse_yaml
+
+
+def print_red(string):
+    print(string, file=sys.stderr)
+
+
+# Check if pygments is installed
+try:
+    from pygments.formatters import HtmlFormatter
+except ImportError:
+    print_red("Pygments is not installed. Syntax highlighting is not enabled.")
 
 
 def readfile(filepath: Path):
@@ -26,7 +45,64 @@ def readfile(filepath: Path):
         return file.read()
 
 
-def get_fancy_html(markdown_or_file: str, files_folder=None):
+def upload_file(folder: Folder, file_path: Path):
+    """
+    Uploads a file to Canvas, and returns the id of the uploaded file.
+    """
+    print(f"Uploading {file_path.name} ... ", end="")
+    file_id = folder.upload(file_path)[1]["id"]
+    print("Done")
+    return file_id
+
+
+def create_file_tag(course: Course, canvas_folder: Folder, file_path: Path, display_text: str) -> Tag:
+    """
+    Returns a tag that links to a file in Canvas.
+    """
+    file_id = upload_file(canvas_folder, file_path)
+    a = Tag(name="a")
+    a["href"] = f"/courses/{course.id}/files/{file_id}/preview"
+    a.append(display_text)
+    return a
+
+
+def link_file(course: Course, canvas_folder: Folder, parent_folder: Path, tag: Tag) -> Tag:
+    """
+    Returns a modified tag that links to a file in Canvas.
+    Syntax: <file path="./resources/websters.txt" name="dictionary.txt" />Download File</file>
+    Alternate: <file path="./resources/file.txt" />
+    The alternate syntax uses the last part of the path as the file name, and the file name as the display text.
+    """
+    file_path = parent_folder / tag.get("path")
+    file_name = tag.get("name") or file_path.name
+    display_text = tag.text if tag.text.strip() else file_name
+    return create_file_tag(course, canvas_folder, file_path, display_text)
+
+
+def link_zip(course: Course, canvas_folder: Folder, parent_folder: Path, tag: Tag) -> Tag:
+    """
+    Zips a folder and uploads it to Canvas.
+    Syntax: <zip path="./resources/assignment" name="progresscheck1.zip">Download Progress Check 1</zip>
+    Alternate: <zip path="./resources/progress_check_1" />
+    This would use progress_check_1.zip as the name, and "progress_check_1" as the display text.
+    """
+    folder_to_zip = tag.get("path")
+    name = tag.get("name") or f"{folder_to_zip}.zip"
+    print(f"Zipping {folder_to_zip} ... ", end="")
+    folder_path = parent_folder / folder_to_zip
+    path_to_zip = parent_folder / name
+    with zipfile.ZipFile(path_to_zip, "w") as zipf:
+        for file in folder_path.iterdir():
+            zipf.write(file, file.name)
+    print("Done")
+    display_text = tag.text if tag.text.strip() else name
+    tag = create_file_tag(course, canvas_folder, path_to_zip, display_text)
+    # Then delete the zip
+    path_to_zip.unlink()
+    return tag
+
+
+def get_fancy_html(markdown_or_file: str, course: Course, canvas_folder: Folder, files_folder: Path = None):
     """
     Converts markdown to html, and adds syntax highlighting to code blocks.
     """
@@ -44,16 +120,19 @@ def get_fancy_html(markdown_or_file: str, files_folder=None):
 
         # This forces the color of inline code to be black
         # as a workaround for Canvas's super-ugly default red :P
-        BlackInlineCodeExtension()
+        BlackInlineCodeExtension(),
+
+        CustomTagExtension({
+            "file": lambda tag: link_file(course, canvas_folder, files_folder, tag),
+            "zip": lambda tag: link_zip(course, canvas_folder, files_folder, tag)
+        })
     ])
     return fenced
 
 
-def print_red(string):
-    print(f"\033[91m{string}\033[00m")
 
 
-def get_canvas_folder(course: Course, folder_name: str, parent_folder_path=""):
+def get_canvas_folder(course: Course, folder_name: str, parent_folder_path="") -> Folder:
     """
     Retrieves an object representing a digital folder in Canvas. If the folder does not exist, it is created.
     """
@@ -61,7 +140,8 @@ def get_canvas_folder(course: Course, folder_name: str, parent_folder_path=""):
     if not any(fl.name == folder_name for fl in folders):
         print(f"Created {folder_name} folder")
         course.create_folder(name=folder_name, parent_folder_path=parent_folder_path, hidden=True)
-    return [fl for fl in folders if fl.name == folder_name][0]
+    matches = [fl for fl in folders if fl.name == folder_name]
+    return matches[0]
 
 
 def create_resource_folder(course, quiz_title: str, course_folders):
@@ -98,7 +178,7 @@ def get_img_html(image_name, alt_text, style, course, image_folder: Path):
     return html_text, resource
 
 
-def process_images(html, course: Course, image_folder):
+def process_images(html, course: Course, image_folder: Path):
     """
     Finds all the images in the html, and replaces them with html that links to the image in Canvas.
     Returns the new html, and a list of resources that need to be uploaded.
@@ -114,13 +194,13 @@ def process_images(html, course: Course, image_folder):
     return str(soup), resources
 
 
-def process_markdown(markdown_or_file: str, course: Course, image_folder, files_folder=None):
+def process_markdown(markdown_or_file: str, course: Course, canvas_folder: Folder, resource_folder=None):
     """
     Converts markdown to html, and adds syntax highlighting to code blocks.
     Then, finds all the images in the html, and replaces them with html that links to the image in Canvas.
     """
-    html = get_fancy_html(markdown_or_file, files_folder)
-    return process_images(html, course, image_folder)
+    html = get_fancy_html(markdown_or_file, course, canvas_folder, resource_folder)
+    return process_images(html, course, resource_folder)
 
 
 def get_group_id(course: Course, group_name: str, names_to_ids: dict[str, int]):
@@ -285,14 +365,16 @@ def create_quiz(course, element, name, settings):
 
 
 def debug_quiz_creation(canvas_quiz, course, settings):
+    new_settings = {"title": settings["title"]}
+    keys = list(settings.keys())
+    values = list(settings.values())
     for index in range(1, len(settings)):
-        keys = list(settings.keys())[:index]
-        values = list(settings.values())[:index]
-        print_red(f"Attempting with {dict(zip(keys, values))}")
+        new_settings[keys[index]] = values[index]
+        print_red(f"Attempting with {keys[index]}: {values[index]}")
         try:
-            canvas_quiz = course.create_quiz(quiz=dict(zip(keys, values)))
+            canvas_quiz = course.create_quiz(quiz=new_settings)
         except Exception as ex:
-            print(f"Failed on key: {keys[-1]}, value: {values[-1]}")
+            print_red(f"Failed on key: {keys[-1]}, value: {values[-1]}")
             raise ex
         canvas_quiz.delete()
     return canvas_quiz
@@ -495,12 +577,19 @@ def post_document(course: Course, time_zone, file_path: Path, delete: bool = Fal
         content = process_jinja(file_path)
     else:
         content = file_path.read_text()
+        
+    print("Done")
+    print(f"Getting course folders ... ", end="")
+    course_folders = list(course.get_folders())
+    name_of_file = file_path.name.split(".")[0]
+    canvas_folder = get_canvas_folder(course, name_of_file)
+    print("Done")
 
     if "yaml" in file_path.name:
         walker = DocumentWalker(
             path_to_resources=file_path.parent,
             path_to_canvas_files=file_path.parent,
-            markdown_processor=lambda text: process_markdown(text, course, file_path.parent),
+            markdown_processor=lambda text: process_markdown(text, course, canvas_folder, file_path.parent),
             time_zone=time_zone,
             group_identifier=lambda group_name: get_group_id(course, group_name, names_to_ids)
         )
@@ -511,13 +600,11 @@ def post_document(course: Course, time_zone, file_path: Path, delete: bool = Fal
         parser = DocumentParser(
             path_to_resources=file_path.parent,
             path_to_canvas_files=file_path.parent,
-            markdown_processor=lambda text: process_markdown(text, course, file_path.parent),
+            markdown_processor=lambda text: process_markdown(text, course, canvas_folder, file_path.parent),
             time_zone=time_zone,
             group_identifier=lambda group_name: get_group_id(course, group_name, names_to_ids),
         )
         document_object = parser.parse(content)
-
-    course_folders = list(course.get_folders())
 
     # Create multiple quizzes or assignments from the document object
     for element in document_object:
