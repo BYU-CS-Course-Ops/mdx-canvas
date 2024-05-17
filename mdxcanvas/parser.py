@@ -24,19 +24,18 @@ def order_elements(element: dict) -> OrderedDict:
     return OrderedDict(sorted(element.items(), key=lambda x: x[0]))
 
 
-def get_corrects_and_incorrects(question_tag):
-    corrects = question_tag.css.filter('correct')
-    incorrects = question_tag.css.filter('incorrect')
-    return corrects, incorrects
+def get_corrects(question_tag):
+    corrects = question_tag.select('correct')
+    return corrects
 
 
 def get_correct_comments(question_tag):
-    feedback = question_tag.css.filter('correct-comments')
+    feedback = question_tag.select('correct-comments')
     return get_text_contents(feedback[0]) if feedback else None
 
 
 def get_incorrect_comments(question_tag):
-    feedback = question_tag.css.filter('incorrect-comments')
+    feedback = question_tag.select('incorrect-comments')
     return get_text_contents(feedback[0]) if feedback else None
 
 
@@ -50,8 +49,8 @@ def get_points(question_tag, default=1):
 
 
 def get_answers(question_tag):
-    corrects, incorrects = get_corrects_and_incorrects(question_tag)
-    return corrects + incorrects
+    return question_tag.select('correct, incorrect')
+
 
 
 def string_is_date(date: str):
@@ -189,7 +188,7 @@ class TrueFalseProcessor:
     def process(question_tag, markdown_processor: ResourceExtractor):
         answers = get_answers(question_tag)
 
-        check_correct_size(answers, 1, "True/False")
+        check_answer_size(answers, 1, "True/False question must have exactly 1 answer!")
 
         question, resources = process(TFConverter(), answers[0], markdown_processor)
         if not get_points(answers[0], 0):
@@ -218,10 +217,10 @@ class MultipleTrueFalseProcessor:
         return questions, resources
 
 
-def check_correct_size(corrects: list, num, question_type):
-    if num is not None and len(corrects) != num:
-        raise Exception(f"{question_type} must have exactly {num} correct answer(s)\n"
-                        "Answers: " + str(corrects))
+def check_answer_size(answers: list, num, explanation):
+    if num is not None and len(answers) != num:
+        raise Exception(f"{explanation}\n"
+                        "Answers: " + str(answers))
 
 
 class MultipleCommonProcessor:
@@ -229,13 +228,13 @@ class MultipleCommonProcessor:
     num_correct: Union[int, None]
 
     def process(self, question_tag, markdown_processor: ResourceExtractor):
-        corrects, incorrects = get_corrects_and_incorrects(question_tag)
-        check_correct_size(corrects, self.num_correct, self.question_type)
+        corrects = get_corrects(question_tag)
+        check_answer_size(corrects, self.num_correct, f"{self.question_type} questions must have exactly {self.num_correct} correct answer!")
 
         question_text, resources = markdown_processor(
             get_text_contents(question_tag, ["correct", "incorrect", "correct-comments", "incorrect-comments"]))
         answers = []
-        for answer in corrects + incorrects:
+        for answer in get_answers(question_tag):
             answer_html, res = markdown_processor(get_text_contents(answer))
             answers.append((True if answer in corrects else False, answer_html))
             resources.extend(res)
@@ -275,13 +274,13 @@ class MultipleAnswersProcessor(MultipleCommonProcessor):
 class MatchingProcessor:
     @staticmethod
     def process(question_tag, markdown_processor: ResourceExtractor):
-        pairs = question_tag.css.filter('pair')
+        pairs = question_tag.select('pair')
         matches = []
         for pair in pairs:
-            answer_left, answer_right = pair.css.filter('left')[0], pair.css.filter('right')[0]
+            answer_left, answer_right = pair.select('left')[0], pair.select('right')[0]
             matches.append((answer_left.string.strip(), answer_right.string.strip()))
 
-        distractors = question_tag.css.filter('distractors')
+        distractors = question_tag.select('distractors')
         distractor_text = get_text_contents(distractors[0]).strip() if len(distractors) > 0 else None
         question_text, resources = markdown_processor(
             get_text_contents(question_tag, ["pair", "correct-comments", "incorrect-comments"]))
