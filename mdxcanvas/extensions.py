@@ -8,9 +8,6 @@ from markdown.preprocessors import HtmlBlockPreprocessor
 from bs4 import BeautifulSoup
 from bs4.element import Tag
 
-import warnings
-warnings.filterwarnings("ignore", category=UserWarning, module='bs4')
-
 from typing import Protocol
 
 
