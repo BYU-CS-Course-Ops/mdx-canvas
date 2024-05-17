@@ -23,9 +23,9 @@ Good luck!
 
 <question type="text">
     To begin, download the following zip file: <zip
-        path="resources/sample_file_system"
-        priority_path="assignment"
-        exclude="*.env|*secret*"
+        path="resources/standard_file_system"
+        priority_path="resources/assignment"
+        exclude=".*.env|.*secret.*"
         name="system">Sample File System</zip>
 
     You can use this pdf as a reminder of bit functionality: <file path="resources/bit_reference.pdf"/>
