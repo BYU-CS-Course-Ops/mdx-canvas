@@ -115,30 +115,26 @@ def link_zip_tag(course: Course, canvas_folder: Folder, parent_folder: Path, tag
     return tag
 
 
-def zip_folder(folder_path: Path, path_to_zip: Path, priority_folder: Path = None, exclude: re.Pattern = None):
+def zip_folder(folder_path: Path, path_to_zip: Path, exclude: re.Pattern = None, priority_fld: Path = None):
     print(f"Zipping {folder_path.name} ... ", end="")
     with zipfile.ZipFile(path_to_zip, "w") as zipf:
-        for item in folder_path.glob('*'):
-            if priority_folder and (priority_item := (priority_folder / item.name)).exists():
-                write_item(priority_item, zipf, exclude)
-            else:
-                write_item(item, zipf, exclude)
+        write_item(folder_path, zipf, exclude, '', priority_fld)
 
 
-def write_item(item: Path, zipf: zipfile.ZipFile, exclude: re.Pattern = None, prefix=''):
+def write_item(item: Path, zipf: zipfile.ZipFile, exclude: re.Pattern = None, prefix='', priority_fld: Path = None):
     if item.is_dir():
-        write_directory(item, zipf, exclude, prefix)
+        write_directory(item, zipf, exclude, prefix, priority_fld)
+    elif priority_fld and (priority_item := (priority_fld / prefix / item.name)).exists():
+        write_file(priority_item, zipf, exclude, prefix)
     else:
         write_file(item, zipf, exclude, prefix)
 
 
-def write_directory(folder: Path, zipf: zipfile.ZipFile, exclude: re.Pattern = None, prefix=''):
+def write_directory(folder: Path, zipf: zipfile.ZipFile, exclude: re.Pattern = None, prefix='',
+                    priority_fld: Path = None):
     prefix = prefix + folder.name + '/'
-    for item in folder.glob("*"):  # type Path
-        if item.is_dir():
-            write_directory(item, zipf, exclude, prefix)
-        else:
-            write_file(item, zipf, exclude, prefix)
+    for item in folder.glob("*"):  # item is of type Path
+        write_item(item, zipf, exclude, prefix, priority_fld)
 
 
 def get_zinfo(file, prefix=''):
