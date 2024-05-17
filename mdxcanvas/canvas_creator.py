@@ -21,7 +21,7 @@ from bs4 import BeautifulSoup, Tag
 
 from markdown.extensions.codehilite import makeExtension as makeCodehiliteExtension
 
-import zipfile
+from zipfile import ZipFile, ZipInfo
 
 from .jinja_parser import process_jinja
 from .extensions import BlackInlineCodeExtension, CustomTagExtension
@@ -108,48 +108,75 @@ def link_zip_tag(course: Course, canvas_folder: Folder, parent_folder: Path, tag
     path_to_zip = parent_folder / name
     display_text = tag.text if tag.text.strip() else name
 
-    zip_folder(folder_path, path_to_zip, priority_folder, exclude)
+    print(f"Zipping {folder_path.name} ... ", end="")
+    zip_folder(folder_path, path_to_zip, exclude, priority_folder)
+    print("Done")
     tag = create_file_tag(course, canvas_folder, path_to_zip, display_text)
+
     # Then delete the zip
     path_to_zip.unlink()
     return tag
 
 
 def zip_folder(folder_path: Path, path_to_zip: Path, exclude: re.Pattern = None, priority_fld: Path = None):
-    print(f"Zipping {folder_path.name} ... ", end="")
-    with zipfile.ZipFile(path_to_zip, "w") as zipf:
-        write_item(folder_path, zipf, exclude, '', priority_fld)
+    """
+    Zips a folder, excluding files that match the exclude pattern.
+    Items from the priority folder are added to the zip if they are not in the standard folder.
+    Items in the priority folder take precedence over items in the standard folder.
+    """
+    with ZipFile(path_to_zip, "w") as zipf:
+        for item in folder_path.glob("*"):
+            write_item_to_zip(item, zipf, exclude, priority_fld=priority_fld)
 
 
-def write_item(item: Path, zipf: zipfile.ZipFile, exclude: re.Pattern = None, prefix='', priority_fld: Path = None):
+def write_item_to_zip(item: Path, zipf: ZipFile, exclude: re.Pattern = None, prefix='', priority_fld: Path = None):
+    if exclude and exclude.match(item.name):
+        print(f"Excluding file {item.name} ... ", end="")
+        return
     if item.is_dir():
-        write_directory(item, zipf, exclude, prefix, priority_fld)
-    elif priority_fld and (priority_item := (priority_fld / prefix / item.name)).exists():
-        write_file(priority_item, zipf, exclude, prefix)
+        write_directory(item, zipf, exclude, prefix, priority_fld / item.name)
     else:
-        write_file(item, zipf, exclude, prefix)
+        write_file(item, zipf, prefix, priority_fld)
 
 
-def write_directory(folder: Path, zipf: zipfile.ZipFile, exclude: re.Pattern = None, prefix='',
+def write_directory(folder: Path, zipf: ZipFile, exclude: re.Pattern = None, prefix='',
                     priority_fld: Path = None):
     prefix = prefix + folder.name + '/'
-    for item in folder.glob("*"):  # item is of type Path
-        write_item(item, zipf, exclude, prefix, priority_fld)
+
+    # Get all items in the folder
+    paths = list(folder.glob("*"))
+
+    # Add items from priority folder that are not in the folder
+    item_names = {i.name for i in folder.glob("*")}
+    if priority_fld:
+        for item in priority_fld.glob("*"):
+            if item.name not in item_names:
+                paths.append(item)
+                print(f"Using additional file {item.name} .. ", end="")
+
+    for path in paths:
+        write_item_to_zip(path, zipf, exclude, prefix, priority_fld)
 
 
-def get_zinfo(file, prefix=''):
-    zinfo = zipfile.ZipInfo(
+def set_time_1980(file, prefix=''):
+    """
+    Ensures that the zip file stays consistent between runs.
+    """
+    zinfo = ZipInfo(
         prefix + file.name,
         date_time=(1980, 1, 1, 0, 0, 0)
     )
     return zinfo
 
 
-def write_file(file: Path, zipf: zipfile.ZipFile, exclude: re.Pattern = None, prefix=''):
-    # Exclude is a regex pattern
-    if exclude and exclude.match(file.name):
-        return
-    zinfo = get_zinfo(file, prefix)
+def write_file(file: Path, zipf: ZipFile, prefix='', priority_fld: Path = None):
+    # Use the file from the priority folder if it exists
+    if priority_fld and (priority_file := priority_fld / file.name).exists():
+        file = priority_file
+        print(f"Prioritizing file {file.name} .. ", end="")
+
+    # For consistency, set the time to 1980
+    zinfo = set_time_1980(file, prefix)
     try:
         with open(file) as f:
             zipf.writestr(zinfo, f.read())
