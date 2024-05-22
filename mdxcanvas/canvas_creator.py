@@ -5,7 +5,6 @@ import textwrap
 import uuid
 from datetime import datetime
 
-
 import pytz
 from canvasapi import Canvas
 from canvasapi.assignment import Assignment
@@ -15,13 +14,14 @@ from canvasapi.folder import Folder
 from canvasapi.quiz import Quiz
 
 import markdown as md
+import re
 
 from pathlib import Path
 from bs4 import BeautifulSoup, Tag
 
 from markdown.extensions.codehilite import makeExtension as makeCodehiliteExtension
 
-import zipfile
+from zipfile import ZipFile, ZipInfo
 
 from .jinja_parser import process_jinja
 from .extensions import BlackInlineCodeExtension, CustomTagExtension
@@ -51,7 +51,6 @@ def upload_file(folder: Folder, file_path: Path):
     """
     print(f"Uploading {file_path.name} ... ", end="")
     file_id = folder.upload(file_path)[1]["id"]
-    print("Done")
     return file_id
 
 
@@ -79,27 +78,111 @@ def link_file(course: Course, canvas_folder: Folder, parent_folder: Path, tag: T
     return create_file_tag(course, canvas_folder, file_path, display_text)
 
 
-def link_zip(course: Course, canvas_folder: Folder, parent_folder: Path, tag: Tag) -> Tag:
+def link_zip_tag(course: Course, canvas_folder: Folder, parent_folder: Path, tag: Tag) -> Tag:
     """
     Zips a folder and uploads it to Canvas.
-    Syntax: <zip path="./resources/assignment" name="progresscheck1.zip">Download Progress Check 1</zip>
+    Syntax: <zip
+                path="./resources/solution"
+                name="progresscheck1.zip"
+                priority_path="./resources/assignment"
+                exclude="*.jpg|*.png"
+            >
+            Download Progress Check 1
+            </zip>
     Alternate: <zip path="./resources/progress_check_1" />
     This would use progress_check_1.zip as the name, and "progress_check_1" as the display text.
     """
-    folder_to_zip = tag.get("path")
-    name = tag.get("name") or f"{folder_to_zip}.zip"
-    print(f"Zipping {folder_to_zip} ... ", end="")
-    folder_path = parent_folder / folder_to_zip
+    folder_name = tag.get("path")
+    name = tag.get("name") or f"{folder_name}.zip"
+    priority_folder = tag.get("priority_path")
+    if priority_folder:
+        priority_folder = parent_folder / priority_folder
+        if not priority_folder.exists():
+            print(f"Priority folder {priority_folder} does not exist, ignoring", file=sys.stderr)
+            priority_folder = None
+    exclude = tag.get("exclude")
+    if exclude:
+        exclude = re.compile(exclude)
+
+    folder_path = parent_folder / folder_name
     path_to_zip = parent_folder / name
-    with zipfile.ZipFile(path_to_zip, "w") as zipf:
-        for file in folder_path.iterdir():
-            zipf.write(file, file.name)
-    print("Done")
     display_text = tag.text if tag.text.strip() else name
+
+    print(f"Zipping {folder_path.name} ... ", end="")
+    zip_folder(folder_path, path_to_zip, exclude, priority_folder)
+    print("Done")
     tag = create_file_tag(course, canvas_folder, path_to_zip, display_text)
+
     # Then delete the zip
     path_to_zip.unlink()
     return tag
+
+
+def zip_folder(folder_path: Path, path_to_zip: Path, exclude: re.Pattern = None, priority_fld: Path = None):
+    """
+    Zips a folder, excluding files that match the exclude pattern.
+    Items from the priority folder are added to the zip if they are not in the standard folder.
+    Items in the priority folder take precedence over items in the standard folder.
+    """
+    with ZipFile(path_to_zip, "w") as zipf:
+        for item in folder_path.glob("*"):
+            write_item_to_zip(item, zipf, exclude, priority_fld=priority_fld)
+
+
+def write_item_to_zip(item: Path, zipf: ZipFile, exclude: re.Pattern = None, prefix='', priority_fld: Path = None):
+    if exclude and exclude.match(item.name):
+        print(f"Excluding file {item.name} ... ", end="")
+        return
+    if item.is_dir():
+        write_directory(item, zipf, exclude, prefix, priority_fld / item.name)
+    else:
+        write_file(item, zipf, prefix, priority_fld)
+
+
+def write_directory(folder: Path, zipf: ZipFile, exclude: re.Pattern = None, prefix='',
+                    priority_fld: Path = None):
+    prefix = prefix + folder.name + '/'
+
+    # Get all items in the folder
+    paths = list(folder.glob("*"))
+
+    # Add items from priority folder that are not in the folder
+    item_names = {i.name for i in folder.glob("*")}
+    if priority_fld:
+        for item in priority_fld.glob("*"):
+            if item.name not in item_names:
+                paths.append(item)
+                print(f"Using additional file {item.name} .. ", end="")
+
+    for path in paths:
+        write_item_to_zip(path, zipf, exclude, prefix, priority_fld)
+
+
+def set_time_1980(file, prefix=''):
+    """
+    Ensures that the zip file stays consistent between runs.
+    """
+    zinfo = ZipInfo(
+        prefix + file.name,
+        date_time=(1980, 1, 1, 0, 0, 0)
+    )
+    return zinfo
+
+
+def write_file(file: Path, zipf: ZipFile, prefix='', priority_fld: Path = None):
+    # Use the file from the priority folder if it exists
+    if priority_fld and (priority_file := priority_fld / file.name).exists():
+        file = priority_file
+        print(f"Prioritizing file {file.name} .. ", end="")
+
+    # For consistency, set the time to 1980
+    zinfo = set_time_1980(file, prefix)
+    try:
+        with open(file) as f:
+            zipf.writestr(zinfo, f.read())
+    except UnicodeDecodeError as _:
+        with open(file, 'rb') as f:
+            zipf.writestr(zinfo, f.read())
 
 
 def get_fancy_html(markdown_or_file: str, course: Course, canvas_folder: Folder, files_folder: Path = None):
@@ -124,12 +207,10 @@ def get_fancy_html(markdown_or_file: str, course: Course, canvas_folder: Folder,
 
         CustomTagExtension({
             "file": lambda tag: link_file(course, canvas_folder, files_folder, tag),
-            "zip": lambda tag: link_zip(course, canvas_folder, files_folder, tag)
+            "zip": lambda tag: link_zip_tag(course, canvas_folder, files_folder, tag)
         })
     ])
     return fenced
-
-
 
 
 def get_canvas_folder(course: Course, folder_name: str, parent_folder_path="") -> Folder:
@@ -577,13 +658,11 @@ def post_document(course: Course, time_zone, file_path: Path, delete: bool = Fal
         content = process_jinja(file_path)
     else:
         content = file_path.read_text()
-        
-    print("Done")
-    print(f"Getting course folders ... ", end="")
+
+    print(f"Getting course folders ... ")
     course_folders = list(course.get_folders())
     name_of_file = file_path.name.split(".")[0]
     canvas_folder = get_canvas_folder(course, name_of_file)
-    print("Done")
 
     if "yaml" in file_path.name:
         walker = DocumentWalker(

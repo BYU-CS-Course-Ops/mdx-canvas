@@ -1,5 +1,5 @@
 <quiz
-    title="Midterm"
+    title="Midterm-with-zip"
     due_at="May 25, 2024, 11:59 PM"
     available_from="May 23, 2024, 12:00 AM"
     available_to="May 25, 2024, 11:59 PM"
@@ -22,7 +22,11 @@ Good luck!
 </description>
 
 <question type="text">
-    To begin, download the following zip file: <zip path="resources/midterm_student_files" name="data.zip">Reference Data</zip>
+    To begin, download the following zip file: <zip
+        path="resources/standard_file_system"
+        priority_path="resources/assignment"
+        exclude=".*.env|.*secret.*"
+        name="system">Sample File System</zip>
 
     You can use this pdf as a reminder of bit functionality: <file path="resources/bit_reference.pdf"/>
 </question>
@@ -70,17 +74,46 @@ if __name__ == '__main__':
 </correct>
 </question>
 
+Sure, here are some multiple-choice questions based on the file system we created:
+
 <question type="multiple-choice">
-How many calories does a serving of Trix have?
-<incorrect>100</incorrect>
-<correct>110</correct>
-<incorrect>120</incorrect>
-<incorrect>130</incorrect>
+Which directory contains system configuration files?
+<incorrect>/bin</incorrect>
+<incorrect>/home</incorrect>
+<correct>/etc</correct>
+<incorrect>/usr</incorrect>
 </question>
 
+<question type="multiple-choice">
+What is the name of the file that contains the password information?
+<incorrect>resolv.conf</incorrect>
+<correct>passwd</correct>
+<incorrect>hosts</incorrect>
+<incorrect>grub.cfg</incorrect>
+</question>
 
-<question type="true-false">
-<incorrect>Butterfree is a poison type Pokemon.</incorrect>
+<question type="multiple-choice">
+Which user has a RAW image file in their Downloads directory?
+<incorrect>Eric</incorrect>
+<correct>Tyla</correct>
+<incorrect>root</incorrect>
+<incorrect>None of the above</incorrect>
+</question>
+
+<question type="multiple-choice">
+How many music files does Tyla have in her Music directory?
+<incorrect>5</incorrect>
+<incorrect>10</incorrect>
+<correct>15</correct>
+<incorrect>20</incorrect>
+</question>
+
+<question type="multiple-choice">
+Which directory contains system libraries?
+<incorrect>/sbin</incorrect>
+<incorrect>/proc</incorrect>
+<correct>/lib</correct>
+<incorrect>/boot</incorrect>
 </question>
 
 </quiz>

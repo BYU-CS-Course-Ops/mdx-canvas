@@ -6,7 +6,7 @@ from markdown.extensions import Extension
 
 from markdown.preprocessors import HtmlBlockPreprocessor
 from bs4 import BeautifulSoup
-from bs4.element import Tag, NavigableString, PageElement
+from bs4.element import Tag
 
 from typing import Protocol
 
@@ -32,7 +32,6 @@ class BlackInlineCodeExtension(Extension):
 class TagProcessor(Protocol):
     def __call__(self, tag: Tag) -> Tag:
         ...
-    
 
 class CustomHTMLBlockTagProcessor(HtmlBlockPreprocessor):
     tag_processors: dict[str, TagProcessor]
@@ -42,7 +41,10 @@ class CustomHTMLBlockTagProcessor(HtmlBlockPreprocessor):
         self.custom_tag_processors = tag_processors
     
     def run(self, lines: list[str]) -> list[str]:
-        soup = BeautifulSoup("\n".join(lines), "html.parser")
+        joined = "\n".join(lines)
+        if "<" not in joined or ">" not in joined:
+            return lines
+        soup = BeautifulSoup(joined, "html.parser")
         for tag in soup.find_all():
             if tag.name in self.custom_tag_processors:
                 processor = self.custom_tag_processors[tag.name]
