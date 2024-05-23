@@ -78,25 +78,7 @@ The basic structure is as follows:
 
 ## Settings
 
-```xml
-
-<settings title="Final" due_at="Dec 21, 2023, 11:59 PM" available_from="Dec 16, 2023, 12:00 AM"
-          available_to="Dec 21, 2023, 11:59 PM" points_possible="40" assignment_group="Final" shuffle_answers="True"
-          time_limit="240" allowed_attempts="1" show_correct_answers_at="Dec 21, 2023, 11:59 PM"
-          access_code="start-final">
-
-    ### Before taking the exam
-    Please take the course completion survey: Course Completion Survey
-
-
-    ## Final Exam Instructions
-    **Please read and understand the following instructions before taking the final exam (scroll down).**Please do not
-    discuss the content of this exam with others.
-
-    You have 240 minutes (4 hours) to take this test. Most students will finish in under 90 minutes. If you need an
-    accommodation, contact your instructor before you start the exam.
-</settings>
-```
+Each `quiz` tag has the following parameters:
 
 ### Parameters:
 
