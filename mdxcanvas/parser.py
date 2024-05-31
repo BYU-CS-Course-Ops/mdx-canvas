@@ -52,7 +52,6 @@ def get_answers(question_tag):
     return question_tag.select('correct, incorrect')
 
 
-
 def string_is_date(date: str):
     # For templating. The string might not be a date yet.
     # Once the template arguments are filled in, we will apply make_iso.
@@ -204,7 +203,8 @@ class TrueFalseProcessor:
 class MultipleTrueFalseProcessor:
     @staticmethod
     def process(question_tag, markdown_processor: ResourceExtractor):
-        header_question_text, resources = markdown_processor(get_text_contents(question_tag, ["correct", "incorrect", "correct-comments", "incorrect-comments"]))
+        header_question_text, resources = markdown_processor(
+            get_text_contents(question_tag, ["correct", "incorrect", "correct-comments", "incorrect-comments"]))
         header_question = {
             "question_text": header_question_text,
             "question_type": 'text_only_question',
@@ -229,7 +229,8 @@ class MultipleCommonProcessor:
 
     def process(self, question_tag, markdown_processor: ResourceExtractor):
         corrects = get_corrects(question_tag)
-        check_answer_size(corrects, self.num_correct, f"{self.question_type} questions must have exactly {self.num_correct} correct answer!")
+        check_answer_size(corrects, self.num_correct,
+                          f"{self.question_type} questions must have exactly {self.num_correct} correct answer!")
 
         question_text, resources = markdown_processor(
             get_text_contents(question_tag, ["correct", "incorrect", "correct-comments", "incorrect-comments"]))
@@ -688,5 +689,3 @@ class DocumentParser:
             headers, separator, *lines = get_text_contents(template_tag).strip().split('\n')
 
         return self.templater.parse_psv(headers, lines)
-
-

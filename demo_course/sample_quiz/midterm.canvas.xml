@@ -116,4 +116,12 @@ Which directory contains system libraries?
 <incorrect>/boot</incorrect>
 </question>
 
+    <question type="text">
+
+            This is stuff.
+
+            <include path="resources/stuff.md" />
+
+            That was stuff.
+    </question>
 </quiz>

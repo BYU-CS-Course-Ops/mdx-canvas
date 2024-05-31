@@ -25,7 +25,7 @@ from zipfile import ZipFile, ZipInfo
 
 from .jinja_parser import process_jinja
 from .extensions import BlackInlineCodeExtension, CustomTagExtension
-from .parser import DocumentParser, make_iso
+from .parser import DocumentParser, make_iso, Parser
 from .yaml_parser import DocumentWalker, parse_yaml
 
 
@@ -185,6 +185,30 @@ def write_file(file: Path, zipf: ZipFile, prefix='', priority_fld: Path = None):
             zipf.writestr(zinfo, f.read())
 
 
+def link_include_tag(course: Course, canvas_folder: Folder, parent_folder: Path, tag: Tag) -> Tag:
+    """
+    Replace the `include` tag with the processed HTML of the specified file
+
+    <include path="instructions.md" />
+    <include path="demo.py" fenced="true" />
+    """
+    imported_filename = tag.get('path')
+    imported_file = (parent_folder / imported_filename).resolve()
+    imported_raw_content = imported_file.read_text()
+
+    parser = Parser()
+    if parser.parse(tag.get('fenced', 'false'), bool):
+        raise NotImplementedError('The "fenced" attribute of <include /> is not yet supported.')
+        # imported_raw_content = f'```{imported_file.suffix}\n{imported_raw_content}\n```\n'
+
+    imported_html = get_fancy_html(imported_raw_content, course, canvas_folder, imported_file.parent)
+
+    tag = Tag(name='div')
+    tag['data-source'] = imported_filename
+    tag.extend(BeautifulSoup(imported_html, "html.parser"))
+    return tag
+
+
 def get_fancy_html(markdown_or_file: str, course: Course, canvas_folder: Folder, files_folder: Path = None):
     """
     Converts markdown to html, and adds syntax highlighting to code blocks.
@@ -207,7 +231,8 @@ def get_fancy_html(markdown_or_file: str, course: Course, canvas_folder: Folder,
 
         CustomTagExtension({
             "file": lambda tag: link_file(course, canvas_folder, files_folder, tag),
-            "zip": lambda tag: link_zip_tag(course, canvas_folder, files_folder, tag)
+            "zip": lambda tag: link_zip_tag(course, canvas_folder, files_folder, tag),
+            "include": lambda tag: link_include_tag(course, canvas_folder, files_folder, tag)
         })
     ])
     return fenced
