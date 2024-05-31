@@ -123,5 +123,7 @@ Which directory contains system libraries?
             <include path="resources/stuff.md" />
 
             That was stuff.
+
+            <include path="resources/hello_world.py" fenced="True"/>
     </question>
 </quiz>
