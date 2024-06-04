@@ -23,7 +23,7 @@ from markdown.extensions.codehilite import makeExtension as makeCodehiliteExtens
 
 from zipfile import ZipFile, ZipInfo
 
-from .jinja_parser import process_jinja
+from .jinja_parser import process_csv
 from .extensions import BlackInlineCodeExtension, CustomTagExtension
 from .parser import DocumentParser, make_iso, Parser
 from .yaml_parser import DocumentWalker, parse_yaml
@@ -664,12 +664,15 @@ def modify_page(course: Course, element, delete: bool):
     return canvas_page
 
 
-def post_document(course: Course, time_zone, file_path: Path, delete: bool = False):
+def post_document(course: Course, time_zone, file_path: Path, args_path: Path, global_args_path: Path, line_id: str, delete: bool = False):
     """
     Parses a markdown file, and posts the elements to Canvas.
     :param course: The canvas course to post to, obtained from the canvas api
     :param time_zone: The time zone of the course (e.g. "America/Denver")
     :param file_path: The path to the markdown file
+    :param args_path: The path to the args file
+    :param global_args_path: The path to the global args file
+    :param line_id: The line id of the markdown file
     :param delete: If true, deletes all elements in the Canvas course with the same name as the elements in the file
     """
 
@@ -678,8 +681,10 @@ def post_document(course: Course, time_zone, file_path: Path, delete: bool = Fal
     assignment_groups = list(course.get_assignment_groups())
     names_to_ids = {g.name: g.id for g in assignment_groups}
 
-    if "jinja" in file_path.name:
-        content = process_jinja(file_path)
+    if args_path:
+        if not args_path:
+            raise ValueError("Template arguments must be provided")
+        content = process_csv(file_path, args_path, global_args_path, line_id)
     else:
         content = file_path.read_text()
 
