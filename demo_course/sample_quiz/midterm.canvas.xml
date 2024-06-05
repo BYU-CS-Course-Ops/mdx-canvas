@@ -116,4 +116,14 @@ Which directory contains system libraries?
 <incorrect>/boot</incorrect>
 </question>
 
+    <question type="text">
+
+            This is stuff.
+
+            <include path="resources/stuff.md" />
+
+            That was stuff.
+
+            <include path="resources/hello_world.py" fenced="True"/>
+    </question>
 </quiz>
