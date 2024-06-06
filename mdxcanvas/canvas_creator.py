@@ -198,7 +198,7 @@ def link_include_tag(course: Course, canvas_folder: Folder, parent_folder: Path,
 
     parser = Parser()
     if parser.parse(tag.get('fenced', 'false'), bool):
-        imported_raw_content = f'```{imported_file.suffix[1:]}\n{imported_raw_content}\n```\n'
+        imported_raw_content = f'```{imported_file.suffix.lstrip(".")}\n{imported_raw_content}\n```\n'
 
     imported_html = get_fancy_html(imported_raw_content, course, canvas_folder, imported_file.parent)
 

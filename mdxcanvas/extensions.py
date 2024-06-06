@@ -59,11 +59,15 @@ class PrintLinesPreprocessor(Preprocessor):
     Used for debugging the state of the document
     in the middle of the preprocessor chain
     """
+    def __init__(self, md, label):
+        super().__init__(md)
+        self.label = label
+
     def run(self, lines: list[str]) -> list[str]:
-        print('START LINES ----------------------------------------')
+        print(f'START LINES {self.label} ----------------------------------------')
         for line in lines:
-            print(line)
-        print('END LINES   ----------------------------------------')
+            print(line, end='' if line.endswith('\n') else '\n')
+        print(f'END LINES   {self.label} ----------------------------------------')
         return lines
 
 
@@ -73,6 +77,10 @@ class CustomTagExtension(Extension):
         self.tag_processors = tag_processors
 
     def extendMarkdown(self, md):
-        # When registering the CustomHTMLBlockTagProcessor, we use a priority of 19
-        # which is one less than the original priority for 'html_block'
-        md.preprocessors.register(CustomHTMLBlockTagProcessor(md, self.tag_processors), 'custom_tag', 19)
+        # When registering the CustomHTMLBlockTagProcessor, we use a priority of 22
+        # which is two more than the original priority for 'html_block'
+        # (i.e. will run BEFORE the 'html_block' processor)
+        md.preprocessors.register(
+            CustomHTMLBlockTagProcessor(md, self.tag_processors),
+            'custom_tag', 22
+        )
