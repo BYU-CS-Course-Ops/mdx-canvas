@@ -18,6 +18,7 @@ import re
 
 from pathlib import Path
 from bs4 import BeautifulSoup, Tag
+import cssutils
 
 from markdown.extensions.codehilite import makeExtension as makeCodehiliteExtension
 
@@ -219,6 +220,8 @@ def get_fancy_html(markdown_or_file: str, course: Course, canvas_folder: Folder,
 
     fenced = md.markdown(dedented, extensions=[
         'fenced_code',
+        'tables',
+        'attr_list',
 
         # This embeds the highlight style directly into the HTML
         # instead of using CSS classes
