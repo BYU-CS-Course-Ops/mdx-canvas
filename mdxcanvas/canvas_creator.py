@@ -18,7 +18,8 @@ import re
 
 from pathlib import Path
 from bs4 import BeautifulSoup, Tag
-import cssutils
+
+from inline_styleing import get_style, parse_css
 
 from markdown.extensions.codehilite import makeExtension as makeCodehiliteExtension
 
@@ -708,6 +709,9 @@ def post_document(course: Course, time_zone, file_path: Path, args_path: Path, g
         document_object = walker.walk(document)
     else:
         # Provide processing functions, so that the parser needs no access to a canvas course
+        style = get_style(content)
+        css = parse_css(style)
+
         parser = DocumentParser(
             path_to_resources=file_path.parent,
             path_to_canvas_files=file_path.parent,
@@ -715,7 +719,7 @@ def post_document(course: Course, time_zone, file_path: Path, args_path: Path, g
             time_zone=time_zone,
             group_identifier=lambda group_name: get_group_id(course, group_name, names_to_ids),
         )
-        document_object = parser.parse(content)
+        document_object = parser.parse(content, css)
 
     # Create multiple quizzes or assignments from the document object
     for element in document_object:

@@ -9,6 +9,8 @@ from bs4 import BeautifulSoup
 from bs4.element import Tag, NavigableString
 from jinja2 import Environment
 
+from inline_styleing import apply_inline_styles
+
 from .templating import Templater
 
 ResourceExtractor: TypeAlias = Callable[[str], tuple[str, list]]
@@ -524,7 +526,7 @@ class AssignmentParser:
         self.template = templater
         self.parser = parser
 
-    def parse(self, assignment_tag):
+    def parse(self, assignment_tag, css=None):
         assignment = {
             "type": "assignment",
             "name": assignment_tag["title"],
@@ -536,6 +538,8 @@ class AssignmentParser:
             if tag.name == "description":
                 contents = get_text_contents(tag)
                 description, res = self.markdown_processor(contents)
+                if css:
+                    description = apply_inline_styles(description, css)
                 assignment["settings"]["description"] = description
                 assignment["resources"].extend(res)
 
@@ -645,14 +649,14 @@ class DocumentParser:
             "override": OverrideParser(self.date_formatter, self.parse_mdx_template_data, parser)
         }
 
-    def parse(self, text):
+    def parse(self, text, css=None):
         soup = BeautifulSoup(text, "html.parser")
         document = []
         tag: Tag
         for tag in soup.children:
             parser = self.element_processors.get(tag.name, None)
             if parser:
-                templates = parser.parse(tag)
+                templates = parser.parse(tag, css)
                 if not isinstance(templates, list):
                     templates = [templates]
                 templates = [order_elements(template) for template in templates]
