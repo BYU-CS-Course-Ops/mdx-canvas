@@ -2,16 +2,20 @@ import cssutils
 from bs4 import BeautifulSoup
 
 
-def get_style(content):
+def get_style(soup):
     style = ''
 
-    soup = BeautifulSoup(content, "html.parser")
     for tag in soup.find_all("style"):
         content = tag.text.strip()
         if content not in style:
             style += content + ' '
 
     return style
+
+
+def clean_soup(soup):
+    [tag.decompose() for tag in soup.find_all("style")]
+    return soup
 
 
 def parse_css(css):

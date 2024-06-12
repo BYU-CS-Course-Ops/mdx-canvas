@@ -19,8 +19,6 @@ import re
 from pathlib import Path
 from bs4 import BeautifulSoup, Tag
 
-from inline_styleing import get_style, parse_css
-
 from markdown.extensions.codehilite import makeExtension as makeCodehiliteExtension
 
 from zipfile import ZipFile, ZipInfo
@@ -668,7 +666,10 @@ def modify_page(course: Course, element, delete: bool):
     return canvas_page
 
 
-def post_document(course: Course, time_zone, file_path: Path, args_path: Path, global_args_path: Path, line_id: str, delete: bool = False):
+def post_document(course: Course, time_zone,
+                  file_path: Path, args_path: Path, global_args_path: Path, line_id: str,
+                  css_path: Path,
+                  delete: bool = False):
     """
     Parses a markdown file, and posts the elements to Canvas.
     :param course: The canvas course to post to, obtained from the canvas api
@@ -677,6 +678,7 @@ def post_document(course: Course, time_zone, file_path: Path, args_path: Path, g
     :param args_path: The path to a csv file containing the template arguments
     :param global_args_path: The path to a csv or json file containing optional global arguments
     :param line_id: One or more argument set id's
+    :param css_path: The path to a css file
     :param delete: If true, deletes all elements in the Canvas course with the same name as the elements in the file
     """
 
@@ -709,9 +711,6 @@ def post_document(course: Course, time_zone, file_path: Path, args_path: Path, g
         document_object = walker.walk(document)
     else:
         # Provide processing functions, so that the parser needs no access to a canvas course
-        style = get_style(content)
-        css = parse_css(style)
-
         parser = DocumentParser(
             path_to_resources=file_path.parent,
             path_to_canvas_files=file_path.parent,
@@ -719,7 +718,7 @@ def post_document(course: Course, time_zone, file_path: Path, args_path: Path, g
             time_zone=time_zone,
             group_identifier=lambda group_name: get_group_id(course, group_name, names_to_ids),
         )
-        document_object = parser.parse(content, css)
+        document_object = parser.parse(content, css_path)
 
     # Create multiple quizzes or assignments from the document object
     for element in document_object:

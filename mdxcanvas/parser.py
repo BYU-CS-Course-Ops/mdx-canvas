@@ -9,7 +9,7 @@ from bs4 import BeautifulSoup
 from bs4.element import Tag, NavigableString
 from jinja2 import Environment
 
-from inline_styleing import apply_inline_styles
+from inline_styleing import get_style, clean_soup, parse_css, apply_inline_styles
 
 from .templating import Templater
 
@@ -462,7 +462,7 @@ class QuizParser:
         self.template = templater
         self.parser = parser
 
-    def parse(self, quiz_tag: Tag):
+    def parse(self, quiz_tag: Tag, css=None):
         quiz = {
             "type": "quiz",
             "name": quiz_tag["title"],
@@ -474,6 +474,8 @@ class QuizParser:
         for tag in quiz_tag.find_all():
             if tag.name == "question":
                 question, res = self.parse_question(tag)
+                if css:
+                    question = apply_inline_styles(question, css)
                 quiz["resources"].extend(res)
                 # if question is a  list of questions, add them all
                 if isinstance(question, list):
@@ -482,6 +484,8 @@ class QuizParser:
                     quiz["questions"].append(question)
             elif tag.name == "description":
                 description, res = self.markdown_processor(get_text_contents(tag))
+                if css:
+                    description = apply_inline_styles(description, css)
                 quiz["resources"].extend(res)
                 quiz["description"] = description
         return quiz
@@ -608,7 +612,7 @@ class PageParser:
         adder("publish_at", formatter=self.date_formatter)
         return settings
 
-    def parse(self, page_tag):
+    def parse(self, page_tag, css=None):
         page = {
             "type": "page",
             "name": page_tag["title"],
@@ -617,6 +621,8 @@ class PageParser:
         }
         contents = get_text_contents(page_tag)
         body, res = self.markdown_processor(contents)
+        if css:
+            body = apply_inline_styles(body, css)
         page["settings"]["body"] = body
         page["resources"].extend(res)
         return page
@@ -649,8 +655,17 @@ class DocumentParser:
             "override": OverrideParser(self.date_formatter, self.parse_mdx_template_data, parser)
         }
 
-    def parse(self, text, css=None):
+    def parse(self, text, css_file: Path = None):
         soup = BeautifulSoup(text, "html.parser")
+
+        if css_file:
+            style = css_file.read_text()
+        else:
+            style = get_style(soup)
+
+        css = parse_css(style)
+        soup = clean_soup(soup)
+
         document = []
         tag: Tag
         for tag in soup.children:
