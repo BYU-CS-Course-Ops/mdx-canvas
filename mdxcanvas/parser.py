@@ -9,8 +9,6 @@ from bs4 import BeautifulSoup
 from bs4.element import Tag, NavigableString
 from jinja2 import Environment
 
-from inline_styleing import get_style, clean_soup, parse_css, apply_inline_styles
-
 from .templating import Templater
 
 ResourceExtractor: TypeAlias = Callable[[str], tuple[str, list]]
@@ -462,7 +460,7 @@ class QuizParser:
         self.template = templater
         self.parser = parser
 
-    def parse(self, quiz_tag: Tag, css=None):
+    def parse(self, quiz_tag: Tag):
         quiz = {
             "type": "quiz",
             "name": quiz_tag["title"],
@@ -474,8 +472,6 @@ class QuizParser:
         for tag in quiz_tag.find_all():
             if tag.name == "question":
                 question, res = self.parse_question(tag)
-                if css:
-                    question = apply_inline_styles(question, css)
                 quiz["resources"].extend(res)
                 # if question is a  list of questions, add them all
                 if isinstance(question, list):
@@ -484,8 +480,6 @@ class QuizParser:
                     quiz["questions"].append(question)
             elif tag.name == "description":
                 description, res = self.markdown_processor(get_text_contents(tag))
-                if css:
-                    description = apply_inline_styles(description, css)
                 quiz["resources"].extend(res)
                 quiz["description"] = description
         return quiz
@@ -530,7 +524,7 @@ class AssignmentParser:
         self.template = templater
         self.parser = parser
 
-    def parse(self, assignment_tag, css=None):
+    def parse(self, assignment_tag):
         assignment = {
             "type": "assignment",
             "name": assignment_tag["title"],
@@ -542,8 +536,6 @@ class AssignmentParser:
             if tag.name == "description":
                 contents = get_text_contents(tag)
                 description, res = self.markdown_processor(contents)
-                if css:
-                    description = apply_inline_styles(description, css)
                 assignment["settings"]["description"] = description
                 assignment["resources"].extend(res)
 
@@ -612,7 +604,7 @@ class PageParser:
         adder("publish_at", formatter=self.date_formatter)
         return settings
 
-    def parse(self, page_tag, css=None):
+    def parse(self, page_tag):
         page = {
             "type": "page",
             "name": page_tag["title"],
@@ -621,8 +613,6 @@ class PageParser:
         }
         contents = get_text_contents(page_tag)
         body, res = self.markdown_processor(contents)
-        if css:
-            body = apply_inline_styles(body, css)
         page["settings"]["body"] = body
         page["resources"].extend(res)
         return page
@@ -655,23 +645,14 @@ class DocumentParser:
             "override": OverrideParser(self.date_formatter, self.parse_mdx_template_data, parser)
         }
 
-    def parse(self, text, css_file: Path = None):
+    def parse(self, text):
         soup = BeautifulSoup(text, "html.parser")
-
-        if css_file:
-            style = css_file.read_text()
-        else:
-            style = get_style(soup)
-
-        css = parse_css(style)
-        soup = clean_soup(soup)
-
         document = []
         tag: Tag
         for tag in soup.children:
             parser = self.element_processors.get(tag.name, None)
             if parser:
-                templates = parser.parse(tag, css)
+                templates = parser.parse(tag)
                 if not isinstance(templates, list):
                     templates = [templates]
                 templates = [order_elements(template) for template in templates]

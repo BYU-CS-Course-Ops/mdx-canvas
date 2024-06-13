@@ -9,13 +9,9 @@ def get_style(soup):
         content = tag.text.strip()
         if content not in style:
             style += content + ' '
+        tag.decompose()
 
-    return style
-
-
-def clean_soup(soup):
-    [tag.decompose() for tag in soup.find_all("style")]
-    return soup
+    return style, soup
 
 
 def parse_css(css):

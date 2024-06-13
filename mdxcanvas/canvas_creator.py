@@ -24,7 +24,7 @@ from markdown.extensions.codehilite import makeExtension as makeCodehiliteExtens
 from zipfile import ZipFile, ZipInfo
 
 from .jinja_parser import process_jinja
-from .extensions import BlackInlineCodeExtension, CustomTagExtension
+from .extensions import BlackInlineCodeExtension, CustomTagExtension, BakedCSSExtension
 from .parser import DocumentParser, make_iso, Parser
 from .yaml_parser import DocumentWalker, parse_yaml
 
@@ -208,7 +208,7 @@ def link_include_tag(course: Course, canvas_folder: Folder, parent_folder: Path,
     return tag
 
 
-def get_fancy_html(markdown_or_file: str, course: Course, canvas_folder: Folder, files_folder: Path = None):
+def get_fancy_html(markdown_or_file: str, course: Course, canvas_folder: Folder, files_folder: Path, global_css: str):
     """
     Converts markdown to html, and adds syntax highlighting to code blocks.
     """
@@ -234,7 +234,9 @@ def get_fancy_html(markdown_or_file: str, course: Course, canvas_folder: Folder,
             "file": lambda tag: link_file(course, canvas_folder, files_folder, tag),
             "zip": lambda tag: link_zip_tag(course, canvas_folder, files_folder, tag),
             "include": lambda tag: link_include_tag(course, canvas_folder, files_folder, tag)
-        })
+        }),
+
+        BakedCSSExtension(global_css)
     ])
     return fenced
 
@@ -301,12 +303,12 @@ def process_images(html, course: Course, image_folder: Path):
     return str(soup), resources
 
 
-def process_markdown(markdown_or_file: str, course: Course, canvas_folder: Folder, resource_folder=None):
+def process_markdown(markdown_or_file: str, course: Course, canvas_folder: Folder, resource_folder, global_css):
     """
     Converts markdown to html, and adds syntax highlighting to code blocks.
     Then, finds all the images in the html, and replaces them with html that links to the image in Canvas.
     """
-    html = get_fancy_html(markdown_or_file, course, canvas_folder, resource_folder)
+    html = get_fancy_html(markdown_or_file, course, canvas_folder, resource_folder, global_css)
     return process_images(html, course, resource_folder)
 
 
@@ -699,11 +701,19 @@ def post_document(course: Course, time_zone,
     name_of_file = file_path.name.split(".")[0]
     canvas_folder = get_canvas_folder(course, name_of_file)
 
+    if css_path:
+        global_css = css_path.read_text()
+    else:
+        global_css = ''
+
+    def markdown_processor(text):
+        return process_markdown(text, course, canvas_folder, file_path.parent, global_css)
+
     if "yaml" in file_path.name:
         walker = DocumentWalker(
             path_to_resources=file_path.parent,
             path_to_canvas_files=file_path.parent,
-            markdown_processor=lambda text: process_markdown(text, course, canvas_folder, file_path.parent),
+            markdown_processor=markdown_processor,
             time_zone=time_zone,
             group_identifier=lambda group_name: get_group_id(course, group_name, names_to_ids)
         )
@@ -714,11 +724,11 @@ def post_document(course: Course, time_zone,
         parser = DocumentParser(
             path_to_resources=file_path.parent,
             path_to_canvas_files=file_path.parent,
-            markdown_processor=lambda text: process_markdown(text, course, canvas_folder, file_path.parent),
+            markdown_processor=markdown_processor,
             time_zone=time_zone,
             group_identifier=lambda group_name: get_group_id(course, group_name, names_to_ids),
         )
-        document_object = parser.parse(content, css_path)
+        document_object = parser.parse(content)
 
     # Create multiple quizzes or assignments from the document object
     for element in document_object:

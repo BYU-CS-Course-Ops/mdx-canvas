@@ -4,11 +4,14 @@ import xml.etree.ElementTree as etree
 from markdown.inlinepatterns import BacktickInlineProcessor, BACKTICK_RE
 from markdown.extensions import Extension
 
+from markdown.postprocessors import Postprocessor
 from markdown.preprocessors import Preprocessor, HtmlBlockPreprocessor
 from bs4 import BeautifulSoup
 from bs4.element import Tag
 
 from typing import Protocol
+
+from .inline_styleing import get_style, parse_css, apply_inline_styles
 
 
 class BlackInlineCodeProcessor(BacktickInlineProcessor):
@@ -83,4 +86,30 @@ class CustomTagExtension(Extension):
         md.preprocessors.register(
             CustomHTMLBlockTagProcessor(md, self.tag_processors),
             'custom_tag', 22
+        )
+
+
+class BakedCSSPostProcessor(Postprocessor):
+    def __init__(self, global_css):
+        super().__init__()
+        self.global_css = global_css
+
+    def run(self, text):
+        soup = BeautifulSoup(text, 'html.parser')
+        css, soup = get_style(soup)
+        css = parse_css(self.global_css + css)
+        soup = apply_inline_styles(str(soup), css)
+        return str(soup)
+
+
+class BakedCSSExtension(Extension):
+    def __init__(self, global_css: str = ''):
+        super().__init__()
+        self.global_css = global_css
+
+    def extendMarkdown(self, md):
+        # By default something is at 20 and 30 so we chose 7 so it runs last
+        md.postprocessors.register(
+            BakedCSSPostProcessor(self.global_css),
+            'baked-css', 7
         )
