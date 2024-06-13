@@ -24,7 +24,7 @@ from markdown.extensions.codehilite import makeExtension as makeCodehiliteExtens
 from zipfile import ZipFile, ZipInfo
 
 from .jinja_parser import process_jinja
-from .extensions import BlackInlineCodeExtension, CustomTagExtension
+from .extensions import BlackInlineCodeExtension, CustomTagExtension, BakedCSSExtension
 from .parser import DocumentParser, make_iso, Parser
 from .yaml_parser import DocumentWalker, parse_yaml
 
@@ -208,7 +208,7 @@ def link_include_tag(course: Course, canvas_folder: Folder, parent_folder: Path,
     return tag
 
 
-def get_fancy_html(markdown_or_file: str, course: Course, canvas_folder: Folder, files_folder: Path = None):
+def get_fancy_html(markdown_or_file: str, course: Course, canvas_folder: Folder, files_folder: Path, global_css: str):
     """
     Converts markdown to html, and adds syntax highlighting to code blocks.
     """
@@ -219,6 +219,8 @@ def get_fancy_html(markdown_or_file: str, course: Course, canvas_folder: Folder,
 
     fenced = md.markdown(dedented, extensions=[
         'fenced_code',
+        'tables',
+        'attr_list',
 
         # This embeds the highlight style directly into the HTML
         # instead of using CSS classes
@@ -232,7 +234,9 @@ def get_fancy_html(markdown_or_file: str, course: Course, canvas_folder: Folder,
             "file": lambda tag: link_file(course, canvas_folder, files_folder, tag),
             "zip": lambda tag: link_zip_tag(course, canvas_folder, files_folder, tag),
             "include": lambda tag: link_include_tag(course, canvas_folder, files_folder, tag)
-        })
+        }),
+
+        BakedCSSExtension(global_css)
     ])
     return fenced
 
@@ -299,12 +303,12 @@ def process_images(html, course: Course, image_folder: Path):
     return str(soup), resources
 
 
-def process_markdown(markdown_or_file: str, course: Course, canvas_folder: Folder, resource_folder=None):
+def process_markdown(markdown_or_file: str, course: Course, canvas_folder: Folder, resource_folder, global_css):
     """
     Converts markdown to html, and adds syntax highlighting to code blocks.
     Then, finds all the images in the html, and replaces them with html that links to the image in Canvas.
     """
-    html = get_fancy_html(markdown_or_file, course, canvas_folder, resource_folder)
+    html = get_fancy_html(markdown_or_file, course, canvas_folder, resource_folder, global_css)
     return process_images(html, course, resource_folder)
 
 
@@ -664,12 +668,19 @@ def modify_page(course: Course, element, delete: bool):
     return canvas_page
 
 
-def post_document(course: Course, time_zone, file_path: Path, delete: bool = False):
+def post_document(course: Course, time_zone,
+                  file_path: Path, args_path: Path, global_args_path: Path, line_id: str,
+                  css_path: Path,
+                  delete: bool = False):
     """
     Parses a markdown file, and posts the elements to Canvas.
     :param course: The canvas course to post to, obtained from the canvas api
     :param time_zone: The time zone of the course (e.g. "America/Denver")
     :param file_path: The path to the markdown file
+    :param args_path: The path to a csv file containing the template arguments
+    :param global_args_path: The path to a csv or json file containing optional global arguments
+    :param line_id: One or more argument set id's
+    :param css_path: The path to a css file
     :param delete: If true, deletes all elements in the Canvas course with the same name as the elements in the file
     """
 
@@ -678,8 +689,10 @@ def post_document(course: Course, time_zone, file_path: Path, delete: bool = Fal
     assignment_groups = list(course.get_assignment_groups())
     names_to_ids = {g.name: g.id for g in assignment_groups}
 
-    if "jinja" in file_path.name:
-        content = process_jinja(file_path)
+    if '.jinja' in file_path.name:
+        if not args_path:
+            raise ValueError("Template arguments must be provided")
+        content = process_jinja(file_path, args_path, global_args_path, line_id)
     else:
         content = file_path.read_text()
 
@@ -688,11 +701,19 @@ def post_document(course: Course, time_zone, file_path: Path, delete: bool = Fal
     name_of_file = file_path.name.split(".")[0]
     canvas_folder = get_canvas_folder(course, name_of_file)
 
+    if css_path:
+        global_css = css_path.read_text()
+    else:
+        global_css = ''
+
+    def markdown_processor(text):
+        return process_markdown(text, course, canvas_folder, file_path.parent, global_css)
+
     if "yaml" in file_path.name:
         walker = DocumentWalker(
             path_to_resources=file_path.parent,
             path_to_canvas_files=file_path.parent,
-            markdown_processor=lambda text: process_markdown(text, course, canvas_folder, file_path.parent),
+            markdown_processor=markdown_processor,
             time_zone=time_zone,
             group_identifier=lambda group_name: get_group_id(course, group_name, names_to_ids)
         )
@@ -703,7 +724,7 @@ def post_document(course: Course, time_zone, file_path: Path, delete: bool = Fal
         parser = DocumentParser(
             path_to_resources=file_path.parent,
             path_to_canvas_files=file_path.parent,
-            markdown_processor=lambda text: process_markdown(text, course, canvas_folder, file_path.parent),
+            markdown_processor=markdown_processor,
             time_zone=time_zone,
             group_identifier=lambda group_name: get_group_id(course, group_name, names_to_ids),
         )
