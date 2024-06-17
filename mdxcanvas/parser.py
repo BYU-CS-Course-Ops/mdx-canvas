@@ -1,3 +1,4 @@
+import textwrap
 from collections import OrderedDict
 from datetime import datetime
 from pathlib import Path
@@ -103,9 +104,9 @@ def get_text_contents(tag, children_tag_names: list[str] = ()):
     However, images sometimes separate the text into multiple parts.
     This function joins the text and images together.
     """
-    return "".join(
+    return textwrap.dedent("".join(
         [str(c) for c in tag.contents if
-         isinstance(c, NavigableString) or (isinstance(c, Tag) and c.name not in children_tag_names)])
+         isinstance(c, NavigableString) or (isinstance(c, Tag) and c.name not in children_tag_names)]))
 
 
 question_types = [
@@ -283,8 +284,12 @@ class MatchingProcessor:
 
         distractors = question_tag.select('distractors')
         distractor_text = get_text_contents(distractors[0]).strip() if len(distractors) > 0 else None
-        question_text, resources = markdown_processor(
-            get_text_contents(question_tag, ["pair", "correct-comments", "incorrect-comments"]))
+
+        question_text, resources = markdown_processor(get_text_contents(
+            question_tag,
+            ["pair", "distractors", "correct-comments", "incorrect-comments"]
+        ))
+
         question = {
             "question_text": question_text,
             "question_type": 'matching_question',
