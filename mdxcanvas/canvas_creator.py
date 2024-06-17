@@ -208,7 +208,7 @@ def link_include_tag(course: Course, canvas_folder: Folder, parent_folder: Path,
     return tag
 
 
-def get_fancy_html(markdown_or_file: str, course: Course, canvas_folder: Folder, files_folder: Path, global_css: str):
+def get_fancy_html(markdown_or_file: str, course: Course, canvas_folder: Folder, files_folder: Path, global_css: str = ''):
     """
     Converts markdown to html, and adds syntax highlighting to code blocks.
     """
