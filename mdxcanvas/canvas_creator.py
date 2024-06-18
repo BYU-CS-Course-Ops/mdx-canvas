@@ -185,25 +185,53 @@ def write_file(file: Path, zipf: ZipFile, prefix='', priority_fld: Path = None):
             zipf.writestr(zinfo, f.read())
 
 
-def link_include_tag(course: Course, canvas_folder: Folder, parent_folder: Path, tag: Tag) -> Tag:
+def _parse_slice(field: str) -> slice:
+    tokens = field.split(':')
+    tokens = [
+        int(token) if token else None
+        for token in tokens
+    ]
+    if len(tokens) == 1:  # e.g. "3"
+        return slice(tokens[0])
+    elif len(tokens) == 2:  # e.g. "3:" or "3:5"
+        return slice(tokens[0], tokens[1], None)
+    else:  # e.g. 3:8:2
+        return slice(*tokens)
+
+
+def link_include_tag(
+        course: Course,
+        canvas_folder: Folder,
+        parent_folder: Path,
+        tag: Tag,
+        global_css: str
+) -> Tag:
     """
     Replace the `include` tag with the processed HTML of the specified file
 
     <include path="instructions.md" />
     <include path="demo.py" fenced="true" />
+    <include path='demo.py" fenced="true" lines="3:7" />
     """
     imported_filename = tag.get('path')
     imported_file = (parent_folder / imported_filename).resolve()
     imported_raw_content = imported_file.read_text()
 
+    lines = tag.get('lines', '')
+    if lines:
+        grab = _parse_slice(lines)
+        imported_raw_content = '\n'.join(imported_raw_content.splitlines()[grab])
+
     parser = Parser()
     if parser.parse(tag.get('fenced', 'false'), bool):
         imported_raw_content = f'```{imported_file.suffix.lstrip(".")}\n{imported_raw_content}\n```\n'
 
-    imported_html = get_fancy_html(imported_raw_content, course, canvas_folder, imported_file.parent)
+    imported_html = get_fancy_html(imported_raw_content, course, canvas_folder, imported_file.parent, global_css)
 
     tag = Tag(name='div')
     tag['data-source'] = imported_filename
+    if lines:
+        tag['data-lines'] = lines
     tag.extend(BeautifulSoup(imported_html, "html.parser"))
     return tag
 
@@ -233,7 +261,7 @@ def get_fancy_html(markdown_or_file: str, course: Course, canvas_folder: Folder,
         CustomTagExtension({
             "file": lambda tag: link_file(course, canvas_folder, files_folder, tag),
             "zip": lambda tag: link_zip_tag(course, canvas_folder, files_folder, tag),
-            "include": lambda tag: link_include_tag(course, canvas_folder, files_folder, tag)
+            "include": lambda tag: link_include_tag(course, canvas_folder, files_folder, tag, global_css)
         }),
 
         BakedCSSExtension(global_css)
