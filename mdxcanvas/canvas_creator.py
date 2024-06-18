@@ -186,17 +186,21 @@ def write_file(file: Path, zipf: ZipFile, prefix='', priority_fld: Path = None):
 
 
 def _parse_slice(field: str) -> slice:
+    """
+    Parse a 1-based, inclusive slice
+    """
     tokens = field.split(':')
     tokens = [
         int(token) if token else None
         for token in tokens
     ]
     if len(tokens) == 1:  # e.g. "3"
-        return slice(tokens[0])
-    elif len(tokens) == 2:  # e.g. "3:" or "3:5"
-        return slice(tokens[0], tokens[1], None)
-    else:  # e.g. 3:8:2
-        return slice(*tokens)
+        tokens.append(None)
+
+    if tokens[1] is not None:  # e.g. "3:5"
+        tokens[1] += 1  # i.e. make it inclusive
+
+    return slice(tokens[0], tokens[1])
 
 
 def link_include_tag(
@@ -212,6 +216,7 @@ def link_include_tag(
     <include path="instructions.md" />
     <include path="demo.py" fenced="true" />
     <include path='demo.py" fenced="true" lines="3:7" />
+    lines: 1-based, inclusive bounds
     """
     imported_filename = tag.get('path')
     imported_file = (parent_folder / imported_filename).resolve()
@@ -697,8 +702,11 @@ def modify_page(course: Course, element, delete: bool):
 
 
 def post_document(course: Course, time_zone,
-                  file_path: Path, args_path: Path, global_args_path: Path, line_id: str,
-                  css_path: Path,
+                  file_path: Path,
+                  args_path: Path | None,
+                  global_args_path: Path | None,
+                  line_id: str | None,
+                  css_path: Path | None,
                   delete: bool = False):
     """
     Parses a markdown file, and posts the elements to Canvas.
