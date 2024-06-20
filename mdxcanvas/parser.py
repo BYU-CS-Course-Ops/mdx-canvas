@@ -293,7 +293,7 @@ class MatchingProcessor:
         question = {
             "question_text": question_text,
             "question_type": 'matching_question',
-            "points_possible": get_points(question_tag),
+            "points_possible": get_points(question_tag, default=len(matches)),
             "correct_comments": get_correct_comments(question_tag),
             "incorrect_comments": get_incorrect_comments(question_tag),
             "answers": [
