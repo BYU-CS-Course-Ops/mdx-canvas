@@ -11,7 +11,7 @@ from bs4.element import Tag
 
 from typing import Protocol
 
-from .inline_styleing import get_style, parse_css, apply_inline_styles
+from .inline_styling import get_style, parse_css, apply_inline_styles
 
 
 class BlackInlineCodeProcessor(BacktickInlineProcessor):
