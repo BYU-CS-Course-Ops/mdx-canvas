@@ -598,7 +598,7 @@ class PageParser:
     def parse_page_settings(self, page_tag):
         settings = {
             "type": "page",
-            "name": page_tag["title"],
+            "title": page_tag["title"],
             "body": "",
         }
         adder = AttributeAdder(settings, page_tag, self.parser)
