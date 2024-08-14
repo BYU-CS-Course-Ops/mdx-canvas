@@ -36,6 +36,13 @@ def apply_inline_styles(html, styles):
     return soup.prettify()
 
 
+def bake_css(soup: BeautifulSoup, global_css: str):
+    css, soup = get_style(soup)
+    css = parse_css(global_css + css)
+    soup = apply_inline_styles(str(soup), css)
+    return soup
+
+
 if __name__ == '__main__':
     # Example usage
     html_content = '''<p>Go team</p>'''

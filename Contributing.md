@@ -30,6 +30,28 @@ Local-canvas aims to be a simple, intuitive, and powerful way to interact with t
 
 ## Understanding local-canvas
 
+### Document Processing Flow
+
+- MD
+- XML
+- JSON
+- Deploy to Canvas
+
+Some resources are files (images, zips, etc.) and some are pages.
+
+We can linearize the dependencies in order to deploy everything.
+- Deploy resource (image, file, page, etc.) and save Canvas ID
+- Before deploying next resource, replace all local IDs with Canvas IDs
+- Deploy resource
+- Etc.
+
+```text
+@@type:ID@@
+type = page | file
+ID = checksum of name
+replace full label with complete Canvas URI
+```
+
 Parsing means turning text into structured data.
 
 **After reading this document, you should understand:**
@@ -312,11 +334,11 @@ To interpret these and other formats, see [this date tutorial.](https://www.prog
 # Using the Canvas API
 ## Canvas Course Objects
 
-The Canvas Python API provides Course objects. Course objects are specific to a class, and need authorization to be retrieved. 
+The Canvas Python API provides Course objects. Course objects are specific to a class, and need authorization to be retrieved.
 
 ```python
-canvas = Canvas(api_url, api_token)  
-course: Course = canvas.get_course(course_id)
+canvas = Canvas(api_url, api_token)
+course: Course = canvas.get_course(, course_id,
 ```
 
 The user provides authorization (an api token) as a parameter to the `Canvas()` constructor. 

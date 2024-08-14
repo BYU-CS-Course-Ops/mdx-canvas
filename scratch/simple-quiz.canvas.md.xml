@@ -1,0 +1,31 @@
+<quiz
+    title="Example Quiz"
+>
+    <description>This is an **example** quiz!</description>
+
+    <questions>
+        <question type="text">
+            > 'Twas brillig and the slithy toves
+            > did gire and gimble in the wabe
+
+            ```python
+            def foobar():
+                return baz() + 7
+            ```
+
+            <img src="beanlab.png" />
+
+            <file path="simple-quiz.canvas.md.xml" />
+
+            <zip path="zip_target" priority_path="zip_priority" exclude="no_.*" />
+
+
+        </question>
+        <question type="true-false" answer="true">
+            The earth is *round*.
+        </question>
+        <question type="true-false" answer="false">
+            Zebras have **5** legs.
+        </question>
+    </questions>
+</quiz>

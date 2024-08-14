@@ -92,97 +92,7 @@ def link_zip_tag(course: Course, canvas_folder: Folder, parent_folder: Path, tag
     Alternate: <zip path="./resources/progress_check_1" />
     This would use progress_check_1.zip as the name, and "progress_check_1" as the display text.
     """
-    folder_name = tag.get("path")
-    name = tag.get("name") or f"{folder_name}.zip"
-    priority_folder = tag.get("priority_path")
-    if priority_folder:
-        priority_folder = parent_folder / priority_folder
-        if not priority_folder.exists():
-            print(f"Priority folder {priority_folder} does not exist, ignoring", file=sys.stderr)
-            priority_folder = None
-    exclude = tag.get("exclude")
-    if exclude:
-        exclude = re.compile(exclude)
 
-    folder_path = parent_folder / folder_name
-    path_to_zip = parent_folder / name
-    display_text = tag.text if tag.text.strip() else name
-
-    print(f"Zipping {folder_path.name} ... ", end="")
-    zip_folder(folder_path, path_to_zip, exclude, priority_folder)
-    print("Done")
-    tag = create_file_tag(course, canvas_folder, path_to_zip, display_text)
-
-    # Then delete the zip
-    path_to_zip.unlink()
-    return tag
-
-
-def zip_folder(folder_path: Path, path_to_zip: Path, exclude: re.Pattern = None, priority_fld: Path = None):
-    """
-    Zips a folder, excluding files that match the exclude pattern.
-    Items from the priority folder are added to the zip if they are not in the standard folder.
-    Items in the priority folder take precedence over items in the standard folder.
-    """
-    with ZipFile(path_to_zip, "w") as zipf:
-        for item in folder_path.glob("*"):
-            write_item_to_zip(item, zipf, exclude, priority_fld=priority_fld)
-
-
-def write_item_to_zip(item: Path, zipf: ZipFile, exclude: re.Pattern = None, prefix='', priority_fld: Path = None):
-    if exclude and exclude.match(item.name):
-        print(f"Excluding file {item.name} ... ", end="")
-        return
-    if item.is_dir():
-        write_directory(item, zipf, exclude, prefix, priority_fld / item.name)
-    else:
-        write_file(item, zipf, prefix, priority_fld)
-
-
-def write_directory(folder: Path, zipf: ZipFile, exclude: re.Pattern = None, prefix='',
-                    priority_fld: Path = None):
-    prefix = prefix + folder.name + '/'
-
-    # Get all items in the folder
-    paths = list(folder.glob("*"))
-
-    # Add items from priority folder that are not in the folder
-    item_names = {i.name for i in folder.glob("*")}
-    if priority_fld:
-        for item in priority_fld.glob("*"):
-            if item.name not in item_names:
-                paths.append(item)
-                print(f"Using additional file {item.name} .. ", end="")
-
-    for path in paths:
-        write_item_to_zip(path, zipf, exclude, prefix, priority_fld)
-
-
-def set_time_1980(file, prefix=''):
-    """
-    Ensures that the zip file stays consistent between runs.
-    """
-    zinfo = ZipInfo(
-        prefix + file.name,
-        date_time=(1980, 1, 1, 0, 0, 0)
-    )
-    return zinfo
-
-
-def write_file(file: Path, zipf: ZipFile, prefix='', priority_fld: Path = None):
-    # Use the file from the priority folder if it exists
-    if priority_fld and (priority_file := priority_fld / file.name).exists():
-        file = priority_file
-        print(f"Prioritizing file {file.name} .. ", end="")
-
-    # For consistency, set the time to 1980
-    zinfo = set_time_1980(file, prefix)
-    try:
-        with open(file) as f:
-            zipf.writestr(zinfo, f.read())
-    except UnicodeDecodeError as _:
-        with open(file, 'rb') as f:
-            zipf.writestr(zinfo, f.read())
 
 
 def _parse_slice(field: str) -> slice:
@@ -361,17 +271,6 @@ def get_group_id(course: Course, group_name: str, names_to_ids: dict[str, int]):
                 names_to_ids[g.name] = g.id
 
     return names_to_ids[group_name]
-
-
-def replace_questions(quiz: Quiz, questions: list[dict]):
-    """
-    Deletes all questions in a quiz, and replaces them with new questions.
-    """
-    print(f"Replacing questions ... ", end="")
-    for quiz_question in quiz.get_questions():
-        quiz_question.delete()
-    for question in questions:
-        quiz.create_question(question=question)
 
 
 def get_section_id(course: Course, section_name: str):
