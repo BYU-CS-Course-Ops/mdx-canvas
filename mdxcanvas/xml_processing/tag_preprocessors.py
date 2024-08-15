@@ -1,7 +1,11 @@
 from pathlib import Path
+from typing import Callable
+
 from bs4 import Tag
 
-from mdxcanvas.resources import ResourceManager, FileData, ZipFileData, CanvasResource
+from ..resources import ResourceManager, FileData, ZipFileData, CanvasResource
+from ..util import parse_xml
+from ..xml_processing.attributes import parse_bool
 
 
 def make_image_preprocessor(parent: Path, resources: ResourceManager):
@@ -96,3 +100,54 @@ def make_zip_preprocessor(parent: Path, resources: ResourceManager):
         tag.replace_with(new_tag)
 
     return process_zip
+
+
+def _parse_slice(field: str) -> slice:
+    """
+    Parse a 1-based, inclusive slice
+    So, the slice should match the line numbers shown in your IDE
+    """
+    tokens = field.split(':')
+    tokens = [
+        int(token) if token else None
+        for token in tokens
+    ]
+
+    tokens[0] -= 1  # make it 1-based
+
+    if len(tokens) == 1:  # e.g. "3"
+        tokens.append(None)
+
+    # Tokens[1] +1 for inclusive, -1 for one-based, net: 0
+
+    return slice(tokens[0], tokens[1])
+
+
+def make_include_preprocessor(
+        parent_folder: Path,
+        process_markdown: Callable[[str], str]
+):
+    def process_include(tag: Tag):
+        imported_filename = tag.get('path')
+        imported_file = (parent_folder / imported_filename).resolve()
+        imported_raw_content = imported_file.read_text()
+
+        lines = tag.get('lines', '')
+        if lines:
+            grab = _parse_slice(lines)
+            imported_raw_content = '\n'.join(imported_raw_content.splitlines()[grab])
+
+        if parse_bool(tag.get('fenced', 'false')):
+            imported_raw_content = f'```{imported_file.suffix.lstrip(".")}\n{imported_raw_content}\n```\n'
+
+        imported_html = process_markdown(imported_raw_content)
+
+        new_tag = Tag(name='div')
+        new_tag['data-source'] = imported_filename
+        if lines:
+            new_tag['data-lines'] = lines
+        new_tag.extend(parse_xml(imported_html))
+
+        tag.replace_with(new_tag)
+
+    return process_include

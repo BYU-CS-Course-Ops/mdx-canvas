@@ -4,7 +4,7 @@ from canvasapi.course import Course
 from canvasapi.folder import Folder
 
 from .util import get_canvas_object
-from ..resources import FileData, ZipFileData
+from ..resources import FileData
 
 DEFAULT_CANVAS_FOLDER = 'deployed_files'
 

@@ -1,8 +1,8 @@
 import argparse
 import json
+import logging
 import os
 import sys
-import tempfile
 from pathlib import Path
 from typing import TypedDict
 
@@ -11,7 +11,7 @@ from canvasapi.course import Course
 
 from .deploy.canvas_deploy import deploy_to_canvas
 from .resources import CanvasResource
-from .xml_processing import process_xml
+from .xml_processing.xml_processing import process_xml
 from .markdown_processing import process_markdown
 from .jinja_processing import process_jinja
 
@@ -32,12 +32,12 @@ def is_jinja(content_type):
 
 def process_file(
         input_file: Path,
-        tmpdir: Path,
         args_file: Path = None,
         global_args_file: Path = None,
         line_id: str = None,
         css_file: Path = None
 ) -> dict[str, CanvasResource]:
+
     content_type, content = read_content(input_file)
 
     if is_jinja(content_type):
@@ -52,11 +52,17 @@ def process_file(
 
     # Process Markdown
     excluded = ['pre']
-    xml_content = process_markdown(content, excluded=excluded)
+
+    def _process_markdown(text: str):
+        return process_markdown(text, excluded=excluded)
+
+    logging.info('Processing Markdown')
+    xml_content = _process_markdown(content)
 
     # Process XML
+    logging.info('Processing XML')
     global_css = css_file.read_text() if css_file is not None else ''
-    resources = process_xml(input_file.parent, xml_content, global_css)
+    resources = process_xml(input_file.parent, xml_content, global_css, _process_markdown)
 
     return resources
 
@@ -85,16 +91,16 @@ def main(
         css_file: Path = None,
 ):
     # Make sure the course actually exists before doing any real effort
+    logging.info('Connecting to Canvas')
     course = get_course(canvas_api_token, course_info['CANVAS_API_URL'], course_info['CANVAS_COURSE_ID'])
 
-    with tempfile.TemporaryDirectory() as tmpdirname:
-        tmpdir = Path(tmpdirname)
+    # Load file
+    logging.info('Reading file: ' + str(input_file))
+    resources = process_file(input_file, args_file, global_args_file, line_id, css_file)
 
-        # Load file
-        resources = process_file(input_file, tmpdir, args_file, global_args_file, line_id, css_file)
-
-        # Deploy
-        deploy_to_canvas(course, course_info['LOCAL_TIME_ZONE'], resources)
+    # Deploy
+    logging.info('Deploying to Canvas')
+    deploy_to_canvas(course, course_info['LOCAL_TIME_ZONE'], resources)
 
 
 def entry():

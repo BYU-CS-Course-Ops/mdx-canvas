@@ -4,6 +4,8 @@ from bs4 import BeautifulSoup, NavigableString
 import markdown as md
 from markdown.extensions.codehilite import makeExtension as makeCodehiliteExtension
 
+from mdxcanvas.util import parse_xml
+
 
 def _process_markdown_text(text: str):
     dedented = textwrap.dedent(text)
@@ -56,6 +58,6 @@ def process_markdown(text: str, excluded: list[str]) -> str:
     :param excluded: a list of tag names to exclude; their contents are left untouched
     :returns: The XML/HTML text
     """
-    soup = BeautifulSoup(text, 'html.parser')
+    soup = parse_xml(text)
     _process_markdown(soup, excluded)
     return str(soup)

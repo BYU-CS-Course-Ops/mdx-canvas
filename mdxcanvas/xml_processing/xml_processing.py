@@ -1,15 +1,26 @@
 from pathlib import Path
+from typing import Callable
 
 from bs4 import BeautifulSoup
 
 from mdxcanvas.inline_styling import bake_css
 from mdxcanvas.resources import ResourceManager
-from mdxcanvas.xml_processing.tag_preprocessors import make_image_preprocessor, make_file_preprocessor, make_zip_preprocessor
+from mdxcanvas.util import parse_xml
+from mdxcanvas.xml_processing.tag_preprocessors import make_image_preprocessor, make_file_preprocessor, \
+    make_zip_preprocessor, make_include_preprocessor
 from mdxcanvas.xml_processing.quiz_tags import QuizTagProcessor
 
-PageTagProcessor = lambda x: None
-AssignmentTagProcessor = lambda x: None
-ModuleTagProcessor = lambda x: None
+
+def nope(*args):
+    def nogo(*args):
+        raise NotImplementedError()
+    return nogo
+
+
+# TODO - implement
+PageTagProcessor = nope
+AssignmentTagProcessor = nope
+ModuleTagProcessor = nope
 
 
 def _walk_xml(tag, tag_processors):
@@ -22,7 +33,13 @@ def _walk_xml(tag, tag_processors):
         _walk_xml(child, tag_processors)
 
 
-def _preprocess_xml(parent: Path, text: str, resources: ResourceManager, global_css: str) -> str:
+def _preprocess_xml(
+        parent: Path,
+        text: str,
+        resources: ResourceManager,
+        global_css: str,
+        process_markdown: Callable[[str], str]
+) -> str:
     """
     Preprocess the XML/HTML text to handle special content tags
     e.g. links, images, files, includes, etc.
@@ -30,14 +47,15 @@ def _preprocess_xml(parent: Path, text: str, resources: ResourceManager, global_
     Returns modified XML that uses local IDs in the links.
     These IDs will be replaced with real Canvas IDs during deployment.
     """
-    tag_processors = {
+    tag_preprocessors = {
         'img': make_image_preprocessor(parent, resources),
         'file': make_file_preprocessor(parent, resources),
-        'zip': make_zip_preprocessor(parent, resources)
+        'zip': make_zip_preprocessor(parent, resources),
+        'include': make_include_preprocessor(parent, process_markdown)
     }
 
-    soup = BeautifulSoup(text, 'html.parser')
-    _walk_xml(soup, tag_processors)
+    soup = parse_xml(text)
+    _walk_xml(soup, tag_preprocessors)
 
     # Post-process the XML
     # - bake in CSS styles
@@ -74,16 +92,21 @@ def _process_xml(text: str, resources: ResourceManager):
         'module': ModuleTagProcessor(resources)
     }
 
-    soup = BeautifulSoup(text, 'html.parser')
+    soup = parse_xml(text)
     _walk_xml(soup, tag_processors)
 
     return resources
 
 
-def process_xml(parent: Path, text: str, global_css: str) -> ResourceManager:
+def process_xml(
+        parent: Path,
+        text: str,
+        global_css: str,
+        process_markdown: Callable[[str], str]
+) -> ResourceManager:
     resources = ResourceManager()
 
-    text = _preprocess_xml(parent, text, resources, global_css)
+    text = _preprocess_xml(parent, text, resources, global_css, process_markdown)
     _process_xml(text, resources)
 
     return resources
