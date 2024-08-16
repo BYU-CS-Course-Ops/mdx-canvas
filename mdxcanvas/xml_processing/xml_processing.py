@@ -1,15 +1,13 @@
 from pathlib import Path
 from typing import Callable
 
-from bs4 import BeautifulSoup
-
-from mdxcanvas.inline_styling import bake_css
-from mdxcanvas.resources import ResourceManager
-from mdxcanvas.util import parse_xml
-from mdxcanvas.xml_processing.tag_preprocessors import make_image_preprocessor, make_file_preprocessor, \
-    make_zip_preprocessor, make_include_preprocessor
-from mdxcanvas.xml_processing.quiz_tags import QuizTagProcessor
-
+from ..inline_styling import bake_css
+from ..resources import ResourceManager
+from ..util import parse_xml
+from ..xml_processing.tag_preprocessors import make_image_preprocessor, make_file_preprocessor, \
+    make_zip_preprocessor, make_include_preprocessor, make_link_preprocessor
+from ..xml_processing.quiz_tags import QuizTagProcessor
+from ..xml_processing.page_tags import PageTagProcessor
 
 def nope(*args):
     def nogo(*args):
@@ -18,7 +16,6 @@ def nope(*args):
 
 
 # TODO - implement
-PageTagProcessor = nope
 AssignmentTagProcessor = nope
 ModuleTagProcessor = nope
 
@@ -51,7 +48,8 @@ def _preprocess_xml(
         'img': make_image_preprocessor(parent, resources),
         'file': make_file_preprocessor(parent, resources),
         'zip': make_zip_preprocessor(parent, resources),
-        'include': make_include_preprocessor(parent, process_markdown)
+        'include': make_include_preprocessor(parent, process_markdown),
+        'course-link': make_link_preprocessor(resources)
     }
 
     soup = parse_xml(text)

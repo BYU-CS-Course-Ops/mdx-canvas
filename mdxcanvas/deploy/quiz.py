@@ -3,7 +3,7 @@ import logging
 from canvasapi.course import Course
 from canvasapi.quiz import Quiz
 
-from .util import get_canvas_object
+from .util import get_canvas_object, get_canvas_uri
 
 
 def get_quiz(course: Course, title: str) -> Quiz:
@@ -70,11 +70,11 @@ def deploy_quiz(course: Course, quiz_data: dict) -> str:
     replace_questions(canvas_quiz, quiz_data['questions'])
     canvas_quiz.edit()
 
-    return f'/courses/{course.id}/quizzes/{canvas_quiz.id}'
+    return get_canvas_uri(canvas_quiz)
 
 
 def lookup_quiz(course: Course, quiz_name: str) -> str:
     canvas_quiz = get_quiz(course, quiz_name)
     if not canvas_quiz:
         raise Exception(f'Quiz {quiz_name} not found')
-    return f'/courses/{course.id}/quizzes/{canvas_quiz.id}'
+    return get_canvas_uri(canvas_quiz)

@@ -91,8 +91,6 @@ class QuizTagProcessor:
         )
         self._resources.add_resource(info)
 
-        return quiz
-
     def _parse_quiz_settings(self, settings_tag):
         fields = [
             Attribute('title', required=True),

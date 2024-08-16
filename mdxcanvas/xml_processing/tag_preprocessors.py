@@ -151,3 +151,19 @@ def make_include_preprocessor(
         tag.replace_with(new_tag)
 
     return process_include
+
+
+def make_link_preprocessor(resources: ResourceManager):
+    def process_link(tag: Tag):
+        link_type = tag['type']
+        link_title = tag['title']
+
+        resource_key = resources.get_resource_key(link_type, link_title)
+
+        new_tag = Tag(name='a')
+        new_tag['href'] = resource_key
+        # TODO - add other course-link attributes here
+        new_tag.string = tag['title']
+        tag.replace_with(new_tag)
+
+    return process_link

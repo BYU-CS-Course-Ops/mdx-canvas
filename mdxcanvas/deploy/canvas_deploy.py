@@ -8,6 +8,7 @@ from canvasapi.course import Course
 from .file import deploy_file, lookup_file
 from .zip import deploy_zip, lookup_zip
 from .quiz import deploy_quiz, lookup_quiz
+from .page import deploy_page, lookup_page
 from ..algorithms import linearize_dependencies
 from ..resources import CanvasResource
 
@@ -17,10 +18,8 @@ def nope(c, cd):
     raise NotImplementedError()
 
 
-deploy_page = nope
 deploy_assignment = nope
 deploy_module = nope
-lookup_page = nope
 lookup_assignment = nope
 lookup_module = nope
 

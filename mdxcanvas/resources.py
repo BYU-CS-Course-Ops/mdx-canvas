@@ -29,3 +29,6 @@ class ResourceManager(dict[str, CanvasResource]):
     def add_resource(self, resource: CanvasResource) -> str:
         self[key := _get_key(resource['type'], resource['name'])] = resource
         return key
+
+    def get_resource_key(self, resource_type: str, resource_name: str) -> str:
+        return _get_key(resource_type, resource_name)
