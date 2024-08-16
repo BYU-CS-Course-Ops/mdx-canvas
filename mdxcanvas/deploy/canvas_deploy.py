@@ -5,23 +5,15 @@ from typing import Callable
 import pytz
 from canvasapi.course import Course
 
+from .algorithms import linearize_dependencies
 from .file import deploy_file, lookup_file
 from .zip import deploy_zip, lookup_zip
 from .quiz import deploy_quiz, lookup_quiz
 from .page import deploy_page, lookup_page
-from ..algorithms import linearize_dependencies
+from .assignment import deploy_assignment, lookup_assignment
+from .module import deploy_module, lookup_module
+
 from ..resources import CanvasResource
-
-
-# TODO - actually implement these
-def nope(c, cd):
-    raise NotImplementedError()
-
-
-deploy_assignment = nope
-deploy_module = nope
-lookup_assignment = nope
-lookup_module = nope
 
 
 def deploy_resource(course: Course, resource_type: str, resource_data: dict) -> str:

@@ -1,12 +1,17 @@
 import logging
 
 from canvasapi.course import Course
+from canvasapi.file import File
 from canvasapi.folder import Folder
 
 from .util import get_canvas_object
 from ..resources import FileData
 
 DEFAULT_CANVAS_FOLDER = 'deployed_files'
+
+
+def get_file(course: Course, name: str) -> File:
+    return get_canvas_object(course.get_files, 'name', name)
 
 
 def get_canvas_folder(course: Course, folder_name: str, parent_folder_path="") -> Folder:
@@ -33,7 +38,5 @@ def lookup_file(course: Course, name: str):
     # TODO - do we need to search against the folder also?
     # If so, include the folder in the name (e.g. /unit1/stuff/file.txt)
     # and parse it out here
-    file = get_canvas_object(course.get_files, 'name', name)
+    file = get_file(course, name)
     return f'/courses/{course.id}/files/{file.id}'
-
-
