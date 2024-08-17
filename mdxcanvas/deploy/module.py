@@ -62,7 +62,7 @@ def _create_or_update_module_items(course: Course, module: Module, module_items:
             module.create_module_item(module_item=item)
 
 
-def deploy_module(course: Course, module_data: dict) -> str:
+def deploy_module(course: Course, module_data: dict) -> Module:
     name = module_data["name"]
 
     if canvas_module := _get_module(course, name):
@@ -72,8 +72,7 @@ def deploy_module(course: Course, module_data: dict) -> str:
 
     _create_or_update_module_items(course, canvas_module, module_data.get('items', []))
 
-    return get_canvas_uri(canvas_module)
+    return canvas_module
 
 
-def lookup_module(course: Course, module_name: str) -> str:
-    return get_canvas_uri(_get_module(course, module_name))
+lookup_module = _get_module

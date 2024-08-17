@@ -58,7 +58,7 @@ def replace_questions(quiz: Quiz, questions: list[dict]):
         quiz.create_question(question=question)
 
 
-def deploy_quiz(course: Course, quiz_data: dict) -> str:
+def deploy_quiz(course: Course, quiz_data: dict) -> Quiz:
     name = quiz_data['name']
 
     if canvas_quiz := get_quiz(course, name):
@@ -70,11 +70,11 @@ def deploy_quiz(course: Course, quiz_data: dict) -> str:
     replace_questions(canvas_quiz, quiz_data['questions'])
     canvas_quiz.edit()
 
-    return get_canvas_uri(canvas_quiz)
+    return canvas_quiz
 
 
-def lookup_quiz(course: Course, quiz_name: str) -> str:
+def lookup_quiz(course: Course, quiz_name: str) -> Quiz:
     canvas_quiz = get_quiz(course, quiz_name)
     if not canvas_quiz:
         raise Exception(f'Quiz {quiz_name} not found')
-    return get_canvas_uri(canvas_quiz)
+    return canvas_quiz

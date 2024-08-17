@@ -8,7 +8,7 @@ def get_page(course: Course, title: str) -> Page:
     return get_canvas_object(course.get_pages, 'title', title)
 
 
-def deploy_page(course: Course, page_info: dict) -> str:
+def deploy_page(course: Course, page_info: dict) -> Page:
     name = page_info['title']
 
     if canvas_page := get_page(course, name):
@@ -16,12 +16,12 @@ def deploy_page(course: Course, page_info: dict) -> str:
     else:
         canvas_page = course.create_page(wiki_page=page_info)
 
-    return get_canvas_uri(canvas_page)
+    return canvas_page
 
 
-def lookup_page(course: Course, page_title: str) -> str:
+def lookup_page(course: Course, page_title: str) -> Page:
     canvas_page = get_page(course, page_title)
     if not canvas_page:
         raise Exception(f'Quiz {page_title} not found')
 
-    return get_canvas_uri(canvas_page)
+    return canvas_page

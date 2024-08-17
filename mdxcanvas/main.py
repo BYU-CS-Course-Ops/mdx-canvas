@@ -134,7 +134,7 @@ def entry():
 if __name__ == '__main__':
     sys.argv = [
         'main.py',
-        '../scratch/simple-quiz.canvas.md.xml',
+        '../scratch/sample-content.canvas.md.xml',
         '--course-info',
         '../demo_course/testing_course_info.json'
     ]

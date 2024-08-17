@@ -3,7 +3,7 @@ from typing import Callable
 
 from bs4 import Tag
 
-from ..resources import ResourceManager, FileData, ZipFileData, CanvasResource
+from ..resources import ResourceManager, FileData, ZipFileData, CanvasResource, get_key
 from ..util import parse_xml
 from ..xml_processing.attributes import parse_bool
 
@@ -20,7 +20,7 @@ def make_image_preprocessor(parent: Path, resources: ResourceManager):
                 canvas_folder=tag.get('canvas_folder', None)
             )
         )
-        tag['src'] = f'{resources.add_resource(file)}/preview'
+        tag['src'] = resources.add_resource(file, 'uri') + '/preview'
 
     return process_image
 
@@ -53,7 +53,7 @@ def make_file_preprocessor(parent: Path, resources: ResourceManager):
                 canvas_folder=attrs.get('canvas_folder', None)
             )
         )
-        resource_key = resources.add_resource(file)
+        resource_key = resources.add_resource(file, 'uri')
         new_tag = make_file_anchor_tag(resource_key, path.name, **tag.attrs)
 
         tag.replace_with(new_tag)
@@ -94,7 +94,7 @@ def make_zip_preprocessor(parent: Path, resources: ResourceManager):
             )
         )
 
-        resource_key = resources.add_resource(file)
+        resource_key = resources.add_resource(file, 'uri')
 
         new_tag = make_file_anchor_tag(resource_key, name)
         tag.replace_with(new_tag)
@@ -153,15 +153,13 @@ def make_include_preprocessor(
     return process_include
 
 
-def make_link_preprocessor(resources: ResourceManager):
+def make_link_preprocessor():
     def process_link(tag: Tag):
         link_type = tag['type']
         link_title = tag['title']
 
-        resource_key = resources.get_resource_key(link_type, link_title)
-
         new_tag = Tag(name='a')
-        new_tag['href'] = resource_key
+        new_tag['href'] = get_key(link_type, link_title, 'uri')
         # TODO - add other course-link attributes here
         new_tag.string = tag['title']
         tag.replace_with(new_tag)

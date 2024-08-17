@@ -1,23 +1,26 @@
 import json
+import re
 from datetime import datetime
 from typing import Callable
 
 import pytz
+from canvasapi.canvas_object import CanvasObject
 from canvasapi.course import Course
 
 from .algorithms import linearize_dependencies
 from .file import deploy_file, lookup_file
+from .util import get_canvas_uri
 from .zip import deploy_zip, lookup_zip
 from .quiz import deploy_quiz, lookup_quiz
 from .page import deploy_page, lookup_page
 from .assignment import deploy_assignment, lookup_assignment
 from .module import deploy_module, lookup_module
 
-from ..resources import CanvasResource
+from ..resources import CanvasResource, iter_keys
 
 
-def deploy_resource(course: Course, resource_type: str, resource_data: dict) -> str:
-    deployers: dict[str, Callable[[Course, dict], str]] = {
+def deploy_resource(course: Course, resource_type: str, resource_data: dict) -> CanvasObject:
+    deployers: dict[str, Callable[[Course, dict], CanvasObject]] = {
         'zip': deploy_zip,
         'file': deploy_file,
         'page': deploy_page,
@@ -48,10 +51,15 @@ def lookup_resource(course: Course, resource_type: str, resource_name: str) -> s
     return finder(course, resource_name)
 
 
-def update_links(data: dict, resource_uris) -> dict:
+def update_links(data: dict, resource_objs: dict[tuple[str, str], CanvasObject]) -> dict:
     text = json.dumps(data)
-    for key, uri in resource_uris.items():
-        text = text.replace(key, uri)
+    for key, rtype, rname, field in iter_keys(text):
+        obj = resource_objs[rtype, rname]
+        if field == 'uri':
+            repl_text = get_canvas_uri(obj)
+        else:
+            repl_text = getattr(obj, field)
+        text = text.replace(key, repl_text)
     return json.loads(text)
 
 
@@ -98,22 +106,37 @@ def fix_dates(data, time_zone):
         data[attr] = utc_version.isoformat()
 
 
-def deploy_to_canvas(course: Course, timezone: str, resources: dict[str, CanvasResource]):
-    resource_strings = {key: str(value) for key, value in resources.items()}
-    resource_order = linearize_dependencies(resource_strings)
+def get_dependencies(resources: dict[str, CanvasResource]) -> dict[str, list[str]]:
+    deps = {}
+    for key, resource in resources.items():
+        deps[key] = []
+        text = json.dumps(resource)
+        for _, rtype, rname, _ in iter_keys(text):
+            deps[key].append((rtype, rname))
+    return deps
 
-    resource_uris = {}
+
+def deploy_to_canvas(course: Course, timezone: str, resources: dict[str, CanvasResource]):
+    resource_dependencies = get_dependencies(resources)
+    resource_order = linearize_dependencies(resource_dependencies)
+
+    # TODO - store (type, name): CanvasObj
+    # Then use @@type:name:field@@ to extract the needed info to update links
+    # this will allow us to use this same system for module items as well as
+    # content course-link tags
+
+    resource_objs: dict[tuple[str, str], CanvasObject] = {}
     for resource_key in resource_order:
-        resource = update_links(resources[resource_key], resource_uris)
+        resource = update_links(resources[resource_key], resource_objs)
 
         if (resource_data := resource.get('data')) is not None:
             # Deploy resource using data
             fix_dates(resource_data, timezone)
-            resource_uri = deploy_resource(course, resource['type'], resource_data)
+            resource_obj = deploy_resource(course, resource['type'], resource_data)
         else:
             # Retrieve resource from Canvas
-            resource_uri = lookup_resource(course, resource['type'], resource['name'])
+            resource_obj = lookup_resource(course, resource['type'], resource['name'])
 
-        resource_uris[resource_key] = resource_uri
+        resource_objs[resource_key] = resource_obj
 
     # Done!

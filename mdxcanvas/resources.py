@@ -1,4 +1,5 @@
-from typing import TypedDict
+import re
+from typing import TypedDict, Iterator
 
 
 class CanvasResource(TypedDict):
@@ -20,15 +21,19 @@ class ZipFileData(TypedDict):
     canvas_folder: str | None
 
 
-def _get_key(rtype: str, name: str):
-    return f'@@{rtype}:{name}@@'
+def iter_keys(text: str) -> Iterator[tuple[str, str, str, str]]:
+    for match in re.finditer(fr'@@([^:]+):([^:]+):([^@]+)@@', text):
+        yield match.group(0), *match.groups()
 
 
-class ResourceManager(dict[str, CanvasResource]):
+def get_key(rtype: str, name: str, field: str):
+    return f'@@{rtype}:{name}:{field}@@'
 
-    def add_resource(self, resource: CanvasResource) -> str:
-        self[key := _get_key(resource['type'], resource['name'])] = resource
-        return key
 
-    def get_resource_key(self, resource_type: str, resource_name: str) -> str:
-        return _get_key(resource_type, resource_name)
+class ResourceManager(dict[tuple[str, str], CanvasResource]):
+
+    def add_resource(self, resource: CanvasResource, field: str = None) -> str:
+        rtype = resource['type']
+        rname = resource['name']
+        self[rtype, rname] = resource
+        return get_key(rtype, rname, field) if field else None
