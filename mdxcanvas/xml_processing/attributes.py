@@ -1,4 +1,5 @@
 import dataclasses
+import logging
 from datetime import datetime
 from typing import Callable, Any
 
@@ -77,6 +78,11 @@ class Attribute:
     required: bool = False
 
 
+def get_tag_path(tag: Tag):
+    tokens = [tag.name] + [p.name for p in tag.parents]
+    return '.'.join(tokens[::-1])
+
+
 def parse_settings(tag: Tag, attributes: list[Attribute]):
     settings = {}
 
@@ -93,6 +99,10 @@ def parse_settings(tag: Tag, attributes: list[Attribute]):
 
         elif attribute.required:
             raise Exception(f'Required field {attribute.name} missing from tag {tag.name}')
+
+    for key in tag.attrs:
+        if key not in settings:
+            logging.warning(f'Unrecognized field {key} @ {get_tag_path(tag)}')
 
     return settings
 

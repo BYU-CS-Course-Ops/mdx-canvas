@@ -67,9 +67,7 @@ class QuizTagProcessor:
     def __call__(self, quiz_tag: Tag):
         quiz = {
             "type": "quiz",
-            "name": quiz_tag["title"],
-            "questions": [],
-            "resources": []
+            "questions": []
         }
         quiz.update(self._parse_quiz_settings(quiz_tag))
 
@@ -93,7 +91,7 @@ class QuizTagProcessor:
 
     def _parse_quiz_settings(self, settings_tag):
         fields = [
-            Attribute('title', required=True),
+            Attribute('title', new_name='name', required=True),
             Attribute('quiz_type', 'assignment'),
             Attribute('assignment_group'),
             Attribute('time_limit', parser=parse_int),

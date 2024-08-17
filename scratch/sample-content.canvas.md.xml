@@ -1,4 +1,10 @@
 <div>
+    <module title="Example Module">
+        <item type="subheader" title="This is a sub-header"/>
+        <item type="page" title="Example Page"/>
+        <item type="quiz" title="Example Quiz" indent="1" />
+    </module>
+
     <page title="Example Page">
         ## Header
         This page has super useful information. Educate yourself.

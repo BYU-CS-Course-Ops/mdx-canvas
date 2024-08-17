@@ -8,16 +8,18 @@ from ..xml_processing.tag_preprocessors import make_image_preprocessor, make_fil
     make_zip_preprocessor, make_include_preprocessor, make_link_preprocessor
 from ..xml_processing.quiz_tags import QuizTagProcessor
 from ..xml_processing.page_tags import PageTagProcessor
+from ..xml_processing.module_tags import ModuleTagProcessor
+
 
 def nope(*args):
     def nogo(*args):
         raise NotImplementedError()
+
     return nogo
 
 
 # TODO - implement
 AssignmentTagProcessor = nope
-ModuleTagProcessor = nope
 
 
 def _walk_xml(tag, tag_processors):

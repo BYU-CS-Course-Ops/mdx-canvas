@@ -58,7 +58,7 @@ def update_links(data: dict, resource_objs: dict[tuple[str, str], CanvasObject])
         if field == 'uri':
             repl_text = get_canvas_uri(obj)
         else:
-            repl_text = getattr(obj, field)
+            repl_text = str(getattr(obj, field))
         text = text.replace(key, repl_text)
     return json.loads(text)
 

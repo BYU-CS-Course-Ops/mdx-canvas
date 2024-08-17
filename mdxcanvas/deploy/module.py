@@ -34,16 +34,16 @@ def _add_canvas_id(course: Course, item: dict):
         # content_id not required
         return
 
-    if item['type'] == 'page':
+    if item['type'] == 'Page':
         item['page_url'] = get_page(course, item['title']).url
 
-    elif item['type'] == 'quiz':
+    elif item['type'] == 'Quiz':
         item['content_id'] = get_quiz(course, item['title']).id
 
-    elif item['type'] == 'assignment':
+    elif item['type'] == 'Assignment':
         item['content_id'] = get_assignment(course, item['title']).id
 
-    elif item['type'] == 'file':
+    elif item['type'] == 'File':
         item['content_id'] = get_file(course, item['name']).id
 
     else:
