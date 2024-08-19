@@ -28,7 +28,7 @@ class ModuleTagProcessor:
             data=module_data
         ))
 
-    casing = {
+    _casing = {
         "file": "File",
         "page": "Page",
         "discussion": "Discussion",
@@ -51,7 +51,7 @@ class ModuleTagProcessor:
         ]
 
         name = tag['title']
-        rtype = self.casing[tag['type'].lower()]
+        rtype = self._casing[tag['type'].lower()]
 
         item = {
             'type': rtype

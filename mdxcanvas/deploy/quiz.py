@@ -3,7 +3,7 @@ import logging
 from canvasapi.course import Course
 from canvasapi.quiz import Quiz
 
-from .util import get_canvas_object, get_canvas_uri
+from .util import get_canvas_object, update_group_name_to_id
 
 
 def get_quiz(course: Course, title: str) -> Quiz:
@@ -60,6 +60,8 @@ def replace_questions(quiz: Quiz, questions: list[dict]):
 
 def deploy_quiz(course: Course, quiz_data: dict) -> Quiz:
     name = quiz_data['name']
+
+    update_group_name_to_id(course, quiz_data)
 
     if canvas_quiz := get_quiz(course, name):
         canvas_quiz: Quiz
