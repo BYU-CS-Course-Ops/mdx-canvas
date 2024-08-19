@@ -23,9 +23,6 @@ def _process_markdown_text(text: str):
         # as a workaround for Canvas's super-ugly default red :P
         # BlackInlineCodeExtension(),
         # TODO - Solve this with baked-in CSS
-
-        # BakedCSSExtension(global_css)
-        # TODO - make this a Tag processor also
     ])
 
     return BeautifulSoup(html, 'html.parser')

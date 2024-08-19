@@ -1,6 +1,7 @@
 from pathlib import Path
 from typing import Callable
 
+from .assignment_tags import AssignmentTagProcessor
 from ..inline_styling import bake_css
 from ..resources import ResourceManager
 from ..util import parse_xml
@@ -18,10 +19,6 @@ def nope(*args):
     return nogo
 
 
-# TODO - implement
-AssignmentTagProcessor = nope
-
-
 def _walk_xml(tag, tag_processors):
     if not hasattr(tag, 'children'):
         return
@@ -32,12 +29,11 @@ def _walk_xml(tag, tag_processors):
         _walk_xml(child, tag_processors)
 
 
-def _preprocess_xml(
+def preprocess_xml(
         parent: Path,
         text: str,
         resources: ResourceManager,
-        global_css: str,
-        process_markdown: Callable[[str], str]
+        process_file: Callable[[str], str]
 ) -> str:
     """
     Preprocess the XML/HTML text to handle special content tags
@@ -50,30 +46,23 @@ def _preprocess_xml(
         'img': make_image_preprocessor(parent, resources),
         'file': make_file_preprocessor(parent, resources),
         'zip': make_zip_preprocessor(parent, resources),
-        'include': make_include_preprocessor(parent, process_markdown),
+        'include': make_include_preprocessor(parent, process_file),
         'course-link': make_link_preprocessor()
     }
 
     soup = parse_xml(text)
     _walk_xml(soup, tag_preprocessors)
 
-    # Post-process the XML
-    # - bake in CSS styles
-    xml_postprocessors = [
-        lambda s: bake_css(s, global_css)
-    ]
-    for xml_post in xml_postprocessors:
-        soup = xml_post(soup)
-
     return str(soup)
 
 
-def _process_xml(text: str, resources: ResourceManager):
+
+
+def process_canvas_xml(resources: ResourceManager, text: str):
     """
     Process XML/HTML text into a DTOs that represent
     the content to be deployed to Canvas.
 
-    :param parent: The Path to the parent folder of the content
     :param text: The XML/HTML text to be processed
     :returns: Populated ResourceManager
     """
@@ -94,19 +83,5 @@ def _process_xml(text: str, resources: ResourceManager):
 
     soup = parse_xml(text)
     _walk_xml(soup, tag_processors)
-
-    return resources
-
-
-def process_xml(
-        parent: Path,
-        text: str,
-        global_css: str,
-        process_markdown: Callable[[str], str]
-) -> ResourceManager:
-    resources = ResourceManager()
-
-    text = _preprocess_xml(parent, text, resources, global_css, process_markdown)
-    _process_xml(text, resources)
 
     return resources
