@@ -9,6 +9,7 @@ from canvasapi.course import Course
 
 from .algorithms import linearize_dependencies
 from .file import deploy_file, lookup_file
+from .syllabus import deploy_syllabus, lookup_syllabus
 from .util import get_canvas_uri
 from .zip import deploy_zip, lookup_zip
 from .quiz import deploy_quiz, lookup_quiz
@@ -26,7 +27,8 @@ def deploy_resource(course: Course, resource_type: str, resource_data: dict) -> 
         'page': deploy_page,
         'quiz': deploy_quiz,
         'assignment': deploy_assignment,
-        'module': deploy_module
+        'module': deploy_module,
+        'syllabus': deploy_syllabus
     }
 
     if (deploy := deployers.get(resource_type, None)) is None:
@@ -42,7 +44,8 @@ def lookup_resource(course: Course, resource_type: str, resource_name: str) -> s
         'page': lookup_page,
         'quiz': lookup_quiz,
         'assignment': lookup_assignment,
-        'module': lookup_module
+        'module': lookup_module,
+        'syllabus': lookup_syllabus
     }
 
     if (finder := finders.get(resource_type, None)) is None:

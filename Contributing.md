@@ -2,18 +2,27 @@ We'd love for you to add to the project! Current tasks include adding support fo
 
 ## Purpose
 
-The goal of the local-canvas tool is to store Canvas content in local documents. Canvas is an LMS, or Learning Management system, used by many schools and universities in the US. Canvas provides several types of content:
+The goal of the local-canvas tool is to store Canvas content in local documents. 
+Canvas is an LMS, or Learning Management system, 
+used by many schools and universities in the US. 
+Canvas provides several types of content:
 - Quizzes
 - Assignments
 - Pages
 - Discussions
 - Files
 
-For simplicity, this document will refer to these content elements as pages, since they are displayed as webpages in Canvas.
+For simplicity, this document will refer to these content elements as pages, 
+since they are displayed as webpages in Canvas.
 
-Canvas is an excellent solution for content managers due to its high-functioning API, or Application Programming Interface. APIs enable programmers to interact with websites and databases automatically. Automatic interaction saves time **as long as the available tools are easy to use**.
+Canvas is an excellent solution for content managers due to its high-functioning API, 
+or Application Programming Interface. 
+APIs enable programmers to interact with websites and databases automatically. 
+Automatic interaction saves time **as long as the available tools are easy to use**.
 
-Local-canvas aims to be a simple, intuitive, and powerful way to interact with the Canvas API. As a wrapper, it does significant work behind-the-scenes. 
+Local-canvas aims to be a simple, intuitive, and powerful way 
+to interact with the Canvas API. 
+As a wrapper, it does significant work behind-the-scenes. 
 
 #### Sequential Information Flow
 1. A content creator creates a set of local documents on their computer.
@@ -34,7 +43,7 @@ Local-canvas aims to be a simple, intuitive, and powerful way to interact with t
 
 - MD
 - XML
-- JSON
+- Page Data
 - Deploy to Canvas
 
 Some resources are files (images, zips, etc.) and some are pages.

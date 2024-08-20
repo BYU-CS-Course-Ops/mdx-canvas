@@ -1,4 +1,8 @@
 <div>
+    <syllabus>
+        This is the **epic** syllabus. :)
+    </syllabus>
+
     <module title="Example Module">
         <item type="subheader" title="This is a sub-header"/>
         <item type="page" title="Example Page"/>

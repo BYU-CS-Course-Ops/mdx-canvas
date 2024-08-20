@@ -125,7 +125,7 @@ def _parse_slice(field: str) -> slice:
 
 def make_include_preprocessor(
         parent_folder: Path,
-        process_file: Callable[[str], str]
+        process_file: Callable
 ):
     def process_include(tag: Tag):
         imported_filename = tag.get('path')
@@ -144,7 +144,7 @@ def make_include_preprocessor(
         #  add the jinja-relevant arguments (e.g. arg_file)
         #  as optional attributes on the include tag and
         #  pass them in here.
-        imported_html = process_file(imported_raw_content)
+        imported_html = process_file(imported_file.parent, imported_raw_content, imported_file.suffixes)
 
         new_tag = Tag(name='div')
         new_tag['data-source'] = imported_filename

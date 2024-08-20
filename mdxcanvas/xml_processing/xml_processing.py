@@ -2,6 +2,7 @@ from pathlib import Path
 from typing import Callable
 
 from .assignment_tags import AssignmentTagProcessor
+from .syllabus_tags import SyllabusTagProcessor
 from ..inline_styling import bake_css
 from ..resources import ResourceManager
 from ..util import parse_xml
@@ -10,13 +11,6 @@ from ..xml_processing.tag_preprocessors import make_image_preprocessor, make_fil
 from ..xml_processing.quiz_tags import QuizTagProcessor
 from ..xml_processing.page_tags import PageTagProcessor
 from ..xml_processing.module_tags import ModuleTagProcessor
-
-
-def nope(*args):
-    def nogo(*args):
-        raise NotImplementedError()
-
-    return nogo
 
 
 def _walk_xml(tag, tag_processors):
@@ -33,7 +27,7 @@ def preprocess_xml(
         parent: Path,
         text: str,
         resources: ResourceManager,
-        process_file: Callable[[str], str]
+        process_file: Callable
 ) -> str:
     """
     Preprocess the XML/HTML text to handle special content tags
@@ -56,8 +50,6 @@ def preprocess_xml(
     return str(soup)
 
 
-
-
 def process_canvas_xml(resources: ResourceManager, text: str):
     """
     Process XML/HTML text into a DTOs that represent
@@ -78,7 +70,8 @@ def process_canvas_xml(resources: ResourceManager, text: str):
         'quiz': QuizTagProcessor(resources),
         'page': PageTagProcessor(resources),
         'assignment': AssignmentTagProcessor(resources),
-        'module': ModuleTagProcessor(resources)
+        'module': ModuleTagProcessor(resources),
+        'syllabus': SyllabusTagProcessor(resources)
     }
 
     soup = parse_xml(text)

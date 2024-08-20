@@ -21,6 +21,10 @@ class ZipFileData(TypedDict):
     canvas_folder: str | None
 
 
+class SyllabusData(TypedDict):
+    content: str
+
+
 def iter_keys(text: str) -> Iterator[tuple[str, str, str, str]]:
     for match in re.finditer(fr'@@([^:]+):([^:]+):([^@]+)@@', text):
         yield match.group(0), *match.groups()

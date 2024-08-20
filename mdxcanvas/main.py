@@ -46,7 +46,9 @@ def _post_process_content(xml_content: str, global_css: str) -> str:
 
 def process_file(
         resources: ResourceManager,
-        input_file: Path,
+        parent_folder: Path,
+        content: str,
+        content_type: list[str],
         global_args_file: Path = None,
         args_file: Path = None,
         line_id: str = None,
@@ -58,8 +60,6 @@ def process_file(
     Process content-modifying XML tags (e.g. img, or file, or zip, or include)
     Post-process the content (whole XML in, whole XML out, e.g. bake CSS)
     """
-    content_type, content = read_content(input_file)
-
     if is_jinja(content_type):
         if args_file is None:
             raise Exception('--args-file is required if input file is .jinja')
@@ -73,19 +73,16 @@ def process_file(
     # Process Markdown
     excluded = ['pre']
 
-    def _process_markdown(text: str):
-        return process_markdown(text, excluded=excluded)
-
     logging.info('Processing Markdown')
-    xml_content = _process_markdown(content)
+    xml_content = process_markdown(content, excluded=excluded)
 
     # Preprocess XML
     logging.info('Processing XML')
 
-    def load_and_process_file(path: str) -> str:
-        return process_file(resources, Path(path), global_args_file=global_args_file)
+    def load_and_process_file_contents(parent: Path, content: str, content_type: list[str]) -> str:
+        return process_file(resources, parent, content, content_type, global_args_file=global_args_file)
 
-    xml_content = preprocess_xml(input_file.parent, xml_content, resources, load_and_process_file)
+    xml_content = preprocess_xml(parent_folder, xml_content, resources, load_and_process_file_contents)
 
     # Post-process the XML
     global_css = css_file.read_text() if css_file is not None else ''
@@ -123,7 +120,17 @@ def main(
 
     # Load file
     logging.info('Reading file: ' + str(input_file))
-    processed_content = process_file(resources, input_file, global_args_file, args_file, line_id, css_file)
+    content_type, content = read_content(input_file)
+    processed_content = process_file(
+        resources,
+        input_file.parent,
+        content,
+        content_type,
+        global_args_file,
+        args_file,
+        line_id,
+        css_file
+    )
 
     # Parse file into XML
     resources = process_canvas_xml(resources, processed_content)
