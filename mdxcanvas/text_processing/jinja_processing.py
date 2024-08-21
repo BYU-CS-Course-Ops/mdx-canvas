@@ -2,14 +2,14 @@ import csv
 import json
 import jinja2 as jj
 from pathlib import Path
-import markdown as md
 
-from .util import parse_soup_from_xml
+from .markdown_processing import process_markdown_text
+from ..util import parse_soup_from_xml, retrieve_contents
 
 
 def _read_md_table(md_text: str) -> list[dict]:
     # Assume the only thing in the markdown is a single table
-    html = md.markdown(md_text, extensions=['tables'])
+    html = process_markdown_text(md_text)
 
     soup = parse_soup_from_xml(html)
     table = soup.find('table')
@@ -24,7 +24,7 @@ def _read_md_table(md_text: str) -> list[dict]:
         cells = tr.find_all(['td', 'th'])
         if len(cells) != len(headers):
             continue  # Skip any rows that do not match the number of headers
-        row_data = {headers[i]: cells[i].text.strip() for i in range(len(headers))}
+        row_data = {headers[i]: retrieve_contents(cells[i]) for i in range(len(headers))}
         rows.append(row_data)
 
     return rows

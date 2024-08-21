@@ -3,7 +3,6 @@ from typing import Callable
 
 from .assignment_tags import AssignmentTagProcessor
 from .syllabus_tags import SyllabusTagProcessor
-from ..inline_styling import bake_css
 from ..resources import ResourceManager
 from ..util import parse_soup_from_xml
 from ..xml_processing.tag_preprocessors import make_image_preprocessor, make_file_preprocessor, \

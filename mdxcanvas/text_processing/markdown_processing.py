@@ -1,13 +1,14 @@
 import textwrap
 
-from bs4 import BeautifulSoup, NavigableString
+from bs4 import NavigableString
 import markdown as md
 from markdown.extensions.codehilite import makeExtension as makeCodehiliteExtension
 
-from mdxcanvas.util import parse_soup_from_xml
+from .inline_math import InlineMathExtension
+from ..util import parse_soup_from_xml
 
 
-def _process_markdown_text(text: str):
+def process_markdown_text(text: str) -> str:
     dedented = textwrap.dedent(text)
 
     html = md.markdown(dedented, extensions=[
@@ -19,13 +20,19 @@ def _process_markdown_text(text: str):
         # instead of using CSS classes
         makeCodehiliteExtension(noclasses=True),
 
+        # This preserves \(...\) inline math expressions
+        #  so Canvas will render them with MathJax
+        InlineMathExtension(),
+
         # This forces the color of inline code to be black
         # as a workaround for Canvas's super-ugly default red :P
         # BlackInlineCodeExtension(),
         # TODO - Solve this with baked-in CSS
-    ])
 
-    return BeautifulSoup(html, 'html.parser')
+        # TODO - add support for tilde => <del> (strikethrough) (look for extension)
+        #  or maybe look for a github-flavored-markdown extension
+    ])
+    return html
 
 
 def _process_markdown(parent, excluded: list[str]):
@@ -35,7 +42,7 @@ def _process_markdown(parent, excluded: list[str]):
             continue
 
         if isinstance(tag, NavigableString):
-            tag.replace_with(_process_markdown_text(tag.text))
+            tag.replace_with(parse_soup_from_xml(process_markdown_text(tag.text)))
         else:
             _process_markdown(tag, excluded)
 

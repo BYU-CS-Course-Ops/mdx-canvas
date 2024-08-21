@@ -140,11 +140,16 @@ def make_include_preprocessor(
         if parse_bool(tag.get('fenced', 'false')):
             imported_raw_content = f'```{imported_file.suffix.lstrip(".")}\n{imported_raw_content}\n```\n'
 
-        # TODO - to support more elaborate jinja includes,
-        #  add the jinja-relevant arguments (e.g. arg_file)
-        #  as optional attributes on the include tag and
-        #  pass them in here.
-        imported_html = process_file(imported_file.parent, imported_raw_content, imported_file.suffixes)
+        args_file = tag.get('args', None)
+        if args_file is not None:
+            args_file = (imported_file.parent / args_file).resolve().absolute()
+
+        imported_html = process_file(
+            imported_file.parent,
+            imported_raw_content,
+            imported_file.suffixes,
+            args_file=args_file
+        )
 
         new_tag = Tag(name='div')
         new_tag['data-source'] = imported_filename
@@ -165,7 +170,7 @@ def make_link_preprocessor():
         new_tag = Tag(name='a')
         new_tag['href'] = get_key(link_type, link_title, 'uri')
         # TODO - add other course-link attributes here
-        link_text = tag.string.strip()
+        link_text = tag.string.strip() if tag.string is not None else ''
         if not link_text:
             link_text = tag['title']
         new_tag.string = link_text

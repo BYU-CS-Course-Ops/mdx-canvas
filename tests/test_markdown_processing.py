@@ -1,6 +1,6 @@
 from bs4 import BeautifulSoup
 
-from mdxcanvas.markdown_processing import process_markdown
+from mdxcanvas.text_processing.markdown_processing import process_markdown
 
 
 def test_process_markdown():

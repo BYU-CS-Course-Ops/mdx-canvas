@@ -1,5 +1,5 @@
-from .attributes import Attribute, parse_int, parse_bool, parse_date, parse_settings, parse_child_tag_contents, \
-    retrieve_contents
+from .attributes import Attribute, parse_int, parse_bool, parse_date, parse_settings, parse_child_tag_contents
+from ..util import retrieve_contents
 from .quiz_questions import parse_text_question, parse_true_false_question
 from ..resources import ResourceManager, CanvasResource
 from bs4 import Tag

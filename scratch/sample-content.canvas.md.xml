@@ -3,11 +3,21 @@
         This is the **epic** syllabus. :)
     </syllabus>
 
+    <include path="sample-template.canvas.md.xml.jinja" args="sample-template.args.md"/>
+
     <module title="Example Module">
         <item type="subheader" title="This is a sub-header"/>
         <item type="page" title="Example Page"/>
         <item type="quiz" title="Example Quiz" indent="1" />
     </module>
+
+    <assignment
+        title="Example Assignment"
+        points_possible="10"
+        assignment_group="Examples"
+    >
+        Do this stuff. Yesterday.
+    </assignment>
 
     <page title="Example Page">
         ## Header
@@ -47,6 +57,11 @@
                 |---|------|-------|
                 |woot| wootage | woot-wootage|
                 |:) | :-) | :D |
+
+                This is an equation:
+                $$foo(n) = bar(n) + 7^8 + baz_2$$
+
+                And these equations should be inline: \(a^7 + b_2 = 3 \cdot x\) and \(x_i + y_n = z^2\)
 
             </question>
 

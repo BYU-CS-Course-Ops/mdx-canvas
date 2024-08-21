@@ -1,7 +1,8 @@
 from bs4 import Tag
 
 from .attributes import parse_settings, Attribute, parse_bool, parse_child_tag_contents, \
-    retrieve_contents, parse_int
+    parse_int
+from ..util import retrieve_contents
 
 
 def parse_text_question(tag: Tag):

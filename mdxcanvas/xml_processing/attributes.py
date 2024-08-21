@@ -5,6 +5,8 @@ from typing import Callable, Any
 
 from bs4 import Tag
 
+from mdxcanvas.util import retrieve_contents
+
 
 def parse_date(date: datetime | str | None) -> str:
     if isinstance(date, datetime):
@@ -105,11 +107,6 @@ def parse_settings(tag: Tag, attributes: list[Attribute]):
             logging.warning(f'Unrecognized field {key} @ {get_tag_path(tag)}')
 
     return settings
-
-
-def retrieve_contents(tag: Tag):
-    """Return all the HTML contents of the specified tag"""
-    return ''.join(str(c) for c in tag.children)
 
 
 def parse_child_tag_contents(tag: Tag, child_name):

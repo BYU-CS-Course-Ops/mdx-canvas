@@ -1,19 +1,22 @@
 from collections import defaultdict, deque
 
 
-def linearize_dependencies(graph: dict[str, list[str]]):
+def linearize_dependencies(graph: dict[tuple[str, str], list[str]]):
     # Original code courtesy of GPT-4o
     # Some modifications required
 
     in_degree = {}
 
     # Build the graph and compute in-degrees of nodes
+    missing_deps = []
     for key, deps in graph.items():
         if key not in in_degree:
             in_degree[key] = 0
         for dep in deps:
             if dep not in in_degree:
                 in_degree[dep] = 0
+            if dep not in graph:
+                missing_deps.append(dep)
             in_degree[dep] += 1
 
     # Perform topological sort (Kahn's algorithm)
@@ -24,7 +27,7 @@ def linearize_dependencies(graph: dict[str, list[str]]):
         current_key = queue.popleft()
         linearized_order.append(current_key)
 
-        for dependent_key in graph[current_key]:
+        for dependent_key in graph.get(current_key, []):
             in_degree[dependent_key] -= 1
             if in_degree[dependent_key] == 0:
                 queue.append(dependent_key)

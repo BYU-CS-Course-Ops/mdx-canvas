@@ -109,17 +109,26 @@ def fix_dates(data, time_zone):
         data[attr] = utc_version.isoformat()
 
 
-def get_dependencies(resources: dict[str, CanvasResource]) -> dict[str, list[str]]:
+def get_dependencies(resources: dict[tuple[str, str], CanvasResource]) -> dict[tuple[str, str], list[str]]:
+    """Returns the dependency graph in resources. Adds missing resources to the input dictionary."""
     deps = {}
+    missing_resources = []
     for key, resource in resources.items():
         deps[key] = []
         text = json.dumps(resource)
         for _, rtype, rname, _ in iter_keys(text):
-            deps[key].append((rtype, rname))
+            resource_key = (rtype, rname)
+            deps[key].append(resource_key)
+            if resource_key not in resources:
+                missing_resources.append(resource_key)
+
+    for rtype, rname in missing_resources:
+        resources[rtype, rname] = CanvasResource(type=rtype, name=rname, data=None)
+
     return deps
 
 
-def deploy_to_canvas(course: Course, timezone: str, resources: dict[str, CanvasResource]):
+def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, str], CanvasResource]):
     resource_dependencies = get_dependencies(resources)
     resource_order = linearize_dependencies(resource_dependencies)
 

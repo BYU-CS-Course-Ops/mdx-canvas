@@ -9,13 +9,13 @@ from typing import TypedDict
 from canvasapi import Canvas
 from canvasapi.course import Course
 
-from mdxcanvas.inline_styling import bake_css
+from mdxcanvas.xml_processing.inline_styling import bake_css
 from mdxcanvas.util import parse_soup_from_xml
 from .deploy.canvas_deploy import deploy_to_canvas
 from .resources import ResourceManager
 from .xml_processing.xml_processing import process_canvas_xml, preprocess_xml
-from .markdown_processing import process_markdown
-from .jinja_processing import process_jinja
+from mdxcanvas.text_processing.markdown_processing import process_markdown
+from mdxcanvas.text_processing.jinja_processing import process_jinja
 
 
 class CourseInfo(TypedDict):
@@ -29,7 +29,7 @@ def read_content(input_file: Path) -> tuple[list[str], str]:
 
 
 def is_jinja(content_type):
-    return content_type[-1] == 'jinja'
+    return content_type[-1] == '.jinja'
 
 
 def _post_process_content(xml_content: str, global_css: str) -> str:
@@ -79,8 +79,8 @@ def process_file(
     # Preprocess XML
     logging.info('Processing XML')
 
-    def load_and_process_file_contents(parent: Path, content: str, content_type: list[str]) -> str:
-        return process_file(resources, parent, content, content_type, global_args_file=global_args_file)
+    def load_and_process_file_contents(parent: Path, content: str, content_type: list[str], **kwargs) -> str:
+        return process_file(resources, parent, content, content_type, global_args_file=global_args_file, **kwargs)
 
     xml_content = preprocess_xml(parent_folder, xml_content, resources, load_and_process_file_contents)
 
@@ -175,4 +175,14 @@ if __name__ == '__main__':
         '--course-info',
         '../demo_course/testing_course_info.json'
     ]
+
+    # sys.argv = [
+    #     'main.py',
+    #     '../scratch/sample-template.canvas.md.xml.jinja',
+    #     '--args',
+    #     '../scratch/sample-template.args.md',
+    #     '--course-info',
+    #     '../demo_course/testing_course_info.json'
+    # ]
+
     entry()

@@ -1,10 +1,11 @@
 from canvasapi.course import Course
 from canvasapi.module import Module, ModuleItem
 
+from .assignment import get_assignment
 from .file import get_file
 from .page import get_page
 from .quiz import get_quiz
-from .util import get_canvas_object, get_canvas_uri
+from .util import get_canvas_object
 
 
 def _get_module(course: Course, name: str) -> Module:

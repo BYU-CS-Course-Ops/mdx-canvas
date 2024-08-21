@@ -8,7 +8,7 @@ def get_assignment(course: Course, name: str) -> Assignment:
     return get_canvas_object(course.get_assignments, 'name', name)
 
 
-def deploy_assignment(course: Course, assignment_info: dict) -> str:
+def deploy_assignment(course: Course, assignment_info: dict) -> Assignment:
     name = assignment_info["name"]
 
     update_group_name_to_id(course, assignment_info)
@@ -21,8 +21,8 @@ def deploy_assignment(course: Course, assignment_info: dict) -> str:
     else:
         course.create_assignment(assignment=assignment_info)
 
-    return get_canvas_uri(canvas_assignment)
+    return canvas_assignment
 
 
-def lookup_assignment(course: Course, assignment_name: str) -> str:
-    return get_canvas_uri(get_assignment(course, assignment_name))
+def lookup_assignment(course: Course, assignment_name: str) -> Assignment:
+    return get_assignment(course, assignment_name)
