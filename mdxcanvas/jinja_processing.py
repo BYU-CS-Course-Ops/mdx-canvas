@@ -2,6 +2,32 @@ import csv
 import json
 import jinja2 as jj
 from pathlib import Path
+import markdown as md
+
+from .util import parse_soup_from_xml
+
+
+def _read_md_table(md_text: str) -> list[dict]:
+    # Assume the only thing in the markdown is a single table
+    html = md.markdown(md_text, extensions=['tables'])
+
+    soup = parse_soup_from_xml(html)
+    table = soup.find('table')
+
+    # Thank you, GPT:
+    # Extract headers
+    headers = [th.text.strip() for th in table.find_all('th')]
+
+    # Iterate over rows and create list of dictionaries
+    rows = []
+    for tr in table.find_all('tr')[1:]:  # skipping the header row
+        cells = tr.find_all(['td', 'th'])
+        if len(cells) != len(headers):
+            continue  # Skip any rows that do not match the number of headers
+        row_data = {headers[i]: cells[i].text.strip() for i in range(len(headers))}
+        rows.append(row_data)
+
+    return rows
 
 
 def _get_global_args(global_args_path: Path) -> dict:
@@ -9,6 +35,22 @@ def _get_global_args(global_args_path: Path) -> dict:
         return json.loads(global_args_path.read_text())
     elif '.csv' in global_args_path.name:
         return dict(csv.DictReader(global_args_path.read_text().splitlines()))
+    else:
+        raise NotImplementedError('Global args file of type: ' + global_args_path.suffix)
+
+
+def _get_args(args_path: Path) -> list[dict]:
+    if args_path.suffix == '.json':
+        return json.loads(args_path.read_text())
+
+    elif args_path.suffix == '.csv':
+        return list(csv.DictReader(args_path.read_text().splitlines()))
+
+    elif args_path.suffix == '.md':
+        return _read_md_table(args_path.read_text())
+
+    else:
+        raise NotImplementedError('Args file of type: ' + args_path.suffix)
 
 
 def _render_template(template, **kwargs):
@@ -28,7 +70,7 @@ def process_jinja(
         line_id: str = None,
         **kwargs
 ) -> str:
-    arg_sets = list(csv.DictReader(args_path.read_text().splitlines()))
+    arg_sets = _get_args(args_path)
 
     if global_args_path:
         kwargs |= _get_global_args(global_args_path)

@@ -10,7 +10,7 @@ from canvasapi import Canvas
 from canvasapi.course import Course
 
 from mdxcanvas.inline_styling import bake_css
-from mdxcanvas.util import parse_xml
+from mdxcanvas.util import parse_soup_from_xml
 from .deploy.canvas_deploy import deploy_to_canvas
 from .resources import ResourceManager
 from .xml_processing.xml_processing import process_canvas_xml, preprocess_xml
@@ -34,7 +34,7 @@ def is_jinja(content_type):
 
 def _post_process_content(xml_content: str, global_css: str) -> str:
     # - bake in CSS styles
-    soup = parse_xml(xml_content)
+    soup = parse_soup_from_xml(xml_content)
     xml_postprocessors = [
         lambda s: bake_css(s, global_css)
     ]

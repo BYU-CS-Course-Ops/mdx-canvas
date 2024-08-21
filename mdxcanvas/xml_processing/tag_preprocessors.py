@@ -4,7 +4,7 @@ from typing import Callable
 from bs4 import Tag
 
 from ..resources import ResourceManager, FileData, ZipFileData, CanvasResource, get_key
-from ..util import parse_xml
+from ..util import parse_soup_from_xml
 from ..xml_processing.attributes import parse_bool
 
 
@@ -150,7 +150,7 @@ def make_include_preprocessor(
         new_tag['data-source'] = imported_filename
         if lines:
             new_tag['data-lines'] = lines
-        new_tag.extend(parse_xml(imported_html))
+        new_tag.extend(parse_soup_from_xml(imported_html))
 
         tag.replace_with(new_tag)
 

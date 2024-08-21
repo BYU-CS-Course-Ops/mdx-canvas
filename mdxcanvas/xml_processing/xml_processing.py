@@ -5,7 +5,7 @@ from .assignment_tags import AssignmentTagProcessor
 from .syllabus_tags import SyllabusTagProcessor
 from ..inline_styling import bake_css
 from ..resources import ResourceManager
-from ..util import parse_xml
+from ..util import parse_soup_from_xml
 from ..xml_processing.tag_preprocessors import make_image_preprocessor, make_file_preprocessor, \
     make_zip_preprocessor, make_include_preprocessor, make_link_preprocessor
 from ..xml_processing.quiz_tags import QuizTagProcessor
@@ -44,7 +44,7 @@ def preprocess_xml(
         'course-link': make_link_preprocessor()
     }
 
-    soup = parse_xml(text)
+    soup = parse_soup_from_xml(text)
     _walk_xml(soup, tag_preprocessors)
 
     return str(soup)
@@ -74,7 +74,7 @@ def process_canvas_xml(resources: ResourceManager, text: str):
         'syllabus': SyllabusTagProcessor(resources)
     }
 
-    soup = parse_xml(text)
+    soup = parse_soup_from_xml(text)
     _walk_xml(soup, tag_processors)
 
     return resources
