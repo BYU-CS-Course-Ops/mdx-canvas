@@ -1,6 +1,9 @@
 import json
-import re
+import logging
+
 from datetime import datetime
+from pathlib import Path
+from tempfile import TemporaryDirectory
 from typing import Callable
 
 import pytz
@@ -8,16 +11,19 @@ from canvasapi.canvas_object import CanvasObject
 from canvasapi.course import Course
 
 from .algorithms import linearize_dependencies
+from .checksums import MD5Sums, compute_md5
 from .file import deploy_file, lookup_file
 from .syllabus import deploy_syllabus, lookup_syllabus
 from .util import get_canvas_uri
-from .zip import deploy_zip, lookup_zip
+from .zip import deploy_zip, lookup_zip, predeploy_zip
 from .quiz import deploy_quiz, lookup_quiz
 from .page import deploy_page, lookup_page
 from .assignment import deploy_assignment, lookup_assignment
 from .module import deploy_module, lookup_module
 
 from ..resources import CanvasResource, iter_keys
+
+logger = logging.getLogger('logger')
 
 
 def deploy_resource(course: Course, resource_type: str, resource_data: dict) -> CanvasObject:
@@ -128,27 +134,55 @@ def get_dependencies(resources: dict[tuple[str, str], CanvasResource]) -> dict[t
     return deps
 
 
+def predeploy_resource(rtype: str, resource_data: dict, timezone: str, tmpdir: Path) -> dict:
+    fix_dates(resource_data, timezone)
+
+    predeployers: dict[str, Callable[[dict, Path], dict]] = {
+        'zip': predeploy_zip
+    }
+
+    if (predeploy := predeployers.get(rtype)) is not None:
+        resource_data = predeploy(resource_data, tmpdir)
+
+    return resource_data
+
+
 def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, str], CanvasResource]):
     resource_dependencies = get_dependencies(resources)
     resource_order = linearize_dependencies(resource_dependencies)
 
-    # TODO - store (type, name): CanvasObj
-    # Then use @@type:name:field@@ to extract the needed info to update links
-    # this will allow us to use this same system for module items as well as
-    # content course-link tags
+    logger.info('-- Beginning deployment to Canvas --')
+    with MD5Sums(course) as md5s, TemporaryDirectory() as tmpdir:
+        tmpdir = Path(tmpdir)
 
-    resource_objs: dict[tuple[str, str], CanvasObject] = {}
-    for resource_key in resource_order:
-        resource = update_links(resources[resource_key], resource_objs)
+        resource_objs: dict[tuple[str, str], CanvasObject] = {}
+        for resource_key in resource_order:
+            resource = update_links(resources[resource_key], resource_objs)
 
-        if (resource_data := resource.get('data')) is not None:
-            # Deploy resource using data
-            fix_dates(resource_data, timezone)
-            resource_obj = deploy_resource(course, resource['type'], resource_data)
-        else:
-            # Retrieve resource from Canvas
-            resource_obj = lookup_resource(course, resource['type'], resource['name'])
+            rtype = resource['type']
+            rname = resource['name']
 
-        resource_objs[resource_key] = resource_obj
+            if (resource_data := resource.get('data')) is not None:
+                # Deploy resource using data
+                resource_data = predeploy_resource(rtype, resource_data, timezone, tmpdir)
+
+                stored_md5 = md5s.get(resource_key)
+                current_md5 = compute_md5(resource_data)
+
+                if current_md5 == stored_md5:
+                    # No update needed
+                    logger.info(f'Skipping {rtype} {rname}')
+                    resource_obj = lookup_resource(course, rtype, rname)
+                else:
+                    # Create the resource
+                    logger.info(f'Creating {rtype} {rname}')
+                    resource_obj = deploy_resource(course, rtype, resource_data)
+                    md5s[resource_key] = current_md5
+            else:
+                # Retrieve resource from Canvas
+                logger.info(f'Retrieving {rtype} {rname}')
+                resource_obj = lookup_resource(course, rtype, rname)
+
+            resource_objs[resource_key] = resource_obj
 
     # Done!

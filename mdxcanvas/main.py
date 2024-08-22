@@ -157,6 +157,9 @@ def entry():
     if api_token is None:
         raise ValueError("Please set the CANVAS_API_TOKEN environment variable")
 
+    logger = logging.getLogger('logger')
+    logger.setLevel(logging.INFO)
+
     main(
         canvas_api_token=api_token,
         course_info=course_settings,

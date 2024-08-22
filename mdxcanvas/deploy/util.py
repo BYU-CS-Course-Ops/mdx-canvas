@@ -1,3 +1,6 @@
+import hashlib
+import json
+
 from canvasapi.course import Course
 from canvasapi.file import File
 
@@ -42,3 +45,6 @@ def get_canvas_uri(canvas_obj):
 
     else:
         raise NotImplementedError(type(canvas_obj))
+
+
+

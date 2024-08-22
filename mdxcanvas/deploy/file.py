@@ -11,7 +11,7 @@ DEFAULT_CANVAS_FOLDER = 'deployed_files'
 
 
 def get_file(course: Course, name: str) -> File:
-    return get_canvas_object(course.get_files, 'name', name)
+    return get_canvas_object(course.get_files, 'display_name', name)
 
 
 def get_canvas_folder(course: Course, folder_name: str, parent_folder_path="") -> Folder:

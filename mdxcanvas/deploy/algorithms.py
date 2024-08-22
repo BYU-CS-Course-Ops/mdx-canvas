@@ -1,4 +1,7 @@
-from collections import defaultdict, deque
+import logging
+from collections import deque
+
+logger = logging.getLogger('logger')
 
 
 def linearize_dependencies(graph: dict[tuple[str, str], list[str]]):
@@ -33,7 +36,9 @@ def linearize_dependencies(graph: dict[tuple[str, str], list[str]]):
                 queue.append(dependent_key)
 
     # Check for cycles (if not all keys are in the linearized order)
-    if len(linearized_order) != len(graph):
+    if any(v != 0 for v in in_degree.values()):
+        logger.error(graph)
+        logger.error(in_degree)
         raise ValueError("Dependency graph has at least one cycle")
 
     return linearized_order[::-1]

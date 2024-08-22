@@ -82,23 +82,25 @@ def write_file(file: Path, zipf: ZipFile, prefix='', priority_fld: Path = None):
             zipf.writestr(zinfo, f.read())
 
 
-def deploy_zip(course: Course, zipdata: ZipFileData):
+def predeploy_zip(zipdata: ZipFileData, tmpdir: Path) -> FileData:
     target_folder = Path(zipdata['content_folder'])
-    priority_folder = Path(zipdata['priority_folder'])
+    pf = zipdata['priority_folder']
+    priority_folder = Path(pf) if pf is not None else None
     if priority_folder is not None and not priority_folder.exists():
         raise FileNotFoundError(priority_folder)
 
     exclude = re.compile(zipdata['exclude_pattern']) if zipdata['exclude_pattern'] is not None else None
 
-    with TemporaryDirectory() as tmpdir:
-        path_to_zip = Path(tmpdir) / zipdata['zip_file_name']
-        zip_folder(target_folder, path_to_zip, exclude, priority_folder)
+    path_to_zip = tmpdir / zipdata['zip_file_name']
+    zip_folder(target_folder, path_to_zip, exclude, priority_folder)
 
-        file = FileData(
-            path=str(path_to_zip),
-            canvas_folder=zipdata['canvas_folder']
-        )
-        return deploy_file(course, file)
+    file = FileData(
+        path=str(path_to_zip),
+        canvas_folder=zipdata['canvas_folder']
+    )
+
+    return file
 
 
+deploy_zip = deploy_file
 lookup_zip = lookup_file
