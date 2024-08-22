@@ -14,7 +14,7 @@ from .algorithms import linearize_dependencies
 from .checksums import MD5Sums, compute_md5
 from .file import deploy_file, lookup_file
 from .syllabus import deploy_syllabus, lookup_syllabus
-from .util import get_canvas_uri
+from .util import get_canvas_uri, ResourceNotFoundException
 from .zip import deploy_zip, lookup_zip, predeploy_zip
 from .quiz import deploy_quiz, lookup_quiz
 from .page import deploy_page, lookup_page
@@ -169,10 +169,17 @@ def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, s
                 stored_md5 = md5s.get(resource_key)
                 current_md5 = compute_md5(resource_data)
 
+                resource_obj = None
                 if current_md5 == stored_md5:
+                    try:
+                        resource_obj = lookup_resource(course, rtype, rname)
+                    except ResourceNotFoundException:
+                        pass
+
+                if resource_obj is not None:
                     # No update needed
                     logger.info(f'Skipping {rtype} {rname}')
-                    resource_obj = lookup_resource(course, rtype, rname)
+
                 else:
                     # Create the resource
                     logger.info(f'Creating {rtype} {rname}')

@@ -33,14 +33,14 @@ class QuizTagProcessor:
 
         info = CanvasResource(
             type='quiz',
-            name=quiz['name'],
+            name=quiz['title'],
             data=quiz
         )
         self._resources.add_resource(info)
 
     def _parse_quiz_settings(self, settings_tag):
         fields = [
-            Attribute('title', new_name='name', required=True),
+            Attribute('title', required=True),
             Attribute('quiz_type', 'assignment'),
             Attribute('assignment_group'),
             Attribute('time_limit', parser=parse_int),

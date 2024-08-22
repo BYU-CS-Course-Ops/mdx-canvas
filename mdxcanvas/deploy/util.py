@@ -47,4 +47,5 @@ def get_canvas_uri(canvas_obj):
         raise NotImplementedError(type(canvas_obj))
 
 
-
+class ResourceNotFoundException(Exception):
+    pass

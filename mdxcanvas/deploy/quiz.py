@@ -3,7 +3,7 @@ import logging
 from canvasapi.course import Course
 from canvasapi.quiz import Quiz
 
-from .util import get_canvas_object, update_group_name_to_id
+from .util import get_canvas_object, update_group_name_to_id, ResourceNotFoundException
 
 
 def get_quiz(course: Course, title: str) -> Quiz:
@@ -59,7 +59,7 @@ def replace_questions(quiz: Quiz, questions: list[dict]):
 
 
 def deploy_quiz(course: Course, quiz_data: dict) -> Quiz:
-    name = quiz_data['name']
+    name = quiz_data['title']
 
     update_group_name_to_id(course, quiz_data)
 
@@ -78,5 +78,5 @@ def deploy_quiz(course: Course, quiz_data: dict) -> Quiz:
 def lookup_quiz(course: Course, quiz_name: str) -> Quiz:
     canvas_quiz = get_quiz(course, quiz_name)
     if not canvas_quiz:
-        raise Exception(f'Quiz {quiz_name} not found')
+        raise ResourceNotFoundException(f'Quiz {quiz_name} not found')
     return canvas_quiz

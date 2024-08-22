@@ -9,6 +9,9 @@ class ModuleTagProcessor:
         self._resources = resource_manager
 
     def __call__(self, module_tag: Tag):
+        # TODO - make sure the order of modules shows up in Canvas
+        #  the same it does in the XML
+
         fields = [
             Attribute('title', required=True, new_name='name'),
             Attribute('position'),

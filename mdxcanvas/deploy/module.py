@@ -54,6 +54,8 @@ def _add_canvas_id(course: Course, item: dict):
 def _create_or_update_module_items(course: Course, module: Module, module_items: list[dict]):
     _delete_obsolete_module_items(module, module_items)
 
+    # TODO - make sure the order of items matches the order in the XML
+    
     for index, item in enumerate(module_items):
         _add_canvas_id(course, item)
 
