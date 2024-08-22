@@ -59,6 +59,4 @@ class MD5Sums:
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        if exc_type is None:
-            # Save only if there was no error
-            self._save_md5s()
+        self._save_md5s()
