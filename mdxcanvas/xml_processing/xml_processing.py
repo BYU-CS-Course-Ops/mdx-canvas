@@ -6,7 +6,7 @@ from .syllabus_tags import SyllabusTagProcessor
 from ..resources import ResourceManager
 from ..util import parse_soup_from_xml
 from ..xml_processing.tag_preprocessors import make_image_preprocessor, make_file_preprocessor, \
-    make_zip_preprocessor, make_include_preprocessor, make_link_preprocessor
+    make_zip_preprocessor, make_include_preprocessor, make_link_preprocessor, make_markdown_page_preprocessor
 from ..xml_processing.quiz_tags import QuizTagProcessor
 from ..xml_processing.page_tags import PageTagProcessor
 from ..xml_processing.module_tags import ModuleTagProcessor
@@ -40,7 +40,8 @@ def preprocess_xml(
         'file': make_file_preprocessor(parent, resources),
         'zip': make_zip_preprocessor(parent, resources),
         'include': make_include_preprocessor(parent, process_file),
-        'course-link': make_link_preprocessor()
+        'course-link': make_link_preprocessor(),
+        'md-page': make_markdown_page_preprocessor(),
     }
 
     soup = parse_soup_from_xml(text)

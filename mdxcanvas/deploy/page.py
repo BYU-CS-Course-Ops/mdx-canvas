@@ -22,6 +22,6 @@ def deploy_page(course: Course, page_info: dict) -> Page:
 def lookup_page(course: Course, page_title: str) -> Page:
     canvas_page = get_page(course, page_title)
     if not canvas_page:
-        raise Exception(f'Quiz {page_title} not found')
+        raise Exception(f'Page {page_title} not found')
 
     return canvas_page

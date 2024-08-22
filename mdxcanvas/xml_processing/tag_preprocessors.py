@@ -177,3 +177,21 @@ def make_link_preprocessor():
         tag.replace_with(new_tag)
 
     return process_link
+
+
+def make_markdown_page_preprocessor():
+    def process_markdown_page(tag: Tag):
+        content_path = tag['path']
+
+        page_title = tag.get('title')
+        if page_title is None:
+            page_title = Path(content_path).stem
+
+        include_tag = Tag(name='include', attrs={'path': content_path})
+
+        page_tag = Tag(name='page', attrs={'title': page_title})
+        page_tag.append(include_tag)
+
+        tag.replace_with(page_tag)
+
+    return process_markdown_page

@@ -19,6 +19,8 @@
         Do this stuff. Yesterday.
     </assignment>
 
+    <md-page title="Small" path="small.md"/>
+
     <page title="Example Page">
         ## Header
         This page has super useful information. Educate yourself.
@@ -72,7 +74,7 @@
 
             <question type="text">
                 ## `file` tag
-                <file path="sample-content.canvas.md.xml"/>
+                <file path="small.md"/>
             </question>
 
             <question type="text">
