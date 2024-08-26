@@ -142,7 +142,8 @@ def make_include_preprocessor(
 
         args_file = tag.get('args', None)
         if args_file is not None:
-            args_file = (imported_file.parent / args_file).resolve().absolute()
+            # Note: the args file, like the path, is relative to the primary file, not the included file
+            args_file = (parent_folder / args_file).resolve().absolute()
 
         imported_html = process_file(
             imported_file.parent,

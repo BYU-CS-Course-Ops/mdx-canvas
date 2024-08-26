@@ -40,7 +40,12 @@ def deploy_resource(course: Course, resource_type: str, resource_data: dict) -> 
     if (deploy := deployers.get(resource_type, None)) is None:
         raise Exception(f'Deployment unsupported for resource of type {resource_type}')
 
-    return deploy(course, resource_data)
+    deployed = deploy(course, resource_data)
+
+    if deployed is None:
+        raise Exception(f'Resource not found: {resource_type} {resource_data}')
+
+    return deployed
 
 
 def lookup_resource(course: Course, resource_type: str, resource_name: str) -> str:
@@ -57,8 +62,12 @@ def lookup_resource(course: Course, resource_type: str, resource_name: str) -> s
     if (finder := finders.get(resource_type, None)) is None:
         raise Exception(f'Lookup unsupported for resource of type {resource_type}')
 
-    return finder(course, resource_name)
+    found = finder(course, resource_name)
 
+    if found is None:
+        raise Exception(f'Resource not found: {resource_type} {resource_name}')
+
+    return found
 
 def update_links(data: dict, resource_objs: dict[tuple[str, str], CanvasObject]) -> dict:
     text = json.dumps(data)

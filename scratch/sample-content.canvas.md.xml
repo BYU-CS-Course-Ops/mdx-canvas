@@ -5,10 +5,15 @@
 
     <include path="sample-template.canvas.md.xml.jinja" args="sample-template.args.md"/>
 
-    <module title="Example Module">
+    <module title="Example Module 1">
         <item type="subheader" title="This is a sub-header"/>
         <item type="page" title="Example Page"/>
         <item type="quiz" title="Example Quiz" indent="1" />
+    </module>
+
+    <module title="Example Module 2">
+        <item type="subheader" title="This is another sub-header"/>
+        <item type="page" title="Example Page"/>
     </module>
 
     <assignment

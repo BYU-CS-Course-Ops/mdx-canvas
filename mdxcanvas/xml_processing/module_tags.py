@@ -7,11 +7,20 @@ from ..resources import ResourceManager, get_key, CanvasResource
 class ModuleTagProcessor:
     def __init__(self, resource_manager: ResourceManager):
         self._resources = resource_manager
+        self._previous_module = None  # The name of the previous module
+
+    _module_item_type_casing = {
+        "file": "File",
+        "page": "Page",
+        "discussion": "Discussion",
+        "assignment": "Assignment",
+        "quiz": "Quiz",
+        "subheader": "SubHeader",
+        "externalurl": "ExternalUrl",
+        "externaltool": "ExternalTool"
+    }
 
     def __call__(self, module_tag: Tag):
-        # TODO - make sure the order of modules shows up in Canvas
-        #  the same it does in the XML
-
         fields = [
             Attribute('title', required=True, new_name='name'),
             Attribute('position'),
@@ -25,22 +34,21 @@ class ModuleTagProcessor:
             for item_tag in module_tag.find_all('item')
         ]
 
+        if self._previous_module is not None:
+            # adding a reference to the previous module ensures this module
+            #  is created after the previous one, thus preserving their
+            #  relative ordering
+            module_data['_comments'] = {
+                'previous_module': get_key('module', self._previous_module, 'id')
+            }
+
+        self._previous_module = module_data['name']
+
         self._resources.add_resource(CanvasResource(
             type='module',
             name=module_data['name'],
             data=module_data
         ))
-
-    _casing = {
-        "file": "File",
-        "page": "Page",
-        "discussion": "Discussion",
-        "assignment": "Assignment",
-        "quiz": "Quiz",
-        "subheader": "SubHeader",
-        "externalurl": "ExternalUrl",
-        "externaltool": "ExternalTool"
-    }
 
     def _parse_module_item(self, tag: Tag) -> dict:
         fields = [
@@ -54,7 +62,7 @@ class ModuleTagProcessor:
         ]
 
         name = tag['title']
-        rtype = self._casing[tag['type'].lower()]
+        rtype = self._module_item_type_casing[tag['type'].lower()]
 
         item = {
             'type': rtype
@@ -69,7 +77,7 @@ class ModuleTagProcessor:
             ))
 
         elif rtype == 'SubHeader':
-            pass  # TODO - fix the fields for this
+            pass  # TODO - fix the fields for this (if necessary?)
 
         else:
             item['id'] = get_key(rtype.lower(), name, 'id')
