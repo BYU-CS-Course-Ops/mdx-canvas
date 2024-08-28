@@ -1,6 +1,7 @@
 from .attributes import Attribute, parse_int, parse_bool, parse_date, parse_settings, parse_child_tag_contents
 from ..util import retrieve_contents
-from .quiz_questions import parse_text_question, parse_true_false_question
+from .quiz_questions import parse_text_question, parse_true_false_question, parse_multiple_choice_question, \
+    parse_multiple_answers_question
 from ..resources import ResourceManager, CanvasResource
 from bs4 import Tag
 
@@ -10,7 +11,9 @@ class QuizTagProcessor:
         self._resources = resources
         self.question_types = {
             'text': parse_text_question,
-            'true-false': parse_true_false_question
+            'true-false': parse_true_false_question,
+            'multiple_choice': parse_multiple_choice_question,
+            'multiple_answers': parse_multiple_answers_question,
         }
 
     def __call__(self, quiz_tag: Tag):
