@@ -1,0 +1,137 @@
+ <quiz
+    title="Simple Quiz"
+    due_at="Sep 25, 2024, 11:59 PM"
+    published="False">
+
+    <questions>
+
+    <question type='true-false' answer='true' points_possible='2'>
+    The earth orbits the sun
+    </question>
+
+    <question type='true-false' answer='false'>
+    The earth is **flat**
+
+    <correct-comments>
+    A nationwide survey in 2022 by researchers at the University of New Hampshire found that
+    10% of U.S. adults believed the earth was flat.
+    </correct-comments>
+
+    <incorrect-comments>
+    Regular folks who like math and stars rely on the curvature on the earth to track the motion
+    of heavenly bodies.
+    </incorrect-comments>
+    </question>
+
+
+
+    <question type='multiple-choice'>
+    5 + 5 =
+    <correct> 10 </correct>
+    <incorrect> 11 </incorrect>
+    <incorrect> 9 </incorrect>
+    <incorrect> 8 </incorrect>
+    </question>
+
+
+
+    <question type='multiple-answers'>
+    Which of the following are prime numbers?
+    <correct> 2 </correct>
+    <correct> 3 </correct>
+    <incorrect> 4 </incorrect>
+    <correct> 5 </correct>
+    <incorrect> 6 </incorrect>
+    </question>
+
+
+    <question type='matching'>
+    Match the following:
+    <pair>
+    <left> 1 </left>
+    <right> A </right>
+    </pair>
+    <pair>
+    <left> 2 </left>
+    <right> B </right>
+    </pair>
+    <pair>
+    <left> 3 </left>
+    <right> C </right>
+    </pair>
+    <distractor> D </distractor>
+    <distractor> E </distractor>
+    <correct-comments>Good job!</correct-comments>
+    </question>
+
+
+    <question type='multiple-tf'>
+    Which of the following matrices are invertible?
+
+    A: [[1, 0], [0, 1]]
+
+    B: [[1, 0], [1, 0]]
+
+    C: [[1, 1], [1, 1]]
+
+    D: [[0, 0], [0, 0]]
+
+    <correct> A </correct>
+    <incorrect> B </incorrect>
+    <incorrect> C </incorrect>
+    <incorrect> D </incorrect>
+    </question>
+
+
+    <question type='fill-in-the-blank'>
+    The capital of France is [blank].
+    <correct>Paris</correct>
+    <incorrect>London</incorrect>
+    <incorrect>Rome</incorrect>
+    <incorrect>Madrid</incorrect>
+    </question>
+
+
+    <question type='essay'>
+    Why is the sky blue?
+    </question>
+
+    <question type='file-upload'>
+    Upload your resume.
+    </question>
+
+
+    <question type='numerical' numerical_answer_type="exact">
+    Give one possible value for x. The margin of error is +- 0.0001.
+
+    (x - pi)^2 = (x - pi)
+
+    <answer exact='3.14159' margin='0.0001' />
+
+    <answer exact='4.14159' margin='0.0001' />
+    </question>
+
+
+    <question type='numerical' numerical_answer_type="range">
+    Give one possible value for x.
+
+    1 <= x^2 <= 100
+
+    <answer start='1' end='10' />
+
+    <answer start='-10' end='-1' />
+    </question>
+
+
+    <question type='numerical' numerical_answer_type="precision">
+    What is the value of pi?
+        
+    <answer approximate='3.14159' precision='5' />
+    </question>
+
+
+
+    </questions>
+
+
+</quiz>

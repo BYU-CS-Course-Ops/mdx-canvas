@@ -1,7 +1,8 @@
 from .attributes import Attribute, parse_int, parse_bool, parse_date, parse_settings, parse_child_tag_contents
 from ..util import retrieve_contents
 from .quiz_questions import parse_text_question, parse_true_false_question, parse_multiple_choice_question, \
-    parse_multiple_answers_question
+    parse_multiple_answers_question, parse_matching_question, parse_multiple_true_false_question, \
+    parse_fill_in_the_blank_question, parse_essay_question, parse_file_upload_question, parse_numerical_question
 from ..resources import ResourceManager, CanvasResource
 from bs4 import Tag
 
@@ -12,8 +13,14 @@ class QuizTagProcessor:
         self.question_types = {
             'text': parse_text_question,
             'true-false': parse_true_false_question,
-            'multiple_choice': parse_multiple_choice_question,
-            'multiple_answers': parse_multiple_answers_question,
+            'multiple-choice': parse_multiple_choice_question,
+            'multiple-answers': parse_multiple_answers_question,
+            'matching': parse_matching_question,
+            'multiple-tf': parse_multiple_true_false_question,
+            'fill-in-the-blank': parse_fill_in_the_blank_question,
+            'essay': parse_essay_question,
+            'file-upload': parse_file_upload_question,
+            'numerical': parse_numerical_question,
         }
 
     def __call__(self, quiz_tag: Tag):
@@ -71,6 +78,12 @@ class QuizTagProcessor:
         questions = []
         for question in questions_tag.findAll('question', recursive=False):
             # TODO - add validation for "type" field (present and supported)
-            parse_tag = self.question_types[question["type"]]
+            if not (question_type := question.get("type")):
+                raise ValueError("Question type not specified.")
+            if question_type not in self.question_types:
+                raise ValueError(f"Question type {question_type} not supported. Supported types: {', '.join(self.question_types.keys())}")
+            # Helps when debugging
+            question.name = question_type
+            parse_tag = self.question_types[question_type]
             questions.append(parse_tag(question))
         return questions
