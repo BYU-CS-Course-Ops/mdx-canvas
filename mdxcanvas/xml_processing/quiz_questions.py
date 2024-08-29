@@ -226,7 +226,7 @@ def parse_fill_in_the_blank_question(tag: Tag):
     """
     <question type='fill-in-the-blank'>
     The capital of France is [blank].
-    <correct> Paris </correct>
+    <correct text='Paris' />
     </question>
     """
     question_text = retrieve_contents(tag, question_children_names)
@@ -234,17 +234,20 @@ def parse_fill_in_the_blank_question(tag: Tag):
     if not blanks:
         raise ValueError("Fill in the blank questions must contain at least one blank!")
 
+    answer_attributes = [
+        Attribute('text', required=True, new_name='answer_text'),
+        Attribute('blank_id', blanks[0]),
+        Attribute('answer_weight', FULL_POINTS),
+    ]
+
     question = {
-        "question_text": question_text,
+        "question_text": retrieve_contents(tag, question_children_names),
         "question_type": 'fill_in_multiple_blanks_question',
         "answers": [
-            {
-                "answer_text": retrieve_contents(answer),
-                "answer_weight": FULL_POINTS,
-                "blank_id": blanks[0]
-            } for answer in tag.find_all('correct')
+            parse_settings(answer, answer_attributes) for answer in tag.find_all('correct')
         ]
     }
+
     question.update(parse_settings(tag, common_fields))
     return question
 
