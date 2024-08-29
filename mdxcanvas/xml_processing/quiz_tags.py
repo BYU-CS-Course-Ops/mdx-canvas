@@ -2,7 +2,8 @@ from .attributes import Attribute, parse_int, parse_bool, parse_date, parse_sett
 from ..util import retrieve_contents
 from .quiz_questions import parse_text_question, parse_true_false_question, parse_multiple_choice_question, \
     parse_multiple_answers_question, parse_matching_question, parse_multiple_true_false_question, \
-    parse_fill_in_the_blank_question, parse_essay_question, parse_file_upload_question, parse_numerical_question
+    parse_fill_in_the_blank_question, parse_essay_question, parse_file_upload_question, parse_numerical_question, \
+    parse_fill_in_multiple_blanks_question
 from ..resources import ResourceManager, CanvasResource
 from bs4 import Tag
 
@@ -18,6 +19,7 @@ class QuizTagProcessor:
             'matching': parse_matching_question,
             'multiple-tf': parse_multiple_true_false_question,
             'fill-in-the-blank': parse_fill_in_the_blank_question,
+            'fill-in-multiple-blanks': parse_fill_in_multiple_blanks_question,
             'essay': parse_essay_question,
             'file-upload': parse_file_upload_question,
             'numerical': parse_numerical_question,
@@ -85,5 +87,9 @@ class QuizTagProcessor:
             # Helps when debugging
             question.name = question_type
             parse_tag = self.question_types[question_type]
-            questions.append(parse_tag(question))
+            result = parse_tag(question)
+            if isinstance(result, list):
+                questions.extend(result)
+            else:
+                questions.append(result)
         return questions

@@ -47,48 +47,36 @@
 
     <question type='matching'>
     Match the following:
-    <pair>
-    <left> 1 </left>
-    <right> A </right>
-    </pair>
-    <pair>
-    <left> 2 </left>
-    <right> B </right>
-    </pair>
-    <pair>
-    <left> 3 </left>
-    <right> C </right>
-    </pair>
-    <distractor> D </distractor>
-    <distractor> E </distractor>
+    <correct left='1' right='A' />
+    <correct left='2' right='B' />
+    <correct left='3' right='C' />
+    <incorrect right='D' />
+    <incorrect right='E' />
     <correct-comments>Good job!</correct-comments>
     </question>
 
 
-    <question type='multiple-tf'>
+    <question type='multiple-tf' points='4'>
+    # The next 4 questions are true/false questions.
+
     Which of the following matrices are invertible?
 
-    A: [[1, 0], [0, 1]]
-
-    B: [[1, 0], [1, 0]]
-
-    C: [[1, 1], [1, 1]]
-
-    D: [[0, 0], [0, 0]]
-
-    <correct> A </correct>
-    <incorrect> B </incorrect>
-    <incorrect> C </incorrect>
-    <incorrect> D </incorrect>
+    <correct> [[1, 0], [0, 1]] </correct>
+    <incorrect> [[1, 0], [1, 0]] </incorrect>
+    <incorrect> [[1, 1], [1, 1]] </incorrect>
+    <incorrect> [[0, 0], [0, 0]] </incorrect>
     </question>
 
 
     <question type='fill-in-the-blank'>
     The capital of France is [blank].
-    <correct>Paris</correct>
-    <incorrect>London</incorrect>
-    <incorrect>Rome</incorrect>
-    <incorrect>Madrid</incorrect>
+    <correct text='Paris' />
+    </question>
+
+    <question type='fill-in-multiple-blanks'>
+    The U.S. flag has [stripes] stripes and [stars] stars.
+    <correct text='13' blank='stripes' />
+    <correct text='50' blank='stars' />
     </question>
 
 
@@ -125,11 +113,12 @@
 
     <question type='numerical' numerical_answer_type="precision">
     What is the value of pi?
-        
+
+    Ensure your answer gives at least 5 digits.
+
     <answer approximate='3.14159' precision='5' />
     </question>
-
-
+        
 
     </questions>
 
