@@ -41,7 +41,7 @@ def preprocess_xml(
         'zip': make_zip_preprocessor(parent, resources),
         'include': make_include_preprocessor(parent, process_file),
         'course-link': make_link_preprocessor(),
-        'md-page': make_markdown_page_preprocessor(),
+        'md-page': make_markdown_page_preprocessor(parent, process_file),
     }
 
     soup = parse_soup_from_xml(text)
