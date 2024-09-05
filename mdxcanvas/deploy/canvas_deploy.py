@@ -163,6 +163,7 @@ def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, s
     logger.info('-- Beginning deployment to Canvas --')
     with MD5Sums(course) as md5s, TemporaryDirectory() as tmpdir:
         tmpdir = Path(tmpdir)
+        # TODO - only process the resources that changed or that depend on changed resources
 
         resource_objs: dict[tuple[str, str], CanvasObject] = {}
         for resource_key in resource_order:
