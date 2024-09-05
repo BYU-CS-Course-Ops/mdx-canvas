@@ -1,5 +1,6 @@
 import cssutils
 from bs4 import BeautifulSoup
+from ..util import parse_soup_from_xml
 
 
 def get_style(soup):
@@ -27,13 +28,13 @@ def parse_css(css):
 
 
 def apply_inline_styles(html, styles):
-    soup = BeautifulSoup(html, 'html.parser')
+    soup = parse_soup_from_xml(html)
     for selector, properties in styles.items():
         for tag in soup.select(selector):
             style_string = "; ".join([f"{prop}: {value}" for prop, value in properties.items()])
             existing_style = tag.get('style', '')
-            tag['style'] = existing_style + (existing_style and '; ' or '') + style_string
-    return soup.prettify()
+            tag['style'] = existing_style + ((existing_style and '; ') or '') + style_string
+    return str(soup)
 
 
 def bake_css(soup: BeautifulSoup, global_css: str):

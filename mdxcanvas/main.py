@@ -71,7 +71,7 @@ def process_file(
         )
 
     # Process Markdown
-    excluded = ['pre']
+    excluded = ['pre', 'style']
 
     logging.info('Processing Markdown')
     xml_content = process_markdown(content, excluded=excluded)

@@ -1,4 +1,20 @@
 <div>
+    <style>
+        div.zip {
+            display: block;
+            padding: 25px;
+            background-color: rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            color: black;
+            text-align: left;
+        }
+
+        table, th, td {
+            border: 1px solid;
+            padding: 5px 15px 5px 10px;
+        }
+    </style>
+
     <syllabus>
         This is the **epic** syllabus. :)
     </syllabus>
@@ -55,9 +71,11 @@
                 > 'Twas brillig and the slithy toves
                 > did gire and gimble in the wabe
 
+                In the following, `foobar` is a function.
+
                 ```python
                 def foobar():
-                return baz() + 7
+                    return baz() + 7
                 ```
 
                 | I | Like | Tables|
