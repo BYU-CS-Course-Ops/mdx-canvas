@@ -79,6 +79,7 @@ class Attribute:
     new_name: str = None
     required: bool = False
     ignore: bool = False
+    tag: bool = False
 
 
 def get_tag_path(tag: Tag):
@@ -107,7 +108,8 @@ def parse_settings(tag: Tag, attributes: list[Attribute]):
             value = attribute.parser(field)
             settings[name] = value
 
-        elif (child := tag.find(attribute.name, recursive=False)) is not None:
+        elif attribute.tag:
+            child = tag.find(attribute.name, recursive=False)
             value = retrieve_contents(child)
             settings[name] = attribute.parser(value)
 
