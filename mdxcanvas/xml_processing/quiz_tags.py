@@ -22,7 +22,7 @@ class QuizTagProcessor:
             'fill-in-multiple-blanks': parse_fill_in_multiple_blanks_question,
             'essay': parse_essay_question,
             'file-upload': parse_file_upload_question,
-            'numerical': parse_numerical_question,
+            # 'numerical': parse_numerical_question, (In development)
         }
 
     def __call__(self, quiz_tag: Tag):
@@ -79,7 +79,6 @@ class QuizTagProcessor:
     def _parse_questions(self, questions_tag: Tag):
         questions = []
         for question in questions_tag.findAll('question', recursive=False):
-            # TODO - add validation for "type" field (present and supported)
             if not (question_type := question.get("type")):
                 raise ValueError("Question type not specified.")
             if question_type not in self.question_types:

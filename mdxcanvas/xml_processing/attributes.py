@@ -78,7 +78,7 @@ class Attribute:
     parser: Callable[[str], Any] = lambda x: x
     new_name: str = None
     required: bool = False
-    recognize_and_discard: bool = False
+    ignore: bool = False
 
 
 def get_tag_path(tag: Tag):
@@ -88,15 +88,18 @@ def get_tag_path(tag: Tag):
 
 def parse_settings(tag: Tag, attributes: list[Attribute]):
     settings = {}
-    recognized = []
+    processed_fields = set()
+    processed_names = set()
 
     for attribute in attributes:
         name = attribute.new_name or attribute.name
         if attribute.new_name:
             settings[attribute.name] = f"Renamed to {attribute.new_name}."
+            processed_names.add(attribute.new_name)
 
-        if attribute.recognize_and_discard:
-            recognized.append(attribute.name)
+        if attribute.ignore:
+            processed_fields.add(attribute.name)
+            processed_names.add(attribute.name)
             continue
 
         if (field := tag.get(attribute.name, None)) is not None:
@@ -115,8 +118,8 @@ def parse_settings(tag: Tag, attributes: list[Attribute]):
             raise Exception(f'Required field {attribute.name} missing from tag {tag.name}')
 
     for key in tag.attrs:
-        if key not in settings and key not in recognized:
-            logging.warning(f'Unrecognized field {key} @ {get_tag_path(tag)}')
+        if key not in processed_fields:
+            logging.warning(f'Unprocessed_fields field {key} @ {get_tag_path(tag)}')
 
     return settings
 
