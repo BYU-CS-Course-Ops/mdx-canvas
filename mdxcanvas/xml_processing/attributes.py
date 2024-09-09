@@ -90,17 +90,14 @@ def get_tag_path(tag: Tag):
 def parse_settings(tag: Tag, attributes: list[Attribute]):
     settings = {}
     processed_fields = set()
-    processed_names = set()
 
     for attribute in attributes:
         name = attribute.new_name or attribute.name
         if attribute.new_name:
             settings[attribute.name] = f"Renamed to {attribute.new_name}."
-            processed_names.add(attribute.new_name)
 
         if attribute.ignore:
             processed_fields.add(attribute.name)
-            processed_names.add(attribute.name)
             continue
 
         if (field := tag.get(attribute.name, None)) is not None:
