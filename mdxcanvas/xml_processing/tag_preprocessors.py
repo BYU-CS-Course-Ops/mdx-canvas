@@ -180,7 +180,10 @@ def make_link_preprocessor():
     return process_link
 
 
-def make_markdown_page_preprocessor():
+def make_markdown_page_preprocessor(
+        parent_folder: Path,
+        process_file: Callable
+):
     def process_markdown_page(tag: Tag):
         content_path = tag['path']
 
@@ -192,6 +195,9 @@ def make_markdown_page_preprocessor():
 
         page_tag = Tag(name='page', attrs={'title': page_title})
         page_tag.append(include_tag)
+
+        include_processor = make_include_preprocessor(parent_folder, process_file)
+        include_processor(include_tag)  # Replaces include_tag with new content
 
         tag.replace_with(page_tag)
 

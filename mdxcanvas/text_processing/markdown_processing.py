@@ -1,11 +1,31 @@
+import re
 import textwrap
+from xml.etree.ElementTree import Element
 
 from bs4 import NavigableString
 import markdown as md
+from markdown import Extension
 from markdown.extensions.codehilite import makeExtension as makeCodehiliteExtension
+from markdown.inlinepatterns import BACKTICK_RE, BacktickInlineProcessor
 
 from .inline_math import InlineMathExtension
 from ..util import parse_soup_from_xml
+
+
+class BlackInlineCodeProcessor(BacktickInlineProcessor):
+    def handleMatch(self, m: re.Match[str], data: str) -> tuple[Element | str, int, int]:
+        el, start, end = super().handleMatch(m, data)
+        el.attrib['style'] = 'color: #000000'
+        return el, start, end
+
+
+class BlackInlineCodeExtension(Extension):
+    def extendMarkdown(self, md):
+        # We use 'backtick' and 190 which are the same values
+        # used in markdown.inlinepatterns.py to register the original
+        # BacktickInlineCodeProcessor.
+        # By reusing the same name, it overrides the original processor with ours
+        md.inlinePatterns.register(BlackInlineCodeProcessor(BACKTICK_RE), 'backtick', 190)
 
 
 def process_markdown_text(text: str) -> str:
@@ -26,8 +46,8 @@ def process_markdown_text(text: str) -> str:
 
         # This forces the color of inline code to be black
         # as a workaround for Canvas's super-ugly default red :P
-        # BlackInlineCodeExtension(),
-        # TODO - Solve this with baked-in CSS
+        BlackInlineCodeExtension(),
+        # TODO - can we solve this with baked-in CSS?
 
         # TODO - add support for tilde => <del> (strikethrough) (look for extension)
         #  or maybe look for a github-flavored-markdown extension

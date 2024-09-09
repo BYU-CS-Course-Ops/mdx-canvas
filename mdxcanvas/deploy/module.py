@@ -31,7 +31,7 @@ def _add_canvas_id(course: Course, item: dict):
     # Add the content_id or page_url as described in
     # https://canvas.instructure.com/doc/api/modules.html#method.context_module_items_api.create
 
-    if item['type'] in ['ExternalURL', 'SubHeader']:
+    if item['type'] in ['ExternalUrl', 'SubHeader']:
         # content_id not required
         return
 
