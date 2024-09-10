@@ -64,7 +64,7 @@ def process_canvas_xml(resources: ResourceManager, text: str):
     # Each custom tag is processed by a bespoke processor
     # The tag processor returns Canvas JSON
     # If the tag is not processed (no assigned processor),
-    #  the algorithm recurses on it's children
+    #  the algorithm recurses on its children
 
     tag_processors = {
         'quiz': QuizTagProcessor(resources),

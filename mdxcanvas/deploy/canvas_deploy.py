@@ -85,20 +85,17 @@ def make_iso(date: datetime | str | None, time_zone: str) -> str:
     if isinstance(date, datetime):
         return datetime.isoformat(date)
     elif isinstance(date, str):
-        # Check if the string is already in ISO format
-        try:
-            return datetime.isoformat(datetime.fromisoformat(date))
-        except ValueError:
-            pass
-
         try_formats = [
             "%b %d, %Y, %I:%M %p",
             "%b %d %Y %I:%M %p",
+            "%Y-%m-%dT%H:%M:%S",
             "%Y-%m-%dT%H:%M:%S%z"
         ]
         for format_str in try_formats:
             try:
                 parsed_date = datetime.strptime(date, format_str)
+                if parsed_date.tzinfo:
+                    return datetime.isoformat(parsed_date)
                 break
             except ValueError:
                 pass
@@ -107,9 +104,8 @@ def make_iso(date: datetime | str | None, time_zone: str) -> str:
 
         # Convert the parsed datetime object to the desired timezone
         to_zone = pytz.timezone(time_zone)
-        parsed_date = parsed_date.replace(tzinfo=None)  # Remove existing timezone info
-        parsed_date = parsed_date.astimezone(to_zone)
-        return datetime.isoformat(parsed_date)
+        localized_date = to_zone.localize(parsed_date)
+        return datetime.isoformat(localized_date)
     else:
         raise TypeError("Date must be a datetime object or a string")
 

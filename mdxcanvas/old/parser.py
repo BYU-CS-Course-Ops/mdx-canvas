@@ -10,7 +10,6 @@ from bs4 import BeautifulSoup
 from bs4.element import Tag, NavigableString
 from jinja2 import Environment
 
-from .templating import Templater
 
 ResourceExtractor: TypeAlias = Callable[[str], tuple[str, list]]
 
@@ -361,9 +360,8 @@ class Parser:
 
 
 class OverrideParser:
-    def __init__(self, date_formatter, templater, parser):
+    def __init__(self, date_formatter, parser):
         self.date_formatter = date_formatter
-        self.template = templater
         self.parser = parser
 
     def parse(self, override_tag: Tag):
@@ -381,8 +379,6 @@ class OverrideParser:
                 override["students"].append(get_text_contents(tag))
             elif tag.name == "assignment":
                 override["assignments"].append(self.parse_assignment_tag(tag))
-            elif tag.name == "template-arguments":
-                override["replacements"] = self.template(tag)
         return override
 
     def parse_assignment_tag(self, tag):
@@ -458,11 +454,10 @@ class QuizParser:
         "text": TextQuestionProcessor()
     }
 
-    def __init__(self, markdown_processor: ResourceExtractor, group_indexer, date_formatter, templater, parser):
+    def __init__(self, markdown_processor: ResourceExtractor, group_indexer, date_formatter, parser):
         self.markdown_processor = markdown_processor
         self.group_indexer = group_indexer
         self.date_formatter = date_formatter
-        self.template = templater
         self.parser = parser
 
     def parse(self, quiz_tag: Tag):
@@ -522,11 +517,10 @@ class QuizParser:
 
 
 class AssignmentParser:
-    def __init__(self, markdown_processor: ResourceExtractor, group_indexer, date_formatter, templater, parser):
+    def __init__(self, markdown_processor: ResourceExtractor, group_indexer, date_formatter, parser):
         self.markdown_processor = markdown_processor
         self.group_indexer = group_indexer
         self.date_formatter = date_formatter
-        self.template = templater
         self.parser = parser
 
     def parse(self, assignment_tag):
@@ -638,16 +632,13 @@ class DocumentParser:
         self.jinja_env.globals.update(zip=zip, split_list=lambda sl: [s.strip() for s in sl.split(';')])
 
         parser = Parser()
-        self.templater = Templater(self.jinja_env, self.path_to_files)
 
         self.element_processors = {
-            "quiz": QuizParser(self.markdown_processor, group_identifier, self.date_formatter,
-                               self.parse_mdx_template_data, parser),
-            "assignment": AssignmentParser(self.markdown_processor, group_identifier, self.date_formatter,
-                                           self.parse_mdx_template_data, parser),
+            "quiz": QuizParser(self.markdown_processor, group_identifier, self.date_formatter,parser),
+            "assignment": AssignmentParser(self.markdown_processor, group_identifier, self.date_formatter, parser),
             "page": PageParser(self.markdown_processor, self.date_formatter, parser),
             "module": ModuleParser(parser),
-            "override": OverrideParser(self.date_formatter, self.parse_mdx_template_data, parser)
+            "override": OverrideParser(self.date_formatter, parser)
         }
 
     def parse(self, text):
@@ -661,36 +652,5 @@ class DocumentParser:
                 if not isinstance(templates, list):
                     templates = [templates]
                 templates = [order_elements(template) for template in templates]
-                for template in templates:
-                    new_elements = self.templater.create_elements_from_template(template)
-                    document.extend(new_elements)
         return document
 
-    def parse_mdx_template_data(self, template_tag):
-        """
-        Parses a template tag into a list of dictionaries
-        Each dictionary will become a canvas object
-        Converts the following:
-        | header1 | header2    |
-        |---------|------------|
-        | first   | quiz       |
-        | second  | assignment |
-        into
-        [
-            {
-                "header1": "first",
-                "header2": "quiz"
-            },
-            {
-                "header1": "second",
-                "header2": "assignment"
-            }
-        ]
-        """
-        if template_tag.get("filename"):
-            psv = (self.path_to_files / template_tag.get("filename")).read_text()
-            headers, *lines = psv.split('\n')
-        else:
-            headers, separator, *lines = get_text_contents(template_tag).strip().split('\n')
-
-        return self.templater.parse_psv(headers, lines)
