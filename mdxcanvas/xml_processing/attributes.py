@@ -79,7 +79,7 @@ class Attribute:
     new_name: str = None
     required: bool = False
     ignore: bool = False
-    tag: bool = False
+    is_tag: bool = False
 
 
 def get_tag_path(tag: Tag):
@@ -92,12 +92,10 @@ def parse_settings(tag: Tag, attributes: list[Attribute]):
     processed_fields = set()
 
     for attribute in attributes:
+        processed_fields.add(attribute.name)
         name = attribute.new_name or attribute.name
-        if attribute.new_name:
-            settings[attribute.name] = f"Renamed to {attribute.new_name}."
 
         if attribute.ignore:
-            processed_fields.add(attribute.name)
             continue
 
         if (field := tag.get(attribute.name, None)) is not None:
@@ -105,7 +103,7 @@ def parse_settings(tag: Tag, attributes: list[Attribute]):
             value = attribute.parser(field)
             settings[name] = value
 
-        elif attribute.tag:
+        elif attribute.is_tag:
             child = tag.find(attribute.name, recursive=False)
             value = retrieve_contents(child)
             settings[name] = attribute.parser(value)
@@ -121,11 +119,6 @@ def parse_settings(tag: Tag, attributes: list[Attribute]):
             logging.warning(f'Unprocessed_fields field {key} @ {get_tag_path(tag)}')
 
     return settings
-
-
-def parse_child_tag_contents(tag: Tag, child_name):
-    child = tag.find(child_name, recursive=False)
-    return retrieve_contents(child) if child is not None else None
 
 
 def parse_children_tag_contents(tag: Tag, child_name):

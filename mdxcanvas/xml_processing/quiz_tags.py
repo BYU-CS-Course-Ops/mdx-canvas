@@ -1,4 +1,4 @@
-from .attributes import Attribute, parse_int, parse_bool, parse_date, parse_settings, parse_child_tag_contents
+from .attributes import Attribute, parse_int, parse_bool, parse_date, parse_settings
 from ..util import retrieve_contents
 from .quiz_questions import parse_text_question, parse_true_false_question, parse_multiple_choice_question, \
     parse_multiple_answers_question, parse_matching_question, parse_multiple_true_false_question, \
@@ -22,7 +22,7 @@ class QuizTagProcessor:
             'fill-in-multiple-blanks': parse_fill_in_multiple_blanks_question,
             'essay': parse_essay_question,
             'file-upload': parse_file_upload_question,
-            # 'numerical': parse_numerical_question, (In development)
+            'numerical': parse_numerical_question
         }
 
     def __call__(self, quiz_tag: Tag):
@@ -83,12 +83,8 @@ class QuizTagProcessor:
                 raise ValueError("Question type not specified.")
             if question_type not in self.question_types:
                 raise ValueError(f"Question type {question_type} not supported. Supported types: {', '.join(self.question_types.keys())}")
-            # Helps when debugging
-            question.name = question_type
+
             parse_tag = self.question_types[question_type]
             result = parse_tag(question)
-            if isinstance(result, list):
-                questions.extend(result)
-            else:
-                questions.append(result)
+            questions.extend(result)
         return questions

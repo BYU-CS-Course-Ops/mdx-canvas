@@ -29,7 +29,7 @@ def parse_text_question(tag: Tag):
         "question_text": question_text,
         "question_type": 'text_only_question',
     }
-    return question
+    return [question]
 
 
 def parse_true_false_question(tag: Tag):
@@ -72,7 +72,7 @@ def parse_true_false_question(tag: Tag):
         ]
     })
 
-    return question
+    return [question]
 
 
 def parse_multiple_choice_question(tag: Tag):
@@ -120,49 +120,47 @@ def _parse_multiple_option_question(question_type, tag):
         ]
     }
     question.update(parse_settings(tag, common_fields))
-    return question
+    return [question]
 
 
 def parse_matching_question(tag: Tag):
     """
     <question type='matching'>
     Match the following:
-    <correct left='1' right='A' />
-    <correct left='2' right='B' />
-    <correct left='3' right='C' />
-    <incorrect right='D' />
-    <incorrect right='E' />
+    <pair left='1' right='A' />
+    <pair left='2' right='B' />
+    <pair left='3' right='C' /
+    <distractors>
+    D
+    E
+    </distractors>
     <correct-comments>Good job!</correct-comments>
     </question>
     """
     left_field = Attribute('left', required=True)
     right_field = Attribute('right', required=True)
-    corrects = [
-        parse_settings(answer, [left_field, right_field]) for answer in tag.find_all('correct')
+    pairs = [
+        parse_settings(answer, [left_field, right_field]) for answer in tag.find_all('pair')
     ]
-    incorrects = [
-        parse_settings(answer, [right_field]) for answer in tag.find_all('incorrect')
-    ]
-
-    distractors = '\n'.join([answer['right'] for answer in incorrects])
+    distractors = '\n'.join(parse_children_tag_contents(tag, 'distractors'))
 
     question = parse_settings(tag, common_fields)
 
     question.update({
         "question_text": retrieve_contents(tag, question_children_names),
         "question_type": 'matching_question',
-        "points_possible": parse_int(tag.get('points') or len(corrects)),
+        "points_possible": parse_int(tag.get('points') or len(pairs)),
         "answers": [
             {
                 "answer_match_left": answer['left'],
                 "answer_match_right": answer['right'],
                 "answer_weight": FULL_POINTS
-            } for answer in corrects
+            } for answer in pairs
         ],
         "matching_answer_incorrect_matches": '\n'.join(distractors)
     })
 
-    return question
+    return [question]
 
 
 def parse_multiple_true_false_question(tag: Tag):
@@ -249,7 +247,7 @@ def parse_fill_in_the_blank_question(tag: Tag):
     }
 
     question.update(parse_settings(tag, common_fields))
-    return question
+    return [question]
 
 
 def parse_fill_in_multiple_blanks_question(tag: Tag):
@@ -274,7 +272,7 @@ def parse_fill_in_multiple_blanks_question(tag: Tag):
         ]
     }
     question.update(parse_settings(tag, common_fields))
-    return question
+    return [question]
 
 
 def parse_essay_question(tag: Tag):
@@ -283,7 +281,7 @@ def parse_essay_question(tag: Tag):
         "question_text": question_text,
         "question_type": 'essay_question',
     }
-    return question
+    return [question]
 
 
 def parse_file_upload_question(tag: Tag):
@@ -292,7 +290,7 @@ def parse_file_upload_question(tag: Tag):
         "question_text": question_text,
         "question_type": 'file_upload_question',
     }
-    return question
+    return [question]
 
 
 def parse_exact_answer_question(tag: Tag):
@@ -359,6 +357,8 @@ def parse_precision_answer_question(tag: Tag):
 
 
 # In development, issues with rounding decimals
+def parse_numerical_question(tag: Tag):
+    raise NotImplementedError()
 
 # def parse_numerical_question(tag: Tag):
 #     numerical_answer_types = {
