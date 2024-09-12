@@ -1,0 +1,132 @@
+<div>
+    <style>
+        div.zip {
+            display: block;
+            padding: 25px;
+            background-color: rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            color: black;
+            text-align: left;
+        }
+
+        table, th, td {
+            border: 1px solid;
+            padding: 5px 15px 5px 10px;
+        }
+    </style>
+
+    <syllabus>
+        This is the **epic** syllabus. :)
+    </syllabus>
+
+    <include path="sample-template.canvas.md.xml.jinja" args="sample-template.args.md"/>
+
+    <module title="Example Module 1">
+        <item type="subheader" title="This is a sub-header"/>
+        <item type="page" title="Example Page"/>
+        <item type="quiz" title="Example Quiz" indent="1" />
+    </module>
+
+    <module title="Example Module 2">
+        <item type="subheader" title="This is another sub-header"/>
+        <item type="page" title="Example Page"/>
+    </module>
+
+    <assignment
+        title="Example Assignment"
+        points_possible="10"
+        assignment_group="Examples"
+    >
+        Do this stuff. Yesterday.
+    </assignment>
+
+    <md-page title="Small" path="small.md"/>
+
+    <page title="Example Page">
+        ## Header
+        This page has super useful information. Educate yourself.
+
+        <include path="hello_world.py" lines="1:2" fenced="true"/>
+
+        <img src="beanlab.png"/>
+
+    </page>
+
+    <quiz
+            title="Example Quiz"
+    >
+        <description>
+            This is an **example** quiz!
+
+            You should read
+            <course-link type="page" title="Example Page"/>
+            before taking this quiz.
+
+        </description>
+
+        <questions>
+            <question type="text">
+                ## Basic markdown formatting
+
+                > 'Twas brillig and the slithy toves
+                > did gire and gimble in the wabe
+
+                In the following, `foobar` is a function.
+
+                ```python
+                def foobar():
+                    return baz() + 7
+                ```
+
+                | I | Like | Tables|
+                |---|------|-------|
+                |woot| wootage | woot-wootage|
+                |:) | :-) | :D |
+
+                This is an equation:
+                $$foo(n) = bar(n) + 7^8 + baz_2$$
+
+                And these equations should be inline: \(a^7 + b_2 = 3 \cdot x\) and \(x_i + y_n = z^2\)
+
+            </question>
+
+            <question type="text">
+                ## `img` tag
+                <img src="beanlab.png"/>
+            </question>
+
+            <question type="text">
+                ## `file` tag
+                <file path="small.md"/>
+            </question>
+
+            <question type="text">
+                ## `zip` tag
+                <zip path="zip_target" priority_path="zip_priority" exclude="no_.*"/>
+            </question>
+
+            <question type="text">
+                ## Include `stuff.md`
+                <include path="stuff.md"/>
+            </question>
+
+            <question type="text">
+                ## Include `hello_world.py` fenced
+                <include path="hello_world.py" fenced="True"/>
+            </question>
+
+            <question type="text">
+                ## Include `hello_world.py` lines 1-2, fenced
+                <include path="hello_world.py" fenced="True" lines="1:2"/>
+            </question>
+
+            <question type="true-false" answer="true">
+                The earth is *round*.
+            </question>
+
+            <question type="true-false" answer="false">
+                Zebras have **5** legs.
+            </question>
+        </questions>
+    </quiz>
+</div>
