@@ -69,6 +69,7 @@ def lookup_resource(course: Course, resource_type: str, resource_name: str) -> s
 
     return found
 
+
 def update_links(data: dict, resource_objs: dict[tuple[str, str], CanvasObject]) -> dict:
     text = json.dumps(data)
     for key, rtype, rname, field in iter_keys(text):
@@ -152,6 +153,36 @@ def predeploy_resource(rtype: str, resource_data: dict, timezone: str, tmpdir: P
     return resource_data
 
 
+def get_current_md5s(resources, tmpdir, timezone) -> dict[str, str]:
+    current_md5s = {}
+    for resource_key, resource in resources.items():
+        if (resource_data := resource.get('data')) is not None:
+            resource_data = predeploy_resource(resource['type'], resource_data, timezone, tmpdir)
+
+            current_md5 = compute_md5(resource_data)
+            current_md5s[resource_key] = current_md5
+
+    return current_md5s
+
+
+def get_modified_resources(md5s, current_md5s) -> dict[str, bool]:
+    return {key: md5s.get(key) != current for key, current in current_md5s.items()}
+
+
+def get_all_dependencies(modified_resources, resource_dependencies) -> dict[str, bool]:
+    all_dependencies = {}
+    for resource, modified in modified_resources.items():
+        if not modified:
+            continue
+
+        all_dependencies[resource] = True
+
+        for dep in resource_dependencies.get(resource, []):
+            all_dependencies[dep] = all_dependencies.get(dep, False)
+
+    return all_dependencies
+
+
 def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, str], CanvasResource]):
     resource_dependencies = get_dependencies(resources)
     resource_order = linearize_dependencies(resource_dependencies)
@@ -159,7 +190,13 @@ def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, s
     logger.info('-- Beginning deployment to Canvas --')
     with MD5Sums(course) as md5s, TemporaryDirectory() as tmpdir:
         tmpdir = Path(tmpdir)
-        # TODO - only process the resources that changed or that depend on changed resources
+
+        current_md5s = get_current_md5s(resources, tmpdir, timezone)
+
+        modified_resources = get_modified_resources(md5s, current_md5s)
+
+        resources_to_process = get_all_dependencies(modified_resources, resource_dependencies)
+        resource_order = [res for res in resource_order if res in resources_to_process]
 
         resource_objs: dict[tuple[str, str], CanvasObject] = {}
         for resource_key in resource_order:
@@ -172,11 +209,9 @@ def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, s
                 # Deploy resource using data
                 resource_data = predeploy_resource(rtype, resource_data, timezone, tmpdir)
 
-                stored_md5 = md5s.get(resource_key)
-                current_md5 = compute_md5(resource_data)
-
                 resource_obj = None
-                if current_md5 == stored_md5:
+                modified = resources_to_process[resource_key]
+                if not modified:
                     try:
                         resource_obj = lookup_resource(course, rtype, rname)
                     except ResourceNotFoundException:
@@ -190,7 +225,7 @@ def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, s
                     # Create the resource
                     logger.info(f'Creating {rtype} {rname}')
                     resource_obj = deploy_resource(course, rtype, resource_data)
-                    md5s[resource_key] = current_md5
+                    md5s[resource_key] = current_md5s[resource_key]
             else:
                 # Retrieve resource from Canvas
                 logger.info(f'Retrieving {rtype} {rname}')

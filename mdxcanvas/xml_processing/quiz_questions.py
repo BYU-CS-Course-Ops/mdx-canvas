@@ -19,7 +19,7 @@ common_fields = [
     Attribute('neutral-comments', new_name='neutral_comments'),
     Attribute('incorrect-comments', new_name='incorrect_comments'),
     Attribute('text-after-answers', new_name='text_after_answers'),
-    Attribute('type', recognize_and_discard=True)
+    Attribute('type', ignore=True)
 ]
 
 

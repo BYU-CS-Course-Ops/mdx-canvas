@@ -65,6 +65,7 @@ def deploy_quiz(course: Course, quiz_data: dict) -> Quiz:
 
     if canvas_quiz := get_quiz(course, name):
         canvas_quiz: Quiz
+        quiz_data['published'] = canvas_quiz.published
         canvas_quiz.edit(quiz=quiz_data)
     else:
         canvas_quiz = create_quiz(course, quiz_data, name)
