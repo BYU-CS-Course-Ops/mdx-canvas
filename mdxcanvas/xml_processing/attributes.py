@@ -78,6 +78,8 @@ class Attribute:
     parser: Callable[[str], Any] = lambda x: x
     new_name: str = None
     required: bool = False
+    ignore: bool = False
+    is_tag: bool = False
 
 
 def get_tag_path(tag: Tag):
@@ -87,14 +89,24 @@ def get_tag_path(tag: Tag):
 
 def parse_settings(tag: Tag, attributes: list[Attribute]):
     settings = {}
+    processed_fields = set()
 
     for attribute in attributes:
+        processed_fields.add(attribute.name)
         name = attribute.new_name or attribute.name
+
+        if attribute.ignore:
+            continue
 
         if (field := tag.get(attribute.name, None)) is not None:
             # Parse the value
             value = attribute.parser(field)
             settings[name] = value
+
+        elif attribute.is_tag:
+            child = tag.find(attribute.name, recursive=False)
+            value = retrieve_contents(child)
+            settings[name] = attribute.parser(value)
 
         elif attribute.default is not None:
             settings[name] = attribute.default
@@ -103,12 +115,12 @@ def parse_settings(tag: Tag, attributes: list[Attribute]):
             raise Exception(f'Required field {attribute.name} missing from tag {tag.name}')
 
     for key in tag.attrs:
-        if key not in settings:
-            logging.warning(f'Unrecognized field {key} @ {get_tag_path(tag)}')
+        if key not in processed_fields:
+            logging.warning(f'Unprocessed_fields field {key} @ {get_tag_path(tag)}')
 
     return settings
 
 
-def parse_child_tag_contents(tag: Tag, child_name):
-    child = tag.find(child_name, recursive=False)
-    return retrieve_contents(child) if child is not None else None
+def parse_children_tag_contents(tag: Tag, child_name):
+    children = tag.find_all(child_name, recursive=False)
+    return [retrieve_contents(child) for child in children]

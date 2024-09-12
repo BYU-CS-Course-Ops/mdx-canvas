@@ -142,6 +142,8 @@ def main(
 
 def entry():
     parser = argparse.ArgumentParser()
+    # Time zone identifiers: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+    # Use the time zone of the canvas course
     parser.add_argument("--course-info", type=Path, default="canvas_course_info.json")
     parser.add_argument("filename", type=Path)
     parser.add_argument("--args", type=Path, default=None)
