@@ -24,7 +24,7 @@ class ModuleTagProcessor:
         fields = [
             Attribute('title', required=True, new_name='name'),
             Attribute('position'),
-            Attribute('published', default=False, parser=parse_bool)
+            Attribute('published', parser=parse_bool)
         ]
 
         module_data = parse_settings(module_tag, fields)
@@ -58,7 +58,7 @@ class ModuleTagProcessor:
             Attribute('new_tab', True, parse_bool),
             Attribute('completion_requirement'),
             Attribute('iframe'),
-            Attribute('published', False, parse_bool),
+            Attribute('published', parser=parse_bool),
         ]
 
         name = tag['title']

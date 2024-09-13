@@ -12,6 +12,8 @@ def deploy_page(course: Course, page_info: dict) -> Page:
     name = page_info['title']
 
     if canvas_page := get_page(course, name):
+        if 'published' not in page_info:
+            page_info['published'] = canvas_page.published
         canvas_page.edit(wiki_page=page_info)
     else:
         canvas_page = course.create_page(wiki_page=page_info)

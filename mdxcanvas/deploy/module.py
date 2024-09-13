@@ -60,6 +60,8 @@ def _create_or_update_module_items(course: Course, module: Module, module_items:
         _add_canvas_id(course, item)
 
         if module_item := _get_module_item(module, item):
+            if 'published' not in item:
+                item['published'] = module_item.published
             module_item.edit(module_item=item)
         else:
             module.create_module_item(module_item=item)
@@ -69,6 +71,8 @@ def deploy_module(course: Course, module_data: dict) -> Module:
     name = module_data["name"]
 
     if canvas_module := _get_module(course, name):
+        if 'published' not in module_data:
+            module_data['published'] = canvas_module.published
         canvas_module.edit(module=module_data)
     else:
         canvas_module = course.create_module(module=module_data)

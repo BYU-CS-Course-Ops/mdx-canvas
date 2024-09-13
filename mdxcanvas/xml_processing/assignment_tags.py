@@ -40,7 +40,7 @@ class AssignmentTagProcessor:
             Attribute('peer_reviews', False, parse_bool),
             Attribute('points_possible', parser=parse_int),
             Attribute('position', parser=parse_int),  # TODO - should be int?
-            Attribute('published', False, parse_bool),
+            Attribute('published', parser=parse_bool),
             Attribute('quiz_lti'),  # TODO - keep?
             Attribute('submission_types', ['none'], parse_list),  # TODO - keep?
             Attribute('title', new_name='name', required=True),

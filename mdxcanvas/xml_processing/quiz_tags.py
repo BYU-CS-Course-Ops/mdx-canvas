@@ -70,7 +70,7 @@ class QuizTagProcessor:
             Attribute('available_to', parser=parse_date, new_name='lock_at'),
             Attribute('due_at', parser=parse_date),
             Attribute('access_code'),
-            Attribute('published', False, parse_bool),
+            Attribute('published', parser=parse_bool),
             Attribute('one_time_results', False, parse_bool)
         ]
 

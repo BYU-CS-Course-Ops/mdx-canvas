@@ -46,6 +46,8 @@
         ## Header
         This page has super useful information. Educate yourself.
 
+        :)
+
         <include path="hello_world.py" lines="1:2" fenced="true"/>
 
         <img src="beanlab.png"/>
