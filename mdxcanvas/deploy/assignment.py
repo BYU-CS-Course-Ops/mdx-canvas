@@ -17,8 +17,6 @@ def deploy_assignment(course: Course, assignment_info: dict) -> Assignment:
     #  Is this necessary to support?
 
     if canvas_assignment := get_assignment(course, name):
-        if 'published' not in assignment_info:
-            assignment_info['published'] = canvas_assignment.published
         canvas_assignment.edit(assignment=assignment_info)
     else:
         canvas_assignment = course.create_assignment(assignment=assignment_info)

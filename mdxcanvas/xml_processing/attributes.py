@@ -93,12 +93,17 @@ def parse_settings(tag: Tag, attributes: list[Attribute]):
 
     for attribute in attributes:
         processed_fields.add(attribute.name)
+        if attribute.new_name:
+            processed_fields.add(attribute.new_name)
         name = attribute.new_name or attribute.name
 
         if attribute.ignore:
             continue
 
-        if (field := tag.get(attribute.name, None)) is not None:
+        if (field := (
+                tag.get(attribute.name, None)
+                or tag.get(attribute.new_name, None)
+        )) is not None:
             # Parse the value
             value = attribute.parser(field)
             settings[name] = value

@@ -40,7 +40,11 @@ def deploy_resource(course: Course, resource_type: str, resource_data: dict) -> 
     if (deploy := deployers.get(resource_type, None)) is None:
         raise Exception(f'Deployment unsupported for resource of type {resource_type}')
 
-    deployed = deploy(course, resource_data)
+    try:
+        deployed = deploy(course, resource_data)
+    except:
+        logging.error(f'Failed to deploy resource: {resource_type} {resource_data}')
+        raise
 
     if deployed is None:
         raise Exception(f'Resource not found: {resource_type} {resource_data}')
@@ -176,13 +180,13 @@ def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, s
             if (resource_data := resource.get('data')) is not None:
                 # Deploy resource using data
                 resource_data = predeploy_resource(rtype, resource_data, timezone, tmpdir)
+                resource_data = update_links(course, resource_data, resource_objs)
 
                 stored_md5 = md5s.get(resource_key)
                 current_md5 = compute_md5(resource_data)
 
                 if current_md5 != stored_md5:
                     # Create the resource
-                    update_links(course, resource, resource_objs)
                     logger.info(f'Deploying {rtype} {rname}')
                     resource_obj = deploy_resource(course, rtype, resource_data)
                     resource_objs[resource_key] = resource_obj

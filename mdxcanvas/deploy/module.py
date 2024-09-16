@@ -57,11 +57,10 @@ def _create_or_update_module_items(course: Course, module: Module, module_items:
     # TODO - make sure the order of items matches the order in the XML
 
     for index, item in enumerate(module_items):
+
         _add_canvas_id(course, item)
 
         if module_item := _get_module_item(module, item):
-            if 'published' not in item:
-                item['published'] = module_item.published
             module_item.edit(module_item=item)
         else:
             module.create_module_item(module_item=item)

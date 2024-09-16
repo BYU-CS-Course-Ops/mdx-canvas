@@ -52,6 +52,7 @@ class ModuleTagProcessor:
 
     def _parse_module_item(self, tag: Tag) -> dict:
         fields = [
+            Attribute('type', ignore=True),
             Attribute('title', required=True),
             Attribute('position', parser=parse_int),
             Attribute('indent', parser=parse_int),
