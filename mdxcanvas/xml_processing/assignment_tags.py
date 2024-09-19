@@ -42,7 +42,7 @@ class AssignmentTagProcessor:
             Attribute('position', parser=parse_int),  # TODO - should be int?
             Attribute('published', parser=parse_bool),
             Attribute('quiz_lti'),  # TODO - keep?
-            Attribute('submission_types', ['none'], parse_list),  # TODO - keep?
+            Attribute('submission_types', parser=parse_list),  # TODO - keep?
             Attribute('title', new_name='name', required=True),
             Attribute('turnitin_enabled', False, parse_bool),  # TODO - keep?
             Attribute('turnitin_settings'),  # TODO - keep?

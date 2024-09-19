@@ -30,6 +30,7 @@
     <module title="Example Module 2">
         <item type="subheader" title="This is another sub-header"/>
         <item type="page" title="Example Page"/>
+        <item type="assignment" title="Example Assignment" indent="1"/>
     </module>
 
     <assignment
@@ -37,7 +38,7 @@
         points_possible="10"
         assignment_group="Examples"
     >
-        Do this stuff. Yesterday.
+        Do this stuff. Yesterday. :)
     </assignment>
 
     <md-page title="Small" path="small.md"/>
