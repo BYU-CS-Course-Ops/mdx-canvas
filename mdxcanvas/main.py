@@ -150,6 +150,7 @@ def entry():
     parser.add_argument("--global-args", type=Path, default=None)
     parser.add_argument("--id", type=str, default=None)
     parser.add_argument("--css", type=Path, default=None)
+    parser.add_argument('--debug', action='store_true')
     args = parser.parse_args()
 
     with open(args.course_info) as f:
@@ -161,6 +162,8 @@ def entry():
 
     logger = logging.getLogger('logger')
     logger.setLevel(logging.INFO)
+    if args.debug:
+        logger.setLevel(logging.DEBUG)
 
     main(
         canvas_api_token=api_token,

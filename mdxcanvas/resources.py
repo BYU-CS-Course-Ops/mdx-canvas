@@ -26,12 +26,12 @@ class SyllabusData(TypedDict):
 
 
 def iter_keys(text: str) -> Iterator[tuple[str, str, str, str]]:
-    for match in re.finditer(fr'@@([^:]+):([^:]+):([^@]+)@@', text):
+    for match in re.finditer(fr'@@([^:]+)\|\|([^:]+)\|\|([^@]+)@@', text):
         yield match.group(0), *match.groups()
 
 
 def get_key(rtype: str, name: str, field: str):
-    return f'@@{rtype}:{name}:{field}@@'
+    return f'@@{rtype}||{name}||{field}@@'
 
 
 class ResourceManager(dict[tuple[str, str], CanvasResource]):

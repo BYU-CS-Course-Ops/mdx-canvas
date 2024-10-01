@@ -76,7 +76,11 @@ def lookup_resource(course: Course, resource_type: str, resource_name: str) -> C
 
 def update_links(course: Course, data: dict, resource_objs: dict[tuple[str, str], CanvasObject]) -> dict:
     text = json.dumps(data)
+    logger.debug(f'Updating links in {text}')
+
     for key, rtype, rname, field in iter_keys(text):
+        logger.debug(f'Processing key: {key}, {rtype}, {rname}, {field}')
+
         if (rtype, rname) not in resource_objs:
             logger.info(f'Retrieving {rtype} {rname}')
             resource_objs[rtype, rname] = lookup_resource(course, rtype, rname)
@@ -164,7 +168,10 @@ def predeploy_resource(rtype: str, resource_data: dict, timezone: str, tmpdir: P
 
 def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, str], CanvasResource]):
     resource_dependencies = get_dependencies(resources)
+    logger.debug(f'Dependency graph: {resource_dependencies}')
+
     resource_order = linearize_dependencies(resource_dependencies)
+    logger.debug(f'Order of deployment: {resource_order}')
 
     logger.info('-- Beginning deployment to Canvas --')
     with MD5Sums(course) as md5s, TemporaryDirectory() as tmpdir:
@@ -172,6 +179,7 @@ def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, s
 
         resource_objs: dict[tuple[str, str], CanvasObject] = {}
         for resource_key in resource_order:
+            logger.debug(f'Processing {resource_key}')
             resource = resources[resource_key]
 
             rtype = resource['type']
