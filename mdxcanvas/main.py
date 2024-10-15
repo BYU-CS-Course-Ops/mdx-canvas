@@ -61,8 +61,6 @@ def process_file(
     Post-process the content (whole XML in, whole XML out, e.g. bake CSS)
     """
     if is_jinja(content_type):
-        if args_file is None:
-            raise Exception('--args-file is required if input file is .jinja')
         content = process_jinja(
             content,
             args_path=args_file,

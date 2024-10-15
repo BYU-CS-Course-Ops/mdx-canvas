@@ -14,12 +14,16 @@ question_children_names = [
 
 
 common_fields = [
-    Attribute('points', 1, parse_int, 'points_possible'),
     Attribute('correct-comments', new_name='correct_comments'),
     Attribute('neutral-comments', new_name='neutral_comments'),
     Attribute('incorrect-comments', new_name='incorrect_comments'),
     Attribute('text-after-answers', new_name='text_after_answers'),
     Attribute('type', ignore=True)
+]
+
+mostly_common_fields = [
+    Attribute('points', 1, parse_int, 'points_possible'),
+    *common_fields
 ]
 
 
@@ -55,7 +59,7 @@ def parse_true_false_question(tag: Tag):
     fields = [
         Attribute('answer', required=True, parser=parse_bool, default=False)
     ]
-    question = parse_settings(tag, common_fields + fields)
+    question = parse_settings(tag, mostly_common_fields + fields)
 
     question.update({
         "question_text": retrieve_contents(tag, question_children_names),
@@ -119,7 +123,7 @@ def _parse_multiple_option_question(question_type, tag):
             } for answer in answers
         ]
     }
-    question.update(parse_settings(tag, common_fields))
+    question.update(parse_settings(tag, mostly_common_fields))
     return [question]
 
 
@@ -144,7 +148,7 @@ def parse_matching_question(tag: Tag):
     ]
     distractors = '\n'.join(parse_children_tag_contents(tag, 'distractors'))
 
-    question = parse_settings(tag, common_fields)
+    question = parse_settings(tag, mostly_common_fields)
 
     question.update({
         "question_text": retrieve_contents(tag, question_children_names),
@@ -186,13 +190,13 @@ def parse_multiple_true_false_question(tag: Tag):
         "question_type": 'text_only_question',
     })
 
+    answers = tag.find_all(re.compile(r'correct|incorrect'))
+
     question_attributes = [
-        Attribute('correct'),
-        Attribute('incorrect')
+        Attribute('points', default=len(answers), parser=parse_int, new_name='points_possible'),
     ]
     settings = parse_settings(tag, question_attributes + common_fields)
-    answers = tag.find_all(re.compile(r'correct|incorrect'))
-    total_points = settings.get('points_possible', len(answers))
+    total_points = settings['points_possible']
 
     # Distribute points evenly among the questions
     points_per_question = round(total_points // len(answers), 2)
@@ -202,7 +206,7 @@ def parse_multiple_true_false_question(tag: Tag):
 
     for index, child in enumerate(answers):
         resulting_questions.append({
-            "question_text": child.text,
+            "question_text": retrieve_contents(child),
             "question_type": 'true_false_question',
             "points_possible": points_per_question + amount if index < num_to_change else points_per_question,
             "answers": [
@@ -246,7 +250,7 @@ def parse_fill_in_the_blank_question(tag: Tag):
         ]
     }
 
-    question.update(parse_settings(tag, common_fields))
+    question.update(parse_settings(tag, mostly_common_fields))
     return [question]
 
 
@@ -271,7 +275,7 @@ def parse_fill_in_multiple_blanks_question(tag: Tag):
             parse_settings(answer, answer_attributes) for answer in tag.find_all('correct')
         ]
     }
-    question.update(parse_settings(tag, common_fields))
+    question.update(parse_settings(tag, mostly_common_fields))
     return [question]
 
 

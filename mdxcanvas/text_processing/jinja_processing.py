@@ -59,25 +59,25 @@ def _render_template(template, **kwargs):
     return jj_template.render(**kwargs)
 
 
-def _process_template(template: str, arg_sets: list[dict]):
-    return '\n'.join([_render_template(template, **args) for args in arg_sets])
+def _process_template(template: str, arg_sets: list[dict] | None):
+    if arg_sets is None:
+        return _render_template(template)
+    else:
+        return '\n'.join([_render_template(template, **args) for args in arg_sets])
 
 
 def process_jinja(
         template: str,
-        args_path: Path,
+        args_path: Path = None,
         global_args_path: Path = None,
-        line_id: str = None,
         **kwargs
 ) -> str:
-    arg_sets = _get_args(args_path)
+    arg_sets = _get_args(args_path) if args_path is not None else None
 
     if global_args_path:
         kwargs |= _get_global_args(global_args_path)
 
-    if line_id:
-        arg_sets = [arg for arg in arg_sets if arg['Id'] == line_id]
-
-    arg_sets = [{**args, **kwargs} for args in arg_sets]
+    if arg_sets is not None:
+        arg_sets = [{**args, **kwargs} for args in arg_sets]
 
     return _process_template(template, arg_sets)
