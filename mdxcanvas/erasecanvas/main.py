@@ -1,6 +1,5 @@
 import argparse
 import json
-import logging
 import os
 import sys
 from pathlib import Path
@@ -8,10 +7,11 @@ from pathlib import Path
 from canvasapi import exceptions
 from canvasapi.paginated_list import PaginatedList
 
-from mdxcanvas.main import CourseInfo
-from mdxcanvas.main import get_course
+from ..main import CourseInfo
+from ..main import get_course
 
-logger = logging.getLogger('mdxcanvas')
+from ..our_logging import get_logger
+
 
 def get_item_name(item):
     if hasattr(item, 'title'):
@@ -34,6 +34,8 @@ def get_item_type(item):
 
 
 def delete_item(item, item_name):
+    logger = get_logger()
+
     try:
         item.delete()
     except exceptions.BadRequest as e:
@@ -44,6 +46,8 @@ def delete_item(item, item_name):
 
 
 def remove(items: PaginatedList, item_type=None):
+    logger = get_logger()
+
     for item in items:
         # Conditions to help with the removal of files and folders
         if hasattr(item, 'get_folders'):
@@ -67,6 +71,7 @@ def main(
         canvas_api_token: str,
         course_info: CourseInfo
 ):
+    logger = get_logger()
     logger.info('Connecting to Canvas...')
 
     course = get_course(canvas_api_token,
@@ -102,12 +107,12 @@ def entry():
     if api_token is None:
         raise ValueError("Please set the CANVAS_API_TOKEN environment variable")
 
-    logger.setLevel(logging.INFO)
+    logger = get_logger()
 
     if not args.y:
         confirm = input('Are you sure you want to delete all course content? ([y]/n): ')
         if confirm.lower() != 'y':
-            print('Exiting...')
+            logger.info('Exiting...')
             return
 
     main(

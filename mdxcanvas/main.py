@@ -9,13 +9,13 @@ from typing import TypedDict
 from canvasapi import Canvas
 from canvasapi.course import Course
 
-from mdxcanvas.xml_processing.inline_styling import bake_css
-from mdxcanvas.util import parse_soup_from_xml
+from .xml_processing.inline_styling import bake_css
+from .util import parse_soup_from_xml
 from .deploy.canvas_deploy import deploy_to_canvas
 from .resources import ResourceManager
 from .xml_processing.xml_processing import process_canvas_xml, preprocess_xml
-from mdxcanvas.text_processing.markdown_processing import process_markdown
-from mdxcanvas.text_processing.jinja_processing import process_jinja
+from .text_processing.markdown_processing import process_markdown
+from .text_processing.jinja_processing import process_jinja
 
 
 class CourseInfo(TypedDict):
@@ -177,7 +177,7 @@ def entry():
 if __name__ == '__main__':
     sys.argv = [
         'main.py',
-        '../scratch/sample-content.canvas.md.xml',
+        '/Users/robbykapua/Documents/GitHub/cs110-dev/Lectures/course-content/canvas-material/course.canvas.md.xml',
         '--course-info',
         '../demo_course/testing_course_info.json'
     ]
