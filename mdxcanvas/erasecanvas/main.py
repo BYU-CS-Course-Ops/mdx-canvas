@@ -61,9 +61,12 @@ def remove(items: PaginatedList, item_type=None):
 
         if item_type is None:
             item_type = get_item_type(item)
-        item_name = get_item_name(item)
-
-        logger.info(f'Deleting {item_type}: {item_name}')
+            item_name = get_item_name(item)
+            logger.info(f'Deleting {item_type}: {item_name}')
+            item_type = None
+        else:
+            item_name = get_item_name(item)
+            logger.info(f'Deleting {item_type}: {item_name}')
         delete_item(item, item_name)
 
 
@@ -110,7 +113,7 @@ def entry():
     logger = get_logger()
 
     if not args.y:
-        confirm = input('Are you sure you want to delete all course content? ([y]/n): ')
+        confirm = input('Are you sure you want to delete all course content? (y/[n]): ')
         if confirm.lower() != 'y':
             logger.info('Exiting...')
             return
