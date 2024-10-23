@@ -1,5 +1,6 @@
 import csv
 import json
+from bs4.element import Tag
 import jinja2 as jj
 from pathlib import Path
 
@@ -7,27 +8,63 @@ from .markdown_processing import process_markdown_text
 from ..util import parse_soup_from_xml, retrieve_contents
 
 
-def _read_md_table(md_text: str) -> list[dict]:
-    # Assume the only thing in the markdown is a single table
-    html = process_markdown_text(md_text)
+def _extract_headers(table: Tag) -> list[str]:
+    return [th.text.strip() for th in table.find_all('th')]
 
+
+def _extract_row_data(headers: list[str], row: Tag) -> dict:
+    cells = row.find_all(['td', 'th'])
+    if len(cells) != len(headers):
+        return {}
+    return {headers[i]: retrieve_contents(cells[i]) for i in range(len(headers))}
+
+
+def _process_table(tag: Tag) -> list[dict]:
+    headers = _extract_headers(tag)
+    return [_extract_row_data(headers, tr) for tr in tag.find_all('tr')[1:] if _extract_row_data(headers, tr)]
+
+
+def _process_section(tag: Tag) -> dict:
+    section_data = {tag.text.strip(): []}
+    table = tag.find_next('table')
+    if table:
+        section_data[tag.text.strip()] = _process_table(table)
+    return section_data
+
+
+def _read_multiple_tables(html: str) -> list[dict]:
+    soup = parse_soup_from_xml(html)
+
+    rows = []
+    for tag in soup.find_all(['h1']):
+        row_data = {'Title': tag.text.strip()}
+        tag = tag.find_next(['h1', 'h2', 'table'])
+
+        while tag and tag.name != 'h1':
+            if tag.name == 'table':
+                row_data |= _process_table(tag)[0]
+            elif tag.name == 'h2':
+                row_data |= _process_section(tag)
+            tag = tag.find_next(['h1', 'h2'])
+
+        rows.append(row_data)
+    return rows
+
+
+def _read_single_table(html: str) -> list[dict]:
     soup = parse_soup_from_xml(html)
     table = soup.find('table')
+    return _process_table(table)
 
-    # Thank you, GPT:
-    # Extract headers
-    headers = [th.text.strip() for th in table.find_all('th')]
 
-    # Iterate over rows and create list of dictionaries
-    rows = []
-    for tr in table.find_all('tr')[1:]:  # skipping the header row
-        cells = tr.find_all(['td', 'th'])
-        if len(cells) != len(headers):
-            continue  # Skip any rows that do not match the number of headers
-        row_data = {headers[i]: retrieve_contents(cells[i]) for i in range(len(headers))}
-        rows.append(row_data)
+def _read_md_table(md_text: str) -> list[dict]:
+    html = process_markdown_text(md_text)
 
-    return rows
+    # Check if file contains header tags, indicating multiple tables
+    if '<h1>' in html:
+        return _read_multiple_tables(html)
+    else:
+        return _read_single_table(html)
 
 
 def _get_global_args(global_args_path: Path) -> dict:
