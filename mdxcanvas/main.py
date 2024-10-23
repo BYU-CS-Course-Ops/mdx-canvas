@@ -32,6 +32,14 @@ def is_jinja(content_type):
     return content_type[-1] == '.jinja'
 
 
+def is_jinja_html(content_type):
+    return content_type[1] == '.html'
+
+
+def is_html(content_type):
+    return content_type[-1] == '.html'
+
+
 def _post_process_content(xml_content: str, global_css: str) -> str:
     # - bake in CSS styles
     soup = parse_soup_from_xml(xml_content)
@@ -67,12 +75,17 @@ def process_file(
             global_args_path=global_args_file,
             line_id=line_id
         )
+        if is_jinja_html(content_type):
+            xml_content = content
+    elif is_html(content_type):
+        xml_content = content
+    else:
+        # Process Markdown
+        excluded = ['pre', 'style']
 
-    # Process Markdown
-    excluded = ['pre', 'style']
+        logging.info('Processing Markdown')
+        xml_content = process_markdown(content, excluded=excluded)
 
-    logging.info('Processing Markdown')
-    xml_content = process_markdown(content, excluded=excluded)
 
     # Preprocess XML
     logging.info('Processing XML')
@@ -175,20 +188,5 @@ def entry():
 
 
 if __name__ == '__main__':
-    sys.argv = [
-        'main.py',
-        '../scratch/sample-content.canvas.md.xml',
-        '--course-info',
-        '../demo_course/testing_course_info.json'
-    ]
-
-    # sys.argv = [
-    #     'main.py',
-    #     '../scratch/sample-template.canvas.md.xml.jinja',
-    #     '--args',
-    #     '../scratch/sample-template.args.md',
-    #     '--course-info',
-    #     '../demo_course/testing_course_info.json'
-    # ]
 
     entry()
