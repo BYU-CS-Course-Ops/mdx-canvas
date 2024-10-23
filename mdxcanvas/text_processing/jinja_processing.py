@@ -1,8 +1,9 @@
+import re
 import csv
 import json
-from bs4.element import Tag
 import jinja2 as jj
 from pathlib import Path
+from bs4.element import Tag
 
 from .markdown_processing import process_markdown_text
 from ..util import parse_soup_from_xml, retrieve_contents
@@ -60,8 +61,8 @@ def _read_single_table(html: str) -> list[dict]:
 def _read_md_table(md_text: str) -> list[dict]:
     html = process_markdown_text(md_text)
 
-    # Check if file contains header tags, indicating multiple tables
-    if '<h1>' in html:
+    # Check if file contains any header tags, indicating multiple tables
+    if re.search(r'<h[1-6]>', html):
         return _read_multiple_tables(html)
     else:
         return _read_single_table(html)
