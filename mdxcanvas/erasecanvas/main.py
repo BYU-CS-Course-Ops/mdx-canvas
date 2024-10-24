@@ -74,12 +74,13 @@ def main(
         canvas_api_token: str,
         course_info: CourseInfo
 ):
-    logger = get_logger()
-    logger.info('Connecting to Canvas...')
 
     course = get_course(canvas_api_token,
                         course_info['CANVAS_API_URL'],
                         course_info['CANVAS_COURSE_ID'])
+
+    logger = get_logger(course.name)
+    logger.info('Connecting to Canvas...')
 
     assignments = course.get_assignments()
     remove(assignments)
