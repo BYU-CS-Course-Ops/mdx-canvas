@@ -33,7 +33,7 @@ def is_jinja(content_type):
 
 
 def is_jinja_html(content_type):
-    return content_type[1] == '.html'
+    return True in ['.jinja' in content_type, '.html' in content_type]
 
 
 def is_html(content_type):
@@ -68,24 +68,28 @@ def process_file(
     Process content-modifying XML tags (e.g. img, or file, or zip, or include)
     Post-process the content (whole XML in, whole XML out, e.g. bake CSS)
     """
-    if is_jinja(content_type):
-        content = process_jinja(
+    if is_jinja_html(content_type):
+        xml_content = process_jinja(
             content,
             args_path=args_file,
             global_args_path=global_args_file,
             line_id=line_id
         )
-        if is_jinja_html(content_type):
-            xml_content = content
     elif is_html(content_type):
         xml_content = content
     else:
+        if is_jinja(content_type):
+            content = process_jinja(
+                content,
+                args_path=args_file,
+                global_args_path=global_args_file,
+                line_id=line_id
+            )
         # Process Markdown
         excluded = ['pre', 'style']
 
         logging.info('Processing Markdown')
         xml_content = process_markdown(content, excluded=excluded)
-
 
     # Preprocess XML
     logging.info('Processing XML')
