@@ -125,11 +125,5 @@ def entry():
 
 
 if __name__ == '__main__':
-    sys.argv = [
-        'main.py',
-        '-y',
-        '--course-info',
-        '../demo_course/testing_course_info.json'
-    ]
-
     entry()
+    
