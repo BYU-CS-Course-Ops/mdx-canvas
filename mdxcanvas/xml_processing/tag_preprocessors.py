@@ -130,7 +130,8 @@ def make_include_preprocessor(
     def process_include(tag: Tag):
         imported_filename = tag.get('path')
         imported_file = (parent_folder / imported_filename).resolve()
-        imported_raw_content = imported_file.read_text()
+
+        imported_raw_content = imported_file.read_text(encoding='utf-8')
 
         lines = tag.get('lines', '')
         if lines:
