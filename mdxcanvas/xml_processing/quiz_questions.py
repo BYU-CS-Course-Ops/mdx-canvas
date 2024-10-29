@@ -361,32 +361,32 @@ def parse_precision_answer_question(tag: Tag):
 
 
 # In development, issues with rounding decimals
-def parse_numerical_question(tag: Tag):
-    raise NotImplementedError()
-
 # def parse_numerical_question(tag: Tag):
-#     numerical_answer_types = {
-#         'exact': parse_exact_answer_question,
-#         'range': parse_range_answer_question,
-#         'precision': parse_precision_answer_question
-#     }
-#
-#     numerical_answer_type = tag.get('numerical_answer_type')
-#     if numerical_answer_type not in numerical_answer_types:
-#         raise ValueError(f"Invalid numerical answer type: {numerical_answer_type}")
-#     question_text, answer_attributes = numerical_answer_types[numerical_answer_type](tag)
-#
-#     question = {
-#         "question_text": question_text,
-#         "question_type": 'numerical_question',
-#         "answers": [
-#             parse_settings(answer, answer_attributes) for answer in tag.find_all('correct')
-#         ]
-#     }
-#
-#     fields = [
-#         Attribute('numerical_answer_type', required=True)
-#     ]
-#     question.update(parse_settings(tag, fields + common_fields))
-#     return question
+#     raise NotImplementedError()
+
+def parse_numerical_question(tag: Tag):
+    numerical_answer_types = {
+        'exact': parse_exact_answer_question,
+        'range': parse_range_answer_question,
+        'precision': parse_precision_answer_question
+    }
+
+    numerical_answer_type = tag.get('numerical_answer_type')
+    if numerical_answer_type not in numerical_answer_types:
+        raise ValueError(f"Invalid numerical answer type: {numerical_answer_type}")
+    question_text, answer_attributes = numerical_answer_types[numerical_answer_type](tag)
+
+    question = {
+        "question_text": question_text,
+        "question_type": 'numerical_question',
+        "answers": [
+            parse_settings(answer, answer_attributes) for answer in tag.find_all('correct')
+        ]
+    }
+
+    fields = [
+        Attribute('numerical_answer_type', required=True)
+    ]
+    question.update(parse_settings(tag, fields + common_fields))
+    return question
 
