@@ -82,20 +82,23 @@ def main(
     logger = get_logger(course.name)
     logger.info('Connecting to Canvas...')
 
+    course.update(course={'syllabus_body': ''})
+    logger.info('Deleting Syllabus')
+
     assignments = course.get_assignments()
-    remove(assignments)
+    remove(assignments) if len(assignments) > 0 else None
 
     assignment_groups = course.get_assignment_groups()
-    remove(assignment_groups, 'Assignment Group')
+    remove(assignment_groups, 'Assignment Group') if len(assignment_groups) > 0 else None
 
     pages = course.get_pages()
-    remove(pages, 'Page')
+    remove(pages, 'Page') if len(pages) > 0 else None
 
     modules = course.get_modules()
-    remove(modules, 'Module')
+    remove(modules, 'Module') if len(modules) > 0 else None
 
     files = course.get_folders()
-    remove(files, 'Folder')
+    remove(files, 'Folder') if len(files) > 0 else None
 
 
 def entry():
