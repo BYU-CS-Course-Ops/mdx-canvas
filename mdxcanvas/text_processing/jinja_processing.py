@@ -59,11 +59,8 @@ def _render_template(template, **kwargs):
     return jj_template.render(**kwargs)
 
 
-def _process_template(template: str, arg_sets: list[dict] | None):
-    if arg_sets is None:
-        return _render_template(template)
-    else:
-        return '\n'.join([_render_template(template, **args) for args in arg_sets])
+def _process_template(template: str, arg_sets: list[dict]):
+    return '\n'.join([_render_template(template, **args) for args in arg_sets])
 
 
 def process_jinja(
@@ -79,5 +76,7 @@ def process_jinja(
 
     if arg_sets is not None:
         arg_sets = [{**args, **kwargs} for args in arg_sets]
+    else:
+        arg_sets = [kwargs]
 
     return _process_template(template, arg_sets)
