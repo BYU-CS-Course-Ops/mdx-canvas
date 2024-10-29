@@ -362,15 +362,17 @@ def parse_precision_answer_question(tag: Tag):
 
 def parse_numerical_question(tag: Tag):
     numerical_answer_types = {
-        'exact': [parse_exact_answer_question, 'exact_answer'],
-        'range': [parse_range_answer_question, 'range_answer'],
-        'precision': [parse_precision_answer_question, 'precision_answer']
+        'exact': (parse_exact_answer_question, 'exact_answer'),
+        'range': (parse_range_answer_question, 'range_answer'),
+        'precision': (parse_precision_answer_question, 'precision_answer')
     }
 
     numerical_answer_type = tag.get('numerical_answer_type')
     if numerical_answer_type not in numerical_answer_types:
         raise ValueError(f"Invalid numerical answer type: {numerical_answer_type}")
-    question_text, answer_attributes = numerical_answer_types[numerical_answer_type][0](tag)
+
+    parse_function, answer_type = numerical_answer_types[numerical_answer_type]
+    question_text, answer_attributes = parse_function(tag)
 
     question = {
         "question_text": question_text,
@@ -386,7 +388,7 @@ def parse_numerical_question(tag: Tag):
     question.update(parse_settings(tag, fields + common_fields))
 
     for answer in question["answers"]:
-        answer |= {"numerical_answer_type": numerical_answer_types[numerical_answer_type][1]}
+        answer["numerical_answer_type"] = answer_type
 
     return [question]
 
