@@ -1,5 +1,4 @@
 import json
-import logging
 
 from datetime import datetime
 from pathlib import Path
@@ -20,10 +19,11 @@ from .quiz import deploy_quiz, lookup_quiz
 from .page import deploy_page, lookup_page
 from .assignment import deploy_assignment, lookup_assignment
 from .module import deploy_module, lookup_module
+from ..our_logging import get_logger
 
 from ..resources import CanvasResource, iter_keys
 
-logger = logging.getLogger('logger')
+logger = get_logger()
 
 
 def deploy_resource(course: Course, resource_type: str, resource_data: dict) -> CanvasObject:
@@ -173,7 +173,7 @@ def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, s
     resource_order = linearize_dependencies(resource_dependencies)
     logger.debug(f'Order of deployment: {resource_order}')
 
-    logger.info('-- Beginning deployment to Canvas --')
+    logger.info('Beginning deployment to Canvas')
     with MD5Sums(course) as md5s, TemporaryDirectory() as tmpdir:
         tmpdir = Path(tmpdir)
 

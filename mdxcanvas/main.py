@@ -2,7 +2,6 @@ import argparse
 import json
 import logging
 import os
-import sys
 from pathlib import Path
 from typing import TypedDict
 
@@ -17,6 +16,9 @@ from .xml_processing.xml_processing import process_canvas_xml, preprocess_xml
 from .text_processing.markdown_processing import process_markdown
 from .text_processing.jinja_processing import process_jinja
 
+from .our_logging import get_logger
+
+logger = get_logger()
 
 class CourseInfo(TypedDict):
     CANVAS_API_URL: str
@@ -88,11 +90,11 @@ def process_file(
         # Process Markdown
         excluded = ['pre', 'style']
 
-        logging.info('Processing Markdown')
+        logger.info('Processing Markdown')
         xml_content = process_markdown(content, excluded=excluded)
 
     # Preprocess XML
-    logging.info('Processing XML')
+    logger.info('Processing XML')
 
     def load_and_process_file_contents(parent: Path, content: str, content_type: list[str], **kwargs) -> str:
         return process_file(resources, parent, content, content_type, global_args_file=global_args_file, **kwargs)
@@ -128,13 +130,15 @@ def main(
         css_file: Path = None,
 ):
     # Make sure the course actually exists before doing any real effort
-    logging.info('Connecting to Canvas')
     course = get_course(canvas_api_token, course_info['CANVAS_API_URL'], course_info['CANVAS_COURSE_ID'])
+
+    logger = get_logger(course.name)
+    logger.info('Connecting to Canvas')
 
     resources = ResourceManager()
 
     # Load file
-    logging.info('Reading file: ' + str(input_file))
+    logger.info('Reading file: ' + str(input_file))
     content_type, content = read_content(input_file)
     processed_content = process_file(
         resources,
@@ -151,7 +155,7 @@ def main(
     resources = process_canvas_xml(resources, processed_content)
 
     # Deploy XML
-    logging.info('Deploying to Canvas')
+    logger.info('Deploying to Canvas')
     deploy_to_canvas(course, course_info['LOCAL_TIME_ZONE'], resources)
 
 
@@ -175,8 +179,6 @@ def entry():
     if api_token is None:
         raise ValueError("Please set the CANVAS_API_TOKEN environment variable")
 
-    logger = logging.getLogger('logger')
-    logger.setLevel(logging.INFO)
     if args.debug:
         logger.setLevel(logging.DEBUG)
 

@@ -1,13 +1,12 @@
-import logging
 import re
 from pathlib import Path
-from tempfile import TemporaryDirectory
 from zipfile import ZipFile, ZipInfo
 
-from canvasapi.course import Course
 
 from ..resources import ZipFileData, FileData
 from .file import deploy_file, lookup_file
+
+from ..our_logging import get_logger
 
 
 def zip_folder(
@@ -27,8 +26,10 @@ def zip_folder(
 
 
 def write_item_to_zip(item: Path, zipf: ZipFile, exclude: re.Pattern = None, prefix='', priority_fld: Path = None):
+    logger = get_logger()
+    
     if exclude and exclude.match(item.name):
-        logging.debug(f"Excluding file {item.name}")
+        logger.debug(f"Excluding file {item.name}")
         return
     if item.is_dir():
         write_directory(item, zipf, exclude, prefix, priority_fld / item.name)
@@ -38,6 +39,8 @@ def write_item_to_zip(item: Path, zipf: ZipFile, exclude: re.Pattern = None, pre
 
 def write_directory(folder: Path, zipf: ZipFile, exclude: re.Pattern = None, prefix='',
                     priority_fld: Path = None):
+    logger = get_logger()
+    
     prefix = prefix + folder.name + '/'
 
     # Get all items in the folder
@@ -49,7 +52,7 @@ def write_directory(folder: Path, zipf: ZipFile, exclude: re.Pattern = None, pre
         for item in priority_fld.glob("*"):
             if item.name not in item_names:
                 paths.append(item)
-                logging.debug(f"Using additional file {item.name}")
+                logger.debug(f"Using additional file {item.name}")
 
     for path in paths:
         write_item_to_zip(path, zipf, exclude, prefix, priority_fld)
@@ -68,9 +71,11 @@ def set_time_1980(file, prefix=''):
 
 def write_file(file: Path, zipf: ZipFile, prefix='', priority_fld: Path = None):
     # Use the file from the priority folder if it exists
+    logger = get_logger()
+    
     if priority_fld and (priority_file := priority_fld / file.name).exists():
         file = priority_file
-        logging.debug(f"Prioritizing file {file.name}")
+        logger.debug(f"Prioritizing file {file.name}")
 
     # For consistency, set the time to 1980
     zinfo = set_time_1980(file, prefix)
