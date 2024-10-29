@@ -86,19 +86,19 @@ def main(
     logger.info('Deleting Syllabus')
 
     assignments = course.get_assignments()
-    remove(assignments) if len(assignments) > 0 else None
+    remove(assignments) if len(list(assignments)) > 0 else None
 
     assignment_groups = course.get_assignment_groups()
-    remove(assignment_groups, 'Assignment Group') if len(assignment_groups) > 0 else None
+    remove(assignment_groups, 'Assignment Group') if len(list(assignment_groups)) > 0 else None
 
     pages = course.get_pages()
-    remove(pages, 'Page') if len(pages) > 0 else None
+    remove(pages, 'Page') if len(list(pages)) > 0 else None
 
     modules = course.get_modules()
-    remove(modules, 'Module') if len(modules) > 0 else None
+    remove(modules, 'Module') if len(list(modules)) > 0 else None
 
     files = course.get_folders()
-    remove(files, 'Folder') if len(files) > 0 else None
+    remove(files, 'Folder') if len(list(files)) > 0 else None
 
 
 def entry():
