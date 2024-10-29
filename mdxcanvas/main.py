@@ -175,20 +175,4 @@ def entry():
 
 
 if __name__ == '__main__':
-    sys.argv = [
-        'main.py',
-        '/Users/robbykapua/Documents/GitHub/cs110-dev/Lectures/course-content/canvas-material/course.canvas.md.xml',
-        '--course-info',
-        '../demo_course/testing_course_info.json'
-    ]
-
-    # sys.argv = [
-    #     'main.py',
-    #     '../scratch/sample-template.canvas.md.xml.jinja',
-    #     '--args',
-    #     '../scratch/sample-template.args.md',
-    #     '--course-info',
-    #     '../demo_course/testing_course_info.json'
-    # ]
-
     entry()
