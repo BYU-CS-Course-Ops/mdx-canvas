@@ -309,10 +309,10 @@ def parse_exact_answer_question(tag: Tag):
     </question>
     """
 
-    question_text = retrieve_contents(tag, ['exact', 'margin'])
+    question_text = retrieve_contents(tag, ['answer_exact', 'answer_error_margin'])
     answer_attributes = [
-        Attribute('exact', required=True),
-        Attribute('margin', required=True)
+        Attribute('answer_exact', required=True),
+        Attribute('answer_error_margin', required=True)
     ]
 
     return question_text, answer_attributes
@@ -329,11 +329,11 @@ def parse_range_answer_question(tag: Tag):
     <correct type='range' start='-10' end='-1' />
     </question>
     """
-    question_text = retrieve_contents(tag, ['start', 'end'])
+    question_text = retrieve_contents(tag, ['answer_range_start', 'answer_range_end'])
 
     answer_attributes = [
-        Attribute('start', required=True),
-        Attribute('end', required=True)
+        Attribute('answer_range_start', required=True),
+        Attribute('answer_range_end', required=True)
     ]
 
     return question_text, answer_attributes
@@ -351,42 +351,42 @@ def parse_precision_answer_question(tag: Tag):
     </question>
     """
 
-    question_text = retrieve_contents(tag, ['approximate', 'precision'])
+    question_text = retrieve_contents(tag, ['answer_approximate', 'answer_precision'])
     answer_attributes = [
-        Attribute('approximate', required=True),
-        Attribute('precision', required=True)
+        Attribute('answer_approximate', required=True),
+        Attribute('answer_precision', required=True)
     ]
 
     return question_text, answer_attributes
 
 
-# In development, issues with rounding decimals
 def parse_numerical_question(tag: Tag):
-    raise NotImplementedError()
+    numerical_answer_types = {
+        'exact': [parse_exact_answer_question, 'exact_answer'],
+        'range': [parse_range_answer_question, 'range_answer'],
+        'precision': [parse_precision_answer_question, 'precision_answer']
+    }
 
-# def parse_numerical_question(tag: Tag):
-#     numerical_answer_types = {
-#         'exact': parse_exact_answer_question,
-#         'range': parse_range_answer_question,
-#         'precision': parse_precision_answer_question
-#     }
-#
-#     numerical_answer_type = tag.get('numerical_answer_type')
-#     if numerical_answer_type not in numerical_answer_types:
-#         raise ValueError(f"Invalid numerical answer type: {numerical_answer_type}")
-#     question_text, answer_attributes = numerical_answer_types[numerical_answer_type](tag)
-#
-#     question = {
-#         "question_text": question_text,
-#         "question_type": 'numerical_question',
-#         "answers": [
-#             parse_settings(answer, answer_attributes) for answer in tag.find_all('correct')
-#         ]
-#     }
-#
-#     fields = [
-#         Attribute('numerical_answer_type', required=True)
-#     ]
-#     question.update(parse_settings(tag, fields + common_fields))
-#     return question
+    numerical_answer_type = tag.get('numerical_answer_type')
+    if numerical_answer_type not in numerical_answer_types:
+        raise ValueError(f"Invalid numerical answer type: {numerical_answer_type}")
+    question_text, answer_attributes = numerical_answer_types[numerical_answer_type][0](tag)
+
+    question = {
+        "question_text": question_text,
+        "question_type": 'numerical_question',
+        "answers": [
+            parse_settings(answer, answer_attributes) for answer in tag.find_all('correct')
+        ]
+    }
+
+    fields = [
+        Attribute('numerical_answer_type', required=True)
+    ]
+    question.update(parse_settings(tag, fields + common_fields))
+
+    for answer in question["answers"]:
+        answer |= {"numerical_answer_type": numerical_answer_types[numerical_answer_type][1]}
+
+    return [question]
 
