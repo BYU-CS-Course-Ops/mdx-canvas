@@ -27,7 +27,7 @@ def _process_table(tag: Tag) -> list[dict]:
     return [_extract_row_data(headers, tr) for tr in tag.find_all('tr')[1:] if _extract_row_data(headers, tr)]
 
 
-def _process_section(tag: Tag) -> dict:
+def _process_subsection(tag: Tag) -> dict:
     section_data = {tag.text.strip(): []}
     table = tag.find_next('table')
     if table:
@@ -54,7 +54,7 @@ def get_section(tag: str, soup: BeautifulSoup) -> list[BeautifulSoup]:
 
     return sections
 
-def _process_section_with_subsections(section: BeautifulSoup) -> dict:
+def _process_section(section: BeautifulSoup) -> dict:
     tag = section.find('h1')
     row_data = {'Title': tag.text.strip()}
 
@@ -65,14 +65,14 @@ def _process_section_with_subsections(section: BeautifulSoup) -> dict:
     subsections = get_section("h2", section)
     for subsection in subsections:
         tag = subsection.find('h2')
-        row_data.update(_process_section(tag))
+        row_data.update(_process_subsection(tag))
 
     return row_data
 
 def _read_multiple_tables(html: str) -> list[dict]:
     soup = parse_soup_from_xml(html)
     sections = get_section("h1", soup)
-    return [_process_section_with_subsections(section) for section in sections]
+    return [_process_section(section) for section in sections]
 
 
 def _read_single_table(html: str) -> list[dict]:
