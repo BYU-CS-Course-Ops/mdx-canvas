@@ -27,55 +27,69 @@ def _process_table(tag: Tag) -> list[dict]:
     return [_extract_row_data(headers, tr) for tr in tag.find_all('tr')[1:] if _extract_row_data(headers, tr)]
 
 
-def _process_subsection(tag: Tag) -> dict:
-    section_data = {tag.text.strip(): []}
-    table = tag.find_next('table')
-    if table:
-        section_data[tag.text.strip()] = _process_table(table)
+def _h1_section(tag: Tag) -> dict:
+    section_data = {'Title': tag.text.strip()}
+
+    child = tag.find_next(['h2', 'table'])
+    if child.name == 'table':
+        # Only one row of data is ever expected for h1 sections
+        section_data |= _process_table(child)[0]
+
     return section_data
 
 
-def get_section(tag: str, soup: BeautifulSoup) -> list[BeautifulSoup]:
-    tags = soup.find_all(tag)
-    sections = []
+def _h2_section(tag: Tag) -> dict:
+    section_data = {tag.text.strip(): []}
 
-    for i in range(len(tags) - 1):
-        section = ""
-        for sibling in tags[i].next_siblings:
-            if sibling == tags[i + 1]:
-                break
-            section += str(sibling)
-        sections.append(parse_soup_from_xml(str(tags[i]) + section))
+    child = tag.find_next(['h2', 'table'])
+    if child.name == 'table':
+        section_data[tag.text.strip()] = _process_table(child)
 
-    last_section = str(tags[-1])
-    for sibling in tags[-1].next_siblings:
-        last_section += str(sibling)
-    sections.append(parse_soup_from_xml(last_section))
+    return section_data
 
-    return sections
 
-def _process_section(section: BeautifulSoup) -> dict:
-    # Get title
-    tag = section.find('h1')
-    row_data = {'Title': tag.text.strip()}
+def _process_section(tag: Tag, subsection: bool = False) -> dict:
+    if not subsection:
+        return _h1_section(tag)
+    else:
+        return _h2_section(tag)
 
-    # Process table if it exists
-    tag = tag.find_next(['table', 'h2'])
-    if tag.name == 'table':
-        row_data.update(_process_table(tag)[0])
 
-    # Process subsections
-    subsections = get_section("h2", section)
-    for subsection in subsections:
-        tag = subsection.find('h2')
-        row_data.update(_process_subsection(tag))
+def get_sections(text: str, tag_name) -> str:
+    section = ''
+    soup = parse_soup_from_xml(text)
 
-    return row_data
+    tag = soup.find([tag_name])
+    while tag:
+        if tag.name == tag_name:
+            if section:
+                yield section
+            section = ''
+
+        section += str(tag)
+        tag = tag.find_next(['h1', 'h2', 'table'])
+
+    yield section
+
 
 def _read_multiple_tables(html: str) -> list[dict]:
-    soup = parse_soup_from_xml(html)
-    sections = get_section("h1", soup)
-    return [_process_section(section) for section in sections]
+    rows = []
+
+    for h1_section in get_sections(html, 'h1'):
+        h1_soup = parse_soup_from_xml(h1_section)
+
+        tag = h1_soup.find('h1')
+        row_data = _process_section(tag)
+
+        for h2_section in get_sections(h1_section, 'h2'):
+            h2_soup = parse_soup_from_xml(h2_section)
+
+            tag = h2_soup.find('h2')
+            row_data |= _process_section(tag, subsection=True)
+
+        rows.append(row_data)
+
+    return rows
 
 
 def _read_single_table(html: str) -> list[dict]:
