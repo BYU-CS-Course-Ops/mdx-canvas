@@ -34,14 +34,6 @@ def is_jinja(content_type):
     return content_type[-1] == '.jinja'
 
 
-def is_jinja_html(content_type):
-    return True in ['.jinja' in content_type, '.html' in content_type]
-
-
-def is_html(content_type):
-    return content_type[-1] == '.html'
-
-
 def _post_process_content(xml_content: str, global_css: str) -> str:
     # - bake in CSS styles
     soup = parse_soup_from_xml(xml_content)
@@ -70,23 +62,16 @@ def process_file(
     Process content-modifying XML tags (e.g. img, or file, or zip, or include)
     Post-process the content (whole XML in, whole XML out, e.g. bake CSS)
     """
-    if is_jinja_html(content_type):
-        xml_content = process_jinja(
+    if is_jinja(content_type):
+        content = process_jinja(
             content,
             args_path=args_file,
             global_args_path=global_args_file,
             line_id=line_id
         )
-    elif is_html(content_type):
         xml_content = content
-    else:
-        if is_jinja(content_type):
-            content = process_jinja(
-                content,
-                args_path=args_file,
-                global_args_path=global_args_file,
-                line_id=line_id
-            )
+
+    if 'md' in content_type:
         # Process Markdown
         excluded = ['pre', 'style']
 

@@ -3,6 +3,8 @@ import csv
 import json
 import jinja2 as jj
 from pathlib import Path
+
+from bs4 import BeautifulSoup
 from bs4.element import Tag
 
 from .markdown_processing import process_markdown_text
@@ -33,23 +35,44 @@ def _process_section(tag: Tag) -> dict:
     return section_data
 
 
+def get_section(tag: str, soup: BeautifulSoup) -> list[BeautifulSoup]:
+    tags = soup.find_all(tag)
+    sections = []
+
+    for i in range(len(tags) - 1):
+        section = ""
+        for sibling in tags[i].next_siblings:
+            if sibling == tags[i + 1]:
+                break
+            section += str(sibling)
+        sections.append(parse_soup_from_xml(str(tags[i]) + section))
+
+    last_section = str(tags[-1])
+    for sibling in tags[-1].next_siblings:
+        last_section += str(sibling)
+    sections.append(parse_soup_from_xml(last_section))
+
+    return sections
+
+def _process_section_with_subsections(section: BeautifulSoup) -> dict:
+    tag = section.find('h1')
+    row_data = {'Title': tag.text.strip()}
+
+    tag = tag.find_next(['table', 'h2'])
+    if tag.name == 'table':
+        row_data.update(_process_table(tag)[0])
+
+    subsections = get_section("h2", section)
+    for subsection in subsections:
+        tag = subsection.find('h2')
+        row_data.update(_process_section(tag))
+
+    return row_data
+
 def _read_multiple_tables(html: str) -> list[dict]:
     soup = parse_soup_from_xml(html)
-
-    rows = []
-    for tag in soup.find_all(['h1']):
-        row_data = {'Title': tag.text.strip()}
-        tag = tag.find_next(['h1', 'h2', 'table'])
-
-        while tag and tag.name != 'h1':
-            if tag.name == 'table':
-                row_data |= _process_table(tag)[0]
-            elif tag.name == 'h2':
-                row_data |= _process_section(tag)
-            tag = tag.find_next(['h1', 'h2'])
-
-        rows.append(row_data)
-    return rows
+    sections = get_section("h1", soup)
+    return [_process_section_with_subsections(section) for section in sections]
 
 
 def _read_single_table(html: str) -> list[dict]:
