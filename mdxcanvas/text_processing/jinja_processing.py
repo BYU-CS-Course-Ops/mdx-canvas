@@ -101,8 +101,8 @@ def _read_single_table(html: str) -> list[dict]:
 def _read_md_table(md_text: str) -> list[dict]:
     html = process_markdown_text(md_text)
 
-    # Check if file contains any header tags, indicating multiple tables
-    if re.search(r'<h[1-6]>', html):
+    # Check if file contains header 1 or 2 tags, indicating multiple tables
+    if re.search(r'<h[1|2]>', html):
         return _read_multiple_tables(html)
     else:
         return _read_single_table(html)
