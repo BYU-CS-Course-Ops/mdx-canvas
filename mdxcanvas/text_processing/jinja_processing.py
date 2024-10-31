@@ -55,13 +55,16 @@ def get_section(tag: str, soup: BeautifulSoup) -> list[BeautifulSoup]:
     return sections
 
 def _process_section(section: BeautifulSoup) -> dict:
+    # Get title
     tag = section.find('h1')
     row_data = {'Title': tag.text.strip()}
 
+    # Process table if it exists
     tag = tag.find_next(['table', 'h2'])
     if tag.name == 'table':
         row_data.update(_process_table(tag)[0])
 
+    # Process subsections
     subsections = get_section("h2", section)
     for subsection in subsections:
         tag = subsection.find('h2')
