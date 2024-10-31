@@ -49,9 +49,9 @@ def _h2_section(tag: Tag) -> dict:
 
 
 def _process_section(tag: Tag, subsection: bool = False) -> dict:
-    if not subsection:
+    if tag and not subsection:
         return _h1_section(tag)
-    else:
+    elif tag:
         return _h2_section(tag)
 
 
@@ -76,18 +76,18 @@ def _read_multiple_tables(html: str) -> list[dict]:
     rows = []
 
     for h1_section in get_sections(html, 'h1'):
-        h1_soup = parse_soup_from_xml(h1_section)
+        if h1_section:
+            h1_soup = parse_soup_from_xml(h1_section)
+            tag = h1_soup.find('h1')
+            row_data = _process_section(tag)
 
-        tag = h1_soup.find('h1')
-        row_data = _process_section(tag)
+            for h2_section in get_sections(h1_section, 'h2'):
+                if h2_section:
+                    h2_soup = parse_soup_from_xml(h2_section)
+                    tag = h2_soup.find('h2')
+                    row_data |= _process_section(tag, subsection=True)
 
-        for h2_section in get_sections(h1_section, 'h2'):
-            h2_soup = parse_soup_from_xml(h2_section)
-
-            tag = h2_soup.find('h2')
-            row_data |= _process_section(tag, subsection=True)
-
-        rows.append(row_data)
+            rows.append(row_data)
 
     return rows
 

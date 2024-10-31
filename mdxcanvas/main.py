@@ -69,7 +69,8 @@ def process_file(
             global_args_path=global_args_file,
             line_id=line_id
         )
-        xml_content = content
+
+    xml_content = content
 
     if 'md' in content_type:
         # Process Markdown
