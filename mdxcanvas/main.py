@@ -72,7 +72,7 @@ def process_file(
 
     xml_content = content
 
-    if 'md' in content_type:
+    if '.md' in content_type:
         # Process Markdown
         excluded = ['pre', 'style']
 

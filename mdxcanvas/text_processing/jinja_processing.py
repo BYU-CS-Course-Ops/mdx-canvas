@@ -4,7 +4,6 @@ import json
 import jinja2 as jj
 from pathlib import Path
 
-from bs4 import BeautifulSoup
 from bs4.element import Tag
 
 from .markdown_processing import process_markdown_text
@@ -69,25 +68,24 @@ def get_sections(text: str, tag_name) -> str:
         section += str(tag)
         tag = tag.find_next(['h1', 'h2', 'table'])
 
-    yield section
+    if section:
+        yield section
 
 
 def _read_multiple_tables(html: str) -> list[dict]:
     rows = []
 
     for h1_section in get_sections(html, 'h1'):
-        if h1_section:
-            h1_soup = parse_soup_from_xml(h1_section)
-            tag = h1_soup.find('h1')
-            row_data = _process_section(tag)
+        h1_soup = parse_soup_from_xml(h1_section)
+        tag = h1_soup.find('h1')
+        row_data = _process_section(tag)
 
-            for h2_section in get_sections(h1_section, 'h2'):
-                if h2_section:
-                    h2_soup = parse_soup_from_xml(h2_section)
-                    tag = h2_soup.find('h2')
-                    row_data |= _process_section(tag, subsection=True)
+        for h2_section in get_sections(h1_section, 'h2'):
+            h2_soup = parse_soup_from_xml(h2_section)
+            tag = h2_soup.find('h2')
+            row_data |= _process_section(tag, subsection=True)
 
-            rows.append(row_data)
+        rows.append(row_data)
 
     return rows
 
