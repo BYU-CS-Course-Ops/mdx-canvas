@@ -1,4 +1,5 @@
 import logging
+import sys
 
 from canvasapi.course import Course
 from canvasapi.quiz import Quiz
@@ -51,10 +52,8 @@ def check_quiz(canvas_quiz: Quiz, name: str):
     """
     Checks if quiz has submissions and throws a warning with link to quiz.
     """
-    if canvas_quiz.has_submissions:
-        logging.warning(f"Quiz {name} has submissions. Please check {canvas_quiz.html_url} to ensure it is correct.")
-        return None
-
+    if list(canvas_quiz.get_submissions()):
+        logging.warning(f"Quiz {name} has submissions. See {canvas_quiz.html_url}.")
 
 def replace_questions(quiz: Quiz, questions: list[dict]):
     """
@@ -74,11 +73,11 @@ def deploy_quiz(course: Course, quiz_data: dict) -> Quiz:
 
     if canvas_quiz := get_quiz(course, name):
         canvas_quiz: Quiz
+        check_quiz(canvas_quiz, name)
         canvas_quiz.edit(quiz=quiz_data)
     else:
         canvas_quiz = create_quiz(course, quiz_data, name)
 
-    check_quiz(canvas_quiz, name)
     replace_questions(canvas_quiz, quiz_data['questions'])
     canvas_quiz.edit()
 
