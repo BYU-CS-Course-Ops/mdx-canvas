@@ -53,7 +53,7 @@ def check_quiz(canvas_quiz: Quiz, name: str):
     Checks if quiz has submissions and throws a warning with link to quiz.
     """
     if list(canvas_quiz.get_submissions()):
-        logging.warning(f"Quiz {name} has submissions. See {canvas_quiz.html_url}.")
+        logging.warning(f"Quiz {name} has submissions. See {canvas_quiz.html_url} to save quiz.")
 
 def replace_questions(quiz: Quiz, questions: list[dict]):
     """
