@@ -43,7 +43,7 @@ def deploy_resource(course: Course, resource_type: str, resource_data: dict) -> 
     try:
         deployed = deploy(course, resource_data)
     except:
-        logging.error(f'Failed to deploy resource: {resource_type} {resource_data}')
+        logger.error(f'Failed to deploy resource: {resource_type} {resource_data}')
         raise
 
     if deployed is None:
