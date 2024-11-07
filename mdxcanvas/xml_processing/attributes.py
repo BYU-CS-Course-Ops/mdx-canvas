@@ -1,11 +1,14 @@
 import dataclasses
-import logging
 from datetime import datetime
 from typing import Callable, Any
 
 from bs4 import Tag
 
 from mdxcanvas.util import retrieve_contents
+
+from ..our_logging import get_logger
+
+logger = get_logger()
 
 
 def parse_date(date: datetime | str | None) -> str:
@@ -121,7 +124,7 @@ def parse_settings(tag: Tag, attributes: list[Attribute]):
 
     for key in tag.attrs:
         if key not in processed_fields:
-            logging.warning(f'Unprocessed_fields field {key} @ {get_tag_path(tag)}')
+            logger.warning(f'Unprocessed_fields field {key} @ {get_tag_path(tag)}')
 
     return settings
 

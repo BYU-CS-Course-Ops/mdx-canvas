@@ -1,7 +1,8 @@
-import logging
 from collections import deque
 
-logger = logging.getLogger('logger')
+from ..our_logging import get_logger
+
+logger = get_logger()
 
 
 def linearize_dependencies(graph: dict[tuple[str, str], list[str]]):

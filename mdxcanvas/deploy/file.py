@@ -1,11 +1,12 @@
-import logging
-
 from canvasapi.course import Course
 from canvasapi.file import File
 from canvasapi.folder import Folder
 
 from .util import get_canvas_object
 from ..resources import FileData
+from ..our_logging import get_logger
+
+logger = get_logger()
 
 DEFAULT_CANVAS_FOLDER = 'deployed_files'
 
@@ -23,7 +24,7 @@ def get_canvas_folder(course: Course, folder_name: str, parent_folder_path="") -
     if folder is not None:
         return folder
 
-    logging.debug(f"Creating folder: {folder_name}")
+    logger.debug(f"Creating folder: {folder_name}")
     return course.create_folder(name=folder_name, parent_folder_path=parent_folder_path, hidden=True)
 
 
