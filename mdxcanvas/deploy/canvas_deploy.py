@@ -1,5 +1,4 @@
 import json
-import logging
 
 from datetime import datetime
 from pathlib import Path
@@ -14,20 +13,21 @@ from .algorithms import linearize_dependencies
 from .checksums import MD5Sums, compute_md5
 from .file import deploy_file, lookup_file
 from .syllabus import deploy_syllabus, lookup_syllabus
-from .util import get_canvas_uri, ResourceNotFoundException
+from .util import get_canvas_uri
 from .zip import deploy_zip, lookup_zip, predeploy_zip
-from .quiz import deploy_quiz, lookup_quiz
+from .quiz import deploy_quiz, lookup_quiz, check_quiz
 from .page import deploy_page, lookup_page
 from .assignment import deploy_assignment, lookup_assignment
 from .module import deploy_module, lookup_module
 
 from ..resources import CanvasResource, iter_keys
+from ..our_logging import log_warnings, get_logger
 
-logger = logging.getLogger('logger')
+logger = get_logger()
 
 
-def deploy_resource(course: Course, resource_type: str, resource_data: dict) -> CanvasObject:
-    deployers: dict[str, Callable[[Course, dict], CanvasObject]] = {
+def deploy_resource(course: Course, resource_type: str, resource_data: dict) -> tuple[CanvasObject, str|None]:
+    deployers: dict[str, Callable[[Course, dict], tuple[CanvasObject, str|None]]] = {
         'zip': deploy_zip,
         'file': deploy_file,
         'page': deploy_page,
@@ -41,15 +41,15 @@ def deploy_resource(course: Course, resource_type: str, resource_data: dict) -> 
         raise Exception(f'Deployment unsupported for resource of type {resource_type}')
 
     try:
-        deployed = deploy(course, resource_data)
+        deployed, warning = deploy(course, resource_data)
     except:
-        logging.error(f'Failed to deploy resource: {resource_type} {resource_data}')
+        logger.error(f'Failed to deploy resource: {resource_type} {resource_data}')
         raise
 
     if deployed is None:
         raise Exception(f'Resource not found: {resource_type} {resource_data}')
 
-    return deployed
+    return deployed, warning
 
 
 def lookup_resource(course: Course, resource_type: str, resource_name: str) -> CanvasObject:
@@ -173,7 +173,8 @@ def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, s
     resource_order = linearize_dependencies(resource_dependencies)
     logger.debug(f'Order of deployment: {resource_order}')
 
-    logger.info('-- Beginning deployment to Canvas --')
+    warnings = []
+    logger.info('Beginning deployment to Canvas')
     with MD5Sums(course) as md5s, TemporaryDirectory() as tmpdir:
         tmpdir = Path(tmpdir)
 
@@ -196,8 +197,11 @@ def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, s
                 if current_md5 != stored_md5:
                     # Create the resource
                     logger.info(f'Deploying {rtype} {rname}')
-                    resource_obj = deploy_resource(course, rtype, resource_data)
+                    resource_obj, warning = deploy_resource(course, rtype, resource_data)
+                    if warning:
+                        warnings.append(warning)
                     resource_objs[resource_key] = resource_obj
                     md5s[resource_key] = current_md5
-
+        if warnings:
+            log_warnings(warnings)
     # Done!

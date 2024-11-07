@@ -23,3 +23,8 @@ def get_logger(name: str = None):
                 break
 
     return logger
+
+
+def log_warnings(summary: list):
+    for warning in summary:
+        logger.warning(warning)

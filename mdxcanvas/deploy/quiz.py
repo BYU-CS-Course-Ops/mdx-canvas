@@ -1,10 +1,11 @@
-import logging
-
 from canvasapi.course import Course
 from canvasapi.quiz import Quiz
 
 from .util import get_canvas_object, update_group_name_to_id, ResourceNotFoundException
 
+from ..our_logging import get_logger
+
+logger = get_logger()
 
 def get_quiz(course: Course, title: str) -> Quiz:
     return get_canvas_object(course.get_quizzes, "title", title)
@@ -15,43 +16,52 @@ def debug_quiz_creation(canvas_quiz: Quiz, course: Course, data):
 
     for key, value in zip(data.keys(), data.values()):
         new_settings[key] = value
-        logging.debug(f"Attempting with {key}: {value}")
+        logger.debug(f"Attempting with {key}: {value}")
         try:
             canvas_quiz = course.create_quiz(quiz=new_settings)
         except Exception as ex:
-            logging.exception(f"Failed on key: {key}, value: {value}")
+            logger.exception(f"Failed on key: {key}, value: {value}")
             raise ex
         canvas_quiz.delete()
     return canvas_quiz
 
 
 def create_quiz(course: Course, data: dict, name: str):
-    logging.debug(f"Creating canvas quiz {name}...")
+    logger.debug(f"Creating canvas quiz {name}...")
     try:
         canvas_quiz = course.create_quiz(quiz=data)
     except Exception as ex:
-        logging.exception(f"Error creating canvas quiz {name}")
+        logger.exception(f"Error creating canvas quiz {name}")
 
         # Perhaps the quiz was partially created, and then the program crashed
         if canvas_quiz := get_quiz(course, name):
-            logging.warning(f"Attempting to edit partially created quiz {name}...")
+            logger.warning(f"Attempting to edit partially created quiz {name}...")
             try:
                 canvas_quiz.edit(quiz=data)
             except Exception as ex:
-                logging.exception("Failed to edit quiz")
+                logger.exception("Failed to edit quiz")
                 raise ex
         else:
-            logging.error("Quiz was not created")
-            logging.error("Attempting to debug quiz creation")
+            logger.error("Quiz was not created")
+            logger.error("Attempting to debug quiz creation")
             canvas_quiz = debug_quiz_creation(canvas_quiz, course, data)
     return canvas_quiz
+
+
+def check_quiz(canvas_quiz, name: str):
+    """
+    Checks if quiz has submissions and throws a warning with link to quiz.
+    """
+    if any(canvas_quiz.get_submissions()):
+        return f"Quiz {name} has submissions. See {canvas_quiz.html_url} to save quiz."
+    return None
 
 
 def replace_questions(quiz: Quiz, questions: list[dict]):
     """
     Deletes all questions in a quiz, and replaces them with new questions.
     """
-    logging.debug(f"Replacing questions ... ")
+    logger.debug(f"Replacing questions ... ")
     for quiz_question in quiz.get_questions():
         quiz_question.delete()
     for question in questions:
@@ -65,14 +75,16 @@ def deploy_quiz(course: Course, quiz_data: dict) -> Quiz:
 
     if canvas_quiz := get_quiz(course, name):
         canvas_quiz: Quiz
+        warning = check_quiz(canvas_quiz, name)
         canvas_quiz.edit(quiz=quiz_data)
     else:
         canvas_quiz = create_quiz(course, quiz_data, name)
+        warning = None
 
     replace_questions(canvas_quiz, quiz_data['questions'])
     canvas_quiz.edit()
 
-    return canvas_quiz
+    return canvas_quiz, warning
 
 
 def lookup_quiz(course: Course, quiz_name: str) -> Quiz:
