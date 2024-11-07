@@ -52,8 +52,9 @@ def check_quiz(canvas_quiz, name: str):
     """
     Checks if quiz has submissions and throws a warning with link to quiz.
     """
-    if list(canvas_quiz.get_submissions()):
+    if any(canvas_quiz.get_submissions()):
         return f"Quiz {name} has submissions. See {canvas_quiz.html_url} to save quiz."
+    return None
 
 
 def replace_questions(quiz: Quiz, questions: list[dict]):
@@ -74,14 +75,16 @@ def deploy_quiz(course: Course, quiz_data: dict) -> Quiz:
 
     if canvas_quiz := get_quiz(course, name):
         canvas_quiz: Quiz
+        warning = check_quiz(canvas_quiz, name)
         canvas_quiz.edit(quiz=quiz_data)
     else:
         canvas_quiz = create_quiz(course, quiz_data, name)
+        warning = None
 
     replace_questions(canvas_quiz, quiz_data['questions'])
     canvas_quiz.edit()
 
-    return canvas_quiz
+    return canvas_quiz, warning
 
 
 def lookup_quiz(course: Course, quiz_name: str) -> Quiz:

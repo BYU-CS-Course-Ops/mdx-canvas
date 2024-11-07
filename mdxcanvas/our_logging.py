@@ -25,6 +25,6 @@ def get_logger(name: str = None):
     return logger
 
 
-def log_summary(summary: list):
+def log_warnings(summary: list):
     for warning in summary:
         logger.warning(warning)
