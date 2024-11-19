@@ -66,7 +66,7 @@ def _create_or_update_module_items(course: Course, module: Module, module_items:
             module.create_module_item(module_item=item)
 
 
-def deploy_module(course: Course, module_data: dict) -> tuple[Module, str|None]:
+def deploy_module(course: Course, module_data: dict) -> Module:
     name = module_data["name"]
 
     if canvas_module := _get_module(course, name):
@@ -78,7 +78,7 @@ def deploy_module(course: Course, module_data: dict) -> tuple[Module, str|None]:
 
     _create_or_update_module_items(course, canvas_module, module_data.get('items', []))
 
-    return canvas_module, None
+    return canvas_module
 
 
 lookup_module = _get_module

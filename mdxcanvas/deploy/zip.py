@@ -2,13 +2,12 @@ import re
 from pathlib import Path
 from zipfile import ZipFile, ZipInfo
 
+
 from ..resources import ZipFileData, FileData
-from ..our_logging import get_logger
 from .file import deploy_file, lookup_file
 
 from ..our_logging import get_logger
 
-logger = get_logger()
 
 def zip_folder(
         folder_path: Path,
