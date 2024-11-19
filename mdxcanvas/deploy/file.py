@@ -4,6 +4,9 @@ from canvasapi.folder import Folder
 
 from .util import get_canvas_object
 from ..resources import FileData
+from ..our_logging import get_logger
+
+logger = get_logger()
 
 from ..our_logging import get_logger
 
@@ -32,7 +35,7 @@ def deploy_file(course: Course, data: FileData):
     canvas_folder = data.get('canvas_folder') or DEFAULT_CANVAS_FOLDER
     folder = get_canvas_folder(course, canvas_folder)
     file_id = folder.upload(data['path'])[1]['id']
-    return course.get_file(file_id)
+    return course.get_file(file_id), None
 
 
 def lookup_file(course: Course, name: str):

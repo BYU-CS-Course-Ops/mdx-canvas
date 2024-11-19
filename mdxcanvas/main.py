@@ -70,14 +70,16 @@ def process_file(
             line_id=line_id
         )
 
-    xml_content = content
-
     if '.md' in content_type:
         # Process Markdown
         excluded = ['pre', 'style']
 
         logger.info('Processing Markdown')
         xml_content = process_markdown(content, excluded=excluded)
+
+    logger.info('Processing Markdown')
+    xml_content = process_markdown(content, excluded=excluded)
+
 
     # Preprocess XML
     logger.info('Processing XML')
@@ -117,6 +119,8 @@ def main(
 ):
     # Make sure the course actually exists before doing any real effort
     course = get_course(canvas_api_token, course_info['CANVAS_API_URL'], course_info['CANVAS_COURSE_ID'])
+    logger = get_logger(course.name)
+    logger.info('Connecting to Canvas')
 
     logger = get_logger(course.name)
     logger.info('Connecting to Canvas')
