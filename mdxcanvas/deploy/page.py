@@ -8,7 +8,7 @@ def get_page(course: Course, title: str) -> Page:
     return get_canvas_object(course.get_pages, 'title', title)
 
 
-def deploy_page(course: Course, page_info: dict) -> Page:
+def deploy_page(course: Course, page_info: dict) -> tuple[Page, str|None]:
     name = page_info['title']
 
     if canvas_page := get_page(course, name):
@@ -16,7 +16,7 @@ def deploy_page(course: Course, page_info: dict) -> Page:
     else:
         canvas_page = course.create_page(wiki_page=page_info)
 
-    return canvas_page
+    return canvas_page, None
 
 
 def lookup_page(course: Course, page_title: str) -> Page:
