@@ -77,9 +77,9 @@ def process_file(
         logger.info('Processing Markdown')
         xml_content = process_markdown(content, excluded=excluded)
 
-    logger.info('Processing Markdown')
-    xml_content = process_markdown(content, excluded=excluded)
-
+    else:
+        logger.info('No Markdown processing needed')
+        xml_content = content
 
     # Preprocess XML
     logger.info('Processing XML')

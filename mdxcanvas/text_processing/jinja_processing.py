@@ -26,7 +26,9 @@ def _process_table(tag: Tag) -> list[dict]:
     return [_extract_row_data(headers, tr) for tr in tag.find_all('tr')[1:] if _extract_row_data(headers, tr)]
 
 
-def _h1_section(tag: Tag) -> dict:
+def _h1_section(tag: Tag) -> dict | None:
+    if not tag:
+        return None
     section_data = {'Title': tag.text.strip()}
 
     child = tag.find_next(['h2', 'table'])
@@ -37,7 +39,9 @@ def _h1_section(tag: Tag) -> dict:
     return section_data
 
 
-def _h2_section(tag: Tag) -> dict:
+def _h2_section(tag: Tag) -> dict | None:
+    if not tag:
+        return None
     section_data = {tag.text.strip(): []}
 
     child = tag.find_next(['h2', 'table'])
@@ -45,13 +49,6 @@ def _h2_section(tag: Tag) -> dict:
         section_data[tag.text.strip()] = _process_table(child)
 
     return section_data
-
-
-def _process_section(tag: Tag, subsection: bool = False) -> dict:
-    if tag and not subsection:
-        return _h1_section(tag)
-    elif tag:
-        return _h2_section(tag)
 
 
 def get_sections(text: str, tag_name) -> str:
@@ -78,12 +75,12 @@ def _read_multiple_tables(html: str) -> list[dict]:
     for h1_section in get_sections(html, 'h1'):
         h1_soup = parse_soup_from_xml(h1_section)
         tag = h1_soup.find('h1')
-        row_data = _process_section(tag)
+        row_data = _h1_section(tag)
 
         for h2_section in get_sections(h1_section, 'h2'):
             h2_soup = parse_soup_from_xml(h2_section)
             tag = h2_soup.find('h2')
-            row_data |= _process_section(tag, subsection=True)
+            row_data |= _h2_section(tag)
 
         rows.append(row_data)
 
