@@ -4,7 +4,6 @@ from ..our_logging import get_logger
 
 logger = get_logger()
 
-
 def linearize_dependencies(graph: dict[tuple[str, str], list[str]]):
     # Original code courtesy of GPT-4o
     # Some modifications required

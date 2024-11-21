@@ -89,10 +89,6 @@ def parse_multiple_choice_question(tag: Tag):
     <incorrect> 8 </incorrect>
     </question>
     """
-
-    corrects = parse_children_tag_contents(tag, 'correct')
-    if len(corrects) != 1:
-        raise ValueError("Multiple choice questions must have exactly one correct answer!")
     return _parse_multiple_option_question('multiple_choice_question', tag)
 
 

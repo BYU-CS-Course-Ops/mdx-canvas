@@ -1,33 +1,106 @@
+import re
 import csv
 import json
 import jinja2 as jj
 from pathlib import Path
 
+from bs4.element import Tag
+
 from .markdown_processing import process_markdown_text
 from ..util import parse_soup_from_xml, retrieve_contents
 
 
-def _read_md_table(md_text: str) -> list[dict]:
-    # Assume the only thing in the markdown is a single table
-    html = process_markdown_text(md_text)
+def _extract_headers(table: Tag) -> list[str]:
+    return [th.text.strip() for th in table.find_all('th')]
 
-    soup = parse_soup_from_xml(html)
-    table = soup.find('table')
 
-    # Thank you, GPT:
-    # Extract headers
-    headers = [th.text.strip() for th in table.find_all('th')]
+def _extract_row_data(headers: list[str], row: Tag) -> dict:
+    cells = row.find_all(['td', 'th'])
+    if len(cells) != len(headers):
+        return {}
+    return {headers[i]: retrieve_contents(cells[i]) for i in range(len(headers))}
 
-    # Iterate over rows and create list of dictionaries
+
+def _process_table(tag: Tag) -> list[dict]:
+    headers = _extract_headers(tag)
+    return [_extract_row_data(headers, tr) for tr in tag.find_all('tr')[1:] if _extract_row_data(headers, tr)]
+
+
+def _h1_section(tag: Tag) -> dict | None:
+    if not tag:
+        return None
+    section_data = {'Title': tag.text.strip()}
+
+    child = tag.find_next(['h2', 'table'])
+    if child.name == 'table':
+        # Only one row of data is ever expected for h1 sections
+        section_data |= _process_table(child)[0]
+
+    return section_data
+
+
+def _h2_section(tag: Tag) -> dict | None:
+    if not tag:
+        return None
+    section_data = {tag.text.strip(): []}
+
+    child = tag.find_next(['h2', 'table'])
+    if child.name == 'table':
+        section_data[tag.text.strip()] = _process_table(child)
+
+    return section_data
+
+
+def get_sections(text: str, tag_name) -> str:
+    section = ''
+    soup = parse_soup_from_xml(text)
+
+    tag = soup.find([tag_name])
+    while tag:
+        if tag.name == tag_name:
+            if section:
+                yield section
+            section = ''
+
+        section += str(tag)
+        tag = tag.find_next(['h1', 'h2', 'table'])
+
+    if section:
+        yield section
+
+
+def _read_multiple_tables(html: str) -> list[dict]:
     rows = []
-    for tr in table.find_all('tr')[1:]:  # skipping the header row
-        cells = tr.find_all(['td', 'th'])
-        if len(cells) != len(headers):
-            continue  # Skip any rows that do not match the number of headers
-        row_data = {headers[i]: retrieve_contents(cells[i]) for i in range(len(headers))}
+
+    for h1_section in get_sections(html, 'h1'):
+        h1_soup = parse_soup_from_xml(h1_section)
+        tag = h1_soup.find('h1')
+        row_data = _h1_section(tag)
+
+        for h2_section in get_sections(h1_section, 'h2'):
+            h2_soup = parse_soup_from_xml(h2_section)
+            tag = h2_soup.find('h2')
+            row_data |= _h2_section(tag)
+
         rows.append(row_data)
 
     return rows
+
+
+def _read_single_table(html: str) -> list[dict]:
+    soup = parse_soup_from_xml(html)
+    table = soup.find('table')
+    return _process_table(table)
+
+
+def _read_md_table(md_text: str) -> list[dict]:
+    html = process_markdown_text(md_text)
+
+    # Check if file contains header 1 or 2 tags, indicating multiple tables
+    if re.search(r'<h[1|2]>', html):
+        return _read_multiple_tables(html)
+    else:
+        return _read_single_table(html)
 
 
 def _get_global_args(global_args_path: Path) -> dict:

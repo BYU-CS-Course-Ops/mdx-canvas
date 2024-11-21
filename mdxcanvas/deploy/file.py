@@ -8,6 +8,9 @@ from ..our_logging import get_logger
 
 logger = get_logger()
 
+from ..our_logging import get_logger
+
+logger = get_logger()
 DEFAULT_CANVAS_FOLDER = 'deployed_files'
 
 

@@ -6,6 +6,8 @@ from ..resources import ZipFileData, FileData
 from ..our_logging import get_logger
 from .file import deploy_file, lookup_file
 
+from ..our_logging import get_logger
+
 logger = get_logger()
 
 def zip_folder(
@@ -25,6 +27,8 @@ def zip_folder(
 
 
 def write_item_to_zip(item: Path, zipf: ZipFile, exclude: re.Pattern = None, prefix='', priority_fld: Path = None):
+    logger = get_logger()
+    
     if exclude and exclude.match(item.name):
         logger.debug(f"Excluding file {item.name}")
         return
@@ -36,6 +40,8 @@ def write_item_to_zip(item: Path, zipf: ZipFile, exclude: re.Pattern = None, pre
 
 def write_directory(folder: Path, zipf: ZipFile, exclude: re.Pattern = None, prefix='',
                     priority_fld: Path = None):
+    logger = get_logger()
+    
     prefix = prefix + folder.name + '/'
 
     # Get all items in the folder
@@ -66,6 +72,8 @@ def set_time_1980(file, prefix=''):
 
 def write_file(file: Path, zipf: ZipFile, prefix='', priority_fld: Path = None):
     # Use the file from the priority folder if it exists
+    logger = get_logger()
+    
     if priority_fld and (priority_file := priority_fld / file.name).exists():
         file = priority_file
         logger.debug(f"Prioritizing file {file.name}")
