@@ -1,0 +1,39 @@
+<quiz title="Numeric Example">
+
+<description>
+    Example of a numeric question.
+</description>
+
+<questions>
+    <question type='numerical' numerical_answer_type="exact">
+        Give one possible value for x. The margin of error is +- 0.0001.
+
+        (x - pi)^2 = (x - pi)
+
+        <correct answer_exact='3.14159' answer_error_margin='0.0001' />
+
+        <correct answer_exact='4.14159' answer_error_margin='0.0001' />
+    </question>
+
+
+    <question type='numerical' numerical_answer_type="range">
+        Give one possible value for x.
+
+        1 <= x^2 <= 100
+
+        <correct answer_range_start='1' answer_range_end='10' />
+
+        <correct answer_range_start='-10' answer_range_end='-1' />
+    </question>
+
+
+    <question type='numerical' numerical_answer_type="precision">
+        What is the value of pi?
+
+        Ensure your answer gives at least 5 digits.
+
+        <correct answer_approximate='3.14159' answer_precision='5' />
+    </question>
+</questions>
+
+</quiz>
