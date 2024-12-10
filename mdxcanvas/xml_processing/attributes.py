@@ -85,8 +85,19 @@ class Attribute:
     is_tag: bool = False
 
 
+def get_tag_info(tag: Tag):
+    name = tag.name
+    hint = tag.get('title', None)
+    if hint is None:
+        hint = tag.get('name', None)
+    display = name
+    if hint is not None:
+        display += f'({hint})'
+    return display
+
+
 def get_tag_path(tag: Tag):
-    tokens = [tag.name] + [p.name for p in tag.parents]
+    tokens = [get_tag_info(tag)] + [get_tag_info(p) for p in tag.parents]
     return '.'.join(tokens[::-1])
 
 

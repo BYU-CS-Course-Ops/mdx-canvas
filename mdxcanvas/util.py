@@ -20,3 +20,4 @@ def retrieve_contents(tag: Tag, ignored_child_tag_names: list[str] = ()) -> str:
             or (isinstance(c, Tag) and c.name not in ignored_child_tag_names)
         )
     )
+

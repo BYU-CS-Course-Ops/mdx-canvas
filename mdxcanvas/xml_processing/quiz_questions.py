@@ -157,7 +157,7 @@ def parse_matching_question(tag: Tag):
                 "answer_weight": FULL_POINTS
             } for answer in pairs
         ],
-        "matching_answer_incorrect_matches": '\n'.join(distractors)
+        "matching_answer_incorrect_matches": distractors
     })
 
     return [question]
@@ -295,13 +295,14 @@ def parse_file_upload_question(tag: Tag):
 
 def parse_exact_answer_question(tag: Tag):
     """
-    <question type='numerical'>
+    <question type='numerical' numerical_answer_type="exact">
     Give one possible value for x. The margin of error is +- 0.0001.
+
     (x - pi)^2 = (x - pi)
 
-    <correct type='exact' exact='3.14159' margin='0.0001' />
+    <correct answer_exact='3.14159' answer_error_margin='0.0001' />
 
-    <correct type='exact' exact='4.14159' margin='0.0001' />
+    <correct answer_exact='4.14159' answer_error_margin='0.0001' />
     </question>
     """
 
@@ -316,13 +317,14 @@ def parse_exact_answer_question(tag: Tag):
 
 def parse_range_answer_question(tag: Tag):
     """
-    <question type='numerical'>
+    <question type='numerical' numerical_answer_type="range">
     Give one possible value for x.
+
     1 <= x^2 <= 100
 
-    <correct type='range' start='1' end='10' />
+    <correct answer_range_start='1' answer_range_end='10' />
 
-    <correct type='range' start='-10' end='-1' />
+    <correct answer_range_start='-10' answer_range_end='-1' />
     </question>
     """
     question_text = retrieve_contents(tag, ['answer_range_start', 'answer_range_end'])
@@ -341,9 +343,12 @@ def parse_precision_answer_question(tag: Tag):
     Precision answers can be negative numbers and may include trailing zeroes.
     However, student responses will be marked as correct if they omit the trailing zeroes, as long as all preceding digits are correct.
 
-    <question type='numerical'>
+    <question type='numerical' numerical_answer_type="precision">
     What is the value of pi?
-    <correct type='precision' approximate='3.14159' precision='5' />
+
+    Ensure your answer gives at least 5 digits.
+
+    <correct answer_approximate='3.14159' answer_precision='5' />
     </question>
     """
 

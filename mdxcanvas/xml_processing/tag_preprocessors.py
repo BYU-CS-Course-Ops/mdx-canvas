@@ -5,13 +5,14 @@ from bs4 import Tag
 
 from ..resources import ResourceManager, FileData, ZipFileData, CanvasResource, get_key
 from ..util import parse_soup_from_xml
-from ..xml_processing.attributes import parse_bool
-
+from ..xml_processing.attributes import parse_bool, get_tag_path
 
 def make_image_preprocessor(parent: Path, resources: ResourceManager):
     def process_image(tag: Tag):
         # TODO - handle b64-encoded images
         src = (parent / tag.get('src')).resolve().absolute()
+        if not src.is_file():
+            raise ValueError(f"Image file {src} is not a file @ {get_tag_path(tag)}")
         file = CanvasResource(
             type='file',
             name=src.name,
@@ -45,6 +46,8 @@ def make_file_preprocessor(parent: Path, resources: ResourceManager):
     def process_file(tag: Tag):
         attrs = tag.attrs
         path = (parent / attrs.pop('path')).resolve().absolute()
+        if not path.is_file():
+            raise ValueError(f"File {path} is not a file @ {get_tag_path(tag)}")
         file = CanvasResource(
             type='file',
             name=path.name,
