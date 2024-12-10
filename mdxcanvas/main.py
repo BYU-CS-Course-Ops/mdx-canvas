@@ -74,15 +74,15 @@ def process_file(
         # Process Markdown
         excluded = ['pre', 'style']
 
-        logger.info('Processing Markdown')
+        logger.debug('Processing Markdown')
         xml_content = process_markdown(content, excluded=excluded)
 
     else:
-        logger.info('No Markdown processing needed')
+        logger.debug('No Markdown processing needed')
         xml_content = content
 
     # Preprocess XML
-    logger.info('Processing XML')
+    logger.debug('Processing XML')
 
     def load_and_process_file_contents(parent: Path, content: str, content_type: list[str], **kwargs) -> str:
         return process_file(resources, parent, content, content_type, global_args_file=global_args_file, **kwargs)

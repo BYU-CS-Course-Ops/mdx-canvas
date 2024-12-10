@@ -187,7 +187,7 @@ def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, s
 
                 rtype = resource['type']
                 rname = resource['name']
-
+                logger.info(f'Processing {rtype} {rname}')
                 if (resource_data := resource.get('data')) is not None:
                     # Deploy resource using data
                     resource_data = predeploy_resource(rtype, resource_data, timezone, tmpdir)
