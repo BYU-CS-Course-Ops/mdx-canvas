@@ -181,28 +181,33 @@ def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, s
 
         resource_objs: dict[tuple[str, str], CanvasObject] = {}
         for resource_key in resource_order:
-            logger.debug(f'Processing {resource_key}')
-            resource = resources[resource_key]
+            try:
+                logger.debug(f'Processing {resource_key}')
+                resource = resources[resource_key]
 
-            rtype = resource['type']
-            rname = resource['name']
+                rtype = resource['type']
+                rname = resource['name']
 
-            if (resource_data := resource.get('data')) is not None:
-                # Deploy resource using data
-                resource_data = predeploy_resource(rtype, resource_data, timezone, tmpdir)
-                resource_data = update_links(course, resource_data, resource_objs)
+                if (resource_data := resource.get('data')) is not None:
+                    # Deploy resource using data
+                    resource_data = predeploy_resource(rtype, resource_data, timezone, tmpdir)
+                    resource_data = update_links(course, resource_data, resource_objs)
 
-                stored_md5 = md5s.get(resource_key)
-                current_md5 = compute_md5(resource_data)
+                    stored_md5 = md5s.get(resource_key)
+                    current_md5 = compute_md5(resource_data)
 
-                if current_md5 != stored_md5:
-                    # Create the resource
-                    logger.info(f'Deploying {rtype} {rname}')
-                    resource_obj, warning = deploy_resource(course, rtype, resource_data)
-                    if warning:
-                        warnings.append(warning)
-                    resource_objs[resource_key] = resource_obj
-                    md5s[resource_key] = current_md5
+                    if current_md5 != stored_md5:
+                        # Create the resource
+                        logger.info(f'Deploying {rtype} {rname}')
+                        resource_obj, warning = deploy_resource(course, rtype, resource_data)
+                        if warning:
+                            warnings.append(warning)
+                        resource_objs[resource_key] = resource_obj
+                        md5s[resource_key] = current_md5
+            except:
+                logger.error(f'Error deploying resource {rtype} {rname}')
+                raise
+
         if warnings:
             log_warnings(warnings)
     # Done!

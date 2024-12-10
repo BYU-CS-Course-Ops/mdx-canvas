@@ -122,9 +122,6 @@ def main(
     logger = get_logger(course.name)
     logger.info('Connecting to Canvas')
 
-    logger = get_logger(course.name)
-    logger.info('Connecting to Canvas')
-
     resources = ResourceManager()
 
     # Load file
