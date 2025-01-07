@@ -1,13 +1,31 @@
-import re
 import csv
 import json
-import jinja2 as jj
+import re
 from pathlib import Path
+from typing import Any
 
+import jinja2 as jj
 from bs4.element import Tag
 
 from .markdown_processing import process_markdown_text
+from ..our_logging import get_logger
 from ..util import parse_soup_from_xml, retrieve_contents
+
+logger = get_logger()
+
+
+def _tokenize(text: str, break_tags):
+    soup = parse_soup_from_xml(text)
+    current_section = ''
+
+    for tag in soup.find_all():
+        if tag.name in break_tags and current_section:
+            yield current_section
+            current_section = ''
+        current_section += str(tag)
+
+    if current_section:
+        yield current_section
 
 
 def _extract_headers(table: Tag) -> list[str]:
@@ -17,79 +35,87 @@ def _extract_headers(table: Tag) -> list[str]:
 def _extract_row_data(headers: list[str], row: Tag) -> dict:
     cells = row.find_all(['td', 'th'])
     if len(cells) != len(headers):
+        logger.debug(f'Row data does not match headers: {row} ')
         return {}
     return {headers[i]: retrieve_contents(cells[i]) for i in range(len(headers))}
 
 
 def _process_table(tag: Tag) -> list[dict]:
     headers = _extract_headers(tag)
-    return [_extract_row_data(headers, tr) for tr in tag.find_all('tr')[1:] if _extract_row_data(headers, tr)]
+    rows = (_extract_row_data(headers, tr) for tr in tag.find_all('tr')[1:])
+    return [row for row in rows if row]
 
 
-def _h1_section(tag: Tag) -> dict | None:
-    if not tag:
-        return None
-    section_data = {'Title': tag.text.strip()}
+def _process_h1_table(tag: Tag) -> dict:
+    headers = _extract_headers(tag)
 
-    child = tag.find_next(['h2', 'table'])
-    if child.name == 'table':
-        # Only one row of data is ever expected for h1 sections
-        section_data |= _process_table(child)[0]
+    if headers == ['Key', 'Value']:
+        rows = (_extract_row_data(headers, tr) for tr in tag.find_all('tr')[1:])
+        return {
+            row['Key']: row['Value']
+            for row in rows
+            if row
+        }
+
+    else:
+        return _extract_row_data(headers, tag.find_all('tr')[1])
+
+
+def _parse_h1_header_data(text: str):
+    section_data = {}
+
+    tokens = _tokenize(text, ['h1', 'h3', 'table'])
+    for token in tokens:
+        soup = parse_soup_from_xml(token)
+        first_tag = soup.find()
+        if first_tag.name == 'h1':
+            section_data['Title'] = first_tag.text.strip()
+
+        elif first_tag.name == 'h3':
+            section_data[first_tag.text.strip()] = ''.join(str(tag) for tag in first_tag.next_siblings)
+
+        elif first_tag.name == 'table':
+            section_data |= _process_h1_table(first_tag)
 
     return section_data
 
 
-def _h2_section(tag: Tag) -> dict | None:
-    if not tag:
-        return None
-    section_data = {tag.text.strip(): []}
-
-    child = tag.find_next(['h2', 'table'])
-    if child.name == 'table':
-        section_data[tag.text.strip()] = _process_table(child)
-
-    return section_data
-
-
-def get_sections(text: str, tag_name) -> str:
-    section = ''
+def _parse_h2_section(text: str) -> tuple[str, list[dict]]:
     soup = parse_soup_from_xml(text)
 
-    tag = soup.find([tag_name])
-    while tag:
-        if tag.name == tag_name:
-            if section:
-                yield section
-            section = ''
+    title_tag = soup.find('h2')
+    section_name = title_tag.text.strip()
 
-        section += str(tag)
-        tag = tag.find_next(['h1', 'h2', 'table'])
+    table_tag = soup.find('table')
+    section_data = _process_table(table_tag) if table_tag else []
 
-    if section:
-        yield section
+    return section_name, section_data
 
 
-def _read_multiple_tables(html: str) -> list[dict]:
+def _parse_h1_section(h1_section: str) -> dict[str, Any]:
+    tokens = list(_tokenize(h1_section, ['h1', 'h2']))
+
+    h1_section_data: dict[str, Any] = _parse_h1_header_data(tokens[0])
+
+    for token in tokens[1:]:
+        section_name, h2_section_data = _parse_h2_section(token)
+        h1_section_data[section_name] = h2_section_data
+
+    return h1_section_data
+
+
+def _read_multiple_tables(text: str):
     rows = []
-
-    for h1_section in get_sections(html, 'h1'):
-        h1_soup = parse_soup_from_xml(h1_section)
-        tag = h1_soup.find('h1')
-        row_data = _h1_section(tag)
-
-        for h2_section in get_sections(h1_section, 'h2'):
-            h2_soup = parse_soup_from_xml(h2_section)
-            tag = h2_soup.find('h2')
-            row_data |= _h2_section(tag)
-
-        rows.append(row_data)
-
+    for h1_section in _tokenize(text, ['h1']):
+        rows.append(_parse_h1_section(h1_section))
     return rows
 
 
 def _read_single_table(html: str) -> list[dict]:
     soup = parse_soup_from_xml(html)
     table = soup.find('table')
+    if table is None:
+        return []
     return _process_table(table)
 
 

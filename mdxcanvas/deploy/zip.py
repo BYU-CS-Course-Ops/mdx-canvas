@@ -1,85 +1,83 @@
+import logging
 import re
 from pathlib import Path
 from zipfile import ZipFile, ZipInfo
 
-from ..resources import ZipFileData, FileData
-from ..our_logging import get_logger
 from .file import deploy_file, lookup_file
-
 from ..our_logging import get_logger
+from ..resources import ZipFileData, FileData
 
 logger = get_logger()
+
 
 def zip_folder(
         folder_path: Path,
         path_to_zip: Path,
         exclude: re.Pattern = None,
-        priority_fld: Path = None
+        priority_folder: Path = None
 ):
     """
     Zips a folder, excluding files that match the exclude pattern.
-    Items from the priority folder are added to the zip if they are not in the standard folder.
+    Items from the standard folder are added to the zip if they are not in the priority folder.
     Items in the priority folder take precedence over items in the standard folder.
     """
+    exclude = re.compile(exclude) if exclude else None
+    folder_path = folder_path.resolve().absolute()
+    logger.debug(f'Zipping {folder_path} to {path_to_zip}')
+
+    priority_files = get_files(priority_folder, exclude, '') if priority_folder else {}
+    files = get_files(folder_path, exclude, '')
+
+    for zip_name, file in files.items():
+        if zip_name not in priority_files:
+            priority_files[zip_name] = file
+        else:
+            logger.debug(f'Preferring {priority_files[zip_name]} over {file}')
+
+    if logger.isEnabledFor(logging.DEBUG):
+        file_str = ', '.join(priority_files.keys())
+        logger.debug(f'Files for {path_to_zip}: {file_str}')
+
+    write_files(priority_files, path_to_zip)
+
+
+def get_files(folder_path: Path, exclude: re.Pattern | None, prefix) -> dict[str, Path]:
+    if not folder_path.exists():
+        raise FileNotFoundError(folder_path)
+
+    files = {}
+    for file in folder_path.glob('*'):
+        if exclude and exclude.search(file.name):
+            logger.debug(f'Excluding {file} from zip')
+            continue
+
+        if file.is_dir():
+            files.update(get_files(file, exclude, prefix + '/' + file.name))
+        else:
+            files[prefix + '/' + file.name] = file.absolute()
+    return files
+
+
+def write_files(files: dict[str, Path], path_to_zip: Path):
     with ZipFile(path_to_zip, "w") as zipf:
-        for item in folder_path.glob("*"):
-            write_item_to_zip(item, zipf, exclude, priority_fld=priority_fld)
+        for zip_name, file in files.items():
+            write_file(file, zip_name, zipf)
 
 
-def write_item_to_zip(item: Path, zipf: ZipFile, exclude: re.Pattern = None, prefix='', priority_fld: Path = None):
-    logger = get_logger()
-    
-    if exclude and exclude.match(item.name):
-        logger.debug(f"Excluding file {item.name}")
-        return
-    if item.is_dir():
-        write_directory(item, zipf, exclude, prefix, priority_fld / item.name)
-    else:
-        write_file(item, zipf, prefix, priority_fld)
-
-
-def write_directory(folder: Path, zipf: ZipFile, exclude: re.Pattern = None, prefix='',
-                    priority_fld: Path = None):
-    logger = get_logger()
-    
-    prefix = prefix + folder.name + '/'
-
-    # Get all items in the folder
-    paths = list(folder.glob("*"))
-
-    # Add items from priority folder that are not in the folder
-    item_names = {i.name for i in folder.glob("*")}
-    if priority_fld:
-        for item in priority_fld.glob("*"):
-            if item.name not in item_names:
-                paths.append(item)
-                logger.debug(f"Using additional file {item.name}")
-
-    for path in paths:
-        write_item_to_zip(path, zipf, exclude, prefix, priority_fld)
-
-
-def set_time_1980(file, prefix=''):
+def make_zip_info(zip_name):
     """
     Ensures that the zip file stays consistent between runs.
     """
     zinfo = ZipInfo(
-        prefix + file.name,
+        zip_name,
+        # For consistency, set the time to 1980
         date_time=(1980, 1, 1, 0, 0, 0)
     )
     return zinfo
 
 
-def write_file(file: Path, zipf: ZipFile, prefix='', priority_fld: Path = None):
-    # Use the file from the priority folder if it exists
-    logger = get_logger()
-    
-    if priority_fld and (priority_file := priority_fld / file.name).exists():
-        file = priority_file
-        logger.debug(f"Prioritizing file {file.name}")
-
-    # For consistency, set the time to 1980
-    zinfo = set_time_1980(file, prefix)
+def write_file(file: Path, zip_name: str, zipf: ZipFile):
+    zinfo = make_zip_info(zip_name)
     try:
         with open(file) as f:
             zipf.writestr(zinfo, f.read())

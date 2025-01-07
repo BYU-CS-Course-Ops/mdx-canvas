@@ -19,7 +19,6 @@ from .quiz import deploy_quiz, lookup_quiz, check_quiz
 from .page import deploy_page, lookup_page
 from .assignment import deploy_assignment, lookup_assignment
 from .module import deploy_module, lookup_module
-from ..our_logging import get_logger
 
 from ..resources import CanvasResource, iter_keys
 from ..our_logging import log_warnings, get_logger
@@ -162,6 +161,7 @@ def predeploy_resource(rtype: str, resource_data: dict, timezone: str, tmpdir: P
     }
 
     if (predeploy := predeployers.get(rtype)) is not None:
+        logger.debug(f'Predeploying {rtype} {resource_data}')
         resource_data = predeploy(resource_data, tmpdir)
 
     return resource_data

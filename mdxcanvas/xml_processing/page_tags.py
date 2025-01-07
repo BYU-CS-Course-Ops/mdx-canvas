@@ -19,6 +19,7 @@ class PageTagProcessor:
             Attribute('title', required=True),
             Attribute('editing_roles', 'teachers'),
             Attribute('notify_of_update', False, parse_bool),
+            Attribute('student_todo_at', parser=parse_date),
             Attribute('front_page', False, parse_bool),
             Attribute('published', parser=parse_bool),
             Attribute('publish_at', parser=parse_date)

@@ -4,9 +4,8 @@ from typing import Callable, Any
 
 from bs4 import Tag
 
-from mdxcanvas.util import retrieve_contents
-
 from ..our_logging import get_logger
+from ..util import retrieve_contents
 
 logger = get_logger()
 
@@ -106,32 +105,37 @@ def parse_settings(tag: Tag, attributes: list[Attribute]):
     processed_fields = set()
 
     for attribute in attributes:
-        processed_fields.add(attribute.name)
-        if attribute.new_name:
-            processed_fields.add(attribute.new_name)
-        name = attribute.new_name or attribute.name
+        try:
 
-        if attribute.ignore:
-            continue
+            processed_fields.add(attribute.name)
+            if attribute.new_name:
+                processed_fields.add(attribute.new_name)
+            name = attribute.new_name or attribute.name
 
-        if (field := (
-                tag.get(attribute.name, None)
-                or tag.get(attribute.new_name, None)
-        )) is not None:
-            # Parse the value
-            value = attribute.parser(field)
-            settings[name] = value
+            if attribute.ignore:
+                continue
 
-        elif attribute.is_tag:
-            child = tag.find(attribute.name, recursive=False)
-            value = retrieve_contents(child)
-            settings[name] = attribute.parser(value)
+            if (field := (
+                    tag.get(attribute.name, None)
+                    or tag.get(attribute.new_name, None)
+            )) is not None:
+                # Parse the value
+                value = attribute.parser(field)
+                settings[name] = value
 
-        elif attribute.default is not None:
-            settings[name] = attribute.default
+            elif attribute.is_tag:
+                child = tag.find(attribute.name, recursive=False)
+                value = retrieve_contents(child)
+                settings[name] = attribute.parser(value)
 
-        elif attribute.required:
-            raise Exception(f'Required field {attribute.name} missing from tag {tag.name}')
+            elif attribute.default is not None:
+                settings[name] = attribute.default
+
+            elif attribute.required:
+                raise Exception(f'Required field {attribute.name} missing from tag {tag.name}')
+        except:
+            logger.exception(f"Error processing attribute {attribute.name} in tag {get_tag_path(tag)}")
+            raise
 
     for key in tag.attrs:
         if key not in processed_fields:
