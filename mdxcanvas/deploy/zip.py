@@ -82,6 +82,7 @@ def write_file(file: Path, zip_name: str, zipf: ZipFile):
         with open(file) as f:
             zipf.writestr(zinfo, f.read())
     except UnicodeDecodeError as _:
+        logger.warning(f'File {file} encountered a decode error during zip {zipf.filename} creation.')
         with open(file, 'rb') as f:
             zipf.writestr(zinfo, f.read())
 
