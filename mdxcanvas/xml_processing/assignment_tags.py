@@ -21,7 +21,8 @@ class AssignmentTagProcessor:
             Attribute('available_from', parser=parse_date, new_name='unlock_at'),
             Attribute('available_to', parser=parse_date, new_name='lock_at'),
             Attribute('due_at', parser=parse_date),
-            Attribute('external_tool_tag_attributes', {}, parse_dict),
+            Attribute('late_due', parser=parse_date),
+            Attribute('external_tool_tag_attributes', {}, parser=parse_dict),
             Attribute('final_grader_id'),  # TODO - keep?
             Attribute('grade_group_students_individually', False, parse_bool),
             Attribute('grading_standard_id'),  # TODO - keep?

@@ -1,5 +1,4 @@
 import json
-
 from datetime import datetime
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -10,29 +9,31 @@ from canvasapi.canvas_object import CanvasObject
 from canvasapi.course import Course
 
 from .algorithms import linearize_dependencies
+from .assignment import deploy_assignment, lookup_assignment
 from .checksums import MD5Sums, compute_md5
 from .file import deploy_file, lookup_file
-from .syllabus import deploy_syllabus, lookup_syllabus
-from .util import get_canvas_uri
-from .zip import deploy_zip, lookup_zip, predeploy_zip
-from .quiz import deploy_quiz, lookup_quiz, check_quiz
-from .page import deploy_page, lookup_page
-from .assignment import deploy_assignment, lookup_assignment
 from .module import deploy_module, lookup_module
+from .override import deploy_override, lookup_override
+from .page import deploy_page, lookup_page
+from .quiz import deploy_quiz, lookup_quiz
+from .syllabus import deploy_syllabus, lookup_syllabus
+from .zip import deploy_zip, lookup_zip, predeploy_zip
 
-from ..resources import CanvasResource, iter_keys
+from .util import get_canvas_uri
 from ..our_logging import log_warnings, get_logger
+from ..resources import CanvasResource, iter_keys
 
 logger = get_logger()
 
 
-def deploy_resource(course: Course, resource_type: str, resource_data: dict) -> tuple[CanvasObject, str|None]:
-    deployers: dict[str, Callable[[Course, dict], tuple[CanvasObject, str|None]]] = {
+def deploy_resource(course: Course, resource_type: str, resource_data: dict) -> tuple[CanvasObject, str | None]:
+    deployers: dict[str, Callable[[Course, dict], tuple[CanvasObject, str | None]]] = {
         'zip': deploy_zip,
         'file': deploy_file,
         'page': deploy_page,
         'quiz': deploy_quiz,
         'assignment': deploy_assignment,
+        'override': deploy_override,
         'module': deploy_module,
         'syllabus': deploy_syllabus
     }
@@ -59,6 +60,7 @@ def lookup_resource(course: Course, resource_type: str, resource_name: str) -> C
         'page': lookup_page,
         'quiz': lookup_quiz,
         'assignment': lookup_assignment,
+        'override': lookup_override,
         'module': lookup_module,
         'syllabus': lookup_syllabus
     }
