@@ -2,6 +2,7 @@ from pathlib import Path
 from typing import Callable
 
 from .assignment_tags import AssignmentTagProcessor
+from .override_tags import OverrideTagProcessor
 from .syllabus_tags import SyllabusTagProcessor
 from ..resources import ResourceManager
 from ..util import parse_soup_from_xml
@@ -70,6 +71,7 @@ def process_canvas_xml(resources: ResourceManager, text: str):
         'quiz': QuizTagProcessor(resources),
         'page': PageTagProcessor(resources),
         'assignment': AssignmentTagProcessor(resources),
+        'override': OverrideTagProcessor(resources),
         'module': ModuleTagProcessor(resources),
         'syllabus': SyllabusTagProcessor(resources)
     }
