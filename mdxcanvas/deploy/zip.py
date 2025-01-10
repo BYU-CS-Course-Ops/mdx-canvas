@@ -61,7 +61,7 @@ def get_files(folder_path: Path, exclude: re.Pattern | None, prefix) -> dict[str
 def write_files(files: dict[str, Path], path_to_zip: Path):
     with ZipFile(path_to_zip, "w") as zipf:
         for zip_name, file in files.items():
-            write_file(file, zip_name, zipf)
+            write_file(file, zip_name.lstrip('/'), zipf)
 
 
 def make_zip_info(zip_name):
@@ -82,7 +82,7 @@ def write_file(file: Path, zip_name: str, zipf: ZipFile):
         with open(file) as f:
             zipf.writestr(zinfo, f.read())
     except UnicodeDecodeError as _:
-        logger.warning(f'File {file} encountered a decode error during zip {zipf.filename} creation.')
+        logger.debug(f'File {file} encountered a decode error during zip {zipf.filename} creation.')
         with open(file, 'rb') as f:
             zipf.writestr(zinfo, f.read())
 

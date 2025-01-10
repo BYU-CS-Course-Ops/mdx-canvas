@@ -17,9 +17,8 @@ from .override import deploy_override, lookup_override
 from .page import deploy_page, lookup_page
 from .quiz import deploy_quiz, lookup_quiz
 from .syllabus import deploy_syllabus, lookup_syllabus
-from .zip import deploy_zip, lookup_zip, predeploy_zip
-
 from .util import get_canvas_uri
+from .zip import deploy_zip, lookup_zip, predeploy_zip
 from ..our_logging import log_warnings, get_logger
 from ..resources import CanvasResource, iter_keys
 
@@ -136,7 +135,7 @@ def fix_dates(data, time_zone):
         data[attr] = utc_version.isoformat()
 
 
-def get_dependencies(resources: dict[tuple[str, str], CanvasResource]) -> dict[tuple[str, str], list[str]]:
+def get_dependencies(resources: dict[tuple[str, str], CanvasResource]) -> dict[tuple[str, str], list[tuple[str, str]]]:
     """Returns the dependency graph in resources. Adds missing resources to the input dictionary."""
     deps = {}
     missing_resources = []
@@ -169,43 +168,87 @@ def predeploy_resource(rtype: str, resource_data: dict, timezone: str, tmpdir: P
     return resource_data
 
 
-def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, str], CanvasResource]):
+def identify_modified_or_outdated(
+        resources: dict[tuple[str, str], CanvasResource],
+        linearized_resources: list[tuple[str, str]],
+        resource_dependencies: dict[tuple[str, str], list[tuple[str, str]]],
+        md5s: MD5Sums
+) -> dict[tuple[str, str], tuple[str, CanvasResource]]:
+    """
+    A resource is modified or outdated if:
+    - It is new
+    - It has changed its own data
+    - It depends on another resource with a new ID (a file)
+    """
+    modified = {}
+
+    for resource_key in linearized_resources:
+        resource = resources[resource_key]
+        if (resource_data := resource.get('data')) is None:
+            # Just a resource reference
+            continue
+
+        stored_md5 = md5s.get(resource_key)
+        current_md5 = compute_md5(resource_data)
+
+        if stored_md5 != current_md5:
+            # New or changed data
+            modified[resource_key] = current_md5, resource
+            continue
+
+        for dep_type, dep_name in resource_dependencies[resource_key]:
+            if dep_type in ['file', 'zip'] and (dep_type, dep_name) in modified:
+                modified[resource_key] = current_md5, resource
+                break
+
+    return modified
+
+
+def predeploy_resources(resources, timezone, tmpdir):
+    for resource_key, resource in resources.items():
+        if resource.get('data') is not None:
+            resource['data'] = predeploy_resource(resource['type'], resource['data'], timezone, tmpdir)
+
+
+def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, str], CanvasResource], dryrun=False):
     resource_dependencies = get_dependencies(resources)
     logger.debug(f'Dependency graph: {resource_dependencies}')
 
     resource_order = linearize_dependencies(resource_dependencies)
-    logger.debug(f'Order of deployment: {resource_order}')
+    logger.debug(f'Linearized dependencies: {resource_order}')
 
     warnings = []
     logger.info('Beginning deployment to Canvas')
     with MD5Sums(course) as md5s, TemporaryDirectory() as tmpdir:
         tmpdir = Path(tmpdir)
 
+        predeploy_resources(resources, timezone, tmpdir)
+
+        to_deploy = identify_modified_or_outdated(resources, resource_order, resource_dependencies, md5s)
+        logger.debug(f'Items to be deployed: {to_deploy}')
+
+        if dryrun:
+            print('Items to deploy:')
+            for rtype, rname in to_deploy.keys():
+                print(f' - {rtype} {rname}')
+            return
+
         resource_objs: dict[tuple[str, str], CanvasObject] = {}
-        for resource_key in resource_order:
+        for resource_key, (current_md5, resource) in to_deploy.items():
             try:
                 logger.debug(f'Processing {resource_key}')
-                resource = resources[resource_key]
 
-                rtype = resource['type']
-                rname = resource['name']
+                rtype, rname = resource_key
                 logger.info(f'Processing {rtype} {rname}')
                 if (resource_data := resource.get('data')) is not None:
-                    # Deploy resource using data
-                    resource_data = predeploy_resource(rtype, resource_data, timezone, tmpdir)
                     resource_data = update_links(course, resource_data, resource_objs)
 
-                    stored_md5 = md5s.get(resource_key)
-                    current_md5 = compute_md5(resource_data)
-
-                    if current_md5 != stored_md5:
-                        # Create the resource
-                        logger.info(f'Deploying {rtype} {rname}')
-                        resource_obj, warning = deploy_resource(course, rtype, resource_data)
-                        if warning:
-                            warnings.append(warning)
-                        resource_objs[resource_key] = resource_obj
-                        md5s[resource_key] = current_md5
+                    logger.info(f'Deploying {rtype} {rname}')
+                    resource_obj, warning = deploy_resource(course, rtype, resource_data)
+                    if warning:
+                        warnings.append(warning)
+                    resource_objs[resource_key] = resource_obj
+                    md5s[resource_key] = current_md5
             except:
                 logger.error(f'Error deploying resource {rtype} {rname}')
                 raise
