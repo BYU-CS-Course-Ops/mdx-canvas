@@ -64,7 +64,7 @@ def lookup_resource(course: Course, resource_type: str, resource_name: str) -> C
         'override': lookup_override,
         'module': lookup_module,
         'syllabus': lookup_syllabus,
-        'announcement': lookup_announcement()
+        'announcement': lookup_announcement
     }
 
     if (finder := finders.get(resource_type, None)) is None:

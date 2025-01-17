@@ -5,16 +5,22 @@ from .util import get_canvas_object
 
 
 def get_announcement(course: Course, title: str) -> DiscussionTopic:
-    return get_canvas_object(course.get_discussion_topics, 'title', title)
+    # NB: the `course` object here was modified in main.py to have a `canvas` field
+    # That's why the following code works
+    return get_canvas_object(
+        lambda: course.canvas.get_announcements(context_codes=[f'course_{course.id}']),
+        'title', title
+    )
 
 
 def deploy_announcement(course: Course, announcement_info: dict) -> tuple[DiscussionTopic, str | None]:
-    name = announcement_info["name"]
+    title = announcement_info["title"]
 
-    if canvas_announcement := get_announcement(course, name):
-        canvas_announcement.edit(announcement=announcement_info)
+    canvas_announcement: DiscussionTopic
+    if canvas_announcement := get_announcement(course, title):
+        canvas_announcement.update(**announcement_info)
     else:
-        canvas_announcement = course.create_discussion_topic(announcement=announcement_info)
+        canvas_announcement = course.create_discussion_topic(**announcement_info)
 
     return canvas_announcement, None
 
