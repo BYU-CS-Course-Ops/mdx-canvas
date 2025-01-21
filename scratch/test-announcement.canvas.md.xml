@@ -1,0 +1,12 @@
+<announcement
+    title="Right now Test Announcement"
+>
+    This is a test announcement. With new content!
+
+    It was published immediately the first time it was posted. Now I'm trying to modify it.
+</announcement>
+
+
+<!-- # Note - it appears you can edit announcement that haven't published yet-->
+<!--        # Not sure if you can edit announcements that have published already-->
+<!--        # Gordon Bean (Jan 17, 2025)-->

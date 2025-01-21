@@ -4,6 +4,7 @@ from typing import Callable
 from .assignment_tags import AssignmentTagProcessor
 from .override_tags import OverrideTagProcessor
 from .syllabus_tags import SyllabusTagProcessor
+from .announcement_tags import AnnouncementTagProcessor
 from ..resources import ResourceManager
 from ..util import parse_soup_from_xml
 from ..xml_processing.tag_preprocessors import make_image_preprocessor, make_file_preprocessor, \
@@ -68,6 +69,7 @@ def process_canvas_xml(resources: ResourceManager, text: str):
     #  the algorithm recurses on its children
 
     tag_processors = {
+        'announcement': AnnouncementTagProcessor(resources),
         'quiz': QuizTagProcessor(resources),
         'page': PageTagProcessor(resources),
         'assignment': AssignmentTagProcessor(resources),

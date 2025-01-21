@@ -8,17 +8,17 @@ from typing import TypedDict
 from canvasapi import Canvas
 from canvasapi.course import Course
 
-from .xml_processing.inline_styling import bake_css
-from .util import parse_soup_from_xml
 from .deploy.canvas_deploy import deploy_to_canvas
-from .resources import ResourceManager
-from .xml_processing.xml_processing import process_canvas_xml, preprocess_xml
-from .text_processing.markdown_processing import process_markdown
-from .text_processing.jinja_processing import process_jinja
-
 from .our_logging import get_logger
+from .resources import ResourceManager
+from .text_processing.jinja_processing import process_jinja
+from .text_processing.markdown_processing import process_markdown
+from .util import parse_soup_from_xml
+from .xml_processing.inline_styling import bake_css
+from .xml_processing.xml_processing import process_canvas_xml, preprocess_xml
 
 logger = get_logger()
+
 
 class CourseInfo(TypedDict):
     CANVAS_API_URL: str
@@ -105,6 +105,10 @@ def get_course(api_token: str, api_url: str, canvas_course_id: int) -> Course:
     """
     canvas = Canvas(api_url, api_token)
     course: Course = canvas.get_course(canvas_course_id)
+
+    # NB: this is a hack, but it makes things MUCH easier down the line when dealing with announcements
+    course.canvas = canvas
+
     return course
 
 
