@@ -2,8 +2,8 @@ import re
 import textwrap
 from xml.etree.ElementTree import Element
 
-from bs4 import NavigableString
 import markdown as md
+from bs4 import NavigableString, Tag, Comment
 from markdown import Extension
 from markdown.extensions.codehilite import makeExtension as makeCodehiliteExtension
 from markdown.inlinepatterns import BACKTICK_RE, BacktickInlineProcessor
@@ -52,22 +52,49 @@ def process_markdown_text(text: str) -> str:
         # TODO - add support for tilde => <del> (strikethrough) (look for extension)
         #  or maybe look for a github-flavored-markdown extension
     ])
+
     return html
 
 
-def _process_markdown(parent, excluded: list[str]):
-    children = list(parent.children)
-    for tag in children:
-        if tag.name in excluded:
-            continue
+def _form_blocks(tag: Tag, excluded: list[str], inline: list[str]) -> tuple[bool, list[Tag]]:
+    block_tags = []
 
-        if isinstance(tag, NavigableString):
-            tag.replace_with(parse_soup_from_xml(process_markdown_text(tag.text)))
+    for child in list(tag.children):  # Make a copy because .children will change after the yield
+        if isinstance(child, Comment) or child.name in excluded:
+            if block_tags:
+                yield True, block_tags
+            block_tags = []
+
+        elif isinstance(child, NavigableString) or child.name in inline:
+            block_tags.append(child)
+
         else:
-            _process_markdown(tag, excluded)
+            # Some other kind of tag -> breaks up a block
+            if block_tags:
+                yield True, block_tags
+            yield False, [child]
+            block_tags = []
+
+    if block_tags:
+        yield True, block_tags
 
 
-def process_markdown(text: str, excluded: list[str]) -> str:
+def _process_markdown(parent, excluded: list[str], inline: list[str]):
+    for needs_markdown, block in _form_blocks(parent, excluded, inline):
+        if needs_markdown:
+            result = parse_soup_from_xml(
+                process_markdown_text(
+                    ''.join((str(b) for b in block))
+                )
+            )
+            for tag in block:
+                tag.replace_with(result)
+        else:
+            for tag in block:
+                _process_markdown(tag, excluded, inline)
+
+
+def process_markdown(text: str, excluded: list[str], inline: list[str]) -> str:
     """
     Process Markdown text and return XML text
 
@@ -83,5 +110,5 @@ def process_markdown(text: str, excluded: list[str]) -> str:
     :returns: The XML/HTML text
     """
     soup = parse_soup_from_xml(text)
-    _process_markdown(soup, excluded)
+    _process_markdown(soup, excluded, inline)
     return str(soup)

@@ -10,9 +10,17 @@ from ..xml_processing.attributes import parse_bool, get_tag_path
 def make_image_preprocessor(parent: Path, resources: ResourceManager):
     def process_image(tag: Tag):
         # TODO - handle b64-encoded images
-        src = (parent / tag.get('src')).resolve().absolute()
+
+        src = tag.get('src')
+        if src.startswith('http'):
+            # No changes necessary
+            return
+
+        # Assume it's a local file
+        src = (parent / src).resolve().absolute()
         if not src.is_file():
             raise ValueError(f"Image file {src} is not a file @ {get_tag_path(tag)}")
+
         file = CanvasResource(
             type='file',
             name=src.name,

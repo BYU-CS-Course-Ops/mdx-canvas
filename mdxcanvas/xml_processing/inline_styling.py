@@ -33,7 +33,7 @@ def apply_inline_styles(html, styles):
         for tag in soup.select(selector):
             style_string = "; ".join([f"{prop}: {value}" for prop, value in properties.items()])
             existing_style = tag.get('style', '')
-            tag['style'] = existing_style + ((existing_style and '; ') or '') + style_string
+            tag['style'] = style_string + ((existing_style and '; ') or '') + existing_style
     return str(soup)
 
 
