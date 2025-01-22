@@ -13,9 +13,11 @@ def test_process_markdown():
     <special>**nope**</special>
     </div>
     <quiz><description>This is **bold**</description></quiz>
+    <div>Click <a src='foo'>here</a>.</div>
     """
 
     xml = process_markdown(text, ['special'])
+
 
     expected = """
     <h1>baz</h1>
@@ -25,8 +27,8 @@ def test_process_markdown():
     <special>**nope**</special>
     </div>
     <quiz><description><p>This is <strong>bold</strong></p></description></quiz>
+    <div>Click <a src='foo'>here</a>.</div>
     """
-
     assert BeautifulSoup(xml, 'html.parser').prettify() \
            == BeautifulSoup(expected, 'html.parser').prettify()
 
@@ -87,3 +89,5 @@ def test_markdown_data():
             'c': '3'
         }
     ]
+
+
