@@ -53,13 +53,6 @@ def process_markdown_text(text: str) -> str:
         #  or maybe look for a github-flavored-markdown extension
     ])
 
-    if html == f'<p>{dedented}</p>':
-        # The input was a basic string that simply got wrapped in <p> tags.
-        # Let's remove those tags and keep the simple string
-        # This way, text like "Click <a src='./here'>here</a>." doesn't get
-        #  broken into multiple lines.
-        return dedented
-
     return html
 
 
