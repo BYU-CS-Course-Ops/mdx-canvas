@@ -1,6 +1,12 @@
 import textwrap
+import warnings
 
-from bs4 import BeautifulSoup, Tag, NavigableString
+from bs4 import BeautifulSoup, Tag, NavigableString, MarkupResemblesLocatorWarning
+
+# We parse basic strings (no tags) all the time.
+# bs4 warns that these might be names or urls.
+# We can ignore these warnings.
+warnings.filterwarnings("ignore", category=MarkupResemblesLocatorWarning)
 
 
 def parse_soup_from_xml(text: str) -> BeautifulSoup:
@@ -20,4 +26,3 @@ def retrieve_contents(tag: Tag, ignored_child_tag_names: list[str] = ()) -> str:
             or (isinstance(c, Tag) and c.name not in ignored_child_tag_names)
         )
     )
-

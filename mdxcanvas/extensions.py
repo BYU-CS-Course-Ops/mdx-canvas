@@ -7,8 +7,8 @@ from bs4.element import Tag
 
 from typing import Protocol
 
-from mdxcanvas.xml_processing.inline_styling import get_style, parse_css, apply_inline_styles
-
+from .xml_processing.inline_styling import get_style, parse_css, apply_inline_styles
+from .util import parse_soup_from_xml
 
 # Make a Protocol for any tag processor, it should take a Tag and return a Tag
 # This way we can define a type hint for the tag_processors dictionary
@@ -28,7 +28,7 @@ class CustomHTMLBlockTagProcessor(HtmlBlockPreprocessor):
         joined = "\n".join(lines)
         if "<" not in joined or ">" not in joined:
             return lines
-        soup = BeautifulSoup(joined, "html.parser")
+        soup = parse_soup_from_xml(joined)
         for tag in soup.find_all():
             if tag.name in self.custom_tag_processors:
                 processor = self.custom_tag_processors[tag.name]
@@ -75,7 +75,7 @@ class BakedCSSPostProcessor(Postprocessor):
         self.global_css = global_css
 
     def run(self, text):
-        soup = BeautifulSoup(text, 'html.parser')
+        soup = parse_soup_from_xml(text)
         css, soup = get_style(soup)
         css = parse_css(self.global_css + css)
         soup = apply_inline_styles(str(soup), css)
