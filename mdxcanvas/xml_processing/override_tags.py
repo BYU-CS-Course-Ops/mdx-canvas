@@ -17,8 +17,8 @@ class OverrideTagProcessor:
             Attribute('title'),  # required if using student IDs
             Attribute('section_id', new_name='course_section_id', required=True, parser=parse_int),
             # TODO - support student IDs also
-            Attribute('name', new_name='assignment_name', required=True),  # name of assignment to modify with this override
-            Attribute('rtype', required=True)
+            Attribute('title', new_name='assignment_name', required=True),  # name of assignment to modify with this override
+            Attribute('type', new_name='rtype', required=True)
         ]
 
         settings = {
