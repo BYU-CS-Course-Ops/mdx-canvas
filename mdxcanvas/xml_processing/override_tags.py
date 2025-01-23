@@ -17,7 +17,8 @@ class OverrideTagProcessor:
             Attribute('title'),  # required if using student IDs
             Attribute('section_id', new_name='course_section_id', required=True, parser=parse_int),
             # TODO - support student IDs also
-            Attribute('assignment_name', required=True)  # name of assignment to modify with this override
+            Attribute('title', new_name='assignment_name', required=True),  # name of assignment to modify with this override
+            Attribute('type', new_name='rtype', required=True)
         ]
 
         settings = {
@@ -27,7 +28,7 @@ class OverrideTagProcessor:
         settings.update(parse_settings(override_tag, fields))
 
         settings['name'] = f"{settings['assignment_name']}|{settings['course_section_id']}"
-        settings['assignment_id'] = get_key('assignment', settings['assignment_name'], 'id')
+        settings['assignment_id'] = get_key(settings['rtype'], settings['assignment_name'], 'id')
 
         assignment = CanvasResource(
             type='override',

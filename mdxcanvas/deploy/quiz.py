@@ -2,10 +2,10 @@ from canvasapi.course import Course
 from canvasapi.quiz import Quiz
 
 from .util import get_canvas_object, update_group_name_to_id, ResourceNotFoundException
-
 from ..our_logging import get_logger
 
 logger = get_logger()
+
 
 def get_quiz(course: Course, title: str) -> Quiz:
     return get_canvas_object(course.get_quizzes, "title", title)
@@ -72,17 +72,24 @@ def deploy_quiz(course: Course, quiz_data: dict) -> Quiz:
     name = quiz_data['title']
 
     update_group_name_to_id(course, quiz_data)
-
+    warning = None
     if canvas_quiz := get_quiz(course, name):
         canvas_quiz: Quiz
-        warning = check_quiz(canvas_quiz, name)
+        if any(canvas_quiz.get_submissions()):
+            # If there are submission, we can't save the new material programmatically,
+            #  you have to go in and hit save in the browser
+            warning = f"Quiz {name} has submissions. See {canvas_quiz.html_url} to save quiz."
+        else:
+            # unpublish (if needed), push change, republish (if needed)
+            is_already_published = canvas_quiz.published
+            if is_already_published:
+                canvas_quiz.edit(quiz={'published': False})
+            quiz_data['published'] = quiz_data.get('published', is_already_published)
+        replace_questions(canvas_quiz, quiz_data['questions'])
         canvas_quiz.edit(quiz=quiz_data)
     else:
         canvas_quiz = create_quiz(course, quiz_data, name)
-        warning = None
-
-    replace_questions(canvas_quiz, quiz_data['questions'])
-    canvas_quiz.edit()
+        replace_questions(canvas_quiz, quiz_data['questions'])
 
     return canvas_quiz, warning
 
