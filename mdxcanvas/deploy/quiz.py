@@ -76,22 +76,20 @@ def deploy_quiz(course: Course, quiz_data: dict) -> Quiz:
     if canvas_quiz := get_quiz(course, name):
         canvas_quiz: Quiz
         if any(canvas_quiz.get_submissions()):
-            # If there are submission, we can't save the new material programatically,
+            # If there are submission, we can't save the new material programmatically,
             #  you have to go in and hit save in the browser
             warning = f"Quiz {name} has submissions. See {canvas_quiz.html_url} to save quiz."
-            canvas_quiz.edit(quiz=quiz_data)
         else:
             # unpublish (if needed), push change, republish (if needed)
             is_already_published = canvas_quiz.published
             if is_already_published:
                 canvas_quiz.edit(quiz={'published': False})
             quiz_data['published'] = quiz_data.get('published', is_already_published)
-            canvas_quiz.edit(quiz=quiz_data)
+        replace_questions(canvas_quiz, quiz_data['questions'])
+        canvas_quiz.edit(quiz=quiz_data)
     else:
         canvas_quiz = create_quiz(course, quiz_data, name)
-
-    replace_questions(canvas_quiz, quiz_data['questions'])
-    canvas_quiz.edit()
+        replace_questions(canvas_quiz, quiz_data['questions'])
 
     return canvas_quiz, warning
 
