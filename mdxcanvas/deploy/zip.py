@@ -13,6 +13,7 @@ logger = get_logger()
 def zip_folder(
         folder_path: Path,
         path_to_zip: Path,
+        additional_files: list[str] | None,
         exclude: re.Pattern = None,
         priority_folder: Path = None
 ):
@@ -25,36 +26,55 @@ def zip_folder(
     folder_path = folder_path.resolve().absolute()
     logger.debug(f'Zipping {folder_path} to {path_to_zip}')
 
-    priority_files = get_files(priority_folder, exclude, '') if priority_folder else {}
-    files = get_files(folder_path, exclude, '')
-
-    for zip_name, file in files.items():
-        if zip_name not in priority_files:
-            priority_files[zip_name] = file
-        else:
-            logger.debug(f'Preferring {priority_files[zip_name]} over {file}')
+    files = get_all_files(folder_path, priority_folder, additional_files, exclude)
 
     if logger.isEnabledFor(logging.DEBUG):
-        file_str = ', '.join(priority_files.keys())
+        file_str = ', '.join(files.keys())
         logger.debug(f'Files for {path_to_zip}: {file_str}')
 
-    write_files(priority_files, path_to_zip)
+    write_files(files, path_to_zip)
 
 
-def get_files(folder_path: Path, exclude: re.Pattern | None, prefix) -> dict[str, Path]:
-    if not folder_path.exists():
-        raise FileNotFoundError(folder_path)
+def get_all_files(
+        folder_path: Path,
+        priority_folder: Path,
+        additional_files: list[str],
+        exclude: re.Pattern
+) -> dict[str, Path]:
 
     files = {}
-    for file in folder_path.glob('*'):
-        if exclude and exclude.search(file.name):
-            logger.debug(f'Excluding {file} from zip')
-            continue
 
-        if file.is_dir():
-            files.update(get_files(file, exclude, prefix + '/' + file.name))
-        else:
-            files[prefix + '/' + file.name] = file.absolute()
+    def add_files(path: Path, prefix: str):
+        if not path.exists():
+            raise FileNotFoundError(path)
+
+        for file in path.glob('*'):
+            if exclude and exclude.search(file.name):
+                logger.debug(f'Excluding {file} from zip')
+                continue
+
+            if file.is_dir():
+                add_files(file, prefix + '/' + file.name)
+            else:
+                files[prefix + '/' + file.name] = file.absolute()
+
+    add_files(folder_path, '')
+
+    if priority_folder:
+        add_files(priority_folder, '')
+
+    if additional_files:
+        for file in additional_files:
+            path = Path(file).resolve().absolute()
+            if exclude and exclude.search(path.name):
+                logger.debug(f'Excluding {path} from zip')
+                continue
+
+            if path.is_dir():
+                add_files(path, '/' + path.name)
+            else:
+                files['/' + path.name] = path
+
     return files
 
 
@@ -89,6 +109,9 @@ def write_file(file: Path, zip_name: str, zipf: ZipFile):
 
 def predeploy_zip(zipdata: ZipFileData, tmpdir: Path) -> FileData:
     target_folder = Path(zipdata['content_folder'])
+
+    additional_files = zipdata.get('additional_files', None)
+
     pf = zipdata['priority_folder']
     priority_folder = Path(pf) if pf is not None else None
     if priority_folder is not None and not priority_folder.exists():
@@ -97,7 +120,7 @@ def predeploy_zip(zipdata: ZipFileData, tmpdir: Path) -> FileData:
     exclude = re.compile(zipdata['exclude_pattern']) if zipdata['exclude_pattern'] is not None else None
 
     path_to_zip = tmpdir / zipdata['zip_file_name']
-    zip_folder(target_folder, path_to_zip, exclude, priority_folder)
+    zip_folder(target_folder, path_to_zip, additional_files, exclude, priority_folder)
 
     file = FileData(
         path=str(path_to_zip),
