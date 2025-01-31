@@ -28,7 +28,8 @@ def zip_folder(
 
     priority_files = get_files(priority_folder, exclude, '') if priority_folder else {}
     files = get_files(folder_path, exclude, '')
-    files.update(get_additional_files(additional_files)) if additional_files else None
+    if additional_files:
+        files.update(get_additional_files(additional_files))
 
     for zip_name, file in files.items():
         if zip_name not in priority_files:
@@ -104,7 +105,7 @@ def write_file(file: Path, zip_name: str, zipf: ZipFile):
 def predeploy_zip(zipdata: ZipFileData, tmpdir: Path) -> FileData:
     target_folder = Path(zipdata['content_folder'])
 
-    additional_files = [Path(file) for file in af] if (af := zipdata['additional_files']) is not None else None
+    additional_files = [Path(file) for file in zipdata['additional_files']] if zipdata['additional_files'] else None
 
     pf = zipdata['priority_folder']
     priority_folder = Path(pf) if pf is not None else None
