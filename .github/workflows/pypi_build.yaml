@@ -1,11 +1,9 @@
-name: pypi_build_and_publish
+name: pypi_build
 
 on:
-  push:
-    branches: [main]
   pull_request:
     branches: [main]
-    types: [merged]
+    types: [opened, synchronize]
 
 jobs:
   build:
@@ -27,9 +25,3 @@ jobs:
 
       - name: Build package
         run: poetry build
-
-      - name: Publish to PyPI
-        env:
-          POETRY_PYPI_USERNAME: ${{ secrets.PYPI_USER }}
-          POETRY_PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
-        run: poetry publish --username $POETRY_PYPI_USERNAME --password $POETRY_PYPI_PASSWORD
