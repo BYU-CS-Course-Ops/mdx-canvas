@@ -87,6 +87,10 @@ def make_zip_preprocessor(parent: Path, resources: ResourceManager):
 
         content_folder = str((parent / content_folder).resolve().absolute())
 
+        additional_files = tag.get("additional_files")
+        if additional_files:
+            additional_files = [str((parent / file).resolve().absolute()) for file in additional_files.split(',')]
+
         priority_folder = tag.get("priority_path")
         if priority_folder:
             priority_folder = str((parent / priority_folder).resolve().absolute())
@@ -99,6 +103,7 @@ def make_zip_preprocessor(parent: Path, resources: ResourceManager):
             data=ZipFileData(
                 zip_file_name=name,
                 content_folder=content_folder,
+                additional_files=additional_files,
                 exclude_pattern=exclude_pattern,
                 priority_folder=priority_folder,
                 canvas_folder=tag.get('canvas_folder')

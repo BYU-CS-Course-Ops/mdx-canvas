@@ -105,7 +105,7 @@
 
             <question type="text">
                 ## `zip` tag
-                <zip path="zip_target" priority_path="zip_priority" exclude="no_.*"/>
+                <zip path="zip_target" additional_files="hello_world.py,more_stuff" priority_path="zip_priority" exclude="no_.*"/>
             </question>
 
             <question type="text">
