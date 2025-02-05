@@ -12,18 +12,38 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Install poetry
-        run: |
-          pip install poetry
+      - name: Install mdxcanvas
+        run: pip install mdxcanvas
 
-      - name: Build package
+      - name: Extract version from toml
+        run: |
+          VERSION=$(grep -o 'version = ".*"' ${{ github.workspace }}/program/scratch/stuff.md | cut -d'"' -f2)
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Get installed mdxcanvas version
+        run: |
+          MDXCANVAS_VERSION=$(pip show mdxcanvas | grep "^Version:" | awk '{print $2}')
+          echo "MDXCANVAS_VERSION=$MDXCANVAS_VERSION" >> $GITHUB_ENV
+
+      - name: Check version mismatch
+        run: |
+          if [ "$(printf '%s\n' "$VERSION" "$MDXCANVAS_VERSION" | sort -V | head -n1)" = "$VERSION" ]; then
+            echo "Error: Please update version in .toml"
+            exit 1
+          fi
+
+      - name: Install Poetry
+        run: pip install poetry
+
+      - name: Build mdxcanvas package
         run: poetry build
 
-      - name: Publish to PyPI
+      - name: Publish mdxcanvas package
         env:
           POETRY_PYPI_USERNAME: ${{ secrets.PYPI_USER }}
           POETRY_PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
         run: poetry publish --username $POETRY_PYPI_USERNAME --password $POETRY_PYPI_PASSWORD
+
