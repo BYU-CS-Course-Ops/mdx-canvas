@@ -132,11 +132,9 @@ def update_course_image(course: Course, course_settings: dict, course_image: Pat
     else:
         file_id = file.id
 
-
-    course.update_settings(settings={
-        **course_settings,
-        'image_id': file_id
-    })
+    if int(course_settings['image_id']) != file_id:
+        logger.info(f'Updating course image to {image_name}')
+        course.update(course={'image_id': file_id})
 
 
 def update_course(course: Course, course_info: CourseInfo):
@@ -156,8 +154,7 @@ def update_course(course: Course, course_info: CourseInfo):
         logger.info(f'Updating course code to {course_code}')
         course.update(course={'course_code': course_code})
 
-    course_settings = course.get_settings()
-    update_course_image(course, course_settings, course_image)
+    update_course_image(course, course.get_settings(), course_image)
 
 
 def main(
