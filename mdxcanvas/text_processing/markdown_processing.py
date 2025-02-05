@@ -28,6 +28,12 @@ class BlackInlineCodeExtension(Extension):
         md.inlinePatterns.register(BlackInlineCodeProcessor(BACKTICK_RE), 'backtick', 190)
 
 
+def replace_characters(text: str, replacements: dict[str, str]) -> str:
+    for old, new in replacements.items():
+        text = text.replace(old, new)
+    return text
+
+
 def process_markdown_text(text: str) -> str:
     dedented = textwrap.dedent(text)
 
@@ -109,6 +115,7 @@ def process_markdown(text: str, excluded: list[str], inline: list[str]) -> str:
     :param excluded: a list of tag names to exclude; their contents are left untouched
     :returns: The XML/HTML text
     """
+    text = replace_characters(text, {'&lt;': '<', '&gt;': '>', '&amp;': '&'})
     soup = parse_soup_from_xml(text)
     _process_markdown(soup, excluded, inline)
     return str(soup)

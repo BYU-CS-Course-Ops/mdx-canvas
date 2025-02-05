@@ -1,0 +1,32 @@
+<quiz
+    title="Test Quiz &lt;">
+
+<description>
+    It has a description. This is an update to the description. This is an update to the questions. This is an update to the description
+    with a submission. This is an update to a question with a submission.
+</description>
+
+<questions>
+<question type="multiple-choice">
+    This is a random question :P
+
+    ```python
+    while i &gt; 1:
+        print("Hello")
+        i += 1
+    ```
+
+    <incorrect>Incorrect answer 1</incorrect>
+    <incorrect>Incorrect answer 2</incorrect>
+    <correct>Correct answer :)</correct>
+</question>
+<question type="multiple-choice">
+    This is an additional random question :)
+
+    <incorrect>Incorrect answer 1</incorrect>
+    <incorrect>Incorrect answer 2</incorrect>
+    <correct>Correct answer :)</correct>
+</question>
+</questions>
+
+</quiz>
