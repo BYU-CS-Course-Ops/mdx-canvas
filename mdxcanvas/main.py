@@ -23,6 +23,9 @@ logger = get_logger()
 class CourseInfo(TypedDict):
     CANVAS_API_URL: str
     CANVAS_COURSE_ID: int
+    COURSE_NAME: str
+    COURSE_CODE: str
+    COURSE_ICON: Path
     LOCAL_TIME_ZONE: str
 
 
@@ -122,6 +125,8 @@ def main(
     course = get_course(canvas_api_token, course_info['CANVAS_API_URL'], course_info['CANVAS_COURSE_ID'])
     logger = get_logger(course.name)
     logger.info('Connecting to Canvas')
+
+
 
     resources = ResourceManager()
 
