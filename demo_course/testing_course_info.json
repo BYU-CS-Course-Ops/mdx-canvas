@@ -3,6 +3,6 @@
   "CANVAS_COURSE_ID" : 20736,
   "COURSE_NAME" : "BeanLab Testing Course",
   "COURSE_CODE" : "Testing",
-  "COURSE_IMAGE" : "/Users/robbykapua/Documents/GitHub/beanlab-dev/mdx-canvas/demo_course/sample_quiz/resources/q1_bit_blue_right_corner_green.png",
+  "COURSE_IMAGE" : "../scratch/beanlab.png",
   "LOCAL_TIME_ZONE" : "America/Denver"
 }
