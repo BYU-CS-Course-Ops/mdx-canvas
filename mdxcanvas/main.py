@@ -9,6 +9,7 @@ from canvasapi import Canvas
 from canvasapi.course import Course
 
 from .deploy.canvas_deploy import deploy_to_canvas
+from .deploy.groups import initialize_group_weights
 from .our_logging import get_logger
 from .resources import ResourceManager
 from .text_processing.jinja_processing import process_jinja
@@ -24,6 +25,7 @@ class CourseInfo(TypedDict):
     CANVAS_API_URL: str
     CANVAS_COURSE_ID: int
     LOCAL_TIME_ZONE: str
+    GROUP_WEIGHTS: dict[str, float]
 
 
 def read_content(input_file: Path) -> tuple[list[str], str]:
@@ -122,6 +124,10 @@ def main(
     course = get_course(canvas_api_token, course_info['CANVAS_API_URL'], course_info['CANVAS_COURSE_ID'])
     logger = get_logger(course.name)
     logger.info('Connecting to Canvas')
+
+    group_weights = course_info['GROUP_WEIGHTS']
+    if group_weights:
+        initialize_group_weights(course, group_weights)
 
     resources = ResourceManager()
 
