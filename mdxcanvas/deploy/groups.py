@@ -24,6 +24,7 @@ def update_group(group: AssignmentGroup, **kwargs) -> AssignmentGroup:
 
 
 def initialize_group_weights(course: Course, group_weights: dict):
+    course.update(course={'apply_assignment_group_weights': True})
     for group in group_weights:
         if (canvas_group := get_group(course, group)) is None:
             logger.info(f'Creating group: {group}')
