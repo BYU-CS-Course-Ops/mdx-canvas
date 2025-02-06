@@ -34,6 +34,23 @@ def replace_characters(text: str, replacements: dict[str, str]) -> str:
     return text
 
 
+def refactor_text(text: str, replacements: dict[str, str]) -> str:
+    output_lines = []
+    lines = iter(text.splitlines())
+
+    for line in lines:
+        if line.strip().startswith('```'):
+            output_lines.append(line)
+            for code_line in lines:
+                output_lines.append(replace_characters(code_line, replacements))
+                if code_line.strip().startswith('```'):
+                    break
+        else:
+            output_lines.append(line)
+
+    return '\n'.join(output_lines)
+
+
 def process_markdown_text(text: str) -> str:
     dedented = textwrap.dedent(text)
 
@@ -115,7 +132,7 @@ def process_markdown(text: str, excluded: list[str], inline: list[str]) -> str:
     :param excluded: a list of tag names to exclude; their contents are left untouched
     :returns: The XML/HTML text
     """
-    # text = replace_characters(text, {'&lt;': '<', '&gt;': '>', '&amp;': '&'})
-    soup = parse_soup_from_xml(text)
+    content = refactor_text(text, {'<': '&lt;', '>': '&gt;'})
+    soup = parse_soup_from_xml(content)
     _process_markdown(soup, excluded, inline)
     return str(soup)
