@@ -25,7 +25,6 @@ class CourseInfo(TypedDict):
     CANVAS_API_URL: str
     CANVAS_COURSE_ID: int
     LOCAL_TIME_ZONE: str
-    GROUP_WEIGHTS: dict[str, float]
 
 
 def read_content(input_file: Path) -> tuple[list[str], str]:
@@ -125,7 +124,10 @@ def main(
     logger = get_logger(course.name)
     logger.info('Connecting to Canvas')
 
-    group_weights = course_info['GROUP_WEIGHTS']
+    with open(global_args_file) as f:
+        global_args = json.load(f)
+
+    group_weights = global_args.get('group_weights', None)
     if group_weights:
         initialize_group_weights(course, group_weights)
 

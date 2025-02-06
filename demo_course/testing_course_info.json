@@ -2,12 +2,4 @@
   "CANVAS_API_URL" : "https://byu.instructure.com/",
   "CANVAS_COURSE_ID" : 20736,
   "LOCAL_TIME_ZONE" : "America/Denver",
-  "GROUP_WEIGHTS" : {
-                      "Homework" : 25,
-                      "Labs" : 10,
-                      "Projects" : 40,
-                      "Progress Checks" : 10,
-                      "Midterm" : 50,
-                      "Final" : 10
-                    }
 }
