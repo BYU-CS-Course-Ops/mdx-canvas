@@ -115,7 +115,7 @@ def process_markdown(text: str, excluded: list[str], inline: list[str]) -> str:
     :param excluded: a list of tag names to exclude; their contents are left untouched
     :returns: The XML/HTML text
     """
-    text = replace_characters(text, {'&lt;': '<', '&gt;': '>', '&amp;': '&'})
+    # text = replace_characters(text, {'&lt;': '<', '&gt;': '>', '&amp;': '&'})
     soup = parse_soup_from_xml(text)
     _process_markdown(soup, excluded, inline)
     return str(soup)

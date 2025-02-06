@@ -1,32 +1,11 @@
-<quiz
-    title="Test Quiz &lt;">
+<div>
 
-<description>
-    It has a description. This is an update to the description. This is an update to the questions. This is an update to the description
-    with a submission. This is an update to a question with a submission.
-</description>
+<assignment title="Test &lt;">
 
-<questions>
-<question type="multiple-choice">
-    This is a random question :P
+    <include path="test_md.canvas.md"/>
 
-    ```python
-    while i &gt; 1:
-        print("Hello")
-        i += 1
-    ```
+</assignment>
 
-    <incorrect>Incorrect answer 1</incorrect>
-    <incorrect>Incorrect answer 2</incorrect>
-    <correct>Correct answer :)</correct>
-</question>
-<question type="multiple-choice">
-    This is an additional random question :)
+<include path="test_md_xml.canvas.md.xml"/>
 
-    <incorrect>Incorrect answer 1</incorrect>
-    <incorrect>Incorrect answer 2</incorrect>
-    <correct>Correct answer :)</correct>
-</question>
-</questions>
-
-</quiz>
+</div>
