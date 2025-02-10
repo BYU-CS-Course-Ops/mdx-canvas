@@ -9,9 +9,10 @@ on:
 
 jobs:
   check-mdxcanvas-version:
-    uses: ${{ github.workspace }}/.github/actions/check-mdxcanvas.yaml
+    uses: ./.github/workflows/check-mdxcanvas.yaml
 
   build:
+    needs: check-mdxcanvas-version
     runs-on: ubuntu-latest
 
     steps:

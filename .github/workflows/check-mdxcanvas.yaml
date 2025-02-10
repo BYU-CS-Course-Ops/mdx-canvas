@@ -15,8 +15,10 @@ jobs:
 
       - name: Extract version from toml
         run: |
-          VERSION=$(grep -o 'version = ".*"' ${{ github.workspace }}/program/scratch/stuff.md | cut -d'"' -f2)
+          VERSION=$(grep -o 'version = ".*"' ${{ github.workspace }}/pyproject.toml | cut -d'"' -f2)
           echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo {$VERSION}
+          
 
       - name: Get installed mdxcanvas version
         run: |
@@ -25,7 +27,7 @@ jobs:
 
       - name: Check version mismatch
         run: |
-          if [ "$(printf '%s\n' "$VERSION" "$MDXCANVAS_VERSION" | sort -V | head -n1)" = "$VERSION" ]; then
+          if [ "$(printf '%s\n' "${{ env.VERSION }}" "${{ env.MDXCANVAS_VERSION }}" | sort -V | head -n1)" = "${{ env.VERSION }}" ]; then
             echo "Error: Please update version in .toml"
             exit 1
           fi
