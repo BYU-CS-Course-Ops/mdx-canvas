@@ -1,0 +1,32 @@
+name: pypi_build_and_publish
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+    types: [merged]
+
+jobs:
+  check-mdxcanvas-version:
+    uses: ${{ github.workspace }}/.github/actions/check-mdxcanvas.yaml
+
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install Poetry
+        run: pip install poetry
+
+      - name: Build mdxcanvas package
+        run: poetry build
+
+      - name: Publish mdxcanvas package
+        env:
+          POETRY_PYPI_USERNAME: ${{ secrets.PYPI_USER }}
+          POETRY_PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+        run: poetry publish --username $POETRY_PYPI_USERNAME --password $POETRY_PYPI_PASSWORD
+

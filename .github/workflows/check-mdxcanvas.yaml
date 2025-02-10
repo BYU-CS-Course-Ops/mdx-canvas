@@ -1,14 +1,11 @@
-name: pypi_build
+name: MDXCanvas Version Check
 
 on:
-  pull_request:
-    branches: [main]
-    types: [opened, synchronize]
+  workflow_call:  # This makes it reusable
 
 jobs:
-  build:
+  check-mdxcanvas-version:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -32,9 +29,3 @@ jobs:
             echo "Error: Please update version in .toml"
             exit 1
           fi
-
-      - name: Install Poetry
-        run: pip install poetry
-
-      - name: Build mdxcanvas package
-        run: poetry build
