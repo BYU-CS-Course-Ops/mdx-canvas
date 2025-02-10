@@ -9,8 +9,7 @@ from typing import TypedDict
 from canvasapi import Canvas
 from canvasapi.course import Course
 
-from mdxcanvas.deploy.file import get_canvas_folder
-from mdxcanvas.deploy.file import get_file
+from .deploy.file import get_canvas_folder, get_file
 from .deploy.canvas_deploy import deploy_to_canvas
 from .our_logging import get_logger
 from .resources import ResourceManager
