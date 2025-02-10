@@ -19,7 +19,7 @@ def update_group(group: AssignmentGroup, **kwargs) -> AssignmentGroup:
     return group.edit(**kwargs)
 
 
-def initialize_group_weights(course: Course, group_weights: dict):
+def deploy_group_weights(course: Course, group_weights: dict):
     # Update the course to apply the assignment group weights
     course.update(course={'apply_assignment_group_weights': True})
 

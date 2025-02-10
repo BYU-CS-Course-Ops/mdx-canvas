@@ -27,6 +27,15 @@ class CourseInfo(TypedDict):
     LOCAL_TIME_ZONE: str
 
 
+class GlobalArgsInfo(TypedDict):
+    Term: str
+    Year: int
+    Start_Date: str
+    End_Date: str
+    Discord_Link: str
+    Group_Weights: dict
+
+
 def read_content(input_file: Path) -> tuple[list[str], str]:
     return input_file.suffixes, input_file.read_text()
 
@@ -52,7 +61,7 @@ def process_file(
         parent_folder: Path,
         content: str,
         content_type: list[str],
-        global_args_file: Path = None,
+        global_args: GlobalArgsInfo = None,
         args_file: Path = None,
         line_id: str = None,
         css_file: Path = None
@@ -67,7 +76,7 @@ def process_file(
         content = process_jinja(
             content,
             args_path=args_file,
-            global_args_path=global_args_file,
+            global_args=global_args,
             line_id=line_id
         )
 
@@ -82,7 +91,7 @@ def process_file(
 
     # Preprocess XML
     def load_and_process_file_contents(parent: Path, content: str, content_type: list[str], **kwargs) -> str:
-        return process_file(resources, parent, content, content_type, global_args_file=global_args_file, **kwargs)
+        return process_file(resources, parent, content, content_type, global_args=global_args, **kwargs)
 
     xml_content = preprocess_xml(parent_folder, xml_content, resources, load_and_process_file_contents)
 
@@ -141,7 +150,7 @@ def main(
         input_file.parent,
         content,
         content_type,
-        global_args_file,
+        global_args,
         args_file,
         line_id,
         css_file
