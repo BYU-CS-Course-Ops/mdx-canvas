@@ -2,12 +2,14 @@ import argparse
 import json
 import logging
 import os
+from http.client import responses
 from pathlib import Path
 from typing import TypedDict
 
 from canvasapi import Canvas
 from canvasapi.course import Course
 
+from .deploy.file import get_canvas_folder, get_file
 from .deploy.canvas_deploy import deploy_to_canvas
 from .deploy.groups import initialize_group_weights
 from .our_logging import get_logger
@@ -24,6 +26,9 @@ logger = get_logger()
 class CourseInfo(TypedDict):
     CANVAS_API_URL: str
     CANVAS_COURSE_ID: int
+    COURSE_NAME: str
+    COURSE_CODE: str
+    COURSE_IMAGE: Path
     LOCAL_TIME_ZONE: str
 
 
@@ -118,6 +123,49 @@ def get_course(api_token: str, api_url: str, canvas_course_id: int) -> Course:
     return course
 
 
+def update_course_image(course: Course, course_settings: dict, course_image: Path):
+    """
+    Updates the course image with the given image file.
+
+    :param course: Course: The Canvas Course object to update.
+    :param course_settings: dict: The settings for the course.
+    :param course_image: Path: The path to the new course image.
+    """
+    image_name = course_image.name
+
+    if (file := get_file(course, image_name)) is None:
+        logger.info(f'Uploading course image {image_name}')
+        folder = get_canvas_folder(course, 'course image')
+        response = folder.upload(course_image, name=image_name)
+        file_id = response[1]['id']
+    else:
+        file_id = file.id
+
+    if int(course_settings['image_id']) != file_id:
+        logger.info(f'Updating course image to {image_name}')
+        course.update(course={'image_id': file_id})
+
+
+def update_course(course: Course, course_info: CourseInfo):
+    """
+    Updates the course with the given information.
+
+    :param course: Course: The Canvas Course object to update.
+    :param course_info: CourseInfo: The information to update the course with.
+    """
+    course_name, course_code, course_image = course_info['COURSE_NAME'], course_info['COURSE_CODE'], Path(course_info['COURSE_IMAGE'])
+
+    if course.name != course_name:
+        logger.info(f'Updating course name to {course_name}')
+        course.update(course={'name': course_name})
+
+    if course.course_code != course_code:
+        logger.info(f'Updating course code to {course_code}')
+        course.update(course={'course_code': course_code})
+
+    update_course_image(course, course.get_settings(), course_image)
+
+
 def main(
         canvas_api_token: str,
         course_info: CourseInfo,
@@ -139,6 +187,8 @@ def main(
     group_weights = global_args.get('group_weights', None)
     if group_weights:
         initialize_group_weights(course, group_weights)
+
+    update_course(course, course_info)
 
     resources = ResourceManager()
 
