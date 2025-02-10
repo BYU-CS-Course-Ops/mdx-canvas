@@ -16,10 +16,13 @@ This is just some text in a code block
 This needs to get refactored <
 ```
 
+<include/>
+<div></div>
 ```c++
 This is just some text in a code block
 This needs to get refactored <
 ```
+<img></img>
 
 More text
 
