@@ -1,0 +1,29 @@
+<assignment title="Test &lt;">
+
+Here is some text
+
+Here is more text
+
+```python
+This is just some text in a code block
+This needs to get refactored <
+```
+
+More text
+
+```cpp
+This is just some text in a code block
+This needs to get refactored <
+```
+
+<include/>
+<div></div>
+```c++
+This is just some text in a code block
+This needs to get refactored <
+```
+<img></img>
+
+More text
+
+</assignment>
