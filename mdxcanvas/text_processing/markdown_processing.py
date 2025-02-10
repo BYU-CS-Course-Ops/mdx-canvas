@@ -34,7 +34,7 @@ def replace_characters(text: str, replacements: dict[str, str]) -> str:
     return text
 
 
-def refactor_text(text: str, replacements: dict[str, str]) -> str:
+def replace_problematic_characters(text: str, replacements: dict[str, str]) -> str:
     output_lines = []
     lines = iter(text.splitlines())
 
@@ -132,7 +132,7 @@ def process_markdown(text: str, excluded: list[str], inline: list[str]) -> str:
     :param excluded: a list of tag names to exclude; their contents are left untouched
     :returns: The XML/HTML text
     """
-    content = refactor_text(text, {'<': '&lt;', '>': '&gt;'})
+    content = replace_problematic_characters(text, {'<': '&lt;'})
     soup = parse_soup_from_xml(content)
     _process_markdown(soup, excluded, inline)
     return str(soup)
