@@ -138,15 +138,22 @@ def _get_global_args(global_args_path: Path) -> dict:
         raise NotImplementedError('Global args file of type: ' + global_args_path.suffix)
 
 
-def _get_args(args_path: Path) -> list[dict]:
-    if args_path.suffix == '.json':
-        return json.loads(args_path.read_text())
+def _get_args(args_path: Path, **global_args: dict) -> list[dict]:
+    suffixes = args_path.suffixes
+    content = args_path.read_text()
 
-    elif args_path.suffix == '.csv':
-        return list(csv.DictReader(args_path.read_text().splitlines()))
+    if suffixes[-1] == '.jinja':
+        suffixes.pop(-1)
+        content = _render_template(content, **global_args)
 
-    elif args_path.suffix == '.md':
-        return _read_md_table(args_path.read_text())
+    if suffixes[-1] == '.json':
+        return json.loads(content)
+
+    elif suffixes[-1] == '.csv':
+        return list(csv.DictReader(content.splitlines()))
+
+    elif suffixes[-1] == '.md':
+        return _read_md_table(content)
 
     else:
         raise NotImplementedError('Args file of type: ' + args_path.suffix)
@@ -168,10 +175,10 @@ def process_jinja(
         global_args_path: Path = None,
         **kwargs
 ) -> str:
-    arg_sets = _get_args(args_path) if args_path is not None else None
-
     if global_args_path:
         kwargs |= _get_global_args(global_args_path)
+
+    arg_sets = _get_args(args_path, **kwargs) if args_path is not None else None
 
     if arg_sets is not None:
         arg_sets = [{**args, **kwargs} for args in arg_sets]
