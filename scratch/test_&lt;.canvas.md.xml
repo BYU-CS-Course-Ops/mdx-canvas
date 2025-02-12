@@ -1,0 +1,11 @@
+<div>
+
+<assignment title="Test &lt;">
+
+    <include path="test_md.canvas.md"/>
+
+</assignment>
+
+<include path="test_md_xml.canvas.md.xml"/>
+
+</div>

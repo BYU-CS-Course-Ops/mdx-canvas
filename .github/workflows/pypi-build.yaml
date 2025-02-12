@@ -1,0 +1,21 @@
+name: pypi_build
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize]
+
+jobs:
+  check-mdxcanvas-version:
+    uses: ./.github/workflows/check-mdxcanvas.yaml
+
+  build:
+    needs: check-mdxcanvas-version
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install Poetry
+        run: pip install poetry
+
+      - name: Build mdxcanvas package
+        run: poetry build
