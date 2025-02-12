@@ -11,6 +11,7 @@ from canvasapi.course import Course
 
 from .deploy.file import get_canvas_folder, get_file
 from .deploy.canvas_deploy import deploy_to_canvas
+from .deploy.groups import initialize_group_weights
 from .our_logging import get_logger
 from .resources import ResourceManager
 from .text_processing.jinja_processing import process_jinja
@@ -29,6 +30,15 @@ class CourseInfo(TypedDict):
     COURSE_CODE: str
     COURSE_IMAGE: Path
     LOCAL_TIME_ZONE: str
+
+
+class GlobalArgsInfo(TypedDict):
+    Term: str
+    Year: int
+    Start_Date: str
+    End_Date: str
+    Discord_Link: str
+    Group_Weights: dict
 
 
 def read_content(input_file: Path) -> tuple[list[str], str]:
@@ -56,7 +66,7 @@ def process_file(
         parent_folder: Path,
         content: str,
         content_type: list[str],
-        global_args_file: Path = None,
+        global_args: GlobalArgsInfo = None,
         args_file: Path = None,
         line_id: str = None,
         css_file: Path = None
@@ -71,7 +81,7 @@ def process_file(
         content = process_jinja(
             content,
             args_path=args_file,
-            global_args_path=global_args_file,
+            global_args=global_args,
             line_id=line_id
         )
 
@@ -86,7 +96,7 @@ def process_file(
 
     # Preprocess XML
     def load_and_process_file_contents(parent: Path, content: str, content_type: list[str], **kwargs) -> str:
-        return process_file(resources, parent, content, content_type, global_args_file=global_args_file, **kwargs)
+        return process_file(resources, parent, content, content_type, global_args=global_args, **kwargs)
 
     xml_content = preprocess_xml(parent_folder, xml_content, resources, load_and_process_file_contents)
 
@@ -171,6 +181,13 @@ def main(
     logger = get_logger(course.name)
     logger.info('Connecting to Canvas')
 
+    with open(global_args_file) as f:
+        global_args = json.load(f)
+
+    group_weights = global_args.get('group_weights', None)
+    if group_weights:
+        initialize_group_weights(course, group_weights)
+
     update_course(course, course_info)
 
     resources = ResourceManager()
@@ -183,7 +200,7 @@ def main(
         input_file.parent,
         content,
         content_type,
-        global_args_file,
+        global_args,
         args_file,
         line_id,
         css_file
