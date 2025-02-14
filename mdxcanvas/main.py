@@ -11,7 +11,7 @@ from canvasapi.course import Course
 
 from .deploy.file import get_canvas_folder, get_file
 from .deploy.canvas_deploy import deploy_to_canvas
-from .deploy.groups import initialize_group_weights
+from .deploy.groups import deploy_group_weights
 from .our_logging import get_logger
 from .resources import ResourceManager
 from .text_processing.jinja_processing import process_jinja
@@ -186,7 +186,7 @@ def main(
 
     group_weights = global_args.get('group_weights', None)
     if group_weights:
-        initialize_group_weights(course, group_weights)
+        deploy_group_weights(course, group_weights)
 
     update_course(course, course_info)
 
