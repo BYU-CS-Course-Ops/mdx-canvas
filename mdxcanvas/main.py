@@ -181,12 +181,15 @@ def main(
     logger = get_logger(course.name)
     logger.info('Connecting to Canvas')
 
-    with open(global_args_file) as f:
-        global_args = json.load(f)
+    if global_args_file:
+        with open(global_args_file) as f:
+            global_args = json.load(f)
 
-    group_weights = global_args.get('group_weights', None)
-    if group_weights:
-        deploy_group_weights(course, group_weights)
+        group_weights = global_args.get('group_weights', None)
+        if group_weights:
+            deploy_group_weights(course, group_weights)
+    else:
+        global_args = None
 
     update_course(course, course_info)
 

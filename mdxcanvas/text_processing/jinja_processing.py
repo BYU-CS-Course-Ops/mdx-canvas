@@ -2,17 +2,24 @@ import csv
 import json
 import re
 from pathlib import Path
-from typing import Any
+from typing import Any, TypedDict
 
 import jinja2 as jj
 from bs4.element import Tag
 
 from .markdown_processing import process_markdown_text
-from ..main import GlobalArgsInfo
 from ..our_logging import get_logger
 from ..util import parse_soup_from_xml, retrieve_contents
 
 logger = get_logger()
+
+class GlobalArgsInfo(TypedDict):
+    Term: str
+    Year: int
+    Start_Date: str
+    End_Date: str
+    Discord_Link: str
+    Group_Weights: dict
 
 
 def _tokenize(text: str, break_tags):
