@@ -2,7 +2,7 @@ import csv
 import json
 import re
 from pathlib import Path
-from typing import Any, TypedDict
+from typing import Any
 
 import jinja2 as jj
 from bs4.element import Tag
@@ -12,14 +12,6 @@ from ..our_logging import get_logger
 from ..util import parse_soup_from_xml, retrieve_contents
 
 logger = get_logger()
-
-class GlobalArgsInfo(TypedDict):
-    Term: str
-    Year: int
-    Start_Date: str
-    End_Date: str
-    Discord_Link: str
-    Group_Weights: dict
 
 
 def _tokenize(text: str, break_tags):
@@ -164,7 +156,7 @@ def _process_template(template: str, arg_sets: list[dict]):
 def process_jinja(
         template: str,
         args_path: Path = None,
-        global_args: GlobalArgsInfo = None,
+        global_args: dict = None,
         **kwargs
 ) -> str:
     arg_sets = _get_args(args_path) if args_path is not None else None

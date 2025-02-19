@@ -132,4 +132,6 @@
             </question>
         </questions>
     </quiz>
+
+    <include path="/Users/robbykapua/Documents/GitHub/beanlab-dev/mdx-canvas/scratch/sample-quiz.canvas.md.xml" />
 </div>

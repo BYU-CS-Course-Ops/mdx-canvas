@@ -32,15 +32,6 @@ class CourseInfo(TypedDict):
     LOCAL_TIME_ZONE: str
 
 
-class GlobalArgsInfo(TypedDict):
-    Term: str
-    Year: int
-    Start_Date: str
-    End_Date: str
-    Discord_Link: str
-    Group_Weights: dict
-
-
 def read_content(input_file: Path) -> tuple[list[str], str]:
     return input_file.suffixes, input_file.read_text()
 
@@ -66,7 +57,7 @@ def process_file(
         parent_folder: Path,
         content: str,
         content_type: list[str],
-        global_args: GlobalArgsInfo = None,
+        global_args: dict = None,
         args_file: Path = None,
         line_id: str = None,
         css_file: Path = None

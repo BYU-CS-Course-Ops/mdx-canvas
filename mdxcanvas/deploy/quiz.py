@@ -53,7 +53,7 @@ def check_quiz(canvas_quiz, name: str):
     Checks if quiz has submissions and throws a warning with link to quiz.
     """
     if any(canvas_quiz.get_submissions()):
-        return f"Quiz {name} has submissions. See {canvas_quiz.html_url} to save quiz."
+        return f" - ({name})[{canvas_quiz.html_url}]"
     return None
 
 
@@ -78,7 +78,7 @@ def deploy_quiz(course: Course, quiz_data: dict) -> Quiz:
         if any(canvas_quiz.get_submissions()):
             # If there are submission, we can't save the new material programmatically,
             #  you have to go in and hit save in the browser
-            warning = f"Quiz {name} has submissions. See {canvas_quiz.html_url} to save quiz."
+            warning = f" - ({name})[{canvas_quiz.html_url}]"
         else:
             # unpublish (if needed), push change, republish (if needed)
             is_already_published = canvas_quiz.published
