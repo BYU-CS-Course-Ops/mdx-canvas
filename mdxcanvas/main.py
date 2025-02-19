@@ -174,7 +174,8 @@ def main(
         global_args_file: Path = None,
         line_id: str = None,
         css_file: Path = None,
-        dryrun: bool = False
+        dryrun: bool = False,
+        forcepush: bool = False
 ):
     # Make sure the course actually exists before doing any real effort
     course = get_course(canvas_api_token, course_info['CANVAS_API_URL'], course_info['CANVAS_COURSE_ID'])
@@ -211,7 +212,7 @@ def main(
 
     # Deploy XML
     logger.info('Deploying to Canvas')
-    deploy_to_canvas(course, course_info['LOCAL_TIME_ZONE'], resources, dryrun=dryrun)
+    deploy_to_canvas(course, course_info['LOCAL_TIME_ZONE'], resources, dryrun=dryrun, forcepush=forcepush)
 
 
 def entry():
@@ -226,6 +227,7 @@ def entry():
     parser.add_argument("--css", type=Path, default=None)
     parser.add_argument('--debug', action='store_true')
     parser.add_argument('--dryrun', '--dry-run', action='store_true')
+    parser.add_argument('--forcepush', '--force-push' , action='store_true')
     args = parser.parse_args()
 
     with open(args.course_info) as f:
@@ -246,7 +248,8 @@ def entry():
         global_args_file=args.global_args,
         line_id=args.id,
         css_file=args.css,
-        dryrun=args.dryrun
+        dryrun=args.dryrun,
+        forcepush=args.forcepush
     )
 
 
