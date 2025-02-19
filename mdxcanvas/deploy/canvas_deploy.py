@@ -234,7 +234,7 @@ def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, s
             print('Items to deploy:')
             for rtype, rname in to_deploy.keys():
                 print(f' - {rtype} {rname}')
-                return
+            return
 
         resource_objs: dict[tuple[str, str], CanvasObject] = {}
         for resource_key, (current_md5, resource) in to_deploy.items():
