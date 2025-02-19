@@ -25,3 +25,8 @@ def get_logger(course_name: str = None):
         logger.addHandler(ch)
 
     return logger
+
+
+def log_warnings(summary: list):
+    for warning in summary:
+        logger.warning(warning)

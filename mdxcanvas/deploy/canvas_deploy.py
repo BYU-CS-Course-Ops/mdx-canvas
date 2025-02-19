@@ -20,7 +20,7 @@ from .quiz import deploy_quiz, lookup_quiz
 from .syllabus import deploy_syllabus, lookup_syllabus
 from .util import get_canvas_uri
 from .zip import deploy_zip, lookup_zip, predeploy_zip
-from ..our_logging import get_logger
+from ..our_logging import log_warnings, get_logger
 from ..resources import CanvasResource, iter_keys
 
 logger = get_logger()
@@ -213,12 +213,6 @@ def predeploy_resources(resources, timezone, tmpdir):
             resource['data'] = predeploy_resource(resource['type'], resource['data'], timezone, tmpdir)
 
 
-def output_warnings(warnings):
-    print('The following quizzes need to be updated:')
-    for warning in warnings:
-        print(f'{warning}')
-
-
 def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, str], CanvasResource], dryrun=False):
     resource_dependencies = get_dependencies(resources)
     logger.debug(f'Dependency graph: {resource_dependencies}')
@@ -240,7 +234,7 @@ def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, s
             print('Items to deploy:')
             for rtype, rname in to_deploy.keys():
                 print(f' - {rtype} {rname}')
-            return
+                return
 
         resource_objs: dict[tuple[str, str], CanvasObject] = {}
         for resource_key, (current_md5, resource) in to_deploy.items():
@@ -263,5 +257,5 @@ def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, s
                 raise
 
         if warnings:
-            output_warnings(warnings)
+            log_warnings(warnings)
     # Done!

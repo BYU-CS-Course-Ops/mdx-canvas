@@ -31,7 +31,6 @@ class CourseInfo(TypedDict):
     COURSE_IMAGE: Path
     LOCAL_TIME_ZONE: str
 
-
 def read_content(input_file: Path) -> tuple[list[str], str]:
     return input_file.suffixes, input_file.read_text()
 

@@ -13,7 +13,6 @@ from ..util import parse_soup_from_xml, retrieve_contents
 
 logger = get_logger()
 
-
 def _tokenize(text: str, break_tags):
     soup = parse_soup_from_xml(text)
     current_section = ''
