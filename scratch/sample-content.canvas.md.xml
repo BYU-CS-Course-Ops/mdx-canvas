@@ -132,4 +132,6 @@
             </question>
         </questions>
     </quiz>
+
+    <include path="sample-quiz.canvas.md.xml" />
 </div>

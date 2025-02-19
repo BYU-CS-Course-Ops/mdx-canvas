@@ -8,12 +8,10 @@ import jinja2 as jj
 from bs4.element import Tag
 
 from .markdown_processing import process_markdown_text
-from ..main import GlobalArgsInfo
 from ..our_logging import get_logger
 from ..util import parse_soup_from_xml, retrieve_contents
 
 logger = get_logger()
-
 
 def _tokenize(text: str, break_tags):
     soup = parse_soup_from_xml(text)
@@ -157,7 +155,7 @@ def _process_template(template: str, arg_sets: list[dict]):
 def process_jinja(
         template: str,
         args_path: Path = None,
-        global_args: GlobalArgsInfo = None,
+        global_args: dict = None,
         **kwargs
 ) -> str:
     arg_sets = _get_args(args_path) if args_path is not None else None
