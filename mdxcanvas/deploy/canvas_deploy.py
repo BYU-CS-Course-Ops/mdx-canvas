@@ -213,7 +213,13 @@ def predeploy_resources(resources, timezone, tmpdir):
             resource['data'] = predeploy_resource(resource['type'], resource['data'], timezone, tmpdir)
 
 
-def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, str], CanvasResource], dryrun=False):
+def deploy_to_canvas(
+        course: Course,
+        timezone: str,
+        resources: dict[tuple[str, str], CanvasResource],
+        dryrun=False,
+        forcepush=False
+):
     resource_dependencies = get_dependencies(resources)
     logger.debug(f'Dependency graph: {resource_dependencies}')
 
@@ -234,7 +240,8 @@ def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, s
             print('Items to deploy:')
             for rtype, rname in to_deploy.keys():
                 print(f' - {rtype} {rname}')
-            return
+            if not forcepush:
+                return
 
         resource_objs: dict[tuple[str, str], CanvasObject] = {}
         for resource_key, (current_md5, resource) in to_deploy.items():
