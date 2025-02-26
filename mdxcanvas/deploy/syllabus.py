@@ -1,6 +1,5 @@
 from canvasapi.course import Course
 
-from ..generate_result import MDXCanvasResult
 from ..resources import SyllabusData
 
 

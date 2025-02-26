@@ -2,7 +2,6 @@ from canvasapi.course import Course
 from canvasapi.page import Page
 
 from .util import get_canvas_object, get_canvas_uri
-from ..generate_result import MDXCanvasResult
 
 
 def get_page(course: Course, title: str) -> Page:

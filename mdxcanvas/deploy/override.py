@@ -3,7 +3,6 @@ from canvasapi.course import Course
 
 from .assignment import get_assignment
 from .util import get_canvas_object
-from ..generate_result import MDXCanvasResult
 
 
 def get_override(assignment: Assignment, section_id: int) -> AssignmentOverride:

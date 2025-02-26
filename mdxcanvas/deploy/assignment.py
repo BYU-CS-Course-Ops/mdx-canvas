@@ -2,7 +2,6 @@ from canvasapi.assignment import Assignment
 from canvasapi.course import Course
 
 from .util import get_canvas_object, update_group_name_to_id
-from ..generate_result import MDXCanvasResult
 
 
 def get_assignment(course: Course, name: str) -> Assignment:
