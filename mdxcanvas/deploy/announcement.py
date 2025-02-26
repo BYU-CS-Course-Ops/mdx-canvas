@@ -2,6 +2,7 @@ from canvasapi.course import Course
 from canvasapi.discussion_topic import DiscussionTopic
 
 from .util import get_canvas_object
+from ..generate_result import MDXCanvasResult
 
 
 def get_announcement(course: Course, title: str) -> DiscussionTopic:
@@ -13,7 +14,7 @@ def get_announcement(course: Course, title: str) -> DiscussionTopic:
     )
 
 
-def deploy_announcement(course: Course, announcement_info: dict) -> tuple[DiscussionTopic, str | None]:
+def deploy_announcement(course: Course, announcement_info: dict, result: MDXCanvasResult = None) -> tuple[DiscussionTopic, str | None]:
     title = announcement_info["title"]
 
     canvas_announcement: DiscussionTopic

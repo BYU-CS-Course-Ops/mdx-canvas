@@ -2,6 +2,7 @@ from canvasapi.course import Course
 from canvasapi.quiz import Quiz
 
 from .util import get_canvas_object, update_group_name_to_id, ResourceNotFoundException
+from ..generate_result import MDXCanvasResult
 from ..our_logging import get_logger
 
 logger = get_logger()
@@ -68,7 +69,7 @@ def replace_questions(quiz: Quiz, questions: list[dict]):
         quiz.create_question(question=question)
 
 
-def deploy_quiz(course: Course, quiz_data: dict) -> Quiz:
+def deploy_quiz(course: Course, quiz_data: dict, result: MDXCanvasResult) -> Quiz:
     name = quiz_data['title']
 
     update_group_name_to_id(course, quiz_data)
@@ -79,6 +80,7 @@ def deploy_quiz(course: Course, quiz_data: dict) -> Quiz:
             # If there are submission, we can't save the new material programmatically,
             #  you have to go in and hit save in the browser
             warning = f"Quiz {name} has submissions. See {canvas_quiz.html_url} to save quiz."
+            result.add_updated_quiz(name, canvas_quiz.html_url)
         else:
             # unpublish (if needed), push change, republish (if needed)
             is_already_published = canvas_quiz.published

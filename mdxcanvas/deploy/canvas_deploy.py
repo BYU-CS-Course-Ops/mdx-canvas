@@ -7,6 +7,7 @@ from typing import Callable
 import pytz
 from canvasapi.canvas_object import CanvasObject
 from canvasapi.course import Course
+from pkg_resources import resource_listdir
 
 from .algorithms import linearize_dependencies
 from .announcement import deploy_announcement, lookup_announcement
@@ -20,14 +21,15 @@ from .quiz import deploy_quiz, lookup_quiz
 from .syllabus import deploy_syllabus, lookup_syllabus
 from .util import get_canvas_uri
 from .zip import deploy_zip, lookup_zip, predeploy_zip
+from ..generate_result import MDXCanvasResult
 from ..our_logging import log_warnings, get_logger
 from ..resources import CanvasResource, iter_keys
 
 logger = get_logger()
 
 
-def deploy_resource(course: Course, resource_type: str, resource_data: dict) -> tuple[CanvasObject, str | None]:
-    deployers: dict[str, Callable[[Course, dict], tuple[CanvasObject, str | None]]] = {
+def deploy_resource(course: Course, resource_type: str, resource_data: dict, result: MDXCanvasResult) -> tuple[CanvasObject, str | None]:
+    deployers: dict[str, Callable[[Course, dict] , tuple[CanvasObject, str | None]]] = {
         'zip': deploy_zip,
         'file': deploy_file,
         'page': deploy_page,
@@ -43,7 +45,7 @@ def deploy_resource(course: Course, resource_type: str, resource_data: dict) -> 
         raise Exception(f'Deployment unsupported for resource of type {resource_type}')
 
     try:
-        deployed, warning = deploy(course, resource_data)
+        deployed, warning = deploy(course, resource_data, result)
     except:
         logger.error(f'Failed to deploy resource: {resource_type} {resource_data}')
         raise
@@ -157,7 +159,7 @@ def get_dependencies(resources: dict[tuple[str, str], CanvasResource]) -> dict[t
     return deps
 
 
-def predeploy_resource(rtype: str, resource_data: dict, timezone: str, tmpdir: Path) -> dict:
+def predeploy_resource(rtype: str, resource_data: dict, timezone: str, tmpdir: Path, result: MDXCanvasResult) -> dict:
     fix_dates(resource_data, timezone)
 
     predeployers: dict[str, Callable[[dict, Path], dict]] = {
@@ -166,7 +168,7 @@ def predeploy_resource(rtype: str, resource_data: dict, timezone: str, tmpdir: P
 
     if (predeploy := predeployers.get(rtype)) is not None:
         logger.debug(f'Predeploying {rtype} {resource_data}')
-        resource_data = predeploy(resource_data, tmpdir)
+        resource_data = predeploy(resource_data, tmpdir, result)
 
     return resource_data
 
@@ -207,13 +209,13 @@ def identify_modified_or_outdated(
     return modified
 
 
-def predeploy_resources(resources, timezone, tmpdir):
+def predeploy_resources(resources, timezone, tmpdir, result: MDXCanvasResult):
     for resource_key, resource in resources.items():
         if resource.get('data') is not None:
-            resource['data'] = predeploy_resource(resource['type'], resource['data'], timezone, tmpdir)
+            resource['data'] = predeploy_resource(resource['type'], resource['data'], timezone, tmpdir, result)
 
 
-def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, str], CanvasResource], dryrun=False):
+def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, str], CanvasResource], result: MDXCanvasResult, dryrun=False):
     resource_dependencies = get_dependencies(resources)
     logger.debug(f'Dependency graph: {resource_dependencies}')
 
@@ -225,7 +227,7 @@ def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, s
     with MD5Sums(course) as md5s, TemporaryDirectory() as tmpdir:
         tmpdir = Path(tmpdir)
 
-        predeploy_resources(resources, timezone, tmpdir)
+        predeploy_resources(resources, timezone, tmpdir, result)
 
         to_deploy = identify_modified_or_outdated(resources, resource_order, resource_dependencies, md5s)
         logger.debug(f'Items to be deployed: {to_deploy}')
@@ -247,7 +249,8 @@ def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, s
                     resource_data = update_links(course, resource_data, resource_objs)
 
                     logger.info(f'Deploying {rtype} {rname}')
-                    resource_obj, warning = deploy_resource(course, rtype, resource_data)
+                    resource_obj, warning = deploy_resource(course, rtype, resource_data, result)
+                    result.add_deployed_content(rtype, rname)
                     if warning:
                         warnings.append(warning)
                     resource_objs[resource_key] = resource_obj

@@ -3,6 +3,7 @@ from canvasapi.file import File
 from canvasapi.folder import Folder
 
 from .util import get_canvas_object
+from ..generate_result import MDXCanvasResult
 from ..resources import FileData
 from ..our_logging import get_logger
 
@@ -31,7 +32,7 @@ def get_canvas_folder(course: Course, folder_name: str, parent_folder_path="") -
     return course.create_folder(name=folder_name, parent_folder_path=parent_folder_path, hidden=True)
 
 
-def deploy_file(course: Course, data: FileData):
+def deploy_file(course: Course, data: FileData, result: MDXCanvasResult = None) -> tuple[File, str | None]:
     canvas_folder = data.get('canvas_folder') or DEFAULT_CANVAS_FOLDER
     folder = get_canvas_folder(course, canvas_folder)
     file_id = folder.upload(data['path'])[1]['id']

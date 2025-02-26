@@ -1,5 +1,6 @@
 from canvasapi.course import Course
 
+from ..generate_result import MDXCanvasResult
 from ..resources import SyllabusData
 
 
@@ -9,7 +10,7 @@ class SyllabusObj:
         self.uri = f'/courses/{course_id}/assignments/syllabus'
 
 
-def deploy_syllabus(course: Course, data: SyllabusData) -> tuple[SyllabusObj, str|None]:
+def deploy_syllabus(course: Course, data: SyllabusData, result: MDXCanvasResult = None) -> tuple[SyllabusObj, str|None]:
     course.update(course={'syllabus_body': data['content']})
     return SyllabusObj(course.id), None
 

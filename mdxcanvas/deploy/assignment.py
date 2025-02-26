@@ -2,13 +2,14 @@ from canvasapi.assignment import Assignment
 from canvasapi.course import Course
 
 from .util import get_canvas_object, update_group_name_to_id
+from ..generate_result import MDXCanvasResult
 
 
 def get_assignment(course: Course, name: str) -> Assignment:
     return get_canvas_object(course.get_assignments, 'name', name)
 
 
-def deploy_assignment(course: Course, assignment_info: dict) -> tuple[Assignment, str|None]:
+def deploy_assignment(course: Course, assignment_info: dict, result: MDXCanvasResult = None) -> tuple[Assignment, str|None]:
     name = assignment_info["name"]
 
     update_group_name_to_id(course, assignment_info)

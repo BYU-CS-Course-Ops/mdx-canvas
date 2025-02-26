@@ -4,6 +4,7 @@ from pathlib import Path
 from zipfile import ZipFile, ZipInfo
 
 from .file import deploy_file, lookup_file
+from ..generate_result import MDXCanvasResult
 from ..our_logging import get_logger
 from ..resources import ZipFileData, FileData
 
@@ -102,7 +103,7 @@ def write_file(file: Path, zip_name: str, zipf: ZipFile):
             zipf.writestr(zinfo, f.read())
 
 
-def predeploy_zip(zipdata: ZipFileData, tmpdir: Path) -> FileData:
+def predeploy_zip(zipdata: ZipFileData, tmpdir: Path, result: MDXCanvasResult = None) -> FileData:
     target_folder = Path(zipdata['content_folder'])
 
     additional_files = [Path(file) for file in zipdata.get('additional_files') or []]

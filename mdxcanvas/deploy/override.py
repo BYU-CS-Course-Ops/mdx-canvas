@@ -3,6 +3,7 @@ from canvasapi.course import Course
 
 from .assignment import get_assignment
 from .util import get_canvas_object
+from ..generate_result import MDXCanvasResult
 
 
 def get_override(assignment: Assignment, section_id: int) -> AssignmentOverride:
@@ -15,7 +16,7 @@ def get_assignment_and_section(course: Course, name: str) -> tuple[Assignment, i
     return assignment, int(section_id)
 
 
-def deploy_override(course: Course, override_info: dict) -> tuple[AssignmentOverride, str | None]:
+def deploy_override(course: Course, override_info: dict, result: MDXCanvasResult = None) -> tuple[AssignmentOverride, str | None]:
     name = override_info["name"]
 
     # Convert assignment name to assignment_id
