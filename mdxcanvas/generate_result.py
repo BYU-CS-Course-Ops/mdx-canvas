@@ -2,9 +2,7 @@ class MDXCanvasResult:
     def __init__(self):
         self.json = {
             "deployed_content": {},
-            "content_to_review": [],
-            "message": "",
-            "status": "success"
+            "content_to_review": []
         }
 
     def add_deployed_content(self, rtype: str, content_name: str):
@@ -23,12 +21,6 @@ class MDXCanvasResult:
 
     def get_content_to_review(self):
         return self.json["content_to_review"]
-
-    def set_message(self, message: str):
-        self.json["message"] = message
-
-    def set_status(self, status: str):
-        self.json["status"] = status
 
     def output(self):
         return self.json
