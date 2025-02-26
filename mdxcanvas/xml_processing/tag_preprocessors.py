@@ -7,6 +7,7 @@ from ..resources import ResourceManager, FileData, ZipFileData, CanvasResource, 
 from ..util import parse_soup_from_xml
 from ..xml_processing.attributes import parse_bool, get_tag_path
 
+
 def make_image_preprocessor(parent: Path, resources: ResourceManager):
     def process_image(tag: Tag):
         # TODO - handle b64-encoded images
