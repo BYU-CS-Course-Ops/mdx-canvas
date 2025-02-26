@@ -3,7 +3,6 @@ from canvasapi.file import File
 from canvasapi.folder import Folder
 
 from .util import get_canvas_object
-from ..generate_result import MDXCanvasResult
 from ..resources import FileData
 from ..our_logging import get_logger
 

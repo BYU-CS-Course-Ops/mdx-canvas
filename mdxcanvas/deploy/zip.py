@@ -4,7 +4,6 @@ from pathlib import Path
 from zipfile import ZipFile, ZipInfo
 
 from .file import deploy_file, lookup_file
-from ..generate_result import MDXCanvasResult
 from ..our_logging import get_logger
 from ..resources import ZipFileData, FileData
 

@@ -2,7 +2,6 @@ from canvasapi.course import Course
 from canvasapi.quiz import Quiz
 
 from .util import get_canvas_object, update_group_name_to_id, ResourceNotFoundException
-from ..generate_result import MDXCanvasResult
 from ..our_logging import get_logger
 
 logger = get_logger()

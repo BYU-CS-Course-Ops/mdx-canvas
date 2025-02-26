@@ -6,7 +6,6 @@ from .file import get_file
 from .page import get_page
 from .quiz import get_quiz
 from .util import get_canvas_object
-from ..generate_result import MDXCanvasResult
 
 
 def _get_module(course: Course, name: str) -> Module:
