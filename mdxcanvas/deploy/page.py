@@ -9,7 +9,7 @@ def get_page(course: Course, title: str) -> Page:
     return get_canvas_object(course.get_pages, 'title', title)
 
 
-def deploy_page(course: Course, page_info: dict, result: MDXCanvasResult = None) -> tuple[Page, str|None]:
+def deploy_page(course: Course, page_info: dict) -> tuple[Page, str|None]:
     name = page_info['title']
 
     if canvas_page := get_page(course, name):

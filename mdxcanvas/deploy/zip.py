@@ -103,7 +103,7 @@ def write_file(file: Path, zip_name: str, zipf: ZipFile):
             zipf.writestr(zinfo, f.read())
 
 
-def predeploy_zip(zipdata: ZipFileData, tmpdir: Path, result: MDXCanvasResult = None) -> FileData:
+def predeploy_zip(zipdata: ZipFileData, tmpdir: Path) -> FileData:
     target_folder = Path(zipdata['content_folder'])
 
     additional_files = [Path(file) for file in zipdata.get('additional_files') or []]

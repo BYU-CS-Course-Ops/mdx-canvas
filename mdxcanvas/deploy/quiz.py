@@ -69,7 +69,7 @@ def replace_questions(quiz: Quiz, questions: list[dict]):
         quiz.create_question(question=question)
 
 
-def deploy_quiz(course: Course, quiz_data: dict, result: MDXCanvasResult) -> Quiz:
+def deploy_quiz(course: Course, quiz_data: dict) -> tuple[Quiz, tuple[str, str]]:
     name = quiz_data['title']
 
     update_group_name_to_id(course, quiz_data)
@@ -79,9 +79,10 @@ def deploy_quiz(course: Course, quiz_data: dict, result: MDXCanvasResult) -> Qui
         if any(canvas_quiz.get_submissions()):
             # If there are submission, we can't save the new material programmatically,
             #  you have to go in and hit save in the browser
-            warning = f"Quiz {name} has submissions. See {canvas_quiz.html_url} to save quiz."
-            result.add_updated_quiz(name, canvas_quiz.html_url)
+            info = name, canvas_quiz.html_url
         else:
+            info = None
+
             # unpublish (if needed), push change, republish (if needed)
             is_already_published = canvas_quiz.published
             if is_already_published:
@@ -93,7 +94,7 @@ def deploy_quiz(course: Course, quiz_data: dict, result: MDXCanvasResult) -> Qui
         canvas_quiz = create_quiz(course, quiz_data, name)
         replace_questions(canvas_quiz, quiz_data['questions'])
 
-    return canvas_quiz, warning
+    return canvas_quiz, info
 
 
 def lookup_quiz(course: Course, quiz_name: str) -> Quiz:

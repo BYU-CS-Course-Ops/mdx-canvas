@@ -2,7 +2,7 @@ class MDXCanvasResult:
     def __init__(self):
         self.json = {
             "deployed_content": {},
-            "updated_quizzes": [],
+            "content_to_review": [],
             "message": "",
             "status": "success"
         }
@@ -15,11 +15,14 @@ class MDXCanvasResult:
     def has_deployed_content(self):
         return bool(self.json["deployed_content"])
 
-    def add_updated_quiz(self, quiz_name: str, link_to_quiz: str):
-        self.json["updated_quizzes"].append([quiz_name, link_to_quiz])
+    def add_content_to_review(self, quiz_name: str, link_to_quiz: str):
+        self.json["content_to_review"].append([quiz_name, link_to_quiz])
 
-    def has_updated_quizzes(self):
-        return bool(self.json["updated_quizzes"])
+    def has_content_to_review(self):
+        return bool(self.json["content_to_review"])
+
+    def get_content_to_review(self):
+        return self.json["content_to_review"]
 
     def set_message(self, message: str):
         self.json["message"] = message

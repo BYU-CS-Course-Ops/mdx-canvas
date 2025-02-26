@@ -210,14 +210,14 @@ def main(
     logger.info('Deploying to Canvas')
     deploy_to_canvas(course, course_info['LOCAL_TIME_ZONE'], resources, result, dryrun=dryrun)
 
-    if result.has_deployed_content() and result.has_updated_quizzes():
-        result.set_message("Successfully deployed the following content and updated the following quizzes...")
+    if result.has_deployed_content() and result.has_content_to_review():
+        result.set_message("Successfully deployed the following content and the following content needs to be reviewed...")
 
     elif result.has_deployed_content():
         result.set_message("Successfully deployed the following content...")
 
-    elif result.has_updated_quizzes():
-        result.set_message("Successfully updated the following quizzes...")
+    elif result.has_deployed_content():
+        result.set_message("The following content needs to be reviewed...")
 
     if output_file:
         with open(output_file, 'w') as f:
