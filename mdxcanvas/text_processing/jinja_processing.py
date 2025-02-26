@@ -13,7 +13,6 @@ from ..util import parse_soup_from_xml, retrieve_contents
 
 logger = get_logger()
 
-
 def _tokenize(text: str, break_tags):
     soup = parse_soup_from_xml(text)
     current_section = ''
@@ -129,15 +128,6 @@ def _read_md_table(md_text: str) -> list[dict]:
         return _read_single_table(html)
 
 
-def _get_global_args(global_args_path: Path) -> dict:
-    if '.json' in global_args_path.name:
-        return json.loads(global_args_path.read_text())
-    elif '.csv' in global_args_path.name:
-        return dict(csv.DictReader(global_args_path.read_text().splitlines()))
-    else:
-        raise NotImplementedError('Global args file of type: ' + global_args_path.suffix)
-
-
 def _get_args(args_path: Path) -> list[dict]:
     if args_path.suffix == '.json':
         return json.loads(args_path.read_text())
@@ -165,13 +155,13 @@ def _process_template(template: str, arg_sets: list[dict]):
 def process_jinja(
         template: str,
         args_path: Path = None,
-        global_args_path: Path = None,
+        global_args: dict = None,
         **kwargs
 ) -> str:
     arg_sets = _get_args(args_path) if args_path is not None else None
 
-    if global_args_path:
-        kwargs |= _get_global_args(global_args_path)
+    if global_args:
+        kwargs |= global_args
 
     if arg_sets is not None:
         arg_sets = [{**args, **kwargs} for args in arg_sets]

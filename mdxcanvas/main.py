@@ -2,13 +2,16 @@ import argparse
 import json
 import logging
 import os
+from http.client import responses
 from pathlib import Path
 from typing import TypedDict
 
 from canvasapi import Canvas
 from canvasapi.course import Course
 
+from .deploy.file import get_canvas_folder, get_file
 from .deploy.canvas_deploy import deploy_to_canvas
+from .deploy.groups import deploy_group_weights
 from .our_logging import get_logger
 from .resources import ResourceManager
 from .text_processing.jinja_processing import process_jinja
@@ -23,8 +26,10 @@ logger = get_logger()
 class CourseInfo(TypedDict):
     CANVAS_API_URL: str
     CANVAS_COURSE_ID: int
+    COURSE_NAME: str
+    COURSE_CODE: str
+    COURSE_IMAGE: Path
     LOCAL_TIME_ZONE: str
-
 
 def read_content(input_file: Path) -> tuple[list[str], str]:
     return input_file.suffixes, input_file.read_text()
@@ -51,7 +56,7 @@ def process_file(
         parent_folder: Path,
         content: str,
         content_type: list[str],
-        global_args_file: Path = None,
+        global_args: dict = None,
         args_file: Path = None,
         line_id: str = None,
         css_file: Path = None
@@ -66,7 +71,7 @@ def process_file(
         content = process_jinja(
             content,
             args_path=args_file,
-            global_args_path=global_args_file,
+            global_args=global_args,
             line_id=line_id
         )
 
@@ -81,7 +86,7 @@ def process_file(
 
     # Preprocess XML
     def load_and_process_file_contents(parent: Path, content: str, content_type: list[str], **kwargs) -> str:
-        return process_file(resources, parent, content, content_type, global_args_file=global_args_file, **kwargs)
+        return process_file(resources, parent, content, content_type, global_args=global_args, **kwargs)
 
     xml_content = preprocess_xml(parent_folder, xml_content, resources, load_and_process_file_contents)
 
@@ -108,6 +113,49 @@ def get_course(api_token: str, api_url: str, canvas_course_id: int) -> Course:
     return course
 
 
+def update_course_image(course: Course, course_settings: dict, course_image: Path):
+    """
+    Updates the course image with the given image file.
+
+    :param course: Course: The Canvas Course object to update.
+    :param course_settings: dict: The settings for the course.
+    :param course_image: Path: The path to the new course image.
+    """
+    image_name = course_image.name
+
+    if (file := get_file(course, image_name)) is None:
+        logger.info(f'Uploading course image {image_name}')
+        folder = get_canvas_folder(course, 'course image')
+        response = folder.upload(course_image, name=image_name)
+        file_id = response[1]['id']
+    else:
+        file_id = file.id
+
+    if int(course_settings['image_id']) != file_id:
+        logger.info(f'Updating course image to {image_name}')
+        course.update(course={'image_id': file_id})
+
+
+def update_course(course: Course, course_info: CourseInfo):
+    """
+    Updates the course with the given information.
+
+    :param course: Course: The Canvas Course object to update.
+    :param course_info: CourseInfo: The information to update the course with.
+    """
+    course_name, course_code, course_image = course_info['COURSE_NAME'], course_info['COURSE_CODE'], Path(course_info['COURSE_IMAGE'])
+
+    if course.name != course_name:
+        logger.info(f'Updating course name to {course_name}')
+        course.update(course={'name': course_name})
+
+    if course.course_code != course_code:
+        logger.info(f'Updating course code to {course_code}')
+        course.update(course={'course_code': course_code})
+
+    update_course_image(course, course.get_settings(), course_image)
+
+
 def main(
         canvas_api_token: str,
         course_info: CourseInfo,
@@ -123,6 +171,18 @@ def main(
     logger = get_logger(course.name)
     logger.info('Connecting to Canvas')
 
+    if global_args_file:
+        with open(global_args_file) as f:
+            global_args = json.load(f)
+
+        group_weights = global_args.get('group_weights', None)
+        if group_weights:
+            deploy_group_weights(course, group_weights)
+    else:
+        global_args = None
+
+    update_course(course, course_info)
+
     resources = ResourceManager()
 
     # Load file
@@ -133,7 +193,7 @@ def main(
         input_file.parent,
         content,
         content_type,
-        global_args_file,
+        global_args,
         args_file,
         line_id,
         css_file
