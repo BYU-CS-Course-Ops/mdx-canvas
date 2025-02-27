@@ -144,11 +144,12 @@ def parse_matching_question(tag: Tag):
         parse_settings(answer, [left_field, right_field]) for answer in tag.find_all('pair')
     ]
     distractors = '\n'.join(parse_children_tag_contents(tag, 'distractors'))
+    distractors = '\n'.join(line for line in distractors.splitlines() if line.split())
 
     question = parse_settings(tag, mostly_common_fields)
 
     question.update({
-        "question_text": retrieve_contents(tag, question_children_names),
+        "question_text": retrieve_contents(tag, question_children_names + ['pair', 'distractors']),
         "question_type": 'matching_question',
         "points_possible": parse_int(tag.get('points') or len(pairs)),
         "answers": [

@@ -1,0 +1,22 @@
+<quiz title="Matching Demo">
+    <questions>
+        <question type="matching">
+            This is an important question.
+
+            It has code:
+            ```c++
+            int a(1), b(8);
+            cout &lt;&lt; a + b &lt;&lt; endl;
+            ```
+
+            <pair left="one" right="1"/>
+            <pair left="two" right="2"/>
+            <distractors>
+                3
+                4
+                5
+                6
+            </distractors>
+        </question>
+    </questions>
+</quiz>

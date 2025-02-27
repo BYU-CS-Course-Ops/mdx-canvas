@@ -149,6 +149,7 @@ def make_include_preprocessor(
         imported_file = (parent_folder / imported_filename).resolve()
 
         imported_raw_content = imported_file.read_text(encoding='utf-8')
+        suffixes = imported_file.suffixes
 
         lines = tag.get('lines', '')
         if lines:
@@ -157,6 +158,7 @@ def make_include_preprocessor(
 
         if parse_bool(tag.get('fenced', 'false')):
             imported_raw_content = f'```{imported_file.suffix.lstrip(".")}\n{imported_raw_content}\n```\n'
+            suffixes = suffixes + ['.md']
 
         args_file = tag.get('args', None)
         if args_file is not None:
@@ -166,7 +168,7 @@ def make_include_preprocessor(
         imported_html = process_file(
             imported_file.parent,
             imported_raw_content,
-            imported_file.suffixes,
+            suffixes,
             args_file=args_file
         )
 

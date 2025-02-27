@@ -2,19 +2,23 @@
     title="Include Tag Demo"
     due_at="May 25, 2024, 11:59 PM"
     available_from="May 23, 2024, 12:00 AM"
-    available_to="May 25, 2024, 11:59 PM"
+    available_to="May 25, 2029, 11:59 PM"
     assignment_group="Demos"
     time_limit="180"
     allowed_attempts="1"
     show_correct_answers_at="Jun 16, 2024, 12:00 AM"
-    hide_correct_answers_at="Jun 17, 2024, 12:00 AM"
+    hide_correct_answers_at="Jun 17, 2029, 12:00 AM"
     published="False"
 >
+<questions>
     <question type="text">
         <include path="stuff.md" />
     </question>
 
     <question type="text">
+        This is python code:
         <include path="hello_world.py" fenced="True" />
+        Good stuff.
     </question>
+    </questions>
 </quiz>

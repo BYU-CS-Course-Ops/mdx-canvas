@@ -2,15 +2,14 @@ import argparse
 import json
 import logging
 import os
-from http.client import responses
 from pathlib import Path
 from typing import TypedDict
 
 from canvasapi import Canvas
 from canvasapi.course import Course
 
-from .deploy.file import get_canvas_folder, get_file
 from .deploy.canvas_deploy import deploy_to_canvas
+from .deploy.file import get_canvas_folder, get_file
 from .deploy.groups import deploy_group_weights
 from .our_logging import get_logger
 from .resources import ResourceManager
@@ -30,6 +29,7 @@ class CourseInfo(TypedDict):
     COURSE_CODE: str
     COURSE_IMAGE: Path
     LOCAL_TIME_ZONE: str
+
 
 def read_content(input_file: Path) -> tuple[list[str], str]:
     return input_file.suffixes, input_file.read_text()
@@ -143,17 +143,16 @@ def update_course(course: Course, course_info: CourseInfo):
     :param course: Course: The Canvas Course object to update.
     :param course_info: CourseInfo: The information to update the course with.
     """
-    course_name, course_code, course_image = course_info['COURSE_NAME'], course_info['COURSE_CODE'], Path(course_info['COURSE_IMAGE'])
-
-    if course.name != course_name:
+    if (course_name := course_info.get('COURSE_NAME')) and course.name != course_name:
         logger.info(f'Updating course name to {course_name}')
         course.update(course={'name': course_name})
 
-    if course.course_code != course_code:
+    if (course_code := course_info.get('COURSE_CODE')) and course.course_code != course_code:
         logger.info(f'Updating course code to {course_code}')
         course.update(course={'course_code': course_code})
 
-    update_course_image(course, course.get_settings(), course_image)
+    if course_image := course_info.get('COURSE_IMAGE'):
+        update_course_image(course, course.get_settings(), Path(course_image))
 
 
 def main(
