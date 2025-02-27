@@ -259,7 +259,7 @@ def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, s
                 logger.error(f'Error deploying resource {rtype} {rname}')
                 raise
 
-        if result.has_content_to_review():
+        if result.get_content_to_review():
             for content in result.get_content_to_review():
                 warnings.append(content)
             log_warnings(warnings)

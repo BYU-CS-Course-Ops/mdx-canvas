@@ -10,14 +10,8 @@ class MDXCanvasResult:
             self.json["deployed_content"][rtype] = []
         self.json["deployed_content"][rtype].append(content_name)
 
-    def has_deployed_content(self):
-        return bool(self.json["deployed_content"])
-
     def add_content_to_review(self, quiz_name: str, link_to_quiz: str):
         self.json["content_to_review"].append([quiz_name, link_to_quiz])
-
-    def has_content_to_review(self):
-        return bool(self.json["content_to_review"])
 
     def get_content_to_review(self):
         return self.json["content_to_review"]
