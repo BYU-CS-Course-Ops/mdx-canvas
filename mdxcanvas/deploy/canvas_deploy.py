@@ -7,6 +7,7 @@ from typing import Callable
 import pytz
 from canvasapi.canvas_object import CanvasObject
 from canvasapi.course import Course
+from pkg_resources import resource_listdir
 
 from .algorithms import linearize_dependencies
 from .announcement import deploy_announcement, lookup_announcement
@@ -20,6 +21,7 @@ from .quiz import deploy_quiz, lookup_quiz
 from .syllabus import deploy_syllabus, lookup_syllabus
 from .util import get_canvas_uri
 from .zip import deploy_zip, lookup_zip, predeploy_zip
+from ..generate_result import MDXCanvasResult
 from ..our_logging import log_warnings, get_logger
 from ..resources import CanvasResource, iter_keys
 
@@ -27,7 +29,7 @@ logger = get_logger()
 
 
 def deploy_resource(course: Course, resource_type: str, resource_data: dict) -> tuple[CanvasObject, str | None]:
-    deployers: dict[str, Callable[[Course, dict], tuple[CanvasObject, str | None]]] = {
+    deployers: dict[str, Callable[[Course, dict] , tuple[CanvasObject, str | None]]] = {
         'zip': deploy_zip,
         'file': deploy_file,
         'page': deploy_page,
@@ -43,7 +45,7 @@ def deploy_resource(course: Course, resource_type: str, resource_data: dict) -> 
         raise Exception(f'Deployment unsupported for resource of type {resource_type}')
 
     try:
-        deployed, warning = deploy(course, resource_data)
+        deployed, info = deploy(course, resource_data)
     except:
         logger.error(f'Failed to deploy resource: {resource_type} {resource_data}')
         raise
@@ -51,7 +53,7 @@ def deploy_resource(course: Course, resource_type: str, resource_data: dict) -> 
     if deployed is None:
         raise Exception(f'Resource not found: {resource_type} {resource_data}')
 
-    return deployed, warning
+    return deployed, info
 
 
 def lookup_resource(course: Course, resource_type: str, resource_name: str) -> CanvasObject:
@@ -213,7 +215,7 @@ def predeploy_resources(resources, timezone, tmpdir):
             resource['data'] = predeploy_resource(resource['type'], resource['data'], timezone, tmpdir)
 
 
-def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, str], CanvasResource], dryrun=False):
+def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, str], CanvasResource], result: MDXCanvasResult, dryrun=False):
     resource_dependencies = get_dependencies(resources)
     logger.debug(f'Dependency graph: {resource_dependencies}')
 
@@ -247,15 +249,18 @@ def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, s
                     resource_data = update_links(course, resource_data, resource_objs)
 
                     logger.info(f'Deploying {rtype} {rname}')
-                    resource_obj, warning = deploy_resource(course, rtype, resource_data)
-                    if warning:
-                        warnings.append(warning)
+                    result.add_deployed_content(rtype, rname)
+                    resource_obj, info = deploy_resource(course, rtype, resource_data)
+                    if info:
+                        result.add_content_to_review(*info)
                     resource_objs[resource_key] = resource_obj
                     md5s[resource_key] = current_md5
             except:
                 logger.error(f'Error deploying resource {rtype} {rname}')
                 raise
 
-        if warnings:
+        if result.get_content_to_review():
+            for content in result.get_content_to_review():
+                warnings.append(content)
             log_warnings(warnings)
     # Done!

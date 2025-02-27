@@ -18,6 +18,7 @@ from .text_processing.markdown_processing import process_markdown
 from .util import parse_soup_from_xml
 from .xml_processing.inline_styling import bake_css
 from .xml_processing.xml_processing import process_canvas_xml, preprocess_xml
+from .generate_result import MDXCanvasResult
 
 logger = get_logger()
 
@@ -163,12 +164,15 @@ def main(
         global_args_file: Path = None,
         line_id: str = None,
         css_file: Path = None,
-        dryrun: bool = False
+        dryrun: bool = False,
+        output_file: str = None
 ):
     # Make sure the course actually exists before doing any real effort
     course = get_course(canvas_api_token, course_info['CANVAS_API_URL'], course_info['CANVAS_COURSE_ID'])
     logger = get_logger(course.name)
     logger.info('Connecting to Canvas')
+
+    result = MDXCanvasResult()
 
     if global_args_file:
         with open(global_args_file) as f:
@@ -203,7 +207,12 @@ def main(
 
     # Deploy XML
     logger.info('Deploying to Canvas')
-    deploy_to_canvas(course, course_info['LOCAL_TIME_ZONE'], resources, dryrun=dryrun)
+    deploy_to_canvas(course, course_info['LOCAL_TIME_ZONE'], resources, result, dryrun=dryrun)
+
+    if output_file:
+        with open(output_file, 'w') as f:
+            f.write(json.dumps(result.output(), indent=4))
+        f.close()
 
 
 def entry():
@@ -218,6 +227,7 @@ def entry():
     parser.add_argument("--css", type=Path, default=None)
     parser.add_argument('--debug', action='store_true')
     parser.add_argument('--dryrun', '--dry-run', action='store_true')
+    parser.add_argument('--output-file', type=str, default=None)
     args = parser.parse_args()
 
     with open(args.course_info) as f:
@@ -238,7 +248,8 @@ def entry():
         global_args_file=args.global_args,
         line_id=args.id,
         css_file=args.css,
-        dryrun=args.dryrun
+        dryrun=args.dryrun,
+        output_file=args.output_file
     )
 
 
