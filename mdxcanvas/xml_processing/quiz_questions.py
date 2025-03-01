@@ -9,7 +9,7 @@ NO_POINTS = 0
 FULL_POINTS = 100
 
 question_children_names = [
-    'correct', 'incorrect', 'correct-comments', 'neutral-comments', 'incorrect-comments'
+    'correct', 'incorrect', 'pair', 'distractors', 'correct-comments', 'neutral-comments', 'incorrect-comments'
 ]
 
 
