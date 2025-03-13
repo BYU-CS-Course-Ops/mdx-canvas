@@ -8,6 +8,7 @@ import pytz
 from canvasapi.canvas_object import CanvasObject
 from canvasapi.course import Course
 from pkg_resources import resource_listdir
+import canvasapi.exceptions
 
 from .algorithms import linearize_dependencies
 from .announcement import deploy_announcement, lookup_announcement
@@ -255,8 +256,13 @@ def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, s
                         result.add_content_to_review(*info)
                     resource_objs[resource_key] = resource_obj
                     md5s[resource_key] = current_md5
-            except:
-                logger.error(f'Error deploying resource {rtype} {rname}')
+            except Exception as ex:
+                error = f'Error deploying resource {rtype} {rname}: {str(ex)}'
+
+                logger.error(error)
+
+                result.add_error(error)
+                result.output()
                 raise
 
         if result.get_content_to_review():

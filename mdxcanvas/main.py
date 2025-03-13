@@ -172,7 +172,7 @@ def main(
     logger = get_logger(course.name)
     logger.info('Connecting to Canvas')
 
-    result = MDXCanvasResult()
+    result = MDXCanvasResult(output_file)
 
     if global_args_file:
         with open(global_args_file) as f:
@@ -209,10 +209,7 @@ def main(
     logger.info('Deploying to Canvas')
     deploy_to_canvas(course, course_info['LOCAL_TIME_ZONE'], resources, result, dryrun=dryrun)
 
-    if output_file:
-        with open(output_file, 'w') as f:
-            f.write(json.dumps(result.output(), indent=4))
-        f.close()
+    result.output()
 
 
 def entry():
