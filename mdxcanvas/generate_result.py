@@ -26,4 +26,3 @@ class MDXCanvasResult:
     def output(self):
         with open(self.output_file, 'w') as f:
             f.write(json.dumps(self.json, indent=4))
-        f.close()
