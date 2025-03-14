@@ -132,20 +132,24 @@ def _get_args(args_path: Path,
               global_args: dict = None,
               **kwargs
 ) -> list[dict]:
+    if args_path.suffix == '.jinja':
+        content = process_jinja(args_path.read_text(),
+                                global_args=global_args,
+                                **kwargs)
+    else:
+        content = args_path.read_text()
+
+    # Remove jinja suffix from args_path
+    args_path = Path(args_path.stem)
+
     if args_path.suffix == '.json':
-        return json.loads(args_path.read_text())
+        return json.loads(content)
 
     elif args_path.suffix == '.csv':
-        return list(csv.DictReader(args_path.read_text().splitlines()))
+        return list(csv.DictReader(content.splitlines()))
 
     elif args_path.suffix == '.md':
-        return _read_md_table(args_path.read_text())
-
-    elif args_path.suffix == '.jinja':
-        processed_args = process_jinja(args_path.read_text(),
-                                       global_args=global_args,
-                                       **kwargs)
-        return _read_md_table(processed_args)
+        return _read_md_table(content)
 
     else:
         raise NotImplementedError('Args file of type: ' + args_path.suffix)
