@@ -136,11 +136,11 @@ def _get_args(args_path: Path,
         content = process_jinja(args_path.read_text(),
                                 global_args=global_args,
                                 **kwargs)
+
+        # Remove the '.jinja' suffix for further processing
+        args_path = Path(args_path.stem)
     else:
         content = args_path.read_text()
-
-    # Remove jinja suffix from args_path
-    args_path = Path(args_path.stem)
 
     if args_path.suffix == '.json':
         return json.loads(content)

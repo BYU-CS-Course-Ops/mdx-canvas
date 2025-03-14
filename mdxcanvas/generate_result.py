@@ -24,5 +24,6 @@ class MDXCanvasResult:
         self.json["error"] = error
 
     def output(self):
-        with open(self.output_file, 'w') as f:
-            f.write(json.dumps(self.json, indent=4))
+        if self.output_file:
+            with open(self.output_file, 'w') as f:
+                f.write(json.dumps(self.json, indent=4))
