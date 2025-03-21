@@ -8,7 +8,6 @@ import pytz
 from canvasapi.canvas_object import CanvasObject
 from canvasapi.course import Course
 from pkg_resources import resource_listdir
-import canvasapi.exceptions
 
 from .algorithms import linearize_dependencies
 from .announcement import deploy_announcement, lookup_announcement
