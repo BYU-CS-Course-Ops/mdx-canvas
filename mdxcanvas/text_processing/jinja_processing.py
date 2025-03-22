@@ -128,15 +128,28 @@ def _read_md_table(md_text: str) -> list[dict]:
         return _read_single_table(html)
 
 
-def _get_args(args_path: Path) -> list[dict]:
+def _get_args(args_path: Path,
+              global_args: dict = None,
+              **kwargs
+) -> list[dict]:
+    if args_path.suffix == '.jinja':
+        content = process_jinja(args_path.read_text(),
+                                global_args=global_args,
+                                **kwargs)
+
+        # Remove the '.jinja' suffix for further processing
+        args_path = Path(args_path.stem)
+    else:
+        content = args_path.read_text()
+
     if args_path.suffix == '.json':
-        return json.loads(args_path.read_text())
+        return json.loads(content)
 
     elif args_path.suffix == '.csv':
-        return list(csv.DictReader(args_path.read_text().splitlines()))
+        return list(csv.DictReader(content.splitlines()))
 
     elif args_path.suffix == '.md':
-        return _read_md_table(args_path.read_text())
+        return _read_md_table(content)
 
     else:
         raise NotImplementedError('Args file of type: ' + args_path.suffix)
@@ -158,7 +171,13 @@ def process_jinja(
         global_args: dict = None,
         **kwargs
 ) -> str:
-    arg_sets = _get_args(args_path) if args_path is not None else None
+
+    if args_path:
+        arg_sets = _get_args(args_path,
+                             global_args=global_args,
+                             **kwargs)
+    else:
+        arg_sets = None
 
     if global_args:
         kwargs |= global_args

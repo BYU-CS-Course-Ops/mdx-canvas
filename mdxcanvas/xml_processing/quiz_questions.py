@@ -9,7 +9,7 @@ NO_POINTS = 0
 FULL_POINTS = 100
 
 question_children_names = [
-    'correct', 'incorrect', 'correct-comments', 'neutral-comments', 'incorrect-comments'
+    'correct', 'incorrect', 'pair', 'distractors', 'correct-comments', 'neutral-comments', 'incorrect-comments'
 ]
 
 
@@ -283,6 +283,7 @@ def parse_essay_question(tag: Tag):
         "question_text": question_text,
         "question_type": 'essay_question',
     }
+    question.update(parse_settings(tag, mostly_common_fields))
     return [question]
 
 
@@ -393,5 +394,6 @@ def parse_numerical_question(tag: Tag):
     for answer in question["answers"]:
         answer["numerical_answer_type"] = answer_type
 
+    question.update(parse_settings(tag, mostly_common_fields))
     return [question]
 
