@@ -79,6 +79,7 @@ def deploy_quiz(course: Course, quiz_data: dict) -> tuple[Quiz, tuple[str, str]]
             # If there are submission, we can't save the new material programmatically,
             #  you have to go in and hit save in the browser
             info = name, canvas_quiz.html_url
+        else:
             # unpublish (if needed), push change, republish (if needed)
             is_already_published = canvas_quiz.published
             if is_already_published:
