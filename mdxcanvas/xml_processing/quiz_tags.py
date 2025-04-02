@@ -71,7 +71,8 @@ class QuizTagProcessor:
             Attribute('due_at', parser=parse_date),
             Attribute('access_code'),
             Attribute('published', parser=parse_bool),
-            Attribute('one_time_results', False, parse_bool)
+            Attribute('one_time_results', False, parse_bool),
+            Attribute('points_possible')
         ]
 
         return parse_settings(settings_tag, fields)
