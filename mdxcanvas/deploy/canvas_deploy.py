@@ -230,12 +230,12 @@ def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, s
         predeploy_resources(resources, timezone, tmpdir)
 
         to_deploy = identify_modified_or_outdated(resources, resource_order, resource_dependencies, md5s)
-        logger.debug(f'Items to be deployed: {to_deploy}')
+
+        logger.info('Items to deploy:')
+        for rtype, rname in to_deploy.keys():
+            logger.info(f' - {rtype} {rname}')
 
         if dryrun:
-            print('Items to deploy:')
-            for rtype, rname in to_deploy.keys():
-                print(f' - {rtype} {rname}')
             return
 
         resource_objs: dict[tuple[str, str], CanvasObject] = {}
