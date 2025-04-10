@@ -1,5 +1,6 @@
 import hashlib
 import json
+import requests
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -32,7 +33,7 @@ class MD5Sums:
         else:
             self._md5s = {
                 tuple(k.split('|')): v
-                for k, v in json.loads(md5_file.get_contents()).items()
+                for k, v in json.loads(requests.get(md5_file.url).text).items()
             }
 
     def _save_md5s(self):
