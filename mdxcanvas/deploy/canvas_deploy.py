@@ -132,7 +132,7 @@ def make_iso(date: datetime | str | None, time_zone: str) -> str:
 
 def fix_dates(data, time_zone):
     for attr in ['due_at', 'unlock_at', 'lock_at', 'show_correct_answers_at']:
-        if attr not in data:
+        if attr not in data or data.get(attr) is None:
             continue
 
         datetime_version = datetime.fromisoformat(make_iso(data[attr], time_zone))

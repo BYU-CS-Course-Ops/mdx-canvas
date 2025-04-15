@@ -62,7 +62,9 @@ def make_file_preprocessor(parent: Path, resources: ResourceManager):
             name=path.name,
             data=FileData(
                 path=str(path),
-                canvas_folder=attrs.get('canvas_folder', None)
+                canvas_folder=attrs.get('canvas_folder', None),
+                unlock_at=attrs.get('unlock_at', None),
+                lock_at=attrs.get('lock_at', None)
             )
         )
         resource_key = resources.add_resource(file, 'uri')
