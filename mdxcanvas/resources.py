@@ -11,6 +11,8 @@ class CanvasResource(TypedDict):
 class FileData(TypedDict):
     path: str
     canvas_folder: str | None
+    lock_at: str | None
+    unlock_at: str | None
 
 
 class ZipFileData(TypedDict):
