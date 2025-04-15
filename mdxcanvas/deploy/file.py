@@ -32,8 +32,8 @@ def get_canvas_folder(course: Course, folder_name: str, parent_folder_path="") -
 
 
 def deploy_file(course: Course, data: FileData) -> tuple[File, str | None]:
-        lock_at = data.get('hidden')
-        unlock_at = data.get('unhidden')
+        lock_at = data.get('lock_at')
+        unlock_at = data.get('unlock_at')
 
         canvas_folder = data.get('canvas_folder') or DEFAULT_CANVAS_FOLDER
         folder = get_canvas_folder(course, canvas_folder)
