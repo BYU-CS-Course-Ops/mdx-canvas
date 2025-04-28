@@ -79,7 +79,7 @@ def process_file(
     if '.md' in content_type:
         # Process Markdown
         excluded = ['pre', 'style', 'distractors']
-        inline = ['a', 'strong', 'em', 'span', 'file', 'link', 'zip']
+        inline = ['a', 'strong', 'em', 'span', 'file', 'link', 'zip', 'course-link']
         xml_content = process_markdown(content, excluded=excluded, inline=inline)
 
     else:

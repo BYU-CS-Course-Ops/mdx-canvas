@@ -172,13 +172,20 @@ def make_include_preprocessor(
             args_file=args_file
         )
 
-        new_tag = Tag(name='div')
-        new_tag['data-source'] = imported_filename
-        if lines:
-            new_tag['data-lines'] = lines
-        new_tag.extend(parse_soup_from_xml(imported_html))
+        use_div = parse_bool(tag.get('usediv', 'true'))
 
-        tag.replace_with(new_tag)
+        include_result = parse_soup_from_xml(imported_html)
+
+        if not use_div:
+            tag.parent.extend(include_result)
+
+        else:
+            new_tag = Tag(name='div')
+            new_tag['data-source'] = imported_filename
+            if lines:
+                new_tag['data-lines'] = lines
+            new_tag.extend(include_result)
+            tag.replace_with(new_tag)
 
     return process_include
 

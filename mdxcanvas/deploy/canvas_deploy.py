@@ -196,6 +196,8 @@ def identify_modified_or_outdated(
         stored_md5 = md5s.get(resource_key)
         current_md5 = compute_md5(resource_data)
 
+        logger.debug(f'MD5 {resource_key}: {current_md5} vs {stored_md5}')
+
         if stored_md5 != current_md5:
             # New or changed data
             modified[resource_key] = current_md5, resource
