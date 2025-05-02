@@ -251,7 +251,7 @@ def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, s
                     resource_data = update_links(course, resource_data, resource_objs)
 
                     logger.info(f'Deploying {rtype} {rname}')
-                    result.add_deployed_content(rtype, rname)
+                    result.add_deployed_content(rtype, rname, get_canvas_uri(resource_data))
                     resource_obj, info = deploy_resource(course, rtype, resource_data)
                     if info:
                         result.add_content_to_review(*info)
