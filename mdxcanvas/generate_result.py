@@ -10,7 +10,7 @@ class MDXCanvasResult:
             "error": ""
         }
 
-    def add_deployed_content(self, rtype: str, content_name: str, content_url: str):
+    def add_deployed_content(self, rtype: str, content_name: str, content_url: str = None):
         self.json["deployed_content"].append((rtype, content_name, content_url))
 
     def add_content_to_review(self, quiz_name: str, link_to_quiz: str):

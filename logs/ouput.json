@@ -1,0 +1,71 @@
+{
+    "deployed_content": [
+        [
+            "file",
+            "beanlab.png",
+            null
+        ],
+        [
+            "page",
+            "Example Page",
+            "https://byu.instructure.com/courses/20736/pages/example-page-13"
+        ],
+        [
+            "zip",
+            "zip_target.zip",
+            null
+        ],
+        [
+            "file",
+            "small.md",
+            null
+        ],
+        [
+            "quiz",
+            "Example Quiz",
+            "https://byu.instructure.com/courses/20736/quizzes/523726"
+        ],
+        [
+            "module",
+            "Example Module 1",
+            null
+        ],
+        [
+            "assignment",
+            "Example Assignment",
+            "https://byu.instructure.com/courses/20736/assignments/1123525"
+        ],
+        [
+            "quiz",
+            "Test Quiz 3",
+            "https://byu.instructure.com/courses/20736/quizzes/523727"
+        ],
+        [
+            "page",
+            "Small",
+            "https://byu.instructure.com/courses/20736/pages/small-9"
+        ],
+        [
+            "module",
+            "Example Module 2",
+            null
+        ],
+        [
+            "page",
+            "Example Bar",
+            "https://byu.instructure.com/courses/20736/pages/example-bar-9"
+        ],
+        [
+            "page",
+            "Example Foo",
+            "https://byu.instructure.com/courses/20736/pages/example-foo-9"
+        ],
+        [
+            "syllabus",
+            "syllabus",
+            null
+        ]
+    ],
+    "content_to_review": [],
+    "error": ""
+}
