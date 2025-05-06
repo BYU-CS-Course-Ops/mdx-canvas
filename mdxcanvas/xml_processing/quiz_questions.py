@@ -387,7 +387,7 @@ def parse_numerical_question(tag: Tag):
     }
 
     fields = [
-        Attribute('numerical_answer_type', required=True)
+        Attribute('numerical_answer_type', required=True, ignore=True)
     ]
     question.update(parse_settings(tag, fields + common_fields))
 
