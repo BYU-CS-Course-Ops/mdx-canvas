@@ -1,0 +1,1256 @@
+{
+    "deployed_content": [
+        [
+            "page",
+            "Code Quality Guide",
+            "https://byu.instructure.com/courses/20736/pages/code-quality-guide-8"
+        ],
+        [
+            "page",
+            "Optional Recorded Lectures",
+            "https://byu.instructure.com/courses/20736/pages/optional-recorded-lectures-24"
+        ],
+        [
+            "page",
+            "Frequently Asked Questions",
+            "https://byu.instructure.com/courses/20736/pages/frequently-asked-questions-24"
+        ],
+        [
+            "page",
+            "Course Resources Introduction/Menu",
+            "https://byu.instructure.com/courses/20736/pages/course-resources-introduction-slash-menu-24"
+        ],
+        [
+            "page",
+            "Instructor and TA information",
+            "https://byu.instructure.com/courses/20736/pages/instructor-and-ta-information-10"
+        ],
+        [
+            "zip",
+            "Homework0.zip",
+            null
+        ],
+        [
+            "file",
+            "Lecture00b-IntroToCPP.pptx",
+            null
+        ],
+        [
+            "file",
+            "Lecture00a-Introduction.pptx",
+            null
+        ],
+        [
+            "file",
+            "DrStephensIntroduction.pptx",
+            null
+        ],
+        [
+            "zip",
+            "lecture0-course-introduction.zip",
+            null
+        ],
+        [
+            "module",
+            "Course Resources",
+            null
+        ],
+        [
+            "page",
+            "Tutorial Videos",
+            "https://byu.instructure.com/courses/20736/pages/tutorial-videos-8"
+        ],
+        [
+            "page",
+            "Setting Up Your Development Environment",
+            "https://byu.instructure.com/courses/20736/pages/setting-up-your-development-environment-3"
+        ],
+        [
+            "assignment",
+            "HW 0 - Introduction",
+            "https://byu.instructure.com/courses/20736/assignments/1127085"
+        ],
+        [
+            "page",
+            "Lecture 0 - Introduction",
+            "https://byu.instructure.com/courses/20736/pages/lecture-0-introduction-9"
+        ],
+        [
+            "page",
+            "Programming Assignments",
+            "https://byu.instructure.com/courses/20736/pages/programming-assignments-20"
+        ],
+        [
+            "page",
+            "Homework Instructions",
+            "https://byu.instructure.com/courses/20736/pages/homework-instructions-9"
+        ],
+        [
+            "quiz",
+            "Start of Semester Syllabus Quiz",
+            "https://byu.instructure.com/courses/20736/quizzes/525403"
+        ],
+        [
+            "quiz",
+            "Start of Semester Survey",
+            "https://byu.instructure.com/courses/20736/quizzes/525404"
+        ],
+        [
+            "page",
+            "Why Data Structures?",
+            "https://byu.instructure.com/courses/20736/pages/why-data-structures-20"
+        ],
+        [
+            "page",
+            "Welcome to CS 235",
+            "https://byu.instructure.com/courses/20736/pages/welcome-to-cs-235-21"
+        ],
+        [
+            "zip",
+            "unit1-progress-check.zip",
+            null
+        ],
+        [
+            "zip",
+            "lecture1d-cpp-practice.zip",
+            null
+        ],
+        [
+            "zip",
+            "Homework1c.zip",
+            null
+        ],
+        [
+            "file",
+            "Lecture03-References.pptx",
+            null
+        ],
+        [
+            "zip",
+            "lecture1c-references.zip",
+            null
+        ],
+        [
+            "zip",
+            "Homework1b.zip",
+            null
+        ],
+        [
+            "file",
+            "Lecture02-ReadingData.pptx",
+            null
+        ],
+        [
+            "zip",
+            "lecture1b-reading-files.zip",
+            null
+        ],
+        [
+            "zip",
+            "Homework1a.zip",
+            null
+        ],
+        [
+            "file",
+            "Lecture01-CPPBasics.pptx",
+            null
+        ],
+        [
+            "zip",
+            "lecture1a-cpp-basics.zip",
+            null
+        ],
+        [
+            "module",
+            "Unit 0 - Getting Started",
+            null
+        ],
+        [
+            "assignment",
+            "Unit 1 Progress Check",
+            "https://byu.instructure.com/courses/20736/assignments/1127088"
+        ],
+        [
+            "page",
+            "Lecture 1d - C++ Practice",
+            "https://byu.instructure.com/courses/20736/pages/lecture-1d-c++-practice-8"
+        ],
+        [
+            "assignment",
+            "HW 1c - References",
+            "https://byu.instructure.com/courses/20736/assignments/1127089"
+        ],
+        [
+            "page",
+            "Lecture 1c - References",
+            "https://byu.instructure.com/courses/20736/pages/lecture-1c-references-9"
+        ],
+        [
+            "assignment",
+            "HW 1b - Reading",
+            "https://byu.instructure.com/courses/20736/assignments/1127090"
+        ],
+        [
+            "page",
+            "Lecture 1b - Reading Files",
+            "https://byu.instructure.com/courses/20736/pages/lecture-1b-reading-files-9"
+        ],
+        [
+            "assignment",
+            "HW 1a - Basics",
+            "https://byu.instructure.com/courses/20736/assignments/1127091"
+        ],
+        [
+            "page",
+            "Lecture 1a - Intro to C++",
+            "https://byu.instructure.com/courses/20736/pages/lecture-1a-intro-to-c++-9"
+        ],
+        [
+            "page",
+            "Unit 1 Overview",
+            "https://byu.instructure.com/courses/20736/pages/unit-1-overview-21"
+        ],
+        [
+            "zip",
+            "unit2-progress-check.zip",
+            null
+        ],
+        [
+            "zip",
+            "Homework2d.zip",
+            null
+        ],
+        [
+            "file",
+            "Lecture07-Maps.pptx",
+            null
+        ],
+        [
+            "zip",
+            "lecture2d-maps.zip",
+            null
+        ],
+        [
+            "zip",
+            "Homework2c.zip",
+            null
+        ],
+        [
+            "file",
+            "Lecture06-StacksQueuesPriorityQueues.pptx",
+            null
+        ],
+        [
+            "zip",
+            "lecture2c-queue-stack-pqueues.zip",
+            null
+        ],
+        [
+            "zip",
+            "Homework2b.zip",
+            null
+        ],
+        [
+            "file",
+            "Lecture05-Classes.pptx",
+            null
+        ],
+        [
+            "zip",
+            "lecture2b-classes.zip",
+            null
+        ],
+        [
+            "zip",
+            "Homework2a.zip",
+            null
+        ],
+        [
+            "file",
+            "Lecture04-VectorsListsSets.pptx",
+            null
+        ],
+        [
+            "zip",
+            "lecture2a-basic-containers.zip",
+            null
+        ],
+        [
+            "module",
+            "Unit 1 - Introduction to C++",
+            null
+        ],
+        [
+            "assignment",
+            "Unit 2 Progress Check",
+            "https://byu.instructure.com/courses/20736/assignments/1127092"
+        ],
+        [
+            "quiz",
+            "Reading Quiz: Maps",
+            "https://byu.instructure.com/courses/20736/quizzes/525405"
+        ],
+        [
+            "assignment",
+            "HW 2d - Maps",
+            "https://byu.instructure.com/courses/20736/assignments/1127094"
+        ],
+        [
+            "page",
+            "Lecture 2d - Maps",
+            "https://byu.instructure.com/courses/20736/pages/lecture-2d-maps-9"
+        ],
+        [
+            "quiz",
+            "Reading Quiz: Priority Queues",
+            "https://byu.instructure.com/courses/20736/quizzes/525406"
+        ],
+        [
+            "quiz",
+            "Reading Quiz: Queues",
+            "https://byu.instructure.com/courses/20736/quizzes/525407"
+        ],
+        [
+            "quiz",
+            "Reading Quiz: Stacks",
+            "https://byu.instructure.com/courses/20736/quizzes/525408"
+        ],
+        [
+            "assignment",
+            "HW 2c - Priority queues",
+            "https://byu.instructure.com/courses/20736/assignments/1127098"
+        ],
+        [
+            "page",
+            "Lecture 2c - Stacks, Queues, & Priority Queues",
+            "https://byu.instructure.com/courses/20736/pages/lecture-2c-stacks-queues-and-priority-queues-9"
+        ],
+        [
+            "quiz",
+            "Reading Quiz: Sets",
+            "https://byu.instructure.com/courses/20736/quizzes/525409"
+        ],
+        [
+            "assignment",
+            "HW 2b - VectorSet",
+            "https://byu.instructure.com/courses/20736/assignments/1127100"
+        ],
+        [
+            "page",
+            "Lecture 2b - Classes",
+            "https://byu.instructure.com/courses/20736/pages/lecture-2b-classes-8"
+        ],
+        [
+            "quiz",
+            "Reading Quiz: Lists",
+            "https://byu.instructure.com/courses/20736/quizzes/525410"
+        ],
+        [
+            "assignment",
+            "HW 2a - Uniq",
+            "https://byu.instructure.com/courses/20736/assignments/1127102"
+        ],
+        [
+            "page",
+            "Lecture 2a - Basic Containers",
+            "https://byu.instructure.com/courses/20736/pages/lecture-2a-basic-containers-8"
+        ],
+        [
+            "page",
+            "Unit 2 Overview",
+            "https://byu.instructure.com/courses/20736/pages/unit-2-overview-20"
+        ],
+        [
+            "zip",
+            "unit3-progress-check.zip",
+            null
+        ],
+        [
+            "file",
+            "merge-sort-algorithm-diagram.png",
+            null
+        ],
+        [
+            "quiz",
+            "Reading Quiz: Quicksort",
+            "https://byu.instructure.com/courses/20736/quizzes/525411"
+        ],
+        [
+            "zip",
+            "Homework3d.zip",
+            null
+        ],
+        [
+            "file",
+            "Lecture11-MergeAndQuickSort.pptx",
+            null
+        ],
+        [
+            "zip",
+            "lecture3d-logarithmic-sorts.zip",
+            null
+        ],
+        [
+            "file",
+            "insertion-sort-animated.gif",
+            null
+        ],
+        [
+            "file",
+            "selection-sort-example.gif",
+            null
+        ],
+        [
+            "file",
+            "bubble-sort-example.gif",
+            null
+        ],
+        [
+            "zip",
+            "Homework3c.zip",
+            null
+        ],
+        [
+            "file",
+            "Lecture10-QuadraticSorts.pptx",
+            null
+        ],
+        [
+            "zip",
+            "lecture3c-quadratic-sorts.zip",
+            null
+        ],
+        [
+            "zip",
+            "Homework3b.zip",
+            null
+        ],
+        [
+            "file",
+            "Lecture09-Recursion.pptx",
+            null
+        ],
+        [
+            "zip",
+            "lecture3b-recursion.zip",
+            null
+        ],
+        [
+            "file",
+            "big-o-q6.png",
+            null
+        ],
+        [
+            "file",
+            "Lecture08-BigO.pptx",
+            null
+        ],
+        [
+            "zip",
+            "lecture3a-big-o.zip",
+            null
+        ],
+        [
+            "module",
+            "Unit 2 - Data Structures",
+            null
+        ],
+        [
+            "assignment",
+            "Unit 3 Progress Check",
+            "https://byu.instructure.com/courses/20736/assignments/1127104"
+        ],
+        [
+            "quiz",
+            "Reading Quiz: Sorting Summary",
+            "https://byu.instructure.com/courses/20736/quizzes/525412"
+        ],
+        [
+            "quiz",
+            "Reading Quiz: Merge Sort",
+            "https://byu.instructure.com/courses/20736/quizzes/525413"
+        ],
+        [
+            "assignment",
+            "HW 3d - Quicksort",
+            "https://byu.instructure.com/courses/20736/assignments/1127107"
+        ],
+        [
+            "page",
+            "Lecture 3d - Logarithmic Sorts",
+            "https://byu.instructure.com/courses/20736/pages/lecture-3d-logarithmic-sorts-7"
+        ],
+        [
+            "quiz",
+            "Reading Quiz: Bubble Sort, Selection Sort, and Insertion Sort",
+            "https://byu.instructure.com/courses/20736/quizzes/525414"
+        ],
+        [
+            "assignment",
+            "HW 3c - Insertion Sort",
+            "https://byu.instructure.com/courses/20736/assignments/1127109"
+        ],
+        [
+            "page",
+            "Lecture 3c - Quadratic Sorts",
+            "https://byu.instructure.com/courses/20736/pages/lecture-3c-quadratic-sorts-7"
+        ],
+        [
+            "quiz",
+            "Reading Quiz: Binary Search",
+            "https://byu.instructure.com/courses/20736/quizzes/525415"
+        ],
+        [
+            "quiz",
+            "Reading Quiz: Recursion",
+            "https://byu.instructure.com/courses/20736/quizzes/525416"
+        ],
+        [
+            "assignment",
+            "HW 3b - Maze",
+            "https://byu.instructure.com/courses/20736/assignments/1127112"
+        ],
+        [
+            "page",
+            "Lecture 3b - Recursion",
+            "https://byu.instructure.com/courses/20736/pages/lecture-3b-recursion-7"
+        ],
+        [
+            "quiz",
+            "Reading Quiz: More Big O Practice",
+            "https://byu.instructure.com/courses/20736/quizzes/525417"
+        ],
+        [
+            "quiz",
+            "Reading Quiz: Big O",
+            "https://byu.instructure.com/courses/20736/quizzes/525418"
+        ],
+        [
+            "page",
+            "Lecture 3a - Big O",
+            "https://byu.instructure.com/courses/20736/pages/lecture-3a-big-o-7"
+        ],
+        [
+            "page",
+            "Unit 3 Overview",
+            "https://byu.instructure.com/courses/20736/pages/unit-3-overview-19"
+        ],
+        [
+            "module",
+            "Unit 3 - Algorithms",
+            null
+        ],
+        [
+            "quiz",
+            "Mid Semester Syllabus Quiz",
+            "https://byu.instructure.com/courses/20736/quizzes/525419"
+        ],
+        [
+            "quiz",
+            "Midterm Exam",
+            "https://byu.instructure.com/courses/20736/quizzes/525420"
+        ],
+        [
+            "zip",
+            "unit4-progress-check.zip",
+            null
+        ],
+        [
+            "zip",
+            "Homework4d.zip",
+            null
+        ],
+        [
+            "file",
+            "Lecture15-DequesIterators.pptx",
+            null
+        ],
+        [
+            "zip",
+            "lecture4d-iterators.zip",
+            null
+        ],
+        [
+            "file",
+            "push-and-pop.png",
+            null
+        ],
+        [
+            "zip",
+            "Homework4c.zip",
+            null
+        ],
+        [
+            "file",
+            "Lecture14-ArraysVectors.pptx",
+            null
+        ],
+        [
+            "zip",
+            "lecture4c-arrays-vector.zip",
+            null
+        ],
+        [
+            "zip",
+            "Homework4b.zip",
+            null
+        ],
+        [
+            "file",
+            "Lecture13-LinkedLists.pptx",
+            null
+        ],
+        [
+            "zip",
+            "lecture4b-linked-lists.zip",
+            null
+        ],
+        [
+            "file",
+            "array-in-cpp.png",
+            null
+        ],
+        [
+            "quiz",
+            "Reading Quiz: Memory Leaks Setup",
+            "https://byu.instructure.com/courses/20736/quizzes/525421"
+        ],
+        [
+            "zip",
+            "Homework4a.zip",
+            null
+        ],
+        [
+            "file",
+            "Lecture12-Pointers.pptx",
+            null
+        ],
+        [
+            "zip",
+            "lecture4a-pointers.zip",
+            null
+        ],
+        [
+            "module",
+            "Midterm",
+            null
+        ],
+        [
+            "assignment",
+            "Unit 4 Progress Check",
+            "https://byu.instructure.com/courses/20736/assignments/1127118"
+        ],
+        [
+            "assignment",
+            "HW 4d - Vector iterators",
+            "https://byu.instructure.com/courses/20736/assignments/1127119"
+        ],
+        [
+            "page",
+            "Lecture 4d - Iterators",
+            "https://byu.instructure.com/courses/20736/pages/lecture-4d-iterators-7"
+        ],
+        [
+            "quiz",
+            "Reading Quiz: Using linked lists to implement Stacks and Queues",
+            "https://byu.instructure.com/courses/20736/quizzes/525422"
+        ],
+        [
+            "assignment",
+            "HW 4c - Vector",
+            "https://byu.instructure.com/courses/20736/assignments/1127121"
+        ],
+        [
+            "page",
+            "Lecture 4c - Arrays and Vectors",
+            "https://byu.instructure.com/courses/20736/pages/lecture-4c-arrays-and-vectors-7"
+        ],
+        [
+            "quiz",
+            "Reading Quiz: Exceptions",
+            "https://byu.instructure.com/courses/20736/quizzes/525423"
+        ],
+        [
+            "assignment",
+            "HW 4b - Doubly Linked List",
+            "https://byu.instructure.com/courses/20736/assignments/1127123"
+        ],
+        [
+            "page",
+            "Lecture 4b - Linked Lists",
+            "https://byu.instructure.com/courses/20736/pages/lecture-4b-linked-lists-7"
+        ],
+        [
+            "quiz",
+            "Reading Quiz: Pointers, memory allocation, and arrays in C++",
+            "https://byu.instructure.com/courses/20736/quizzes/525424"
+        ],
+        [
+            "assignment",
+            "HW 4a - Singly linked list",
+            "https://byu.instructure.com/courses/20736/assignments/1127125"
+        ],
+        [
+            "page",
+            "Lecture 4a - Pointers",
+            "https://byu.instructure.com/courses/20736/pages/lecture-4a-pointers-7"
+        ],
+        [
+            "page",
+            "Unit 4 Overview",
+            "https://byu.instructure.com/courses/20736/pages/unit-4-overview-19"
+        ],
+        [
+            "file",
+            "implementing-avl-trees-q1.jpg",
+            null
+        ],
+        [
+            "zip",
+            "Homework5d.zip",
+            null
+        ],
+        [
+            "zip",
+            "lecture5d-avl-impl.zip",
+            null
+        ],
+        [
+            "file",
+            "avl-rotation-q13.png",
+            null
+        ],
+        [
+            "file",
+            "avl-rotation-q11.png",
+            null
+        ],
+        [
+            "file",
+            "avl-rotation-q10c.png",
+            null
+        ],
+        [
+            "file",
+            "avl-rotation-q10b.png",
+            null
+        ],
+        [
+            "file",
+            "avl-rotation-q10a.png",
+            null
+        ],
+        [
+            "file",
+            "avl-rotation-q8.png",
+            null
+        ],
+        [
+            "file",
+            "avl-rotation-q6.png",
+            null
+        ],
+        [
+            "file",
+            "avl-rotation-q5.png",
+            null
+        ],
+        [
+            "file",
+            "avl-rotation-q4.png",
+            null
+        ],
+        [
+            "file",
+            "avl-rotation-q3b.png",
+            null
+        ],
+        [
+            "file",
+            "avl-rotation-q3a.png",
+            null
+        ],
+        [
+            "file",
+            "avl-rotation-q2.png",
+            null
+        ],
+        [
+            "file",
+            "avl-intro-q5.png",
+            null
+        ],
+        [
+            "file",
+            "avl-intro-q4g.png",
+            null
+        ],
+        [
+            "file",
+            "avl-intro-q4f.png",
+            null
+        ],
+        [
+            "file",
+            "avl-intro-q4e.png",
+            null
+        ],
+        [
+            "file",
+            "avl-intro-q4d.png",
+            null
+        ],
+        [
+            "file",
+            "avl-intro-q4c.png",
+            null
+        ],
+        [
+            "file",
+            "avl-intro-q4b.png",
+            null
+        ],
+        [
+            "file",
+            "avl-intro-q4a.png",
+            null
+        ],
+        [
+            "file",
+            "avl-intro-q4.png",
+            null
+        ],
+        [
+            "file",
+            "avl-intro-q3.png",
+            null
+        ],
+        [
+            "file",
+            "avl-intro-q2.png",
+            null
+        ],
+        [
+            "file",
+            "avl-into-q1.png",
+            null
+        ],
+        [
+            "zip",
+            "Homework5c.zip",
+            null
+        ],
+        [
+            "file",
+            "Lecture18-AVL.pptx",
+            null
+        ],
+        [
+            "zip",
+            "lecture5c-avl.zip",
+            null
+        ],
+        [
+            "file",
+            "bad-bst.png",
+            null
+        ],
+        [
+            "file",
+            "binary-search-tree-2.png",
+            null
+        ],
+        [
+            "file",
+            "binary-search-tree-1.png",
+            null
+        ],
+        [
+            "zip",
+            "Homework5b.zip",
+            null
+        ],
+        [
+            "file",
+            "Lecture17-BinarySearchTrees.pptx",
+            null
+        ],
+        [
+            "zip",
+            "lecture5b-bst.zip",
+            null
+        ],
+        [
+            "file",
+            "tree-traversal.png",
+            null
+        ],
+        [
+            "zip",
+            "Homework5a.zip",
+            null
+        ],
+        [
+            "file",
+            "Lecture16-Trees.pptx",
+            null
+        ],
+        [
+            "zip",
+            "lecture5a-trees.zip",
+            null
+        ],
+        [
+            "module",
+            "Unit 4 - Mechanics of Sequential Containers",
+            null
+        ],
+        [
+            "quiz",
+            "Reading Quiz: Implementing AVL Trees",
+            "https://byu.instructure.com/courses/20736/quizzes/525425"
+        ],
+        [
+            "quiz",
+            "Reading Quiz: More AVL Practice",
+            "https://byu.instructure.com/courses/20736/quizzes/525426"
+        ],
+        [
+            "assignment",
+            "HW 5d - AVL",
+            "https://byu.instructure.com/courses/20736/assignments/1127128"
+        ],
+        [
+            "page",
+            "Lecture 5d - AVL Implementation",
+            "https://byu.instructure.com/courses/20736/pages/lecture-5d-avl-implementation-7"
+        ],
+        [
+            "quiz",
+            "Reading Quiz: AVL Rotations",
+            "https://byu.instructure.com/courses/20736/quizzes/525427"
+        ],
+        [
+            "quiz",
+            "Reading Quiz: AVL Intro",
+            "https://byu.instructure.com/courses/20736/quizzes/525428"
+        ],
+        [
+            "assignment",
+            "HW 5c - AVL rebalancing",
+            "https://byu.instructure.com/courses/20736/assignments/1127131"
+        ],
+        [
+            "page",
+            "Lecture 5c - AVL Trees",
+            "https://byu.instructure.com/courses/20736/pages/lecture-5c-avl-trees-7"
+        ],
+        [
+            "quiz",
+            "Reading Quiz: Big O for BSTs",
+            "https://byu.instructure.com/courses/20736/quizzes/525429"
+        ],
+        [
+            "quiz",
+            "Reading Quiz: Binary Search Trees",
+            "https://byu.instructure.com/courses/20736/quizzes/525430"
+        ],
+        [
+            "assignment",
+            "HW 5b - BST",
+            "https://byu.instructure.com/courses/20736/assignments/1127134"
+        ],
+        [
+            "page",
+            "Lecture 5b - Binary Search Trees",
+            "https://byu.instructure.com/courses/20736/pages/lecture-5b-binary-search-trees-7"
+        ],
+        [
+            "quiz",
+            "Reading Quiz: Tree Traversals",
+            "https://byu.instructure.com/courses/20736/quizzes/525431"
+        ],
+        [
+            "assignment",
+            "HW 5a - BST traversal",
+            "https://byu.instructure.com/courses/20736/assignments/1127136"
+        ],
+        [
+            "page",
+            "Lecture 5a - Trees",
+            "https://byu.instructure.com/courses/20736/pages/lecture-5a-trees-7"
+        ],
+        [
+            "page",
+            "Unit 5 Overview",
+            "https://byu.instructure.com/courses/20736/pages/unit-5-overview-17"
+        ],
+        [
+            "file",
+            "making_hash_browns.png",
+            null
+        ],
+        [
+            "file",
+            "intro-to-hashing-q6b.png",
+            null
+        ],
+        [
+            "file",
+            "intro-to-hashing-q6a.png",
+            null
+        ],
+        [
+            "zip",
+            "Homework6a.zip",
+            null
+        ],
+        [
+            "file",
+            "Lecture19-Hashing.pptx",
+            null
+        ],
+        [
+            "zip",
+            "lecture6a-hashing.zip",
+            null
+        ],
+        [
+            "module",
+            "Unit 5 - Sets and Maps 1: Mechanics of Trees",
+            null
+        ],
+        [
+            "quiz",
+            "Reading Quiz: Hash Tables",
+            "https://byu.instructure.com/courses/20736/quizzes/525432"
+        ],
+        [
+            "quiz",
+            "Reading Quiz: Intro to Hashing",
+            "https://byu.instructure.com/courses/20736/quizzes/525433"
+        ],
+        [
+            "assignment",
+            "HW 6a - HashSet",
+            "https://byu.instructure.com/courses/20736/assignments/1127139"
+        ],
+        [
+            "page",
+            "Lecture 6a - Hashing",
+            "https://byu.instructure.com/courses/20736/pages/lecture-6a-hashing-7"
+        ],
+        [
+            "page",
+            "Unit 6 Overview",
+            "https://byu.instructure.com/courses/20736/pages/unit-6-overview-17"
+        ],
+        [
+            "zip",
+            "Homework7a.zip",
+            null
+        ],
+        [
+            "file",
+            "christmas-tree.png",
+            null
+        ],
+        [
+            "file",
+            "Lecture20-HeapsHeapsort.pptx",
+            null
+        ],
+        [
+            "zip",
+            "lecture7a-heaps.zip",
+            null
+        ],
+        [
+            "module",
+            "Unit 6 - Sets and Maps 2: Mechanics of Hashtables",
+            null
+        ],
+        [
+            "quiz",
+            "HW 7a - Set Performance",
+            "https://byu.instructure.com/courses/20736/quizzes/525434"
+        ],
+        [
+            "quiz",
+            "Reading Quiz: Heaps",
+            "https://byu.instructure.com/courses/20736/quizzes/525435"
+        ],
+        [
+            "page",
+            "Lecture 7a - Heaps and Heapsort",
+            "https://byu.instructure.com/courses/20736/pages/lecture-7a-heaps-and-heapsort-7"
+        ],
+        [
+            "page",
+            "Unit 7 Overview",
+            "https://byu.instructure.com/courses/20736/pages/unit-7-overview-17"
+        ],
+        [
+            "quiz",
+            "Interview Questions",
+            "https://byu.instructure.com/courses/20736/quizzes/525436"
+        ],
+        [
+            "page",
+            "Sample Technical Questions",
+            "https://byu.instructure.com/courses/20736/pages/sample-technical-questions-9"
+        ],
+        [
+            "page",
+            "Preparing for Technical Interviews",
+            "https://byu.instructure.com/courses/20736/pages/preparing-for-technical-interviews-8"
+        ],
+        [
+            "module",
+            "Unit 7 - Priority Queues: Mechanics of Heap",
+            null
+        ],
+        [
+            "quiz",
+            "Free Coding",
+            "https://byu.instructure.com/courses/20736/quizzes/525437"
+        ],
+        [
+            "page",
+            "Pacing: Interviewing",
+            "https://byu.instructure.com/courses/20736/pages/pacing-interviewing-8"
+        ],
+        [
+            "page",
+            "Unit 8 Overview",
+            "https://byu.instructure.com/courses/20736/pages/unit-8-overview-17"
+        ],
+        [
+            "zip",
+            "final.zip",
+            null
+        ],
+        [
+            "module",
+            "Unit 8 - Approaching the Real World",
+            null
+        ],
+        [
+            "quiz",
+            "Course Completion Survey",
+            "https://byu.instructure.com/courses/20736/quizzes/525438"
+        ],
+        [
+            "assignment",
+            "Final Exam",
+            "https://byu.instructure.com/courses/20736/assignments/1127145"
+        ],
+        [
+            "zip",
+            "unit5-progress-check.zip",
+            null
+        ],
+        [
+            "module",
+            "Final Exam",
+            null
+        ],
+        [
+            "assignment",
+            "Unit 5 Progress Check",
+            "https://byu.instructure.com/courses/20736/assignments/1127146"
+        ],
+        [
+            "assignment",
+            "Assignment Time Credit Balance",
+            "https://byu.instructure.com/courses/20736/assignments/1127147"
+        ],
+        [
+            "assignment",
+            "Assignment Time Credit Grade",
+            "https://byu.instructure.com/courses/20736/assignments/1127148"
+        ],
+        [
+            "page",
+            "Final Exam Review-2",
+            "https://byu.instructure.com/courses/20736/pages/final-exam-review-2-7"
+        ],
+        [
+            "page",
+            "Final Exam-2",
+            "https://byu.instructure.com/courses/20736/pages/final-exam-2-7"
+        ],
+        [
+            "page",
+            "Sample Final Exam Questions-2",
+            "https://byu.instructure.com/courses/20736/pages/sample-final-exam-questions-2-7"
+        ],
+        [
+            "page",
+            "Final Exam Topics-2",
+            "https://byu.instructure.com/courses/20736/pages/final-exam-topics-2-7"
+        ],
+        [
+            "page",
+            "Final exam topics",
+            "https://byu.instructure.com/courses/20736/pages/final-exam-topics-8"
+        ],
+        [
+            "page",
+            "Midterm: Possible Topics",
+            "https://byu.instructure.com/courses/20736/pages/midterm-possible-topics-8"
+        ],
+        [
+            "page",
+            "Midterm: Kinds of Questions",
+            "https://byu.instructure.com/courses/20736/pages/midterm-kinds-of-questions-7"
+        ],
+        [
+            "announcement",
+            "Time Spent Survey: Week 8",
+            "https://byu.instructure.com/courses/20736/discussion_topics/597150"
+        ],
+        [
+            "announcement",
+            "Time Spent Survey: Week 7",
+            "https://byu.instructure.com/courses/20736/discussion_topics/597151"
+        ],
+        [
+            "announcement",
+            "Time Spent Survey: Week 6",
+            "https://byu.instructure.com/courses/20736/discussion_topics/597152"
+        ],
+        [
+            "announcement",
+            "Time Spent Survey: Week 5",
+            "https://byu.instructure.com/courses/20736/discussion_topics/597153"
+        ],
+        [
+            "announcement",
+            "Time Spent Survey: Week 4",
+            "https://byu.instructure.com/courses/20736/discussion_topics/597116"
+        ],
+        [
+            "announcement",
+            "Time Spent Survey: Week 3",
+            "https://byu.instructure.com/courses/20736/discussion_topics/597117"
+        ],
+        [
+            "announcement",
+            "Time Spent Survey: Week 2",
+            "https://byu.instructure.com/courses/20736/discussion_topics/597118"
+        ],
+        [
+            "announcement",
+            "Time Spent Survey: Week 1",
+            "https://byu.instructure.com/courses/20736/discussion_topics/597119"
+        ],
+        [
+            "syllabus",
+            "syllabus",
+            null
+        ]
+    ],
+    "content_to_review": [],
+    "error": ""
+}

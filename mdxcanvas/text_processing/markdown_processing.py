@@ -38,6 +38,9 @@ def replace_problematic_characters(text: str, replacements: dict[str, str]) -> s
     output_lines = []
     lines = iter(text.splitlines())
 
+    # Matches inline code like `code`
+    inline_code_pattern = re.compile(r'`([^`]+)`')
+
     for line in lines:
         if line.strip().startswith('```'):
             output_lines.append(line)
@@ -45,8 +48,15 @@ def replace_problematic_characters(text: str, replacements: dict[str, str]) -> s
                 output_lines.append(replace_characters(code_line, replacements))
                 if code_line.strip().startswith('```'):
                     break
+        elif inline_code_pattern.search(line):
+            def replacer(match):
+                code = match.group(1)
+                if any(char in code for char in replacements):
+                    return f"`{replace_characters(code, replacements)}`"
+                return match.group(0)
+            output_lines.append(inline_code_pattern.sub(replacer, line))
         else:
-            output_lines.append(line)
+            output_lines.append(replace_characters(line, replacements))
 
     return '\n'.join(output_lines)
 
@@ -130,6 +140,7 @@ def process_markdown(text: str, excluded: list[str], inline: list[str]) -> str:
 
     :param text: the Markdown text to process
     :param excluded: a list of tag names to exclude; their contents are left untouched
+    :param inline: a list of tag names to treat as inline elements
     :returns: The XML/HTML text
     """
     content = replace_problematic_characters(text, {'<': '&lt;'})
