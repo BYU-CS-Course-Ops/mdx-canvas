@@ -241,7 +241,9 @@ def _add_answers_to_multiple_blanks_question(text):
 
 def parse_fill_in_multiple_blanks_filled_answers(tag: Tag):
     """
-    Anything within a set of brackets will be turned into an fill in the blank, with what ever is in the brackets as the correct answer
+    Anything within a set of brackets will be turned into a fill in the blank question.
+    What ever is in the brackets will be the correct answer
+
     <question type='fill-in-multiple-blanks-filled-answers'>
             The U.S. flag has [13] stripes and [50] stars.
     </question>
