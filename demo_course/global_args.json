@@ -4,7 +4,7 @@
   "Start_Date": "Sep 4",
   "End_Date": "Dec 11",
   "Discord_Link": "https://discord.gg/J5CmP7EaV8",
-  "Group Weights": {
+  "Group_Weights": {
                     "Homework" : 25,
                     "Labs" : 10,
                     "Projects" : 40,
