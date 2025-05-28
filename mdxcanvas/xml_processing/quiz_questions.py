@@ -244,7 +244,9 @@ def parse_fill_in_multiple_blanks_filled_answers(tag: Tag):
     Anything within a set of brackets will be turned into a fill in the blank question.
     Whatever is in the brackets will be the correct answer
 
-    <question type='fill-in-multiple-blanks-filled-answers'>
+    The default number of points is the number of fill in the blank questions, but can be overwritten using "points".
+
+    <question type='fill-in-multiple-blanks-filled-answers' points="5">
             The U.S. flag has [13] stripes and [50] stars.
     </question>
 
@@ -319,6 +321,8 @@ def parse_fill_in_multiple_blanks_question(tag: Tag):
     <correct text='13' blank='stripes' />
     <correct text='50' blank='stars' />
     </question>
+
+    The default number of points is the number of fill in the blank questions (ie the example above would be worth 2 points)
     """
     answer_attributes = [
         Attribute('text', required=True, new_name='answer_text'),
