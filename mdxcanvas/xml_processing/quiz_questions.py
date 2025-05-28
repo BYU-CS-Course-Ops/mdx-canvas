@@ -272,10 +272,14 @@ def parse_fill_in_multiple_blanks_filled_answers(tag: Tag):
     question = {
         "question_text": question_text,
         "question_type": 'fill_in_multiple_blanks_question',
-        "answers": answers
+        "answers": answers,
     }
 
-    question.update(parse_settings(tag, mostly_common_fields))
+    question_attributes = [
+        Attribute('points', default=len(answers), parser=parse_int, new_name='points_possible'),
+    ]
+    settings = parse_settings(tag, question_attributes + common_fields)
+    question.update(settings)
     return [question]
 
 def parse_fill_in_the_blank_question(tag: Tag):
@@ -322,14 +326,20 @@ def parse_fill_in_multiple_blanks_question(tag: Tag):
         Attribute('answer_weight', FULL_POINTS)
     ]
 
+    answers = tag.find_all('correct')
     question = {
         "question_text": retrieve_contents(tag, question_children_names),
         "question_type": 'fill_in_multiple_blanks_question',
         "answers": [
-            parse_settings(answer, answer_attributes) for answer in tag.find_all('correct')
+            parse_settings(answer, answer_attributes) for answer in answers
         ]
     }
-    question.update(parse_settings(tag, mostly_common_fields))
+
+    question_attributes = [
+        Attribute('points', default=len(answers), parser=parse_int, new_name='points_possible'),
+    ]
+    settings = parse_settings(tag, question_attributes + common_fields)
+    question.update(settings)
     return [question]
 
 
