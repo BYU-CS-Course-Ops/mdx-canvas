@@ -1,0 +1,27 @@
+<quiz title="Example with `<`">
+    <questions>
+
+        <question type='fill-in-multiple-blanks' points="5">
+            The U.S. flag has [A] stripes and [B] stars.
+            <correct text='13' blank='A' />
+            <correct text='50' blank='B' />
+        </question>
+
+        <question type='fill-in-multiple-blanks'>
+            The U.S. flag has [A] stripes and [B] stars.
+            <correct text='13' blank='A' />
+            <correct text='50' blank='B' />
+        </question>
+
+        <question type='fill-in-multiple-blanks-filled-answers' points="5">
+            The U.S. flag has [13] stripes and [50] stars.
+            <
+
+            `this is a code block < `
+
+            ```
+            this is another code block <
+            ```
+        </question>
+    </questions>
+</quiz>

@@ -3,7 +3,7 @@ from ..util import retrieve_contents
 from .quiz_questions import parse_text_question, parse_true_false_question, parse_multiple_choice_question, \
     parse_multiple_answers_question, parse_matching_question, parse_multiple_true_false_question, \
     parse_fill_in_the_blank_question, parse_essay_question, parse_file_upload_question, parse_numerical_question, \
-    parse_fill_in_multiple_blanks_question
+    parse_fill_in_multiple_blanks_question, parse_fill_in_multiple_blanks_filled_answers
 from ..resources import ResourceManager, CanvasResource
 from bs4 import Tag
 
@@ -20,6 +20,7 @@ class QuizTagProcessor:
             'multiple-tf': parse_multiple_true_false_question,
             'fill-in-the-blank': parse_fill_in_the_blank_question,
             'fill-in-multiple-blanks': parse_fill_in_multiple_blanks_question,
+            'fill-in-multiple-blanks-filled-answers': parse_fill_in_multiple_blanks_filled_answers,
             'essay': parse_essay_question,
             'file-upload': parse_file_upload_question,
             'numerical': parse_numerical_question

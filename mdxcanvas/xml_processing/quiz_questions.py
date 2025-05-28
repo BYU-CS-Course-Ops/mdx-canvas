@@ -1,4 +1,5 @@
 import re
+import string
 
 from bs4 import Tag
 
@@ -221,6 +222,67 @@ def parse_multiple_true_false_question(tag: Tag):
 
     return resulting_questions
 
+def _add_answers_to_multiple_blanks_question(text):
+    def letter_generator():
+        for repeat in range(1, 10):
+            for letter in string.ascii_uppercase:
+                yield letter * repeat
+    letter_generator = letter_generator()
+    answers = []
+    def get_next_letter(match):
+        answer = match.group()[1:-1]
+        associated_id = next(letter_generator)
+        answers.append({'answer_text': answer, 'blank_id': associated_id, 'answer_weight': FULL_POINTS})
+        return f'[{associated_id}]'
+
+    updated_text = re.sub(r"\[(.*?)\]", get_next_letter, text)
+
+    return updated_text, answers
+
+def parse_fill_in_multiple_blanks_filled_answers(tag: Tag):
+    """
+    Anything within a set of brackets will be turned into a fill in the blank question.
+    Whatever is in the brackets will be the correct answer
+
+    The default number of points is the number of fill in the blank questions, but can be overwritten using "points".
+
+    <question type='fill-in-multiple-blanks-filled-answers' points="5">
+            The U.S. flag has [13] stripes and [50] stars.
+    </question>
+
+    This is also useful for tables
+    <question type="fill-in-multiple-blanks-filled-answers">
+        Fill in the table using the algorithm discussed in class.
+
+        | Node | 0     | 1     | 2     |
+        |------|-------|-------|-------|
+        | A    | 0     | [0]   | [0]   |
+        | B    | [inf] | [1]   | [1]   |
+        | C    | [inf] | [inf] | [3]   |
+        | D    | [inf] | inf   | [inf] |
+        | E    | [inf] | [4]   | 4     |
+        | F    | [inf] | 8     | [7]   |
+        | G    | inf   | [inf] | [7]   |
+        | H    | [inf] | [inf] | [inf] |
+
+    </question>
+    """
+    question_text = retrieve_contents(tag, question_children_names)
+
+    question_text, answers = _add_answers_to_multiple_blanks_question(question_text)
+
+    question = {
+        "question_text": question_text,
+        "question_type": 'fill_in_multiple_blanks_question',
+        "answers": answers,
+    }
+
+    question_attributes = [
+        Attribute('points', default=len(answers), parser=parse_int, new_name='points_possible'),
+    ]
+    settings = parse_settings(tag, question_attributes + common_fields)
+    question.update(settings)
+    return [question]
 
 def parse_fill_in_the_blank_question(tag: Tag):
     """
@@ -259,6 +321,8 @@ def parse_fill_in_multiple_blanks_question(tag: Tag):
     <correct text='13' blank='stripes' />
     <correct text='50' blank='stars' />
     </question>
+
+    The default number of points is the number of fill in the blank questions (ie the example above would be worth 2 points)
     """
     answer_attributes = [
         Attribute('text', required=True, new_name='answer_text'),
@@ -266,14 +330,20 @@ def parse_fill_in_multiple_blanks_question(tag: Tag):
         Attribute('answer_weight', FULL_POINTS)
     ]
 
+    answers = tag.find_all('correct')
     question = {
         "question_text": retrieve_contents(tag, question_children_names),
         "question_type": 'fill_in_multiple_blanks_question',
         "answers": [
-            parse_settings(answer, answer_attributes) for answer in tag.find_all('correct')
+            parse_settings(answer, answer_attributes) for answer in answers
         ]
     }
-    question.update(parse_settings(tag, mostly_common_fields))
+
+    question_attributes = [
+        Attribute('points', default=len(answers), parser=parse_int, new_name='points_possible'),
+    ]
+    settings = parse_settings(tag, question_attributes + common_fields)
+    question.update(settings)
     return [question]
 
 
