@@ -1,4 +1,4 @@
-<quiz title="MD Table 6">
+<quiz title="Multiple fill in the blank answers filled answer">
     <questions>
 
         <question type='fill-in-multiple-blanks' points="5">
@@ -14,7 +14,7 @@
         </question>
 
         <question type='fill-in-multiple-blanks-filled-answers' points="5">
-                The U.S. flag has [13] stripes and [50] stars.
+            The U.S. flag has [13] stripes and [50] stars.
         </question>
 
         <question type='fill-in-multiple-blanks-filled-answers'>
@@ -24,17 +24,7 @@
         <question type="fill-in-multiple-blanks-filled-answers" points="10">
             Fill in the table using the algorithm discussed in class.
 
-
-            | Node |   0   |   1   |   2   |
-            |:----:|:-----:|:-----:|:-----:|
-            |  **A**   |   **0**   |  [0]  |  [0]  |
-            |  **B**   | [inf] |  [1]  |  [1]  |
-            |  **C**   | [inf] | [inf] |  [3]  |
-            |  **D**   | [inf] |  inf  | [inf] |
-            |  **E**   | [inf] |  [4]  |   **4**   |
-            |  **F**   | [inf] |   **8**   |  [7]  |
-            |  **G**   |  inf  | [inf] |  [7]  |
-            |  **H**   | [inf] | [inf] | [inf] |
+            Using the `:---:` on tables centers the item.
 
 
             | Node  |   0   |   1   |   2   |
@@ -47,6 +37,7 @@
             | **F** | [inf] | **8** |  [7]  |
             | **G** |  inf  | [inf] |  [7]  |
             | **H** | [inf] | [inf] | [inf] |
+
 
         </question>
 
@@ -67,3 +58,5 @@
 
     </questions>
 </quiz>
+
+

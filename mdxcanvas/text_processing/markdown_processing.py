@@ -56,7 +56,7 @@ def replace_problematic_characters(text: str, replacements: dict[str, str]) -> s
                 return match.group(0)
             output_lines.append(inline_code_pattern.sub(replacer, line))
         else:
-            output_lines.append(replace_characters(line, replacements))
+            output_lines.append(line)
 
     return '\n'.join(output_lines)
 
@@ -140,7 +140,6 @@ def process_markdown(text: str, excluded: list[str], inline: list[str]) -> str:
 
     :param text: the Markdown text to process
     :param excluded: a list of tag names to exclude; their contents are left untouched
-    :param inline: a list of tag names to treat as inline elements
     :returns: The XML/HTML text
     """
     content = replace_problematic_characters(text, {'<': '&lt;'})
