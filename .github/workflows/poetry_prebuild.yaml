@@ -1,4 +1,4 @@
-name: poetry_prebuild
+name: MDXCanvas Prebuild
 
 on:
   pull_request:
@@ -6,7 +6,7 @@ on:
     types: [opened, synchronize]
 
 jobs:
-  poetry_prebuild:
-    uses: BYU-CS-Course-Ops/utils/.github/workflows/poetry_build.yaml@main
+  mdxcanvas_prebuild:
+    uses: BYU-CS-Course-Ops/utils/.github/workflows/poetry_prebuild.yaml@main
     with:
       pypi_package: "mdxcanvas"

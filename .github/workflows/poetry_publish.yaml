@@ -1,4 +1,4 @@
-name: poetry_prebuild
+name: MDXCanvas Publish
 
 on:
   push:
@@ -8,8 +8,8 @@ on:
     types: [merged]
 
 jobs:
-  poetry_prebuild:
-    uses: BYU-CS-Course-Ops/utils/.github/workflows/poetry_build_publish.yaml@main
+  mdxcanvas_publish:
+    uses: BYU-CS-Course-Ops/utils/.github/workflows/poetry_publish.yaml@main
     with:
       pypi_package: "mdxcanvas"
     secrets:
