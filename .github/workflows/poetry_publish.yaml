@@ -1,0 +1,18 @@
+name: poetry_prebuild
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+    types: [merged]
+
+jobs:
+  poetry_prebuild:
+    uses: BYU-CS-Course-Ops/utils/.github/workflows/poetry_build_publish.yaml@main
+    with:
+      pypi_package: "mdxcanvas"
+    secrets:
+      pypi_user: ${{ secrets.PYPI_USER }}
+      pypi_password: ${{ secrets.PYPI_PASSWORD }}
+
