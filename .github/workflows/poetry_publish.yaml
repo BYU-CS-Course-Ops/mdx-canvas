@@ -15,4 +15,6 @@ jobs:
     secrets:
       pypi_user: ${{ secrets.PYPI_USER }}
       pypi_password: ${{ secrets.PYPI_PASSWORD }}
+      discord_webhook_url: ${{ secrets.GHA_BEANLAB_DISCORD_WEBHOOK }}
+      discord_role: ${{ secrets.CICD_NOTIFY_DISCORD_ROLE }}
 
