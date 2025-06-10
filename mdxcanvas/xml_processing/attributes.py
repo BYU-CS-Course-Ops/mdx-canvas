@@ -132,7 +132,7 @@ def parse_settings(tag: Tag, attributes: list[Attribute]):
                 settings[name] = attribute.default
 
             elif attribute.required:
-                raise Exception(f'Required field {attribute.name} missing from tag {tag.name}')
+                raise Exception(f'Required field {attribute.name} missing from tag {tag.name} @ {get_tag_path(tag)}')
         except:
             logger.exception(f"Error processing attribute {attribute.name} in tag {get_tag_path(tag)}")
             raise

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "mdxcanvas"
-version = "0.3.35"
+version = "0.3.36"
 description = "A Canvas LMS API wrapper for maintaining content in markdown"
 authors = ["Gordon Bean <gbean@cs.byu.edu>", "Preston Raab <phr23@byu.edu>", "Robert Greathouse <robbykap@byu.edu>"]
 license = "MIT"
@@ -11,11 +11,12 @@ Jinja2 = "^3.1.2"
 Markdown = "^3.1.1"
 MarkupSafe = "^2.0.1"
 CanvasAPI = "^3.2.0"
-pytz = "^2024.1 "
-beautifulsoup4 = "^4.12.0"
+pytz = "^2025.2 "
+beautifulsoup4 = "^4.13.4"
 Pygments = "^2.17.2"
 strictyaml = "^1.7.3"
 cssutils = "^2.11.1"
+markdowndata = "^0.0.5"
 
 [tool.poetry.group.dev.dependencies]
 python-dotenv = "^1.0.1"
