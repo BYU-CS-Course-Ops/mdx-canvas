@@ -1,0 +1,21 @@
+name: MDXCanvas Publish
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+    types: [merged]
+
+jobs:
+  mdxcanvas_publish:
+    uses: BYU-CS-Course-Ops/utils/.github/workflows/poetry_publish.yaml@main
+    with:
+      pypi_package: "mdxcanvas"
+    secrets:
+      pypi_user: ${{ secrets.PYPI_USER }}
+      pypi_password: ${{ secrets.PYPI_PASSWORD }}
+      discord_webhook_url: ${{ secrets.GHA_DISCORD_WEBHOOK }}
+      discord_role: ${{ secrets.CICD_NOTIFY_DISCORD_ROLE }}
+
