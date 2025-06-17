@@ -72,8 +72,7 @@ def process_file(
         content = process_jinja(
             content,
             args_path=args_file,
-            global_args=global_args,
-            line_id=line_id
+            global_args=global_args
         )
 
     if '.md' in content_type:

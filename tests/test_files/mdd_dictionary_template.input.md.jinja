@@ -1,0 +1,15 @@
+{% for key, value in items.items() %}
+### {{ key }}
+
+{{ value.description }}
+
+{{ value.content }}
+
+{% for item in value["items"] %}
+- **{{ item.name }}**: {{ item.description }}
+  - Type: {{ item.type }}
+  - Default: {{ item.default }}
+  - Required: {{ item.required }}
+{% endfor %}
+
+{% endfor %}

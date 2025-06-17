@@ -10,16 +10,9 @@ from ..our_logging import get_logger
 
 logger = get_logger()
 
-def _get_args(args_path: Path,
-              global_args: dict = None,
-              **kwargs
-) -> list[dict]:
+def _get_args(args_path: Path, global_args: dict) -> dict | list:
     if args_path.suffix == '.jinja':
-        content = process_jinja(args_path.read_text(),
-                                global_args=global_args,
-                                **kwargs)
-
-        # Remove the '.jinja' suffix for further processing
+        content = _render_template(args_path.read_text(), global_args=global_args)
         args_path = Path(args_path.stem)
     else:
         content = args_path.read_text()
@@ -37,42 +30,79 @@ def _get_args(args_path: Path,
         raise NotImplementedError('Args file of type: ' + args_path.suffix)
 
 
-def _render_template(template, **kwargs):
-    jj_template = jj.Environment().from_string(template)
-    kwargs |= dict(zip=zip, split_list=lambda x: x.split(';'))
-    return jj_template.render(**kwargs)
+def _check_dict_value_type(args: dict, expected_type: type, ignored_keys: list = None) -> bool:
+    for key, value in args.items():
+        if key in ignored_keys:
+            continue
+        if isinstance(value, expected_type):
+            return False
+    return True
 
+def _render_template(template: str, args: dict | list = None, global_args: dict = None, key: str = "items") -> str:
+    """
+    Renders a Jinja template using either a dictionary or a list as context.
 
-def _process_template(template: str, arg_sets: list[dict]):
-    return '\n'.join([_render_template(template, **args) for args in arg_sets])
+    Args:
+        template (str): The Jinja2 template string.
+        args (dict | list): The context data to render the template.
+        key (str, optional): The key under which to nest list data. Defaults to 'items'.
+
+    Returns:
+        str: The rendered template string.
+    """
+
+    # Compile the template
+    jj_template = jj.Environment(trim_blocks=True, lstrip_blocks=True).from_string(template)
+
+    if args:
+        # Add global arguments
+        if isinstance(args, dict):
+            nested_dict_found = False
+            for _, value in args.items():
+                if isinstance(value, dict):
+                    value |= global_args
+                    nested_dict_found = True
+            if not nested_dict_found:
+                args |= global_args
+
+        elif isinstance(args, list):
+            for item in args:
+                item |= global_args
+
+        else:
+            raise TypeError("Args must be a dictionary or a list.")
+
+        if isinstance(args, dict) and _check_dict_value_type(args, dict, ignored_keys=["Group_Weights"]):
+            # If args is a dict with string values, use it directly
+            context = args
+        else:
+            context = {key: args}
+
+    elif global_args and not args:
+        context = global_args
+
+    else:
+        raise ValueError("Either args or global_args must be provided.")
+
+    # Extend with helper functions
+    context |= {
+        "zip": zip,
+        "enumerate": enumerate,
+        "split_list": lambda x: x.split(";"),
+    }
+
+    return jj_template.render(context)
 
 
 def process_jinja(
         template: str,
         args_path: Path = None,
-        global_args: dict = None,
-        **kwargs
+        global_args: dict = None
 ) -> str:
 
     if args_path:
-        arg_sets = _get_args(args_path,
-                             global_args=global_args,
-                             **kwargs)
+        args = _get_args(args_path, global_args)
     else:
-        arg_sets = None
+        args = {}
 
-    if global_args:
-        kwargs |= global_args
-
-    if arg_sets is not None:
-        if isinstance(arg_sets, list):
-            arg_sets = [{**args, **kwargs} for args in arg_sets]
-        elif isinstance(arg_sets, dict):
-            try:
-                arg_sets = [{**args, **kwargs} for args in arg_sets.values()]
-            except TypeError:
-                arg_sets = [{**arg_sets, **kwargs}]
-    else:
-        arg_sets = [kwargs]
-
-    return _process_template(template, arg_sets)
+    return _render_template(template, args=args, global_args=global_args)
