@@ -1,0 +1,23 @@
+{% for k, v in args.items() %}
+
+# {{ k }} - {{ globals["course"] }} {{ globals["term"] }} {{ globals["year"] }}
+
+{{ v["description"] }}
+
+## Due At
+
+{{ v["due"] }}, {{ globals["year"] }}
+
+## Video Info
+
+{% for video in v["Video Info"] %}
+- **[{{ video["name"] }}]({{ video["link"] }})** - {{ video["description"] }}
+{% endfor %}
+
+## Assigned Questions
+
+{% for question in v["Assigned Questions"] %}
+- {{ question }}
+{% endfor %}
+
+{% endfor %}
