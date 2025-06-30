@@ -39,15 +39,15 @@ def _check_dict_value_type(args: dict, expected_type: type, ignored_keys: list =
     return True
 
 
-def _render_template(template: str, args: dict | list = None, global_args: dict = None, key: str = "args") -> str:
+def _render_template(template: str, args: dict | list = None, global_args: dict = None) -> str:
     jj_template = jj.Environment(trim_blocks=True, lstrip_blocks=True).from_string(template)
 
     context = {
         "zip": zip,
         "enumerate": enumerate,
         "split_list": lambda x: x.split(";"),
-        "globals": global_args,
-        key: args
+        "global_args": global_args,
+        "args": args
     }
 
     return jj_template.render(context)
