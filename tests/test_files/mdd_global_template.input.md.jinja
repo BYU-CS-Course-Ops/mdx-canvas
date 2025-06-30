@@ -1,22 +1,22 @@
-{% for key, value in args.items() %}
+{% for title, info in args.items() %}
 
-# {{ key }} - {{ global_args["course"] }} {{ global_args["term"] }} {{ global_args["year"] }}
+# {{ title }} - {{ global_args["course"] }} {{ global_args["term"] }} {{ global_args["year"] }}
 
-{{ value["description"] }}
+{{ info["description"] }}
 
 ## Due At
 
-{{ value["due"] }}, {{ global_args["year"] }}
+{{ info["due"] }}, {{ global_args["year"] }}
 
 ## Video Info
 
-{% for video in value["Video Info"] %}
+{% for video in info["Video Info"] %}
 - **[{{ video["name"] }}]({{ video["link"] }})** - {{ video["description"] }}
 {% endfor %}
 
 ## Assigned Questions
 
-{% for question in value["Assigned Questions"] %}
+{% for question in info["Assigned Questions"] %}
 - {{ question }}
 {% endfor %}
 

@@ -1,7 +1,7 @@
-{% for item in args %}
+{% for arg in args %}
 
-## {{ item['Title'] }}
+## {{ arg['Title'] }}
 
-This assignment is due {{ item['Date'] }} by {{ item['Author'] }}.
+This assignment is due {{ arg['Date'] }} by {{ arg['Author'] }}.
 
-{%  endfor %}
+{% endfor %}
