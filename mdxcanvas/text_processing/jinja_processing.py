@@ -46,9 +46,13 @@ def _render_template(template: str, args: dict | list = None, global_args: dict 
         "zip": zip,
         "enumerate": enumerate,
         "split_list": lambda x: x.split(";"),
-        "global_args": global_args,
-        "args": args
     }
+
+    if global_args:
+        context |= global_args
+
+    if args:
+        context |= {"args": args}
 
     return jj_template.render(context)
 

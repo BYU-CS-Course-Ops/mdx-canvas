@@ -1,12 +1,12 @@
 {% for title, info in args.items() %}
 
-# {{ title }} - {{ global_args["course"] }} {{ global_args["term"] }} {{ global_args["year"] }}
+# {{ title }} - {{ course }} {{ term }} {{ year }}
 
 {{ info["description"] }}
 
 ## Due At
 
-{{ info["due"] }}, {{ global_args["year"] }}
+{{ info["due"] }}, {{ year }}
 
 ## Video Info
 
