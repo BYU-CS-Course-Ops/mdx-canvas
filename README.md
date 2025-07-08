@@ -46,8 +46,8 @@ Such as:
 - `md`
 - `xml`
 - `html`
-- `jinja
-`
+- `jinja`
+
 Below is an example of an XML file with a simple quiz.
 
 ```xml
@@ -971,6 +971,14 @@ Templating allows you to define a structure for your content and then fill in th
 The base for each template is some content tag such as `<assignment>`, `<quiz>`, or `<page>`. Which can then be
 filled in with Jinja variables and logic to create dynamic content.
 
+Each template can have a set of global arguments that are used to define general course parameters, such as the term, 
+year, start of the semester, and other course-wide settings. There is no limit to the number of global arguments and 
+is up to the user to define what is needed for their course.
+
+Additionally, each template can have its own set of template arguments that are used to define specific parameters for
+the content being created. These arguments can be used to fill in the details of the content, such as the assignment
+name, due date, instructions, and other specific details.
+
 #### Jinja Example
 
 ```xml
@@ -995,11 +1003,110 @@ filled in with Jinja variables and logic to create dynamic content.
 
 #### Global Args
 
+Global args are defined within a JSON file that is then passed to the jinja template when running mdxcanvas. 
 
+The JSON file should look something like this:
+
+```json
+{
+  "term": "Fall",
+  "year": 2025,
+  "start_date": "Aug 1, 2025",
+  "end_date": "Dec 15, 2025"
+}
+```
+
+Then to run the jinja template with the global args, you can use the following command:
+
+```bash
+mdxcanvas --course-info <course_info> --global-args <global_args> <jinja_tmeplate>
+```
+
+Additionally, the global args can include a `Group_Weights` key which, if included will be used to set the weights of 
+the assignment groups in the course.
+
+This key's value should be a dictionary where the keys are the assignment group names and the values are the
+weights for each group.
+ 
+For example:
+
+```json
+{
+  "term": "Fall",
+  "year": 2025,
+  "start_date": "Aug 1, 2025",
+  "end_date": "Dec 15, 2025",
+  "Group_Weights": {
+    "Homework": 40,
+    "Quizzes": 20,
+    "Projects": 30,
+    "Final Exam": 10
+  }
+}
+```
+
+In this example the `Homework` group will have a weight of 40%, the `Quizzes` group will have a weight of 20%, and so on.
 
 #### Template Args
 
+The template args can be defined in a separate file either as a `JSON` file, in the jinja template itself, or with 
+`markdowndata` which is our preferred method. If you want to use `markdowndata`, you can look into how to use it
+[here](https://github.com/BYU-CS-Course-Ops/markdowndata). For the sake of this example, we will use `MarkdownData` 
+as it was designed to work with MDXCanvas.
+
+```md
+| Title                | Due_At                 | Points_Possible |
+|----------------------|------------------------|-----------------|
+| Example Assignment 1 | Jan 1, 2025, 11:59 PM  | 100             |
+| Example Assignment 2 | Jan 8, 2025, 11:59 PM  | 50              |
+| Example Assignment 3 | Jan 15, 2025, 11:59 PM | 75              |
+```
+
+MarkdownData will then parse this table and create a list of dictionaries where each dictionary represents a row in the
+table.
+
+To access the data in your args file regardless of the method you used, you can use the following syntax:
+
+```xml
+{% for assignment in args %}
+
+<assignment title="{{ assignment['Title'] }}"
+            due_at="{{ assignment['Due_At'] }}"
+            points_possible="{{ assignment['Points_Possible'] }}">
+
+    <description>
+        # {{ assignment["Title"] }}
+        
+        Please complete the assignment by the due date.
+    </description>
+</assignment>
+{% endfor %}
+```
+
+The arguments will be stored under the `args` variable which the value will differ based on the way you defined the
+template args.
+
+So if your args file was a `JSON` file, you could create multiple assignments like this:
+
+```xml
+{% for assignment_title, assignment_info in args.items() %}
+
+<assignment title="{{ assignment_title }}"
+            due_at="{{ assignment_info['due_at'] }}"
+            points_possible="{{ assignment_info['points_possible'] }}">
+
+    <description>
+        # {{ assignment_title }}
+        
+        Please complete the assignment by the due date.
+    </description>
+</assignment>
+{% endfor %}
+```
+
 ### CSS
+
+_fill_
 
 ### Demo Course
 
