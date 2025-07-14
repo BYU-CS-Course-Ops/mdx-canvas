@@ -1,0 +1,23 @@
+{% for title, info in args.items() %}
+
+# {{ title }} - {{ course }} {{ term }} {{ year }}
+
+{{ info["description"] }}
+
+## Due At
+
+{{ info["due"] }}, {{ year }}
+
+## Video Info
+
+{% for video in info["Video Info"] %}
+- **[{{ video["name"] }}]({{ video["link"] }})** - {{ video["description"] }}
+{% endfor %}
+
+## Assigned Questions
+
+{% for question in info["Assigned Questions"] %}
+- {{ question }}
+{% endfor %}
+
+{% endfor %}
