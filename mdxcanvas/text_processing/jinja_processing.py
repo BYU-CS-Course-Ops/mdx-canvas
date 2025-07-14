@@ -30,15 +30,6 @@ def _get_args(args_path: Path, global_args: dict) -> dict | list:
         raise NotImplementedError('Args file of type: ' + args_path.suffix)
 
 
-def _check_dict_value_type(args: dict, expected_type: type, ignored_keys: list = None) -> bool:
-    for key, value in args.items():
-        if key in ignored_keys:
-            continue
-        if isinstance(value, expected_type):
-            return False
-    return True
-
-
 def _render_template(template: str, args: dict | list = None, global_args: dict = None) -> str:
     jj_template = jj.Environment(trim_blocks=True, lstrip_blocks=True).from_string(template)
 
