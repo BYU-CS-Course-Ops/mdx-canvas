@@ -3,7 +3,6 @@ import json
 import logging
 import os
 from pathlib import Path
-from tempfile import template
 from typing import TypedDict
 
 from canvasapi import Canvas
@@ -89,7 +88,8 @@ def process_file(
 
     # Preprocess XML
     def load_and_process_file_contents(parent: Path, content: str, content_type: list[str], **kwargs) -> str:
-        return process_file(resources, parent, content, content_type, global_args=global_args, **kwargs)
+        return process_file(resources, parent, content, content_type,
+                            global_args=global_args, templates=templates, **kwargs)
 
     xml_content = preprocess_xml(parent_folder, xml_content, resources, load_and_process_file_contents)
 
