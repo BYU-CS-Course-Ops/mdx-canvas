@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 
 import jinja2 as jj
+from jinja2 import Environment, FileSystemLoader
 
 import markdowndata
 
@@ -30,8 +31,20 @@ def _get_args(args_path: Path, global_args: dict) -> dict | list:
         raise NotImplementedError('Args file of type: ' + args_path.suffix)
 
 
-def _render_template(template: str, args: dict | list = None, global_args: dict = None) -> str:
-    jj_template = jj.Environment(trim_blocks=True, lstrip_blocks=True).from_string(template)
+def _render_template(
+        template: str,
+        parent_folder: Path = None,
+        args_path: Path = None,
+        args: dict | list = None,
+        global_args: dict = None,
+        templates: list[Path] = None
+) -> str:
+    loader_paths = [parent_folder, args_path, *(templates or [])]
+    loader_paths = [p for p in loader_paths if p is not None]
+
+    env = Environment(
+        loader=FileSystemLoader(loader_paths),
+    )
 
     context = {
         "zip": zip,
@@ -45,13 +58,16 @@ def _render_template(template: str, args: dict | list = None, global_args: dict 
     if args:
         context |= {"args": args}
 
+    jj_template = env.from_string(template)
     return jj_template.render(context)
 
 
 def process_jinja(
         template: str,
+        parent_folder: Path = None,
         args_path: Path = None,
-        global_args: dict = None
+        global_args: dict = None,
+        templates: list[Path] = None
 ) -> str:
 
     if args_path:
@@ -59,4 +75,11 @@ def process_jinja(
     else:
         args = {}
 
-    return _render_template(template, args=args, global_args=global_args)
+    return _render_template(
+        template,
+        parent_folder=parent_folder,
+        args_path=args_path,
+        args=args,
+        global_args=global_args,
+        templates=templates
+    )

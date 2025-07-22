@@ -59,7 +59,7 @@ def process_file(
         content_type: list[str],
         global_args: dict = None,
         args_file: Path = None,
-        line_id: str = None,
+        templates: list[Path] = None,
         css_file: Path = None
 ) -> str:
     """
@@ -71,8 +71,10 @@ def process_file(
     if is_jinja(content_type):
         content = process_jinja(
             content,
+            parent_folder=parent_folder,
             args_path=args_file,
-            global_args=global_args
+            global_args=global_args,
+            templates=templates
         )
 
     if '.md' in content_type:
@@ -86,7 +88,8 @@ def process_file(
 
     # Preprocess XML
     def load_and_process_file_contents(parent: Path, content: str, content_type: list[str], **kwargs) -> str:
-        return process_file(resources, parent, content, content_type, global_args=global_args, **kwargs)
+        return process_file(resources, parent, content, content_type,
+                            global_args=global_args, templates=templates, **kwargs)
 
     xml_content = preprocess_xml(parent_folder, xml_content, resources, load_and_process_file_contents)
 
@@ -161,7 +164,7 @@ def main(
         input_file: Path,
         args_file: Path = None,
         global_args_file: Path = None,
-        line_id: str = None,
+        templates: list[Path] = None,
         css_file: Path = None,
         dryrun: bool = False,
         output_file: str = None
@@ -197,7 +200,7 @@ def main(
         content_type,
         global_args,
         args_file,
-        line_id,
+        templates,
         css_file
     )
 
@@ -219,7 +222,7 @@ def entry():
     parser.add_argument("filename", type=Path)
     parser.add_argument("--args", type=Path, default=None)
     parser.add_argument("--global-args", type=Path, default=None)
-    parser.add_argument("--id", type=str, default=None)
+    parser.add_argument("--templates", nargs="+", type=Path, default=[])
     parser.add_argument("--css", type=Path, default=None)
     parser.add_argument('--debug', action='store_true')
     parser.add_argument('--dryrun', '--dry-run', action='store_true')
@@ -242,7 +245,7 @@ def entry():
         input_file=args.filename,
         args_file=args.args,
         global_args_file=args.global_args,
-        line_id=args.id,
+        templates=args.templates,
         css_file=args.css,
         dryrun=args.dryrun,
         output_file=args.output_file
