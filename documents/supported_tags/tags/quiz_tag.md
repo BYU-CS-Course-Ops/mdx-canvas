@@ -16,7 +16,7 @@ You may use these assignment-style attributes on quizzes:
 - `available_to`
 - `assignment_group`
 
-See the [assignment tag documentation](assignment_tag.md) for details on how these attributes work.
+See the [<`assignment tag`> documentation](assignment_tag.md) for details on how these attributes work.
 
 ### `shuffle_answers`
 
@@ -119,10 +119,3 @@ See [quiz question types](quiz_question_types.md) for full documentation of supp
     </questions>
 </quiz>
 ```
-
----
-
-## See Also
-
-* [`<question>` types](quiz_question_types.md)
-* [`<assignment>` tag](assignment_tag.md) for shared quiz attributes

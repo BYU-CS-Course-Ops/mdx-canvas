@@ -179,7 +179,3 @@ Accepts a numerical answer and supports three modes via `numerical_answer_type`:
     <correct answer_approximate="3.14159" answer_precision="5" />
 </question>
 ```
-
-## See Also
-
-Refer to the [`<quiz>` tag documentation](quiz_tag.md) for how to define a quiz and include `<questions>`.

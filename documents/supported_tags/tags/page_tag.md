@@ -54,7 +54,3 @@ All standard Markdown and Canvas HTML formatting is supported.
     | Row 3    | Row 4    |
 </page>
 ```
-
-## See Also
-
-To add this page to a module, use the [`<item>` tag](item_tag.md) with `type="page"` and a matching `title`.
