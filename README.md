@@ -98,7 +98,7 @@ Configure course metadata such as name, code, and dashboard image.
 
 Full reference of standard content tags like `<assignment>`, `<quiz>`, `<page>`, and more.
 
-### [Special Tags](documents/readme/tags/special_tags.md)
+### [Special Tags](documents/special_tags/special_tags.md)
 
 Advanced features like `<include>`, `<file>`, and `<zip>` for modular, reusable content.
 
