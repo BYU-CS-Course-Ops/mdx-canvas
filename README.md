@@ -112,17 +112,4 @@ Apply custom styling across your content using external CSS files.
 
 ## Demo Course
 
-Explore the `demo_course` folder to see MDXCanvas in action:
-
-* All quiz question types
-* Pages (including MD pages)
-* Modules and module items
-* Assignments (with and without Jinja)
-* Syllabus
-* Announcements
-* Assignment weights
-* Overrides
-* Jinja template examples
-* Header page
-
-*Link to demo course folder content*
+Explore the [`demo_course`](demo_course) folder to see MDXCanvas in action:
