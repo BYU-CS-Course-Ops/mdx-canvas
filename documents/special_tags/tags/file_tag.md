@@ -6,14 +6,6 @@ It is most commonly used to attach supplementary resources directly to course co
 
 ## Attributes
 
-### `name`
-
-Sets the display name for the file in Canvas. This is how students will see it.
-
-```xml
-<file name="example_file.pdf" path="files/example_file.pdf" />
-```
-
 ### `path`
 
 Specifies the relative path to the file within your course content directory.
@@ -25,7 +17,7 @@ Specifies the relative path to the file within your course content directory.
     <description>
         Please download the following file to complete the assignment:
 
-        <file name="starter_code.py" path="resources/starter_code.py" />
+        <file path="resources/starter_code.py" />
     </description>
 </assignment>
 ```

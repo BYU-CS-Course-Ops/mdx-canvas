@@ -1,0 +1,59 @@
+<div>
+# Simple Calculator Assignment
+
+## Objective
+
+Write a command-line calculator program that allows the user to choose an operation (`+`, `-`, `*`, `/`) and
+perform that operation on **two or more numbers**.
+
+## Requirements
+
+Your program must:
+
+1. Prompt the user to select an operation:
+   `add`, `subtract`, `multiply`, or `divide`
+2. Prompt the user to enter **at least two numbers** (space-separated).
+3. Perform the selected operation on all the provided numbers in sequence.
+4. Display the result.
+5. Handle errors gracefully (e.g., division by zero, invalid input).
+
+### Bonus Features
+
+* Allow **more than two numbers** to be entered (e.g., `"5 10 15"`).
+* Support floating-point input (e.g., `2.5`).
+* Loop until the user chooses to exit (e.g., by entering `"quit"` as the operation).
+
+## Sample Runs
+
+```bash
+What operation would you like to perform? (add, subtract, multiply, divide): multiply  
+Enter at least two numbers (space-separated): 2 3 4  
+Result: 24
+```
+
+```bash
+What operation would you like to perform? (add, subtract, multiply, divide): divide  
+Enter at least two numbers (space-separated): 20 2 2  
+Result: 5.0
+```
+
+```bash
+What operation would you like to perform? (add, subtract, multiply, divide): quit  
+Goodbye!
+```
+
+## Starter Code (Stub)
+
+You will be given the following starter code to help you get started. You can modify it as needed.
+
+<include path="../code/simple_calc.py" fenced="True"/>
+
+Once ready, download the starter code below and begin.
+
+<file path="../code/simple_calc.py" />
+
+## Submission
+
+Upload your `.py` file to Gradescope under the "Simple Calculator" assignment.
+
+</div>
