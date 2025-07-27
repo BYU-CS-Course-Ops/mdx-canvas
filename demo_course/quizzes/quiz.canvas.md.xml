@@ -1,4 +1,6 @@
-<quiz title="Example Quiz">
+<quiz title="Example Quiz"
+      assignment_group="Question Types"
+>
 
 <description>
     This is an **example** quiz!

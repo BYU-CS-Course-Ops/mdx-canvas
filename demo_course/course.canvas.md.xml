@@ -1,0 +1,47 @@
+<div>
+    <syllabus>
+        <include path="pages/syllabus.md" />
+    </syllabus>
+
+    <!-- Quizzes -->
+    <include path="quizzes/quiz.canvas.md.xml" />
+
+    <!-- Assignments -->
+    <include path="assignments/example_assignment.canvas.md.xml" />
+    <include path="assignments/coding_assignments.canvas.md.xml.jinja"
+             args="coding_assignment_args.md.jinja" />
+
+    <!-- Pages -->
+    <md-page title="Welcome" path="pages/welcome.md" />
+    <include path="pages/module_overview.canvas.md.xml.jinja"
+             args="module_overview_args.md"/>
+
+    <!-- Modules -->
+    <module title="Getting Started">
+        <item type="page" title="Welcome" />
+    </module>
+
+    <module title="Quiz">
+        <item type="quiz" title="Example Quiz" />
+    </module>
+
+    <module title="Assignment">
+        <item type="assignment" title="Example Assignment" />
+    </module>
+
+    <module title="Unit 1: Introduction to Python">
+        <item type="page" title="Module 1 - Introduction to Python" />
+        <item type="assignment" title="Coding Assignment - Hello World" />
+    </module>
+
+    <module title="Unit 2: Advanced Python">
+        <item type="page" title="Module 2 - Input and Output" />
+        <item type="assignment" title="Coding Assignment - Simple Calculator" />
+    </module>
+
+    <module title="Unit 3: Data Structures">
+        <item type="page" title="Module 3 - File Handling" />
+        <item type="assignment" title="Coding Assignment - Word Count" />
+    </module>
+
+</div>
