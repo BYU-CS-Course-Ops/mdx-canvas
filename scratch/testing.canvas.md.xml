@@ -1,0 +1,9 @@
+<page title="Test">
+    
+| Grade Level | Required standards                                                                                                                                                                                                                                                                          |
+|-------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Core**    | - Program correctly receives input, validates commands, and displays images<br/> - Program correctly implements the `darken`, `sepia`, and `grayscale` filter functionality                                                                                                                 |
+| **Advanced** | - Program correctly makes borders, flips, and mirrors images<br/> - Program correctly creates the collage image<br/> - There is no unused code <br/> - Variable names are clear and informative and use a consistent style<br/> - "Magic Numbers" have appropriate names in UPPER_SNAKE_CASE |
+| **Excellent** | - Program correctly create the green screen image<br/> <br/> - Code has no large sections of duplicate code and is broken into additional functions where appropriate<br/> - Code is easy to read<br/> - Functions have appropriate docstrings                                                    |
+    
+</page>
