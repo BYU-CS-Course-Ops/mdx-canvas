@@ -21,3 +21,5 @@ Specifies the relative path to the file within your course content directory.
     </description>
 </assignment>
 ```
+
+Another example can be found in the demo course [here](../../../demo_course/assignments/instructions/simple_calc.canvas.md.xml)

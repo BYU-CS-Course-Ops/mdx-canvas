@@ -4,8 +4,10 @@
   "year": 2025,
 
   "Group_Weights": {
-                  "Example Assignments" : 50,
-                  "Question Types" : 50
+                  "Quizzes" : 30,
+                  "Assignments" : 50,
+                  "Participation": 10,
+                  "Final Project": 10
   },
 
   "hello_word_due": "Apr 1",

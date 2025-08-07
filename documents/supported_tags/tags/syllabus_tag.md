@@ -12,7 +12,7 @@ You can use Markdown, HTML, or plain text inside the tag body to structure your 
 
     Welcome to the course! Please review the information below.
 
-    ## Grading
+    ## Course Description
 
     - Assignments: 40%
     - Quizzes: 30%

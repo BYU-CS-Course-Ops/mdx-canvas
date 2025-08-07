@@ -107,7 +107,8 @@ Points_Possible: 75
 This is the HW 3 instructions
 ```
 
-When passed to MDXCanvas, due to [MarkdownData](https://github.com/BYU-CS-Course-Ops/markdowndata), this file is parsed into a dictionary:
+MDXCanvas—which uses [MarkdownData](https://github.com/BYU-CS-Course-Ops/markdowndata)—interprets this file as the 
+following JSON:
 
 ```json
 {
