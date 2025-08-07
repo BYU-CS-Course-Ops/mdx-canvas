@@ -1,6 +1,6 @@
 # MDXCanvas Demo Course
 
-Welcome to the demo course for MDXCanvas! This course demonstrates how you can build and deploy Canvas content programmatically.
+Welcome to the demo course for MDXCanvas! This course demonstrates how you can define Canvas content in markup code, including HTML, XML, Jinja, and Markdown.
 
 ---
 
@@ -12,7 +12,7 @@ This course explores the use of MDXCanvas to automate Canvas course content crea
 
 ## Grading Breakdown
 
-| Component            | Weight |
+| Component           | Weight |
 |---------------------|--------|
 | Quizzes             | 30%    |
 | Assignments         | 50%    |

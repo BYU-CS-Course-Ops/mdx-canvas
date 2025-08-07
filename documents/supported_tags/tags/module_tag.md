@@ -14,7 +14,7 @@ Sets the title of the module as it appears in Canvas.
 </module>
 ```
 
-## Children
+## Module Items
 
 A `<module>` contains one or more `<item>` tags, each representing a piece of content within the module (e.g., page, quiz, assignment).
 
