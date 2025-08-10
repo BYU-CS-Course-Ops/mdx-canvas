@@ -76,3 +76,5 @@ print("Another line.")
     <include path="hello_world.py" lines="1:1" fenced="True" />
 </question>
 ```
+
+An example of this can be found in the demo course [here](../../../demo_course/course.canvas.md.xml).

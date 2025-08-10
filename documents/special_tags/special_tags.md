@@ -16,4 +16,4 @@ Click a tag below to view its full documentation and examples.
   Includes a `.zip` archive and manages its structure and filters.
 
 - [`<course-link>`](tags/course_link_tag.md)  
-  _fill_
+  Link to other course items (pages, assignments, quizzes) using their type and title.

@@ -15,9 +15,9 @@
 
 ## assignments
 
-- **Assignment 1**: Write a simple Python program that prints "Hello, World!" to the console.
+- **Assignment 1**: Write a simple Python program that prints "Hello, World!" to the console. Found here: <course_link type="assignment" title="Coding Assignment - Hello World" />
 
-# Module 2 - Input and Output
+# Module 2 - Input and Output``
 
 ## topics
 
@@ -32,7 +32,7 @@
 
 ## assignments
 
-- **Assignment 2**: Create a program that takes user input.
+- **Assignment 2**: Create a program that takes user input. Found here: <course_link type="assignment" title="Coding Assignment - Simple Calculator" />
 
 # Module 3 - File Handling
 
@@ -52,4 +52,4 @@
 
 ## assignments
 
-- **Assignment 3**: Write a program that reads from a text file and counts the number of words.
+- **Assignment 3**: Write a program that reads from a text file and counts the number of words. Found here: <course_link type="assignment" title="Coding Assignment - Word Count" />

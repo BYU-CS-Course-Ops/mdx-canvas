@@ -63,3 +63,5 @@ This would exclude all `.tmp` files.
     </description>
 </assignment>
 ```
+
+Another example can be found in the demo course [here](../../../demo_course/pages/syllabus.md.jinja).
