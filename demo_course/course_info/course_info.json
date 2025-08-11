@@ -1,0 +1,10 @@
+{
+  "_comment" : "If using this demo course, please edit the following values to match your course and remove this comment.",
+
+  "CANVAS_API_URL" : "https://instructure.com/",
+  "CANVAS_COURSE_ID" : 12345,
+  "COURSE_NAME" : "Demo Course",
+  "COURSE_CODE" : "Demo",
+  "COURSE_IMAGE" : "course_image.png",
+  "LOCAL_TIME_ZONE" : "America/Denver"
+}

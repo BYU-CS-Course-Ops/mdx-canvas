@@ -1,15 +1,16 @@
 {
-  "Term": "fall2024",
-  "Year": 2024,
-  "Start_Date": "Sep 4",
-  "End_Date": "Dec 11",
-  "Discord_Link": "https://discord.gg/J5CmP7EaV8",
+ "sem_start": "Jan 1",
+  "sem_end": "Dec 31",
+  "year": 2025,
+
   "Group_Weights": {
-                    "Homework" : 25,
-                    "Labs" : 10,
-                    "Projects" : 40,
-                    "Progress Checks" : 10,
-                    "Midterm" : 50,
-                    "Final" : 10
-                    }
+                  "Quizzes" : 30,
+                  "Assignments" : 50,
+                  "Participation": 10,
+                  "Final Project": 10
+  },
+
+  "hello_word_due": "Apr 1",
+  "simple_calculator_due": "Aug 1",
+  "word_count_due": "Dec 1"
 }
