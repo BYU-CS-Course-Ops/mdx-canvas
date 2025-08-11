@@ -1,0 +1,11 @@
+sem_start: Jan 1
+sem_end: Dec 31
+year: 2025
+
+Group_Weights:
+  Example Assignments: 50
+  Question Types: 50
+
+hello_word_due: Apr 1
+simple_calculator_due: Aug 1
+word_count_due: Dec 1

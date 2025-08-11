@@ -1,4 +1,5 @@
 import argparse
+import yaml
 import json
 import logging
 import os
@@ -178,7 +179,10 @@ def main(
 
     if global_args_file:
         with open(global_args_file) as f:
-            global_args = json.load(f)
+            if global_args_file.suffix == '.json':
+                    global_args = json.load(f)
+            elif global_args_file.suffix == '.yaml':
+                    global_args = yaml.safe_load(f)
 
         group_weights = global_args.get('Group_Weights', None)
         if group_weights:
