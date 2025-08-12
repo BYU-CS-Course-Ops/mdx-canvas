@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 from typing import TypedDict
 
+import markdowndata
 import yaml
 from canvasapi import Canvas
 from canvasapi.course import Course
@@ -31,6 +32,21 @@ class CourseInfo(TypedDict):
     COURSE_CODE: str
     COURSE_IMAGE: Path
     LOCAL_TIME_ZONE: str
+
+
+def load_config(config_path: Path):
+    ext = config_path.suffix.lower()
+    if ext in ['.yaml', '.yml']:
+        return yaml.safe_load(config_path.read_text())
+
+    elif ext in ['.json']:
+        return json.loads(config_path.read_text())
+
+    elif ext in ['.md', '.mdd']:
+        return markdowndata.loads(config_path.read_text())
+
+    else:
+        raise NotImplementedError(f'Unsupported course info format: {config_path.suffix}')
 
 
 def read_content(input_file: Path) -> tuple[list[str], str]:
@@ -178,12 +194,7 @@ def main(
     result = MDXCanvasResult(output_file)
 
     if global_args_file:
-        with open(global_args_file) as f:
-            if global_args_file.suffix == '.json':
-                global_args = json.load(f)
-            elif global_args_file.suffix == '.yaml':
-                global_args = yaml.safe_load(f)
-
+        global_args = load_config(global_args_file)
         group_weights = global_args.get('Group_Weights', None)
         if group_weights:
             deploy_group_weights(course, group_weights)
@@ -218,15 +229,6 @@ def main(
     result.output()
 
 
-def load_course_settings(course_info_file: Path):
-    if course_info_file.suffix.lower() in ['.yaml', '.yml']:
-        return yaml.safe_load(course_info_file.read_text())
-    elif course_info_file.suffix.lower() in ['.json']:
-        return json.loads(course_info_file.read_text())
-    else:
-        raise NotImplementedError(f'Unsupported course info format: {course_info_file.suffix}')
-
-
 def entry():
     parser = argparse.ArgumentParser()
     # Time zone identifiers: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
@@ -242,7 +244,7 @@ def entry():
     parser.add_argument('--output-file', type=str, default=None)
     args = parser.parse_args()
 
-    course_settings = load_course_settings(args.course_info)
+    course_settings = load_config(args.course_info)
 
     api_token = os.environ.get("CANVAS_API_TOKEN")
     if api_token is None:

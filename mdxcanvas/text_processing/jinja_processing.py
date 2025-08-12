@@ -2,14 +2,14 @@ import csv
 import json
 from pathlib import Path
 
-import jinja2 as jj
-from jinja2 import Environment, FileSystemLoader
-
 import markdowndata
+import yaml
+from jinja2 import Environment, FileSystemLoader
 
 from ..our_logging import get_logger
 
 logger = get_logger()
+
 
 def _get_args(args_path: Path, global_args: dict) -> dict | list:
     if args_path.suffix == '.jinja':
@@ -24,8 +24,11 @@ def _get_args(args_path: Path, global_args: dict) -> dict | list:
     elif args_path.suffix == '.csv':
         return list(csv.DictReader(content.splitlines()))
 
-    elif args_path.suffix == '.md':
+    elif args_path.suffix in ['.md', '.mdd']:
         return markdowndata.loads(content)
+
+    elif args_path.suffix in ['.yaml', '.yml']:
+        return yaml.safe_load(content)
 
     else:
         raise NotImplementedError('Args file of type: ' + args_path.suffix)
@@ -69,7 +72,6 @@ def process_jinja(
         global_args: dict = None,
         templates: list[Path] = None
 ) -> str:
-
     if args_path:
         args = _get_args(args_path, global_args)
     else:
