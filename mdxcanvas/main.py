@@ -219,9 +219,9 @@ def main(
 
 
 def load_course_settings(course_info_file: Path):
-    if course_info_file.suffix.lower() in ['yaml', 'yml']:
+    if course_info_file.suffix.lower() in ['.yaml', '.yml']:
         return yaml.safe_load(course_info_file.read_text())
-    elif course_info_file.suffix.lower() in ['json']:
+    elif course_info_file.suffix.lower() in ['.json']:
         return json.loads(course_info_file.read_text())
     else:
         raise NotImplementedError(f'Unsupported course info format: {course_info_file.suffix}')
