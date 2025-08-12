@@ -1,5 +1,6 @@
 <announcement
     title="Right now Test Announcement"
+    publish_date="{{ Publish_Date }}"
 >
     This is a test announcement. With new content!
 
