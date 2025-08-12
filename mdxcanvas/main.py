@@ -156,7 +156,7 @@ def update_course_image(course: Course, course_settings: dict, course_image: Pat
         course.update(course={'image_id': file_id})
 
 
-def update_course(course: Course, course_info: CourseInfo):
+def update_course(course: Course, course_info: CourseInfo, course_info_parent: Path):
     """
     Updates the course with the given information.
 
@@ -172,12 +172,12 @@ def update_course(course: Course, course_info: CourseInfo):
         course.update(course={'course_code': course_code})
 
     if course_image := course_info.get('COURSE_IMAGE'):
-        update_course_image(course, course.get_settings(), Path(course_image))
+        update_course_image(course, course.get_settings(), (course_info_parent / course_image).resolve())
 
 
 def main(
         canvas_api_token: str,
-        course_info: CourseInfo,
+        course_info_file: Path,
         input_file: Path,
         args_file: Path = None,
         global_args_file: Path = None,
@@ -187,6 +187,7 @@ def main(
         output_file: str = None
 ):
     # Make sure the course actually exists before doing any real effort
+    course_info = load_config(course_info_file)
     course = get_course(canvas_api_token, course_info['CANVAS_API_URL'], course_info['CANVAS_COURSE_ID'])
     logger = get_logger(course.name)
     logger.info('Connecting to Canvas')
@@ -201,7 +202,7 @@ def main(
     else:
         global_args = None
 
-    update_course(course, course_info)
+    update_course(course, course_info, course_info_file.parent)
 
     resources = ResourceManager()
 
@@ -244,8 +245,6 @@ def entry():
     parser.add_argument('--output-file', type=str, default=None)
     args = parser.parse_args()
 
-    course_settings = load_config(args.course_info)
-
     api_token = os.environ.get("CANVAS_API_TOKEN")
     if api_token is None:
         raise ValueError("Please set the CANVAS_API_TOKEN environment variable")
@@ -255,7 +254,7 @@ def entry():
 
     main(
         canvas_api_token=api_token,
-        course_info=course_settings,
+        course_info_file=args.course_info,
         input_file=args.filename,
         args_file=args.args,
         global_args_file=args.global_args,
