@@ -1,17 +1,18 @@
 import argparse
-import yaml
 import json
 import logging
 import os
 from pathlib import Path
 from typing import TypedDict
 
+import yaml
 from canvasapi import Canvas
 from canvasapi.course import Course
 
 from .deploy.canvas_deploy import deploy_to_canvas
 from .deploy.file import get_canvas_folder, get_file
 from .deploy.groups import deploy_group_weights
+from .generate_result import MDXCanvasResult
 from .our_logging import get_logger
 from .resources import ResourceManager
 from .text_processing.jinja_processing import process_jinja
@@ -19,7 +20,6 @@ from .text_processing.markdown_processing import process_markdown
 from .util import parse_soup_from_xml
 from .xml_processing.inline_styling import bake_css
 from .xml_processing.xml_processing import process_canvas_xml, preprocess_xml
-from .generate_result import MDXCanvasResult
 
 logger = get_logger()
 
@@ -180,9 +180,9 @@ def main(
     if global_args_file:
         with open(global_args_file) as f:
             if global_args_file.suffix == '.json':
-                    global_args = json.load(f)
+                global_args = json.load(f)
             elif global_args_file.suffix == '.yaml':
-                    global_args = yaml.safe_load(f)
+                global_args = yaml.safe_load(f)
 
         group_weights = global_args.get('Group_Weights', None)
         if group_weights:
@@ -218,6 +218,15 @@ def main(
     result.output()
 
 
+def load_course_settings(course_info_file: Path):
+    if course_info_file.suffix.lower() in ['yaml', 'yml']:
+        return yaml.safe_load(course_info_file.read_text())
+    elif course_info_file.suffix.lower() in ['json']:
+        return json.loads(course_info_file.read_text())
+    else:
+        raise NotImplementedError(f'Unsupported course info format: {course_info_file.suffix}')
+
+
 def entry():
     parser = argparse.ArgumentParser()
     # Time zone identifiers: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
@@ -233,8 +242,7 @@ def entry():
     parser.add_argument('--output-file', type=str, default=None)
     args = parser.parse_args()
 
-    with open(args.course_info) as f:
-        course_settings = json.load(f)
+    course_settings = load_course_settings(args.course_info)
 
     api_token = os.environ.get("CANVAS_API_TOKEN")
     if api_token is None:
