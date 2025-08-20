@@ -1,4 +1,4 @@
-from .attributes import Attribute, parse_int, parse_bool, parse_date, parse_settings
+from mdxcanvas.tags.attributes import Attribute, parse_int, parse_bool, parse_date, parse_settings
 from ..util import retrieve_contents
 from .quiz_questions import parse_text_question, parse_true_false_question, parse_multiple_choice_question, \
     parse_multiple_answers_question, parse_matching_question, parse_multiple_true_false_question, \

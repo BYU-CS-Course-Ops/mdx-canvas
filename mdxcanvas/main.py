@@ -10,6 +10,9 @@ import yaml
 from canvasapi import Canvas
 from canvasapi.course import Course
 
+from mdxcanvas.tag_preprocessors.tag_preprocessors import TagPreprocessorFactory
+from mdxcanvas.tags.core import process_xml
+from mdxcanvas.tags.file_tag import FileTagProcessor
 from .deploy.canvas_deploy import deploy_to_canvas
 from .deploy.file import get_canvas_folder, get_file
 from .deploy.groups import deploy_group_weights
@@ -19,8 +22,8 @@ from .resources import ResourceManager
 from .text_processing.jinja_processing import process_jinja
 from .text_processing.markdown_processing import process_markdown
 from .util import parse_soup_from_xml
-from .xml_processing.inline_styling import bake_css
-from .xml_processing.xml_processing import process_canvas_xml, preprocess_xml
+from mdxcanvas.tags.inline_styling import bake_css
+from .xml_processing.xml_processing import preprocess_xml
 
 logger = get_logger()
 
@@ -57,27 +60,13 @@ def is_jinja(content_type):
     return content_type[-1] == '.jinja'
 
 
-def _post_process_content(xml_content: str, global_css: str) -> str:
-    # - bake in CSS styles
-    soup = parse_soup_from_xml(xml_content)
-    xml_postprocessors = [
-        lambda s: bake_css(s, global_css)
-    ]
-    for xml_post in xml_postprocessors:
-        soup = xml_post(soup)
-
-    return str(soup)
-
-
-def process_file(
-        resources: ResourceManager,
+def _load_content(
         parent_folder: Path,
         content: str,
         content_type: list[str],
         global_args: dict = None,
         args_file: Path = None,
-        templates: list[Path] = None,
-        css_file: Path = None
+        templates: list[Path] = None
 ) -> str:
     """
     Read a file and fully process the text content
@@ -98,21 +87,19 @@ def process_file(
         # Process Markdown
         excluded = ['pre', 'style', 'distractors']
         inline = ['br', 'a', 'strong', 'em', 'span', 'file', 'link', 'zip', 'course-link']
-        xml_content = process_markdown(content, excluded=excluded, inline=inline)
+        content = process_markdown(content, excluded=excluded, inline=inline)
 
-    else:
-        xml_content = content
+    return content
 
     # Preprocess XML
     def load_and_process_file_contents(parent: Path, content: str, content_type: list[str], **kwargs) -> str:
-        return process_file(resources, parent, content, content_type,
-                            global_args=global_args, templates=templates, **kwargs)
+        return _load_content(tag_preprocessors, resources, parent, content, content_type,
+                             global_args=global_args, templates=templates, **kwargs)
 
-    xml_content = preprocess_xml(parent_folder, xml_content, resources, load_and_process_file_contents)
+    xml_content = preprocess_xml(parent_folder, xml_content, tag_preprocessors, resources,
+                                 load_and_process_file_contents)
 
-    # Post-process the XML
-    global_css = css_file.read_text() if css_file is not None else ''
-    return _post_process_content(xml_content, global_css)
+
 
 
 def get_course(api_token: str, api_url: str, canvas_course_id: int) -> Course:
@@ -206,26 +193,76 @@ def main(
 
     resources = ResourceManager()
 
+    tag_preprocessor_factories: dict[str, TagPreprocessorFactory] = {
+        'img': make_image_preprocessor(parent, resources),
+        'file': make_file_preprocessor(parent, resources),
+        'zip': make_zip_preprocessor(parent, resources),
+        'include': make_include_preprocessor(parent, _load_content),
+        'course-link': make_link_preprocessor(),
+        'md-page': make_markdown_page_preprocessor(parent, _load_content),
+    }
+
+    tag_preprocessors = {
+        key: make(input_file.parent, resources, _load_content)
+        for key, make in tag_preprocessor_factories.items()
+    }
+
+    tag_processors = {
+        'announcement': AnnouncementTagProcessor(resources),
+        'quiz': QuizTagProcessor(resources),
+        'page': PageTagProcessor(resources),
+        'assignment': AssignmentTagProcessor(resources),
+        'override': OverrideTagProcessor(resources),
+        'module': ModuleTagProcessor(resources),
+        'syllabus': SyllabusTagProcessor(resources)
+    }
+
+    predeployers: dict[str, Callable[[dict, Path], dict]] = {
+        'zip': predeploy_zip
+    }
+
+    deployers: dict[str, Callable[[Course, dict], tuple[CanvasObject, str | None]]] = {
+        'zip': deploy_zip,
+        'file': deploy_file,
+        'page': deploy_page,
+        'quiz': deploy_quiz,
+        'assignment': deploy_assignment,
+        'override': deploy_override,
+        'module': deploy_module,
+        'syllabus': deploy_syllabus,
+        'announcement': deploy_announcement
+    }
+
     # Load file
     logger.info('Reading file: ' + str(input_file))
+
+    def load_content(parent: Path, content: str, content_type: list[str], args_file: Path) -> str:
+        return _load_content(parent, content, content_type,
+                             global_args=global_args, args_file=args_file, templates=templates)
+
+
     content_type, content = read_content(input_file)
-    processed_content = process_file(
-        resources,
+    processed_content = load_content(
         input_file.parent,
         content,
         content_type,
-        global_args,
-        args_file,
-        templates,
-        css_file
+        args_file
     )
 
     # Parse file into XML
-    resources = process_canvas_xml(resources, processed_content)
+    tag_processors = [
+        FileTagProcessor()
+    ]
+    soup = parse_soup_from_xml(processed_content)
+    process_xml(soup, tag_processors)
+
+    # Post-process the XML
+    global_css = css_file.read_text() if css_file is not None else ''
+    result = _post_process_content(xml_content, global_css)
 
     # Deploy XML
     logger.info('Deploying to Canvas')
-    deploy_to_canvas(course, course_info['LOCAL_TIME_ZONE'], resources, result, dryrun=dryrun)
+    deploy_to_canvas(course, course_info['LOCAL_TIME_ZONE'], predeployers, deployers, resources, result, dryrun=dryrun)
 
     result.output()
 

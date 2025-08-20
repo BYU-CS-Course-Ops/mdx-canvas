@@ -27,19 +27,7 @@ from ..resources import CanvasResource, iter_keys
 logger = get_logger()
 
 
-def deploy_resource(course: Course, resource_type: str, resource_data: dict) -> tuple[CanvasObject, str | None]:
-    deployers: dict[str, Callable[[Course, dict] , tuple[CanvasObject, str | None]]] = {
-        'zip': deploy_zip,
-        'file': deploy_file,
-        'page': deploy_page,
-        'quiz': deploy_quiz,
-        'assignment': deploy_assignment,
-        'override': deploy_override,
-        'module': deploy_module,
-        'syllabus': deploy_syllabus,
-        'announcement': deploy_announcement
-    }
-
+def deploy_resource(deployers, course: Course, resource_type: str, resource_data: dict) -> tuple[CanvasObject, str | None]:
     if (deploy := deployers.get(resource_type, None)) is None:
         raise Exception(f'Deployment unsupported for resource of type {resource_type}')
 
@@ -158,12 +146,8 @@ def get_dependencies(resources: dict[tuple[str, str], CanvasResource]) -> dict[t
     return deps
 
 
-def predeploy_resource(rtype: str, resource_data: dict, timezone: str, tmpdir: Path) -> dict:
+def predeploy_resource(predeployers, rtype: str, resource_data: dict, timezone: str, tmpdir: Path) -> dict:
     fix_dates(resource_data, timezone)
-
-    predeployers: dict[str, Callable[[dict, Path], dict]] = {
-        'zip': predeploy_zip
-    }
 
     if (predeploy := predeployers.get(rtype)) is not None:
         logger.debug(f'Predeploying {rtype} {resource_data}')
@@ -210,13 +194,13 @@ def identify_modified_or_outdated(
     return modified
 
 
-def predeploy_resources(resources, timezone, tmpdir):
+def predeploy_resources(predeployers, resources, timezone, tmpdir):
     for resource_key, resource in resources.items():
         if resource.get('data') is not None:
-            resource['data'] = predeploy_resource(resource['type'], resource['data'], timezone, tmpdir)
+            resource['data'] = predeploy_resource(predeployers, resource['type'], resource['data'], timezone, tmpdir)
 
 
-def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, str], CanvasResource], result: MDXCanvasResult, dryrun=False):
+def deploy_to_canvas(course: Course, timezone: str, predeployers, deployers, resources: dict[tuple[str, str], CanvasResource], result: MDXCanvasResult, dryrun=False):
     resource_dependencies = get_dependencies(resources)
     logger.debug(f'Dependency graph: {resource_dependencies}')
 
@@ -228,7 +212,7 @@ def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, s
     with MD5Sums(course) as md5s, TemporaryDirectory() as tmpdir:
         tmpdir = Path(tmpdir)
 
-        predeploy_resources(resources, timezone, tmpdir)
+        predeploy_resources(predeployers, resources, timezone, tmpdir)
 
         to_deploy = identify_modified_or_outdated(resources, resource_order, resource_dependencies, md5s)
 
@@ -251,7 +235,7 @@ def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, s
 
                     logger.info(f'Deploying {rtype} {rname}')
 
-                    resource_obj, info = deploy_resource(course, rtype, resource_data)
+                    resource_obj, info = deploy_resource(deployers, course, rtype, resource_data)
 
                     url = resource_obj.html_url if hasattr(resource_obj, 'html_url') else None
                     result.add_deployed_content(rtype, rname, url)

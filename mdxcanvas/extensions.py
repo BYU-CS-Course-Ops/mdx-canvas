@@ -2,12 +2,11 @@ from markdown.extensions import Extension
 
 from markdown.postprocessors import Postprocessor
 from markdown.preprocessors import Preprocessor, HtmlBlockPreprocessor
-from bs4 import BeautifulSoup
 from bs4.element import Tag
 
 from typing import Protocol
 
-from .xml_processing.inline_styling import get_style, parse_css, apply_inline_styles
+from mdxcanvas.tags.inline_styling import _get_style, _parse_css, _apply_inline_styles
 from .util import parse_soup_from_xml
 
 # Make a Protocol for any tag processor, it should take a Tag and return a Tag
@@ -76,9 +75,9 @@ class BakedCSSPostProcessor(Postprocessor):
 
     def run(self, text):
         soup = parse_soup_from_xml(text)
-        css, soup = get_style(soup)
-        css = parse_css(self.global_css + css)
-        soup = apply_inline_styles(str(soup), css)
+        css, soup = _get_style(soup)
+        css = _parse_css(self.global_css + css)
+        soup = _apply_inline_styles(str(soup), css)
         return str(soup)
 
 

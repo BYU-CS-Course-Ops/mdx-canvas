@@ -2,7 +2,7 @@ from datetime import datetime
 
 from bs4 import Tag
 
-from .attributes import parse_settings, Attribute, parse_date, parse_bool
+from mdxcanvas.tags.attributes import parse_settings, Attribute, parse_date, parse_bool
 from ..resources import ResourceManager, CanvasResource
 from ..util import retrieve_contents
 

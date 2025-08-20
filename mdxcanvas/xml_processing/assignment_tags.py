@@ -1,6 +1,6 @@
 from bs4 import Tag
 
-from .attributes import parse_settings, Attribute, parse_bool, parse_date, parse_list, parse_dict, \
+from mdxcanvas.tags.attributes import parse_settings, Attribute, parse_bool, parse_date, parse_list, parse_dict, \
     parse_int
 from ..util import retrieve_contents
 from ..resources import ResourceManager, CanvasResource

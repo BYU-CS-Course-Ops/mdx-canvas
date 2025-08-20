@@ -1,78 +1,23 @@
 from pathlib import Path
-from typing import Callable
+from typing import Callable, Protocol
 
 from bs4 import Tag
 
 from ..resources import ResourceManager, FileData, ZipFileData, CanvasResource, get_key
 from ..util import parse_soup_from_xml
-from ..xml_processing.attributes import parse_bool, get_tag_path
+from mdxcanvas.tags.attributes import parse_bool, get_tag_path
+
+
+class TagPreprocessorFactory(Protocol):
+    def __call__(self, parent: Path, resources: ResourceManager, process_file: Callable) -> Callable[[Tag], None]:
+        ...
 
 
 def make_image_preprocessor(parent: Path, resources: ResourceManager):
     def process_image(tag: Tag):
-        # TODO - handle b64-encoded images
 
-        src = tag.get('src')
-        if src.startswith('http'):
-            # No changes necessary
-            return
-
-        # Assume it's a local file
-        src = (parent / src).resolve().absolute()
-        if not src.is_file():
-            raise ValueError(f"Image file {src} is not a file @ {get_tag_path(tag)}")
-
-        file = CanvasResource(
-            type='file',
-            name=src.name,
-            data=FileData(
-                path=str(src),
-                canvas_folder=tag.get('canvas_folder', None)
-            )
-        )
-        tag['src'] = resources.add_resource(file, 'uri') + '/preview'
 
     return process_image
-
-
-def make_file_anchor_tag(resource_key: str, filename: str, **kwargs):
-    attrs = {
-        **kwargs,
-        'href': f'{resource_key}?wrap=1',
-        'class': 'instructure_file_link inline_disabled',
-        'title': filename,
-        'target': '_blank',
-        'rel': 'noopener noreferrer'
-    }
-
-    new_tag = Tag(name='a', attrs=attrs)
-    new_tag.string = filename
-
-    return new_tag
-
-
-def make_file_preprocessor(parent: Path, resources: ResourceManager):
-    def process_file(tag: Tag):
-        attrs = tag.attrs
-        path = (parent / attrs.pop('path')).resolve().absolute()
-        if not path.is_file():
-            raise ValueError(f"File {path} is not a file @ {get_tag_path(tag)}")
-        file = CanvasResource(
-            type='file',
-            name=path.name,
-            data=FileData(
-                path=str(path),
-                canvas_folder=attrs.get('canvas_folder', None),
-                unlock_at=attrs.get('unlock_at', None),
-                lock_at=attrs.get('lock_at', None)
-            )
-        )
-        resource_key = resources.add_resource(file, 'uri')
-        new_tag = make_file_anchor_tag(resource_key, path.name, **tag.attrs)
-
-        tag.replace_with(new_tag)
-
-    return process_file
 
 
 def make_zip_preprocessor(parent: Path, resources: ResourceManager):

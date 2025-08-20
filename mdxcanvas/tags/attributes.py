@@ -4,8 +4,8 @@ from typing import Callable, Any
 
 from bs4 import Tag
 
-from ..our_logging import get_logger
-from ..util import retrieve_contents
+from mdxcanvas.our_logging import get_logger
+from mdxcanvas.util import retrieve_contents
 
 logger = get_logger()
 

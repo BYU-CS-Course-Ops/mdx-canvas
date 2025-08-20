@@ -3,7 +3,7 @@ import string
 
 from bs4 import Tag
 
-from .attributes import parse_settings, Attribute, parse_bool, parse_int, parse_children_tag_contents
+from mdxcanvas.tags.attributes import parse_settings, Attribute, parse_bool, parse_int, parse_children_tag_contents
 from ..util import retrieve_contents
 
 NO_POINTS = 0
