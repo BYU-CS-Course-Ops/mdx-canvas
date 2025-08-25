@@ -6,8 +6,7 @@ from pathlib import Path
 from canvasapi import exceptions
 from canvasapi.paginated_list import PaginatedList
 
-from ..main import CourseInfo
-from ..main import get_course
+from ..main import CourseInfo, get_course, load_config
 
 from ..our_logging import get_logger
 
@@ -106,8 +105,7 @@ def entry():
     parser.add_argument('-y', action='store_true')
     args = parser.parse_args()
 
-    with open(args.course_info) as f:
-        course_settings = json.load(f)
+    course_settings = load_config(args.course_info)
 
     api_token = os.environ.get("CANVAS_API_TOKEN")
     if api_token is None:
