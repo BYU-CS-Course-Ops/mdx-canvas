@@ -179,7 +179,7 @@ def make_include_preprocessor(
         include_result = parse_soup_from_xml(imported_html)
 
         if not use_div:
-            tag.parent.extend(include_result)
+            tag.replace_with(include_result)
 
         else:
             new_tag = Tag(name='div')
