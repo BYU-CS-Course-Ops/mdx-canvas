@@ -12,6 +12,7 @@ from .algorithms import linearize_dependencies
 from .announcement import deploy_announcement, lookup_announcement
 from .assignment import deploy_assignment, lookup_assignment
 from .checksums import MD5Sums, compute_md5
+from .course_settings import deploy_settings, lookup_settings
 from .file import deploy_file, lookup_file
 from .module import deploy_module, lookup_module
 from .override import deploy_override, lookup_override
@@ -37,7 +38,8 @@ def deploy_resource(course: Course, resource_type: str, resource_data: dict) -> 
         'override': deploy_override,
         'module': deploy_module,
         'syllabus': deploy_syllabus,
-        'announcement': deploy_announcement
+        'announcement': deploy_announcement,
+        'course_settings': deploy_settings
     }
 
     if (deploy := deployers.get(resource_type, None)) is None:
@@ -65,7 +67,8 @@ def lookup_resource(course: Course, resource_type: str, resource_name: str) -> C
         'override': lookup_override,
         'module': lookup_module,
         'syllabus': lookup_syllabus,
-        'announcement': lookup_announcement
+        'announcement': lookup_announcement,
+        'course_settings': lookup_settings
     }
 
     if (finder := finders.get(resource_type, None)) is None:

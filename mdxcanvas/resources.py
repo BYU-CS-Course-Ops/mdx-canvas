@@ -1,4 +1,5 @@
 import re
+from pathlib import Path
 from typing import TypedDict, Iterator
 
 
@@ -6,6 +7,12 @@ class CanvasResource(TypedDict):
     type: str
     name: str
     data: dict | None
+
+
+class CourseSettings(TypedDict):
+    name: str
+    code: str
+    image: str
 
 
 class FileData(TypedDict):
