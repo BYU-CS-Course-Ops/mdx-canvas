@@ -14,7 +14,7 @@ def deploy_settings(course: Course, data: CourseSettings) -> tuple[CourseObj, st
     course.update(course={
         'name': data['name'],
         'course_code': data['code'],
-        'image_id': int(data['image'].split('/')[-2]) if data.get('image') else None
+        'image_id': int(data['image']) if data.get('image') else None
     })
     return CourseObj(course.id), None
 

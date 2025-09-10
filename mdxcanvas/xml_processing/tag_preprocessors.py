@@ -31,7 +31,7 @@ def make_course_settings_preprocessor(parent: Path, resources: ResourceManager):
                     canvas_folder=tag.get('canvas_folder', None)
                 )
             )
-            image_resource_key = resources.add_resource(file, 'uri') + '/preview'
+            image_resource_key = resources.add_resource(file, 'id')
 
         course_settings = CanvasResource(
             type='course_settings',
