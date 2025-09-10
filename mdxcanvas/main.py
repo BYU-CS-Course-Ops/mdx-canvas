@@ -133,48 +133,6 @@ def get_course(api_token: str, api_url: str, canvas_course_id: int) -> Course:
     return course
 
 
-def update_course_image(course: Course, course_settings: dict, course_image: Path):
-    """
-    Updates the course image with the given image file.
-
-    :param course: Course: The Canvas Course object to update.
-    :param course_settings: dict: The settings for the course.
-    :param course_image: Path: The path to the new course image.
-    """
-    image_name = course_image.name
-
-    if (file := get_file(course, image_name)) is None:
-        logger.info(f'Uploading course image {image_name}')
-        folder = get_canvas_folder(course, 'course image')
-        response = folder.upload(course_image, name=image_name)
-        file_id = response[1]['id']
-    else:
-        file_id = file.id
-
-    if int(course_settings['image_id']) != file_id:
-        logger.info(f'Updating course image to {image_name}')
-        course.update(course={'image_id': file_id})
-
-
-def update_course(course: Course, course_info: CourseInfo, course_info_parent: Path):
-    """
-    Updates the course with the given information.
-
-    :param course: Course: The Canvas Course object to update.
-    :param course_info: CourseInfo: The information to update the course with.
-    """
-    if (course_name := course_info.get('COURSE_NAME')) and course.name != course_name:
-        logger.info(f'Updating course name to {course_name}')
-        course.update(course={'name': course_name})
-
-    if (course_code := course_info.get('COURSE_CODE')) and course.course_code != course_code:
-        logger.info(f'Updating course code to {course_code}')
-        course.update(course={'course_code': course_code})
-
-    if course_image := course_info.get('COURSE_IMAGE'):
-        update_course_image(course, course.get_settings(), (course_info_parent / course_image).resolve())
-
-
 def main(
         canvas_api_token: str,
         course_info_file: Path,
@@ -201,9 +159,6 @@ def main(
             deploy_group_weights(course, group_weights)
     else:
         global_args = None
-
-    update_course(course, course_info, course_info_file.parent)
-
     resources = ResourceManager()
 
     # Load file

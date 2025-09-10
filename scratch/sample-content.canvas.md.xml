@@ -15,123 +15,135 @@
         }
     </style>
 
-    <syllabus>
-        This is the **epic** syllabus. :)
-    </syllabus>
+    <course-settings
+        name='Bean Lab Testing Course'
+        code='Testing'
+        image="beanlab.png"
+    />
 
-    <include path="sample-template.canvas.md.xml.jinja" args="sample-template.args.md"/>
+<!--    <assignment-groups>-->
+<!--        <group name="Homework" weight="25" drop="3"/>-->
+<!--        <group name="Quizzes" weight="25" drop="4"/>-->
+<!--        <group name="Examples" weight="50" drop="5"/>-->
+<!--    </assignment-groups>-->
 
-    <module title="Example Module 1">
-        <item type="subheader" title="This is a sub-header"/>
-        <item type="page" title="Example Page"/>
-        <item type="quiz" title="Example Quiz" indent="1" />
-    </module>
+<!--    <syllabus>-->
+<!--        This is the **epic** syllabus. :)-->
+<!--    </syllabus>-->
 
-    <module title="Example Module 2">
-        <item type="subheader" title="This is another sub-header"/>
-        <item type="page" title="Example Page"/>
-        <item type="assignment" title="Example Assignment" indent="1"/>
-    </module>
+<!--    <include path="sample-template.canvas.md.xml.jinja" args="sample-template.args.md"/>-->
 
-    <assignment
-        title="Example Assignment"
-        points_possible="10"
-        assignment_group="Examples"
-    >
-        Do this stuff. Yesterday. :)
-    </assignment>
+<!--    <module title="Example Module 1">-->
+<!--        <item type="subheader" title="This is a sub-header"/>-->
+<!--        <item type="page" title="Example Page"/>-->
+<!--        <item type="quiz" title="Example Quiz" indent="1" />-->
+<!--    </module>-->
 
-    <md-page title="Small" path="small.md"/>
+<!--    <module title="Example Module 2">-->
+<!--        <item type="subheader" title="This is another sub-header"/>-->
+<!--        <item type="page" title="Example Page"/>-->
+<!--        <item type="assignment" title="Example Assignment" indent="1"/>-->
+<!--    </module>-->
 
-    <page title="Example Page">
-        ## Header
-        This page has super useful information. Educate yourself.
+<!--    <assignment-->
+<!--        title="Example Assignment"-->
+<!--        points_possible="10"-->
+<!--        assignment_group="Examples"-->
+<!--    >-->
+<!--        Do this stuff. Yesterday. :)-->
+<!--    </assignment>-->
 
-        :) ;-)
+<!--    <md-page title="Small" path="small.md"/>-->
 
-        <include path="hello_world.py" lines="1:2" fenced="true"/>
+<!--    <page title="Example Page">-->
+<!--        ## Header-->
+<!--        This page has super useful information. Educate yourself.-->
 
-        <img src="beanlab.png"/>
+<!--        :) ;-)-->
 
-    </page>
+<!--        <include path="hello_world.py" lines="1:2" fenced="true"/>-->
 
-    <quiz
-            title="Example Quiz"
-    >
-        <description>
-            This is an **example** quiz!
+<!--        <img src="beanlab.png"/>-->
 
-            You should read
-            <course-link type="page" title="Example Page"/>
-            before taking this quiz. :)
+<!--    </page>-->
 
-        </description>
+<!--    <quiz-->
+<!--            title="Example Quiz"-->
+<!--    >-->
+<!--        <description>-->
+<!--            This is an **example** quiz!-->
 
-        <questions>
-            <question type="text">
-                ## Basic markdown formatting
+<!--            You should read-->
+<!--            <course-link type="page" title="Example Page"/>-->
+<!--            before taking this quiz. :)-->
 
-                > 'Twas brillig and the slithy toves
-                > did gire and gimble in the wabe
+<!--        </description>-->
 
-                In the following, `foobar` is a function.
+<!--        <questions>-->
+<!--            <question type="text">-->
+<!--                ## Basic markdown formatting-->
 
-                ```python
-                def foobar():
-                    return baz() + 7
-                ```
+<!--                > 'Twas brillig and the slithy toves-->
+<!--                > did gire and gimble in the wabe-->
 
-                | I | Like | Tables|
-                |---|------|-------|
-                |woot| wootage | woot-wootage|
-                |:) | :-) | :D |
+<!--                In the following, `foobar` is a function.-->
 
-                This is an equation:
-                $$foo(n) = bar(n) + 7^8 + baz_2$$
+<!--                ```python-->
+<!--                def foobar():-->
+<!--                    return baz() + 7-->
+<!--                ```-->
 
-                And these equations should be inline: \(a^7 + b_2 = 3 \cdot x\) and \(x_i + y_n = z^2\)
+<!--                | I | Like | Tables|-->
+<!--                |-&#45;&#45;|&#45;&#45;&#45;&#45;&#45;&#45;|-&#45;&#45;&#45;&#45;&#45;&#45;|-->
+<!--                |woot| wootage | woot-wootage|-->
+<!--                |:) | :-) | :D |-->
 
-            </question>
+<!--                This is an equation:-->
+<!--                $$foo(n) = bar(n) + 7^8 + baz_2$$-->
 
-            <question type="text">
-                ## `img` tag
-                <img src="beanlab.png"/>
-            </question>
+<!--                And these equations should be inline: \(a^7 + b_2 = 3 \cdot x\) and \(x_i + y_n = z^2\)-->
 
-            <question type="text">
-                ## `file` tag
-                <file path="small.md"/>
-            </question>
+<!--            </question>-->
 
-            <question type="text">
-                ## `zip` tag
-                <zip path="zip_target" additional_files="hello_world.py,more_stuff" priority_path="zip_priority" exclude="no_.*"/>
-            </question>
+<!--            <question type="text">-->
+<!--                ## `img` tag-->
+<!--                <img src="beanlab.png"/>-->
+<!--            </question>-->
 
-            <question type="text">
-                ## Include `stuff.md`
-                <include path="stuff.md"/>
-            </question>
+<!--            <question type="text">-->
+<!--                ## `file` tag-->
+<!--                <file path="small.md"/>-->
+<!--            </question>-->
 
-            <question type="text">
-                ## Include `hello_world.py` fenced
-                <include path="hello_world.py" fenced="True"/>
-            </question>
+<!--            <question type="text">-->
+<!--                ## `zip` tag-->
+<!--                <zip path="zip_target" additional_files="hello_world.py,more_stuff" priority_path="zip_priority" exclude="no_.*"/>-->
+<!--            </question>-->
 
-            <question type="text">
-                ## Include `hello_world.py` lines 1-2, fenced
-                <include path="hello_world.py" fenced="True" lines="1:2"/>
-            </question>
+<!--            <question type="text">-->
+<!--                ## Include `stuff.md`-->
+<!--                <include path="stuff.md"/>-->
+<!--            </question>-->
 
-            <question type="true-false" answer="true">
-                The earth is *round*.
-            </question>
+<!--            <question type="text">-->
+<!--                ## Include `hello_world.py` fenced-->
+<!--                <include path="hello_world.py" fenced="True"/>-->
+<!--            </question>-->
 
-            <question type="true-false" answer="false">
-                Zebras have **5** legs.
-            </question>
-        </questions>
-    </quiz>
+<!--            <question type="text">-->
+<!--                ## Include `hello_world.py` lines 1-2, fenced-->
+<!--                <include path="hello_world.py" fenced="True" lines="1:2"/>-->
+<!--            </question>-->
 
-    <include path="sample-quiz.canvas.md.xml" />
+<!--            <question type="true-false" answer="true">-->
+<!--                The earth is *round*.-->
+<!--            </question>-->
+
+<!--            <question type="true-false" answer="false">-->
+<!--                Zebras have **5** legs.-->
+<!--            </question>-->
+<!--        </questions>-->
+<!--    </quiz>-->
+
+<!--    <include path="sample-quiz.canvas.md.xml" />-->
 </div>
