@@ -16,10 +16,19 @@
     </style>
 
     <assignment-groups>
-        <group name="Homework" weight="50" drop="3" />
+        <group name="Homework" weight="50" drop_lowest="1" never_drop="foo" />
+        <group name="Quizzes" weight="50" drop_highest="1" never_drop="bar" />
     </assignment-groups>
 
-    <module id='foo' title="foo">
-        <items></items>
-    </module>
+    <assignment title="foo"
+                assignment_group="Homework"
+    >
+        foo
+    </assignment>
+
+    <assignment title="bar"
+                assignment_group="Quizzes"
+    >
+        bar
+    </assignment>
 </div>

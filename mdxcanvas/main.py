@@ -12,7 +12,6 @@ from canvasapi.course import Course
 
 from .deploy.canvas_deploy import deploy_to_canvas
 from .deploy.file import get_canvas_folder, get_file
-from .deploy.groups import deploy_group_weights
 from .generate_result import MDXCanvasResult
 from .our_logging import get_logger
 from .resources import ResourceManager
@@ -154,9 +153,6 @@ def main(
 
     if global_args_file:
         global_args = load_config(global_args_file)
-        group_weights = global_args.get('Group_Weights', None)
-        if group_weights:
-            deploy_group_weights(course, group_weights)
     else:
         global_args = None
     resources = ResourceManager()

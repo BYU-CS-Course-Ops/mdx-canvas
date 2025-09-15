@@ -13,6 +13,7 @@ from ..xml_processing.tag_preprocessors import make_image_preprocessor, make_fil
 from ..xml_processing.quiz_tags import QuizTagProcessor
 from ..xml_processing.page_tags import PageTagProcessor
 from ..xml_processing.module_tags import ModuleTagProcessor
+from ..xml_processing.group_tags import AssignmentGroupTagProcessor
 
 
 def _walk_xml(tag, tag_processors):
@@ -72,11 +73,12 @@ def process_canvas_xml(resources: ResourceManager, text: str):
 
     tag_processors = {
         'announcement': AnnouncementTagProcessor(resources),
-        'quiz': QuizTagProcessor(resources),
-        'page': PageTagProcessor(resources),
         'assignment': AssignmentTagProcessor(resources),
-        'override': OverrideTagProcessor(resources),
+        'group': AssignmentGroupTagProcessor(resources),
         'module': ModuleTagProcessor(resources),
+        'override': OverrideTagProcessor(resources),
+        'page': PageTagProcessor(resources),
+        'quiz': QuizTagProcessor(resources),
         'syllabus': SyllabusTagProcessor(resources)
     }
 
