@@ -17,7 +17,7 @@ def _parse_never_drop_assignments(tag: Tag) -> List[int]:
         return []
 
     never_drop_ids = []
-    assignment_names = [name.strip() for name in never_drop_attr.split(',')]
+    assignment_names = [name.strip() for name in never_drop_attr.split('|')]
 
     for assignment_name in assignment_names:
         if assignment_name:
@@ -55,7 +55,7 @@ class AssignmentGroupTagProcessor:
     Usage:
         <assignment-groups>
             <group name="Group 1" weight="25" drop_lowest="5" />
-            <group name="Group 2" weight="75" drop_highest="3" never_drop="assign1,assign2" />
+            <group name="Group 2" weight="75" drop_highest="3" never_drop="assign1|assign2" />
         </assignment-groups>
     """
 
