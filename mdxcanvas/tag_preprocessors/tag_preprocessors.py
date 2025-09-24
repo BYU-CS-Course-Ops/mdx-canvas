@@ -13,6 +13,45 @@ class TagPreprocessorFactory(Protocol):
         ...
 
 
+def make_course_settings_preprocessor(parent: Path, resources: ResourceManager):
+    def process_course_settings(tag: Tag):
+        name = tag.get('name')
+        course_code = tag.get('code')
+        image_path = tag.get('image')
+
+        if not (any([name, course_code, image_path])):
+            raise ValueError(f"Course settings tag must have a name, code, or image attribute @ {get_tag_path(tag)}")
+
+        image_resource_key = None
+        if image_path:
+            image_path = (parent / image_path).resolve().absolute()
+            if not image_path.is_file():
+                raise ValueError(f"Course image file {image_path} is not a file @ {get_tag_path(tag)}")
+
+            file = CanvasResource(
+                type='file',
+                name=image_path.name,
+                data=FileData(
+                    path=str(image_path),
+                    canvas_folder=tag.get('canvas_folder', None)
+                )
+            )
+            image_resource_key = resources.add_resource(file, 'id')
+
+        course_settings = CanvasResource(
+            type='course_settings',
+            name='',
+            data={
+                'name': name,
+                'code': course_code,
+                'image': image_resource_key
+            }
+        )
+        resources.add_resource(course_settings, 'name')
+
+    return process_course_settings
+
+
 def make_image_preprocessor(parent: Path, resources: ResourceManager):
     def process_image(tag: Tag):
 
@@ -124,7 +163,7 @@ def make_include_preprocessor(
         include_result = parse_soup_from_xml(imported_html)
 
         if not use_div:
-            tag.parent.extend(include_result)
+            tag.replace_with(include_result)
 
         else:
             new_tag = Tag(name='div')

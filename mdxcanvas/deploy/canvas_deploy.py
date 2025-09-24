@@ -12,7 +12,9 @@ from .algorithms import linearize_dependencies
 from .announcement import deploy_announcement, lookup_announcement
 from .assignment import deploy_assignment, lookup_assignment
 from .checksums import MD5Sums, compute_md5
+from .course_settings import deploy_settings, lookup_settings
 from .file import deploy_file, lookup_file
+from .group import deploy_group, lookup_group
 from .module import deploy_module, lookup_module
 from .override import deploy_override, lookup_override
 from .page import deploy_page, lookup_page
@@ -45,15 +47,17 @@ def deploy_resource(deployers, course: Course, resource_type: str, resource_data
 
 def lookup_resource(course: Course, resource_type: str, resource_name: str) -> CanvasObject:
     finders: dict[str, Callable[[Course, str], CanvasObject]] = {
-        'zip': lookup_zip,
+        'announcement': lookup_announcement,
+        'assignment': lookup_assignment,
+        'assignment_group': lookup_group,
+        'course_settings': lookup_settings,
         'file': lookup_file,
         'page': lookup_page,
-        'quiz': lookup_quiz,
-        'assignment': lookup_assignment,
-        'override': lookup_override,
         'module': lookup_module,
+        'override': lookup_override,
+        'quiz': lookup_quiz,
         'syllabus': lookup_syllabus,
-        'announcement': lookup_announcement
+        'zip': lookup_zip
     }
 
     if (finder := finders.get(resource_type, None)) is None:

@@ -24,7 +24,8 @@ class ModuleTagProcessor:
         fields = [
             Attribute('title', required=True, new_name='name'),
             Attribute('position'),
-            Attribute('published', parser=parse_bool)
+            Attribute('published', parser=parse_bool),
+            Attribute('previous-module')
         ]
 
         module_data = parse_settings(module_tag, fields)
@@ -34,13 +35,18 @@ class ModuleTagProcessor:
             for item_tag in module_tag.find_all('item')
         ]
 
+        module_data['_comments'] = {
+            'previous_module': ''
+        }
+
         if self._previous_module is not None:
             # adding a reference to the previous module ensures this module
             #  is created after the previous one, thus preserving their
             #  relative ordering
-            module_data['_comments'] = {
-                'previous_module': get_key('module', self._previous_module, 'id')
-            }
+            module_data['_comments']['previous_module'] = get_key('module', self._previous_module, 'id')
+
+        if prev_mod := module_data.get('previous-module'):
+            module_data['_comments']['previous_module'] = get_key('module', prev_mod, 'id')
 
         self._previous_module = module_data['name']
 

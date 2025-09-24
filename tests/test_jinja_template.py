@@ -1,7 +1,8 @@
 import json
-
 from pathlib import Path
+
 from mdxcanvas.text_processing.jinja_processing import process_jinja
+
 
 def test_mdd_table_template():
     template_str = Path("test_files/mdd_table_template.input.md.jinja").read_text()
@@ -43,6 +44,7 @@ def test_mdd_global_template():
 
     assert actual_output == expected_output, "The rendered output does not match the expected output."
 
+
 def test_mdd_args_template():
     template_str = Path("test_files/mdd_args_template.input.md.jinja").read_text()
     global_args = json.loads(Path("test_files/mdd_global.args.json").read_text())
@@ -55,6 +57,28 @@ def test_mdd_args_template():
     expected_output = Path("test_files/mdd_args_template.expected.md").read_text()
 
     assert actual_output == expected_output, "The rendered output does not match the expected output."
+
+
+def test_split_list():
+    template_str = """
+    {% for name in split_list(data["NAMES"]) %}{{ name }}
+    {% endfor %}
+    """
+    expected_output = """
+    John
+    Juan
+    Jack
+    
+    """
+    actual_output = process_jinja(
+        template_str,
+        global_args={
+            "data": {
+                "NAMES": "John;Juan;Jack"
+            }
+        }
+    )
+    assert actual_output == expected_output
 
 
 if __name__ == '__main__':
