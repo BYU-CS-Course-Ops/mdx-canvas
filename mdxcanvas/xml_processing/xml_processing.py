@@ -8,10 +8,12 @@ from .announcement_tags import AnnouncementTagProcessor
 from ..resources import ResourceManager
 from ..util import parse_soup_from_xml
 from ..xml_processing.tag_preprocessors import make_image_preprocessor, make_file_preprocessor, \
-    make_zip_preprocessor, make_include_preprocessor, make_link_preprocessor, make_markdown_page_preprocessor
+    make_zip_preprocessor, make_include_preprocessor, make_link_preprocessor, make_markdown_page_preprocessor, \
+    make_course_settings_preprocessor
 from ..xml_processing.quiz_tags import QuizTagProcessor
 from ..xml_processing.page_tags import PageTagProcessor
 from ..xml_processing.module_tags import ModuleTagProcessor
+from ..xml_processing.group_tags import AssignmentGroupTagProcessor
 
 
 def _walk_xml(tag, tag_processors):
@@ -38,12 +40,13 @@ def preprocess_xml(
     These IDs will be replaced with real Canvas IDs during deployment.
     """
     tag_preprocessors = {
+        'course-settings': make_course_settings_preprocessor(parent, resources),
         'img': make_image_preprocessor(parent, resources),
         'file': make_file_preprocessor(parent, resources),
         'zip': make_zip_preprocessor(parent, resources),
         'include': make_include_preprocessor(parent, process_file),
         'course-link': make_link_preprocessor(),
-        'md-page': make_markdown_page_preprocessor(parent, process_file),
+        'md-page': make_markdown_page_preprocessor(parent, process_file)
     }
 
     soup = parse_soup_from_xml(text)
@@ -70,11 +73,12 @@ def process_canvas_xml(resources: ResourceManager, text: str):
 
     tag_processors = {
         'announcement': AnnouncementTagProcessor(resources),
-        'quiz': QuizTagProcessor(resources),
-        'page': PageTagProcessor(resources),
         'assignment': AssignmentTagProcessor(resources),
-        'override': OverrideTagProcessor(resources),
+        'group': AssignmentGroupTagProcessor(resources),
         'module': ModuleTagProcessor(resources),
+        'override': OverrideTagProcessor(resources),
+        'page': PageTagProcessor(resources),
+        'quiz': QuizTagProcessor(resources),
         'syllabus': SyllabusTagProcessor(resources)
     }
 
