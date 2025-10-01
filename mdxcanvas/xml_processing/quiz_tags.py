@@ -46,7 +46,7 @@ class QuizTagProcessor:
 
         info = CanvasResource(
             type='quiz',
-            name=quiz['title'],
+            id=quiz['title'],
             data=quiz
         )
         self._resources.add_resource(info)

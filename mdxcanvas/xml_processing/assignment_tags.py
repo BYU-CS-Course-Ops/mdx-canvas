@@ -59,7 +59,7 @@ class AssignmentTagProcessor:
 
         assignment = CanvasResource(
             type='assignment',
-            name=settings['name'],
+            id=settings['name'],
             data=settings
         )
         self._resources.add_resource(assignment)

@@ -32,7 +32,7 @@ class OverrideTagProcessor:
 
         assignment = CanvasResource(
             type='override',
-            name=settings['name'],
+            id=settings['name'],
             data=settings
         )
         self._resources.add_resource(assignment)

@@ -52,7 +52,7 @@ class ModuleTagProcessor:
 
         self._resources.add_resource(CanvasResource(
             type='module',
-            name=module_data['name'],
+            id=module_data['name'],
             data=module_data
         ))
 

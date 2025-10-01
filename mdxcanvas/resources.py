@@ -5,7 +5,7 @@ from typing import TypedDict, Iterator
 
 class CanvasResource(TypedDict):
     type: str
-    name: str
+    id: str
     data: dict | None
 
 
@@ -40,14 +40,14 @@ def iter_keys(text: str) -> Iterator[tuple[str, str, str, str]]:
         yield match.group(0), *match.groups()
 
 
-def get_key(rtype: str, name: str, field: str):
-    return f'@@{rtype}||{name}||{field}@@'
+def get_key(rtype: str, rid: str, field: str):
+    return f'@@{rtype}||{rid}||{field}@@'
 
 
 class ResourceManager(dict[tuple[str, str], CanvasResource]):
 
     def add_resource(self, resource: CanvasResource, field: str = None) -> str:
         rtype = resource['type']
-        rname = resource['name']
-        self[rtype, rname] = resource
-        return get_key(rtype, rname, field) if field else None
+        rid = resource['id']
+        self[rtype, rid] = resource
+        return get_key(rtype, rid, field) if field else None

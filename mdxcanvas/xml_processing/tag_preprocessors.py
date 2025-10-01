@@ -25,7 +25,7 @@ def make_course_settings_preprocessor(parent: Path, resources: ResourceManager):
 
             file = CanvasResource(
                 type='file',
-                name=image_path.name,
+                id=image_path.name,
                 data=FileData(
                     path=str(image_path),
                     canvas_folder=tag.get('canvas_folder', None)
@@ -35,7 +35,7 @@ def make_course_settings_preprocessor(parent: Path, resources: ResourceManager):
 
         course_settings = CanvasResource(
             type='course_settings',
-            name='',
+            id='',
             data={
                 'name': name,
                 'code': course_code,
@@ -63,7 +63,7 @@ def make_image_preprocessor(parent: Path, resources: ResourceManager):
 
         file = CanvasResource(
             type='file',
-            name=src.name,
+            id=src.name,
             data=FileData(
                 path=str(src),
                 canvas_folder=tag.get('canvas_folder', None)
@@ -98,7 +98,7 @@ def make_file_preprocessor(parent: Path, resources: ResourceManager):
             raise ValueError(f"File {path} is not a file @ {get_tag_path(tag)}")
         file = CanvasResource(
             type='file',
-            name=path.name,
+            id=path.name,
             data=FileData(
                 path=str(path),
                 canvas_folder=attrs.get('canvas_folder', None),
@@ -141,7 +141,7 @@ def make_zip_preprocessor(parent: Path, resources: ResourceManager):
 
         file = CanvasResource(
             type='zip',
-            name=name,
+            id=name,
             data=ZipFileData(
                 zip_file_name=name,
                 content_folder=content_folder,

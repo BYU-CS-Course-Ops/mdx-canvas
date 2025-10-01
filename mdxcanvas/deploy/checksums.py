@@ -23,6 +23,26 @@ def compute_md5(obj: dict):
 
 
 class MD5Sums:
+    """
+    Format:
+
+    --- OLD ---
+
+    {
+        "quiz|Homework 0 - Getting Started": "baa3c952dd35fe6064f624a6e07db7dd",
+        "page|Lab 0": "d4fca52c8f3407cab31c8ad8013f8985"
+    }
+
+    --- NEW ---
+
+    {
+        "{rtype}|{rid}": {
+            "canvas_id": <int>,
+            "checksum_id": <str>
+        }
+    }
+
+    """
     def __init__(self, course: Course):
         self._course = course
 
@@ -45,8 +65,11 @@ class MD5Sums:
                 canvas_folder="_md5s"
             ))
 
-    def get(self, item, *args, **kwargs):
-        return self._md5s.get(item, *args, **kwargs)
+    def get(self, item, id_type=None, *args, **kwargs):
+        item_obj = self._md5s.get(item, *args, **kwargs)
+        if item_obj and id_type:
+            return item_obj.get(id_type, None)
+        return item_obj
 
     def __getitem__(self, item):
         # Act like a dictionary

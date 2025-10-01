@@ -11,7 +11,7 @@ class SyllabusTagProcessor:
     def __call__(self, tag: Tag):
         syllabus = CanvasResource(
             type='syllabus',
-            name='syllabus',
+            id='syllabus',
             data=SyllabusData(content=retrieve_contents(tag))
         )
         self._resources.add_resource(syllabus)

@@ -89,14 +89,14 @@ def update_links(course: Course, data: dict, resource_objs: dict[tuple[str, str]
     text = json.dumps(data)
     logger.debug(f'Updating links in {text}')
 
-    for key, rtype, rname, field in iter_keys(text):
-        logger.debug(f'Processing key: {key}, {rtype}, {rname}, {field}')
+    for key, rtype, rid, field in iter_keys(text):
+        logger.debug(f'Processing key: {key}, {rtype}, {rid}, {field}')
 
-        if (rtype, rname) not in resource_objs:
-            logger.info(f'Retrieving {rtype} {rname}')
-            resource_objs[rtype, rname] = lookup_resource(course, rtype, rname)
+        if (rtype, rid) not in resource_objs:
+            logger.info(f'Retrieving {rtype} {rid}')
+            resource_objs[rtype, rid] = lookup_resource(course, rtype, rid)
 
-        obj = resource_objs[rtype, rname]
+        obj = resource_objs[rtype, rid]
         if field == 'uri':
             repl_text = get_canvas_uri(obj)
         else:
@@ -152,14 +152,14 @@ def get_dependencies(resources: dict[tuple[str, str], CanvasResource]) -> dict[t
     for key, resource in resources.items():
         deps[key] = []
         text = json.dumps(resource)
-        for _, rtype, rname, _ in iter_keys(text):
-            resource_key = (rtype, rname)
+        for _, rtype, rid, _ in iter_keys(text):
+            resource_key = (rtype, rid)
             deps[key].append(resource_key)
             if resource_key not in resources:
                 missing_resources.append(resource_key)
 
-    for rtype, rname in missing_resources:
-        resources[rtype, rname] = CanvasResource(type=rtype, name=rname, data=None)
+    for rtype, rid in missing_resources:
+        resources[rtype, rid] = CanvasResource(type=rtype, id=rid, data=None)
 
     return deps
 
@@ -198,7 +198,7 @@ def identify_modified_or_outdated(
             # Just a resource reference
             continue
 
-        stored_md5 = md5s.get(resource_key)
+        stored_md5 = md5s.get(resource_key, 'checksum_id')
         current_md5 = compute_md5(resource_data)
 
         logger.debug(f'MD5 {resource_key}: {current_md5} vs {stored_md5}')
@@ -239,8 +239,8 @@ def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, s
         to_deploy = identify_modified_or_outdated(resources, resource_order, resource_dependencies, md5s)
 
         logger.info('Items to deploy:')
-        for rtype, rname in to_deploy.keys():
-            logger.info(f' - {rtype} {rname}')
+        for rtype, rid in to_deploy.keys():
+            logger.info(f' - {rtype} {rid}')
 
         if dryrun:
             return
@@ -250,24 +250,26 @@ def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, s
             try:
                 logger.debug(f'Processing {resource_key}')
 
-                rtype, rname = resource_key
-                logger.info(f'Processing {rtype} {rname}')
+                rtype, rid = resource_key
+                logger.info(f'Processing {rtype} {rid}')
                 if (resource_data := resource.get('data')) is not None:
                     resource_data = update_links(course, resource_data, resource_objs)
 
-                    logger.info(f'Deploying {rtype} {rname}')
+                    logger.info(f'Deploying {rtype} {rid}')
 
                     resource_obj, info = deploy_resource(course, rtype, resource_data)
 
                     url = resource_obj.html_url if hasattr(resource_obj, 'html_url') else None
-                    result.add_deployed_content(rtype, rname, url)
+                    result.add_deployed_content(rtype, rid, url)
 
                     if info:
                         result.add_content_to_review(*info)
                     resource_objs[resource_key] = resource_obj
-                    md5s[resource_key] = current_md5
+                    md5s[resource_key] = md5s.get(resource_key) if md5s.get(resource_key) else {}
+                    md5s[resource_key]["checksum_id"] = current_md5
+                    md5s[resource_key]["canvas_id"] = resource_obj.id
             except Exception as ex:
-                error = f'Error deploying resource {rtype} {rname}: {str(ex)}'
+                error = f'Error deploying resource {rtype} {rid}: {str(ex)}'
 
                 logger.error(error)
 
