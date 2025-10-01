@@ -1,12 +1,13 @@
 <quiz title="Multiple fill in the blank answers filled answer">
     <questions>
-
+        <!-- You can specify points values for the entire question if desired-->
         <question type='fill-in-multiple-blanks' points="5">
             The U.S. flag has [A] stripes and [B] stars.
             <correct text='13' blank='A' />
             <correct text='50' blank='B' />
         </question>
 
+        <!-- If you do not specify the number of points, it will default to the number of filled blanked questions (in this case 2)-->
         <question type='fill-in-multiple-blanks'>
             The U.S. flag has [A] stripes and [B] stars.
             <correct text='13' blank='A' />
@@ -14,11 +15,11 @@
         </question>
 
         <question type='fill-in-multiple-blanks-filled-answers' points="5">
-            The U.S. flag has [13] stripes and [50] stars.
+            The U.S. flag has [[13]] stripes and [[50]] stars.
         </question>
 
         <question type='fill-in-multiple-blanks-filled-answers'>
-                The U.S. flag has [13] stripes and [50] stars.
+                The U.S. flag has [[13]] stripes and [[50]] stars.
         </question>
 
         <question type="fill-in-multiple-blanks-filled-answers" points="10">
@@ -29,14 +30,14 @@
 
             | Node  |   0   |   1   |   2   |
             |:-----:|:-----:|:-----:|:-----:|
-            | **A** | **0** |  [0]  |  [0]  |
-            | **B** | [inf] |  [1]  |  [1]  |
-            | **C** | [inf] | [inf] |  [3]  |
-            | **D** | [inf] |  inf  | [inf] |
-            | **E** | [inf] |  [4]  | **4** |
-            | **F** | [inf] | **8** |  [7]  |
-            | **G** |  inf  | [inf] |  [7]  |
-            | **H** | [inf] | [inf] | [inf] |
+            | **A** | **0** |  [[0]]  |  [[0]]  |
+            | **B** | [[inf]] |  [[1]]  |  [[1]]  |
+            | **C** | [[inf]] | [[inf]] |  [[3]]  |
+            | **D** | [[inf]] |  inf  | [[inf]] |
+            | **E** | [[inf]] |  [[4]]  | **4** |
+            | **F** | [[inf]] | **8** |  [[7]]  |
+            | **G** |  inf  | [[inf]] |  [[7]]  |
+            | **H** | [[inf]] | [[inf]] | [[inf]] |
 
 
         </question>
@@ -44,14 +45,14 @@
         <question type="fill-in-multiple-blanks-filled-answers">
             | Node |  0  |  1  |  2  |  3  |  4  |  5  |  6  |  7  |
             |------|-----|-----|-----|-----|-----|-----|-----|-----|
-            | A    | [0] | [0] | [0] | [0] | [0] | [0] | [0] | [0] |
-            | B    | [∞] | [1] | [1] | [1] | [1] | [1] | [1] | [1] |
-            | C    | [∞] | [∞] | [3] | [3] | [3] | [3] |  3  | [3] |
-            | D    | [∞] | [∞] | [∞] | [4] | [4] | [4] |  4  | [4] |
-            | E    | [∞] | [4] | [4] | [4] | [4] | [4] | [4] | [4] |
-            | F    | [∞] | [8] | [7] |  7  | [7] | [7] | [7] | [6] |
-            | G    | [∞] | [∞] | [7] | [5] | [5] | [5] | [5] | [5] |
-            | H    | [∞] | [∞] | [∞] | [∞] | [8] | [8] | [6] | [6] |
+            | A    | [[0]] | [[0]] | [[0]] | [[0]] | [[0]] | [[0]] | [[0]] | [[0]] |
+            | B    | [[∞]] | [[1]] | [[1]] | [[1]] | [[1]] | [[1]] | [[1]] | [[1]] |
+            | C    | [[∞]] | [[∞]] | [[3]] | [[3]] | [[3]] | [[3]] |  3  | [[3]] |
+            | D    | [[∞]] | [[∞]] | [[∞]] | [[4]] | [[4]] | [[4]] |  4  | [[4]] |
+            | E    | [[∞]] | [[4]] | [[4]] | [[4]] | [[4]] | [[4]] | [[4]] | [[4]] |
+            | F    | [[∞]] | [[8]] | [[7]] |  7  | [[7]] | [[7]] | [[7]] | [[6]] |
+            | G    | [[∞]] | [[∞]] | [[7]] | [[5]] | [[5]] | [[5]] | [[5]] | [[5]] |
+            | H    | [[∞]] | [[∞]] | [[∞]] | [[∞]] | [[8]] | [[8]] | [[6]] | [[6]] |
 
         </question>
 

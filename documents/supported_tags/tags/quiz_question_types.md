@@ -122,7 +122,7 @@ A shorthand variation of the previous format where correct answers are embedded 
 
 ```xml
 <question type="fill-in-multiple-blanks-filled-answers">
-    The U.S. flag has [13] stripes and [50] stars.
+    The U.S. flag has [[13]] stripes and [[50]] stars.
 </question>
 ```
 
