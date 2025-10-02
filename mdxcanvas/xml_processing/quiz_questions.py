@@ -230,7 +230,7 @@ def _add_answers_to_multiple_blanks_question(text):
     letter_generator = letter_generator()
     answers = []
     def get_next_letter(match):
-        answer = match.group()[1:-1]
+        answer = match.group()[2:-2]
         associated_id = next(letter_generator)
         answers.append({'answer_text': answer, 'blank_id': associated_id, 'answer_weight': FULL_POINTS})
         return f'[{associated_id}]'
