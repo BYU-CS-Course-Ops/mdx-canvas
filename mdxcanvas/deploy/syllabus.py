@@ -11,6 +11,7 @@ class SyllabusObj:
 
 def deploy_syllabus(course: Course, data: SyllabusData) -> tuple[SyllabusObj, str|None]:
     course.update(course={'syllabus_body': data['content']})
+    course.canvas.get_syllabus()
     return SyllabusObj(course.id), None
 
 

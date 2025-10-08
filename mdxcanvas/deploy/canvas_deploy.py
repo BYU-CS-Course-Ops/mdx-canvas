@@ -9,19 +9,19 @@ from canvasapi.canvas_object import CanvasObject
 from canvasapi.course import Course
 
 from .algorithms import linearize_dependencies
-from .announcement import deploy_announcement, lookup_announcement
-from .assignment import deploy_assignment, lookup_assignment
+from .announcement import deploy_announcement
+from .assignment import deploy_assignment
 from .checksums import MD5Sums, compute_md5
-from .course_settings import deploy_settings, lookup_settings
-from .file import deploy_file, lookup_file
-from .group import deploy_group, lookup_group
-from .module import deploy_module, lookup_module
-from .override import deploy_override, lookup_override
-from .page import deploy_page, lookup_page
-from .quiz import deploy_quiz, lookup_quiz
-from .syllabus import deploy_syllabus, lookup_syllabus
+from .course_settings import deploy_settings
+from .file import deploy_file
+from .group import deploy_group
+from .module import deploy_module
+from .override import deploy_override
+from .page import deploy_page
+from .quiz import deploy_quiz
+from .syllabus import deploy_syllabus
 from .util import get_canvas_uri
-from .zip import deploy_zip, lookup_zip, predeploy_zip
+from .zip import deploy_zip, predeploy_zip
 from ..generate_result import MDXCanvasResult
 from ..our_logging import log_warnings, get_logger
 from ..resources import CanvasResource, iter_keys
@@ -59,33 +59,38 @@ def deploy_resource(course: Course, resource_type: str, resource_data: dict) -> 
     return deployed, info
 
 
-def lookup_resource(course: Course, resource_type: str, resource_name: str) -> CanvasObject:
-    finders: dict[str, Callable[[Course, str], CanvasObject]] = {
-        'announcement': lookup_announcement,
-        'assignment': lookup_assignment,
-        'assignment_group': lookup_group,
-        'course_settings': lookup_settings,
-        'file': lookup_file,
-        'page': lookup_page,
-        'module': lookup_module,
-        'override': lookup_override,
-        'quiz': lookup_quiz,
-        'syllabus': lookup_syllabus,
-        'zip': lookup_zip
+def lookup_resource(course: Course, canvas_id: int, resource_type: str, resource_id: str) -> CanvasObject:
+    def lookup_override(c_id):
+        assignment = course.get_assignment(c_id)
+        return next(
+            (o for o in assignment.get_overrides() if o.id == c_id),
+            None
+        )
+
+    finders: dict[str, Callable[[int], CanvasObject]] = {
+        'announcement': course.get_discussion_topic,
+        'assignment': course.get_assignment,
+        'assignment_group': course.get_assignment_group,
+        'file': course.get_file,
+        'page': course.get_page,
+        'module': course.get_module,
+        'quiz': course.get_quiz,
+        'zip': course.get_file,
+        'override': lookup_override
     }
 
     if (finder := finders.get(resource_type, None)) is None:
         raise Exception(f'Lookup unsupported for resource of type {resource_type}')
 
-    found = finder(course, resource_name)
+    found = finder(canvas_id)
 
     if found is None:
-        raise Exception(f'Resource not found: {resource_type} {resource_name}')
+        raise Exception(f'Resource not found: {resource_type} {resource_id}')
 
     return found
 
 
-def update_links(course: Course, data: dict, resource_objs: dict[tuple[str, str], CanvasObject]) -> dict:
+def update_links(md5s:MD5Sums, course: Course, data: dict, resource_objs: dict[tuple[str, str], CanvasObject]) -> dict:
     text = json.dumps(data)
     logger.debug(f'Updating links in {text}')
 
@@ -94,7 +99,8 @@ def update_links(course: Course, data: dict, resource_objs: dict[tuple[str, str]
 
         if (rtype, rid) not in resource_objs:
             logger.info(f'Retrieving {rtype} {rid}')
-            resource_objs[rtype, rid] = lookup_resource(course, rtype, rid)
+            canvas_id = md5s.get((rtype, rid), 'canvas_id')
+            resource_objs[rtype, rid] = lookup_resource(course, canvas_id, rtype, rid)
 
         obj = resource_objs[rtype, rid]
         if field == 'uri':
@@ -198,7 +204,7 @@ def identify_modified_or_outdated(
             # Just a resource reference
             continue
 
-        stored_md5 = md5s.get(resource_key, 'checksum_id')
+        stored_md5 = md5s.get(resource_key, 'checksum')
         current_md5 = compute_md5(resource_data)
 
         logger.debug(f'MD5 {resource_key}: {current_md5} vs {stored_md5}')
@@ -253,7 +259,7 @@ def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, s
                 rtype, rid = resource_key
                 logger.info(f'Processing {rtype} {rid}')
                 if (resource_data := resource.get('data')) is not None:
-                    resource_data = update_links(course, resource_data, resource_objs)
+                    resource_data = update_links(md5s, course, resource_data, resource_objs)
 
                     logger.info(f'Deploying {rtype} {rid}')
 
@@ -266,7 +272,7 @@ def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, s
                         result.add_content_to_review(*info)
                     resource_objs[resource_key] = resource_obj
                     md5s[resource_key] = md5s.get(resource_key) if md5s.get(resource_key) else {}
-                    md5s[resource_key]["checksum_id"] = current_md5
+                    md5s[resource_key]["checksum"] = current_md5
                     md5s[resource_key]["canvas_id"] = resource_obj.id
             except Exception as ex:
                 error = f'Error deploying resource {rtype} {rid}: {str(ex)}'

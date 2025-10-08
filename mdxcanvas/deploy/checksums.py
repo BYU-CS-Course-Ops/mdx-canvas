@@ -38,7 +38,7 @@ class MD5Sums:
     {
         "{rtype}|{rid}": {
             "canvas_id": <int>,
-            "checksum_id": <str>
+            "checksum": <str>
         }
     }
 
