@@ -1,3 +1,4 @@
+import logging
 from pathlib import Path
 from typing import Callable
 
@@ -14,7 +15,7 @@ from ..xml_processing.quiz_tags import QuizTagProcessor
 from ..xml_processing.page_tags import PageTagProcessor
 from ..xml_processing.module_tags import ModuleTagProcessor
 from ..xml_processing.group_tags import AssignmentGroupTagProcessor
-
+from ..xml_processing.attributes import get_tag_path
 
 def _walk_xml(tag, tag_processors):
     if not hasattr(tag, 'children'):
@@ -22,7 +23,11 @@ def _walk_xml(tag, tag_processors):
     for child in tag.children:
         if hasattr(child, 'name') and child.name in tag_processors:
             processor = tag_processors[child.name]
-            processor(child)
+            try:
+                processor(child)
+            except:
+                logging.exception('Error @ ' + get_tag_path(child))
+                raise
         _walk_xml(child, tag_processors)
 
 
