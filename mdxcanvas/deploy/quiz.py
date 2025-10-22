@@ -3,6 +3,7 @@ from canvasapi.quiz import Quiz
 
 from .util import get_canvas_object, update_group_name_to_id, ResourceNotFoundException
 from ..our_logging import get_logger
+from ..resources import CanvasObjectInfo
 
 logger = get_logger()
 
@@ -68,12 +69,19 @@ def replace_questions(quiz: Quiz, questions: list[dict]):
         quiz.create_question(question=question)
 
 
-def deploy_quiz(course: Course, quiz_data: dict) -> tuple[Quiz, tuple[str, str]]:
+def deploy_quiz(course: Course, quiz_data: dict) -> tuple[CanvasObjectInfo, tuple[str, str] | None]:
+    quiz_id = quiz_data["canvas_id"]
     name = quiz_data['title']
 
     update_group_name_to_id(course, quiz_data)
+
+    # Remove canvas_id before sending to Canvas API
+    update_data = quiz_data.copy()
+    update_data.pop('canvas_id', None)
+
     info = None
-    if canvas_quiz := get_quiz(course, name):
+    if quiz_id:
+        canvas_quiz = course.get_quiz(quiz_id)
         canvas_quiz: Quiz
         if any(canvas_quiz.get_submissions()):
             # If there are submission, we can't save the new material programmatically,
@@ -84,14 +92,20 @@ def deploy_quiz(course: Course, quiz_data: dict) -> tuple[Quiz, tuple[str, str]]
             is_already_published = canvas_quiz.published
             if is_already_published:
                 canvas_quiz.edit(quiz={'published': False})
-            quiz_data['published'] = quiz_data.get('published', is_already_published)
-        replace_questions(canvas_quiz, quiz_data['questions'])
-        canvas_quiz.edit(quiz=quiz_data)
+            update_data['published'] = update_data.get('published', is_already_published)
+        replace_questions(canvas_quiz, update_data['questions'])
+        canvas_quiz.edit(quiz=update_data)
     else:
-        canvas_quiz = create_quiz(course, quiz_data, name)
-        replace_questions(canvas_quiz, quiz_data['questions'])
+        canvas_quiz = create_quiz(course, update_data, name)
+        replace_questions(canvas_quiz, update_data['questions'])
 
-    return canvas_quiz, info
+    quiz_object_info: CanvasObjectInfo = {
+        'id': canvas_quiz.id,
+        'uri': None,
+        'url': canvas_quiz.html_url if hasattr(canvas_quiz, 'html_url') else None
+    }
+
+    return quiz_object_info, info
 
 
 def lookup_quiz(course: Course, quiz_name: str) -> Quiz:

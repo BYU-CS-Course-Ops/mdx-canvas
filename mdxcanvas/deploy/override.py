@@ -1,19 +1,26 @@
 from canvasapi.assignment import AssignmentOverride
 from canvasapi.course import Course
 
-def deploy_assignment_override(course: Course, assignment_id: int, override_info: dict)-> tuple[AssignmentOverride, str | None]:
+from ..resources import CanvasObjectInfo
+
+def deploy_assignment_override(course: Course, assignment_id: int, override_info: dict)-> tuple[CanvasObjectInfo, None]:
     assignment = course.get_assignment(assignment_id)
     has_override = getattr(assignment, 'has_overrides', False)
 
     if has_override:
         overrides = assignment.get_overrides()
-        override = override_info.get('override')
         override = overrides[0]
         override.edit(assignment_override=override_info)
     else:
         override = assignment.create_override(assignment_override=override_info)
 
-    return override, None
+    override_object_info: CanvasObjectInfo = {
+        'id': override.id,
+        'uri': None,
+        'url': override.html_url if hasattr(override, 'html_url') else None
+    }
+
+    return override_object_info, None
 
 
 # def deploy_quiz_override(course: Course, quiz_id: int, override_info: dict)-> tuple[AssignmentOverride, str | None]:
@@ -29,7 +36,7 @@ def deploy_assignment_override(course: Course, assignment_id: int, override_info
 #     return override_set, None
 
 
-def deploy_override(course: Course, override_info: dict) -> tuple[AssignmentOverride, str | None]:
+def deploy_override(course: Course, override_info: dict) -> tuple[CanvasObjectInfo, None]:
     canvas_id = int(override_info["assignment_id"])
     rtype = override_info["rtype"]
 
@@ -38,7 +45,7 @@ def deploy_override(course: Course, override_info: dict) -> tuple[AssignmentOver
         raise TypeError("Override type 'quiz' not currently supported for assignment overrides")
 
     elif rtype == 'assignment':
-        deploy_assignment_override(course, canvas_id, override_info)
+        return deploy_assignment_override(course, canvas_id, override_info)
 
     else:
         raise TypeError(f"{rtype} does not support override")

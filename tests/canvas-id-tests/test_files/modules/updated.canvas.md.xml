@@ -1,0 +1,9 @@
+<module
+    id="test_module"
+    name="Updated Test Module"
+>
+    <module_item type="SubHeader" id="header1">
+        <title>Section 1</title>
+    </module_item>
+
+</module>

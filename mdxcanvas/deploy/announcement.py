@@ -2,6 +2,7 @@ from canvasapi.course import Course
 from canvasapi.discussion_topic import DiscussionTopic
 
 from .util import get_canvas_object
+from ..resources import CanvasObjectInfo
 
 
 def get_announcement(course: Course, title: str) -> DiscussionTopic:
@@ -13,16 +14,30 @@ def get_announcement(course: Course, title: str) -> DiscussionTopic:
     )
 
 
-def deploy_announcement(course: Course, announcement_info: dict) -> tuple[DiscussionTopic, str | None]:
-    title = announcement_info["title"]
+def deploy_announcement(course: Course, announcement_info: dict) -> tuple[CanvasObjectInfo, None]:
+    announcement_id = announcement_info["canvas_id"]
+
+    # Remove canvas_id before sending to Canvas API
+    update_data = announcement_info.copy()
+    update_data.pop('canvas_id', None)
 
     canvas_announcement: DiscussionTopic
-    if canvas_announcement := get_announcement(course, title):
-        canvas_announcement.update(**announcement_info)
+    if announcement_id:
+        canvas_announcements = course.canvas.get_announcements(context_codes=[f'course_{course.id}'])
+        canvas_announcement = next(
+            (a for a in canvas_announcements if a.id == announcement_id), None
+        )
+        canvas_announcement.update(**update_data)
     else:
-        canvas_announcement = course.create_discussion_topic(**announcement_info)
+        canvas_announcement = course.create_discussion_topic(**update_data)
 
-    return canvas_announcement, None
+    announcement_object_info: CanvasObjectInfo = {
+        'id':  canvas_announcement.id,
+        'uri': None,
+        'url': canvas_announcement.html_url
+    }
+
+    return announcement_object_info, None
 
 
 def lookup_announcement(course: Course, announcement_name: str) -> DiscussionTopic:

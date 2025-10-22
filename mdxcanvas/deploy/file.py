@@ -3,7 +3,7 @@ from canvasapi.file import File
 from canvasapi.folder import Folder
 
 from .util import get_canvas_object
-from ..resources import FileData
+from ..resources import FileData, CanvasObjectInfo
 from ..our_logging import get_logger
 
 logger = get_logger()
@@ -12,6 +12,8 @@ from ..our_logging import get_logger
 
 logger = get_logger()
 DEFAULT_CANVAS_FOLDER = 'deployed_files'
+
+# TODO: USER CANVAS_ID
 
 
 def get_file(course: Course, name: str) -> File:
@@ -31,7 +33,7 @@ def get_canvas_folder(course: Course, folder_name: str, parent_folder_path="") -
     return course.create_folder(name=folder_name, parent_folder_path=parent_folder_path, hidden=True)
 
 
-def deploy_file(course: Course, data: FileData) -> tuple[File, str | None]:
+def deploy_file(course: Course, data: FileData) -> tuple[CanvasObjectInfo, None]:
         lock_at = data.get('lock_at')
         unlock_at = data.get('unlock_at')
 
@@ -44,7 +46,13 @@ def deploy_file(course: Course, data: FileData) -> tuple[File, str | None]:
         if lock_at or unlock_at:
             file.update(lock_at=lock_at, unlock_at=unlock_at)
 
-        return file, None
+        file_object_info: CanvasObjectInfo = {
+            'id': file.id,
+            'uri': f'/files/{file.id}',
+            'url': file.url if hasattr(file, 'url') else None
+        }
+
+        return file_object_info, None
 
 
 def lookup_file(course: Course, name: str):

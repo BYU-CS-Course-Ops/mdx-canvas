@@ -88,7 +88,7 @@ class AssignmentGroupTagProcessor:
 
         assignment_group = CanvasResource(
             type='assignment_group',
-            id=group_data['name'],
+            id=tag.get('id', group_data['name']),
             data=group_data
         )
 

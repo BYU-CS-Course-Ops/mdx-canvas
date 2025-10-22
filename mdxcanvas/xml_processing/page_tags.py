@@ -29,7 +29,7 @@ class PageTagProcessor:
 
         page = CanvasResource(
             type='page',
-            id=settings['title'],
+            id=page_tag.get('id', page_tag['title']),
             data=settings
         )
         self._resources.add_resource(page)

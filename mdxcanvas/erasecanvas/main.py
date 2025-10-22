@@ -23,6 +23,7 @@ def get_item_name(item):
     else:
         return str(item)
 
+
 def get_item_type(item):
     if hasattr(item, 'is_quiz_assignment'):
         if item.is_quiz_assignment:
@@ -97,6 +98,10 @@ def main(
 
     files = course.get_folders()
     remove(files, 'Folder') if len(list(files)) > 0 else None
+
+    announcements = course.canvas.get_announcements(context_codes=[f'course_{course.id}'])
+    remove(announcements, 'Announcement') if len(list(announcements)) > 0 else None
+
 
 
 def entry():

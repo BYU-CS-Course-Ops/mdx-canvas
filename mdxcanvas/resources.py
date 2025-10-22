@@ -5,30 +5,36 @@ from typing import TypedDict, Iterator
 
 class CanvasResource(TypedDict):
     type: str
-    id: str
+    id:   str
     data: dict | None
 
 
+class CanvasObjectInfo(TypedDict):
+    id:            str
+    uri:           str | None
+    url:           str | None
+
+
 class CourseSettings(TypedDict):
-    name: str
-    code: str
+    name:  str
+    code:  str
     image: str
 
 
 class FileData(TypedDict):
-    path: str
+    path:          str
     canvas_folder: str | None
-    lock_at: str | None
-    unlock_at: str | None
+    lock_at:       str | None
+    unlock_at:     str | None
 
 
 class ZipFileData(TypedDict):
-    zip_file_name: str
-    content_folder: str
+    zip_file_name:    str
+    content_folder:   str
     additional_files: list[str] | None
-    exclude_pattern: str | None
-    priority_folder: str | None
-    canvas_folder: str | None
+    exclude_pattern:  str       | None
+    priority_folder:  str       | None
+    canvas_folder:    str       | None
 
 
 class SyllabusData(TypedDict):
