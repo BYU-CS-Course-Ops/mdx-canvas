@@ -33,15 +33,6 @@ class MD5Sums:
         "page|Lab 0": "d4fca52c8f3407cab31c8ad8013f8985"
     }
 
-    --- INTERMEDIATE ---
-
-    {
-        "{rtype}|{rid}": {
-            "canvas_id": <int>,
-            "checksum": <str>
-        }
-    }
-
     --- NEW ---
 
     {
@@ -78,35 +69,23 @@ class MD5Sums:
                 canvas_folder="_md5s"
             ))
 
-    def get(self, item, id_type=None, *args, **kwargs):
-        # Convert dict/object to tuple key if necessary
-        if isinstance(item, dict):
-            # Assuming the dict has 'type' and 'name' or 'id' fields
-            # Adjust these field names based on your actual resource structure
-            if 'type' in item and ('name' in item or 'id' in item):
-                item = (item['type'], item.get('name', item.get('id')))
-            else:
-                # Handle the case where we can't extract the key
-                return kwargs.get('default', None) if 'default' in kwargs else None
+    def migrate(self):
+        pass
 
-        item_obj = self._md5s.get(item, *args, **kwargs)
-        if item_obj and id_type:
-            return item_obj.get(id_type, None)
-        return item_obj
+    def get(self, item, *args, **kwargs):
+        return self._md5s.get(item, *args, **kwargs)
 
-    def get_canvas_id(self, item, *args, **kwargs):
-        # Support both old format (canvas_id) and new format (canvas_info.id)
-        canvas_info = self.get(item, 'canvas_info', *args, **kwargs)
-        if canvas_info:
-            return int(canvas_info['id'])
-        # Fall back to old format
-        return self.get(item, 'canvas_id', *args, **kwargs)
+    def get_checksum(self, item):
+        entry = self.get(item)
+        return entry.get('checksum', None) if entry else None
 
-    def get_canvas_info(self, item, *args, **kwargs):
-        return self.get(item, 'canvas_info', *args, **kwargs)
+    def get_canvas_info(self, item):
+        entry = self.get(item)
+        return entry.get('canvas_info', None) if entry else None
 
-    def get_checksum(self, item, *args, **kwargs):
-        return self.get(item, 'checksum', *args, **kwargs)
+    def get_canvas_id(self, item):
+        canvas_info = self.get_canvas_info(item)
+        return canvas_info.get('id', None) if canvas_info else None
 
     def __getitem__(self, item):
         # Act like a dictionary
