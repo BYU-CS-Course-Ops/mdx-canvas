@@ -20,7 +20,6 @@ from .override import deploy_override
 from .page import deploy_page
 from .quiz import deploy_quiz
 from .syllabus import deploy_syllabus, SyllabusObj
-from .util import get_canvas_uri
 from .zip import deploy_zip, predeploy_zip
 from ..generate_result import MDXCanvasResult
 from ..our_logging import log_warnings, get_logger
@@ -59,62 +58,20 @@ def deploy_resource(course: Course, resource_type: str, resource_data: dict) -> 
     return deployed, info
 
 
-def lookup_resource(course: Course, canvas_id: int, resource_type: str, resource_id: str) -> CanvasObject:
-    def lookup_override(c_id):
-        for assignment in course.get_assignments():
-            for override in assignment.get_overrides():
-                if override.id == c_id:
-                    return override
-
-        return None
-
-    finders: dict[str, Callable[[int], CanvasObject]] = {
-        'announcement': course.get_discussion_topic,
-        'assignment': course.get_assignment,
-        'assignment_group': course.get_assignment_group,
-        'file': course.get_file,
-        'page': course.get_page,
-        'module': course.get_module,
-        'quiz': course.get_quiz,
-        'zip': course.get_file,
-        'override': lookup_override
-    }
-
-    if resource_type == 'syllabus':
-        return SyllabusObj(course.id)
-
-    elif resource_type == 'course_settings':
-        return CourseObj(course.id)
-
-    if (finder := finders.get(resource_type, None)) is None:
-        raise Exception(f'Lookup unsupported for resource of type {resource_type}')
-
-    found = finder(canvas_id)
-
-    if found is None:
-        raise Exception(f'Resource not found: {resource_type} {resource_id}')
-
-    return found
-
-
-def update_links(md5s:MD5Sums, course: Course, data: dict, resource_objs: dict[tuple[str, str], CanvasObject]) -> dict:
+def update_links(md5s: MD5Sums, data: dict, resource_objs: dict[tuple[str, str], CanvasObject]) -> dict:
     text = json.dumps(data)
     logger.debug(f'Updating links in {text}')
 
     for key, rtype, rid, field in iter_keys(text):
         logger.debug(f'Processing key: {key}, {rtype}, {rid}, {field}')
 
-        if (rtype, rid) not in resource_objs:
-            logger.info(f'Retrieving {rtype} {rid}')
-            canvas_id = md5s.get_canvas_id(item=(rtype, rid))
-            resource_objs[rtype, rid] = lookup_resource(course, canvas_id, rtype, rid)
+        canvas_info = resource_objs.get((rtype, rid), md5s.get_canvas_info((rtype, rid)))
+        repl_text = canvas_info.get(field)
 
-        obj = resource_objs[rtype, rid]
-        if field == 'uri':
-            repl_text = get_canvas_uri(obj)
-        else:
-            repl_text = str(getattr(obj, field))
-        text = text.replace(key, repl_text)
+        if repl_text is None:
+            raise Exception(f'Canvas {rtype}|{rid} has no {field}')
+
+        text = text.replace(key, f'{repl_text}')
 
     return json.loads(text)
 
@@ -211,12 +168,10 @@ def identify_modified_or_outdated(
             # Just a resource reference
             continue
 
-        stored_md5 = md5s.get_checksum(resource)
+        item = (resource['type'], resource['id'])
+
+        stored_md5 = md5s.get_checksum(item)
         current_md5 = compute_md5(resource_data)
-
-        canvas_id = md5s.get_canvas_id(resource_key)
-
-        resource['data']['canvas_id'] = canvas_id
 
         logger.debug(f'MD5 {resource_key}: {current_md5} vs {stored_md5}')
 
@@ -270,7 +225,7 @@ def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, s
                 rtype, rid = resource_key
                 logger.info(f'Processing {rtype} {rid}')
                 if (resource_data := resource.get('data')) is not None:
-                    resource_data = update_links(md5s, course, resource_data, resource_objs)
+                    resource_data = update_links(md5s, resource_data, resource_objs)
 
                     logger.info(f'Deploying {rtype} {rid}')
 
@@ -282,14 +237,10 @@ def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, s
                     if info:
                         result.add_content_to_review(*info)
 
-                    # Fetch the full CanvasObject for linking purposes
-                    canvas_id = int(canvas_obj_info['id'])
-
-                    resource_objs[resource_key] = lookup_resource(course, canvas_id, rtype, rid)
-
-                    md5s[resource_key] = md5s.get(resource_key) if md5s.get(resource_key) else {}
-                    md5s[resource_key]["checksum"] = current_md5
-                    md5s[resource_key]["canvas_info"] = canvas_obj_info
+                    md5s[resource_key] = {
+                        "checksum": current_md5,
+                        "canvas_info": canvas_obj_info
+                    }
             except Exception as ex:
                 error = f'Error deploying resource {rtype} {rid}: {str(ex)}'
 
