@@ -12,24 +12,24 @@ from .algorithms import linearize_dependencies
 from .announcement import deploy_announcement
 from .assignment import deploy_assignment
 from .checksums import MD5Sums, compute_md5
-from .course_settings import deploy_settings, CourseObj
+from .course_settings import deploy_settings
 from .file import deploy_file
 from .group import deploy_group
 from .module import deploy_module
 from .override import deploy_override
 from .page import deploy_page
 from .quiz import deploy_quiz
-from .syllabus import deploy_syllabus, SyllabusObj
+from .syllabus import deploy_syllabus
 from .zip import deploy_zip, predeploy_zip
 from ..generate_result import MDXCanvasResult
 from ..our_logging import log_warnings, get_logger
-from ..resources import CanvasResource, iter_keys, CanvasObjectInfo
+from ..resources import CanvasResource, iter_keys, ResourceInfo
 
 logger = get_logger()
 
 
-def deploy_resource(course: Course, resource_type: str, resource_data: dict) -> tuple[CanvasObjectInfo, tuple[str, str] | None]:
-    deployers: dict[str, Callable[[Course, dict], tuple[CanvasObjectInfo, tuple[str, str] | None]]] = {
+def deploy_resource(course: Course, resource_type: str, resource_data: dict) -> tuple[ResourceInfo, tuple[str, str] | None]:
+    deployers: dict[str, Callable[[Course, dict], tuple[ResourceInfo, tuple[str, str] | None]]] = {
         'announcement': deploy_announcement,
         'assignment': deploy_assignment,
         'assignment_group': deploy_group,
@@ -65,7 +65,14 @@ def update_links(md5s: MD5Sums, data: dict, resource_objs: dict[tuple[str, str],
     for key, rtype, rid, field in iter_keys(text):
         logger.debug(f'Processing key: {key}, {rtype}, {rid}, {field}')
 
-        canvas_info = resource_objs.get((rtype, rid), md5s.get_canvas_info((rtype, rid)))
+        # Get the canvas object if we just deployed it else check for it in the stored MD5s
+        try:
+            canvas_info = resource_objs.get((rtype, rid), md5s.get_canvas_info((rtype, rid)))
+        except Exception as ex:
+            logger.error(f'Error getting canvas info for {rtype} {rid}: {ex}. '
+                         f'Was not deployed in this run and not found in stored MD5s.')
+            raise
+
         repl_text = canvas_info.get(field)
 
         if repl_text is None:
@@ -175,6 +182,10 @@ def identify_modified_or_outdated(
 
         logger.debug(f'MD5 {resource_key}: {current_md5} vs {stored_md5}')
 
+        # Attach the Canvas object id (stored as `canvas_id`) to the resource data
+        # so deployment can detect whether to create a new item or update an existing one.
+        resource['data']['canvas_id'] = md5s.get_canvas_id(item)
+
         if stored_md5 != current_md5:
             # New or changed data
             modified[resource_key] = current_md5, resource
@@ -231,8 +242,11 @@ def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, s
 
                     canvas_obj_info, info = deploy_resource(course, rtype, resource_data)
 
-                    url = canvas_obj_info['url']
-                    result.add_deployed_content(rtype, rid, url)
+                    try:
+                        url = canvas_obj_info['url']
+                        result.add_deployed_content(rtype, rid, url)
+                    except KeyError:
+                        logger.debug(f'Canvas {rtype} has no link to {rid}')
 
                     if info:
                         result.add_content_to_review(*info)
@@ -241,6 +255,7 @@ def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, s
                         "checksum": current_md5,
                         "canvas_info": canvas_obj_info
                     }
+
             except Exception as ex:
                 error = f'Error deploying resource {rtype} {rid}: {str(ex)}'
 

@@ -1,6 +1,6 @@
 from canvasapi.course import Course
 
-from ..resources import SyllabusData, CanvasObjectInfo
+from ..resources import SyllabusData, SyllabusInfo
 
 
 class SyllabusObj:
@@ -9,18 +9,11 @@ class SyllabusObj:
         self.uri = f'/courses/{course_id}/assignments/syllabus'
 
 
-def deploy_syllabus(course: Course, data: SyllabusData) -> tuple[CanvasObjectInfo, None]:
+def deploy_syllabus(course: Course, data: SyllabusData) -> tuple[SyllabusInfo, None]:
     course.update(course={'syllabus_body': data['content']})
-    syllabus_obj = SyllabusObj(course.id)
 
-    syllabus_object_info: CanvasObjectInfo = {
-        'id': str(course.id),
-        'uri': syllabus_obj.uri,
-        'url': None
+    syllabus_object_info: SyllabusInfo = {
+        'id': str(course.id)
     }
 
     return syllabus_object_info, None
-
-
-def lookup_syllabus(course: Course, _: str) -> SyllabusObj:
-    return SyllabusObj(course.id)

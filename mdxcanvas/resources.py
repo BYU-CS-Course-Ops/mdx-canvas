@@ -1,5 +1,4 @@
 import re
-from pathlib import Path
 from typing import TypedDict, Iterator
 
 
@@ -9,10 +8,54 @@ class CanvasResource(TypedDict):
     data: dict | None
 
 
-class CanvasObjectInfo(TypedDict):
-    id:            str
-    uri:           str | None
-    url:           str | None
+class ResourceInfo(TypedDict):
+    id:  str
+
+
+class AnnouncementInfo(ResourceInfo):
+    id:  str
+    url: str | None
+
+
+class CourseSettingsInfo(ResourceInfo):
+    id: str
+
+
+class AssignmentInfo(ResourceInfo):
+    id: str
+    uri: str | None
+    url: str | None
+
+
+class FileInfo(ResourceInfo):
+    id: str
+    uri: str | None
+
+
+class AssignmentGroupInfo(ResourceInfo):
+    id: str
+
+
+class ModuleInfo(ResourceInfo):
+    id: str
+
+
+class OverrideInfo(ResourceInfo):
+    id: str
+
+
+class PageInfo(ResourceInfo):
+    id: str
+    url: str | None
+
+
+class QuizInfo(ResourceInfo):
+    id: str
+    url: str | None
+
+
+class SyllabusInfo(ResourceInfo):
+    id: str
 
 
 class CourseSettings(TypedDict):

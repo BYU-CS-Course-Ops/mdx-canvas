@@ -3,7 +3,7 @@ import re
 from pathlib import Path
 from zipfile import ZipFile, ZipInfo
 
-from .file import deploy_file, lookup_file
+from .file import deploy_file
 from ..our_logging import get_logger
 from ..resources import ZipFileData, FileData
 
@@ -126,4 +126,3 @@ def predeploy_zip(zipdata: ZipFileData, tmpdir: Path) -> FileData:
 
 
 deploy_zip = deploy_file
-lookup_zip = lookup_file

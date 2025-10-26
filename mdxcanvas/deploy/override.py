@@ -1,9 +1,8 @@
-from canvasapi.assignment import AssignmentOverride
 from canvasapi.course import Course
 
-from ..resources import CanvasObjectInfo
+from ..resources import OverrideInfo
 
-def deploy_assignment_override(course: Course, assignment_id: int, override_info: dict)-> tuple[CanvasObjectInfo, None]:
+def deploy_assignment_override(course: Course, assignment_id: int, override_info: dict)-> tuple[OverrideInfo, None]:
     assignment = course.get_assignment(assignment_id)
     has_override = getattr(assignment, 'has_overrides', False)
 
@@ -14,10 +13,8 @@ def deploy_assignment_override(course: Course, assignment_id: int, override_info
     else:
         override = assignment.create_override(assignment_override=override_info)
 
-    override_object_info: CanvasObjectInfo = {
-        'id': override.id,
-        'uri': None,
-        'url': override.html_url if hasattr(override, 'html_url') else None
+    override_object_info: OverrideInfo = {
+        'id': override.id
     }
 
     return override_object_info, None
@@ -36,7 +33,7 @@ def deploy_assignment_override(course: Course, assignment_id: int, override_info
 #     return override_set, None
 
 
-def deploy_override(course: Course, override_info: dict) -> tuple[CanvasObjectInfo, None]:
+def deploy_override(course: Course, override_info: dict) -> tuple[OverrideInfo, None]:
     canvas_id = int(override_info["assignment_id"])
     rtype = override_info["rtype"]
 
@@ -48,4 +45,5 @@ def deploy_override(course: Course, override_info: dict) -> tuple[CanvasObjectIn
         return deploy_assignment_override(course, canvas_id, override_info)
 
     else:
+        # TODO: Try to support Quiz overrides
         raise TypeError(f"{rtype} does not support override")

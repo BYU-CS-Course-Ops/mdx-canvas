@@ -1,12 +1,7 @@
 from canvasapi.course import Course
 from canvasapi.module import Module, ModuleItem
 
-from .util import get_canvas_object
-from ..resources import CanvasObjectInfo
-
-
-def _get_module(course: Course, name: str) -> Module:
-    return get_canvas_object(course.get_modules, 'name', name)
+from ..resources import ModuleInfo
 
 
 def _get_module_item(module: Module, item: dict) -> ModuleItem | None:
@@ -32,18 +27,15 @@ def _add_canvas_id(course: Course, item: dict):
     # in canvas_deploy.py, which replaces @@resource||id||field@@ placeholders with actual Canvas IDs/URLs
 
     if item['type'] in ['ExternalUrl', 'SubHeader']:
-        # content_id not required
         return
 
     item_type = item['type']
 
     if item_type == 'Page':
-        # page_url should already be filled in by update_links()
         if 'page_url' not in item:
             raise ValueError(f"Module item '{item['title']}' of type 'Page' missing page_url")
 
     elif item_type in ['Quiz', 'Assignment', 'File']:
-        # content_id should be in the 'id' field, filled in by update_links()
         if 'id' in item and isinstance(item['id'], (int, str)):
             item['content_id'] = item['id']
         else:
@@ -71,30 +63,21 @@ def _create_or_update_module_items(course: Course, module: Module, module_items:
             module.create_module_item(module_item=item)
 
 
-def deploy_module(course: Course, module_data: dict) -> tuple[CanvasObjectInfo, None]:
+def deploy_module(course: Course, module_data: dict) -> tuple[ModuleInfo, None]:
     module_id = module_data["canvas_id"]
-
-    # Remove canvas_id before sending to Canvas API
-    update_data = module_data.copy()
-    update_data.pop('canvas_id', None)
 
     if module_id:
         canvas_module = course.get_module(module_id)
-        if 'published' not in update_data:
-            update_data['published'] = canvas_module.published
-        canvas_module.edit(module=update_data)
+        if 'published' not in module_data:
+            module_data['published'] = canvas_module.published
+        canvas_module.edit(module=module_data)
     else:
-        canvas_module = course.create_module(module=update_data)
+        canvas_module = course.create_module(module=module_data)
 
-    _create_or_update_module_items(course, canvas_module, update_data.get('items', []))
+    _create_or_update_module_items(course, canvas_module, module_data.get('items', []))
 
-    module_object_info: CanvasObjectInfo = {
-        'id': canvas_module.id,
-        'uri': None,
-        'url': canvas_module.html_url if hasattr(canvas_module, 'html_url') else None
+    module_object_info: ModuleInfo = {
+        'id': canvas_module.id
     }
 
     return module_object_info, None
-
-
-lookup_module = _get_module
