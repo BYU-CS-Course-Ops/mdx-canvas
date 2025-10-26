@@ -9,6 +9,8 @@ from canvasapi.course import Course
 from .file import get_file, deploy_file
 from ..resources import FileData
 
+from .migration import lookup_resource
+
 MD5_FILE_NAME = '_md5sums.json'
 
 
@@ -59,6 +61,8 @@ class MD5Sums:
                 tuple(k.split('|')): v
                 for k, v in json.loads(requests.get(md5_file.url).text).items()
             }
+        self._migrate()
+        self._save_md5s()
 
     def _save_md5s(self):
         with TemporaryDirectory() as tmpdir:
@@ -69,8 +73,15 @@ class MD5Sums:
                 canvas_folder="_md5s"
             ))
 
-    def migrate(self):
-        pass
+    def _migrate(self):
+        for key, value in list(self._md5s.items()):
+            if isinstance(value, str):
+                rtype, rid = key.split('|')
+                canvas_info = lookup_resource(self._course, rtype, rid)
+                self._md5s[key] = {
+                    'canvas_info': canvas_info,
+                    'checksum': value
+                }
 
     def get(self, item, *args, **kwargs):
         return self._md5s.get(item, *args, **kwargs)
