@@ -7,7 +7,7 @@ def deploy_announcement(course: Course, announcement_info: dict) -> tuple[Announ
     announcement_id = announcement_info["canvas_id"]
 
     if announcement_id:
-        canvas_announcements = course.canvas.get_announcements(context_codes=[f'course_{course.id}'])
+        canvas_announcements = course.get_discussion_topics(course_id=course.id, only_announcements=True)
         canvas_announcement = next(
             (a for a in canvas_announcements if a.id == announcement_id), None
         )

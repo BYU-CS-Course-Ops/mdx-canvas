@@ -76,8 +76,20 @@ class MD5Sums:
     def _migrate(self):
         for key, value in list(self._md5s.items()):
             if isinstance(value, str):
-                rtype, rid = key.split('|')
+                rtype = key[0]
+                rid = key[1]
+
+                if rtype == 'override':
+                    section_id = key[2]
+                    rid = f'{rid}|{section_id}'
+
                 canvas_info = lookup_resource(self._course, rtype, rid)
+
+                if rtype == 'override':
+                    del self._md5s[key]
+                    assignment_name, course_section_id = rid.split('|')
+                    key = (rtype, f"{assignment_name} - Section {course_section_id}")
+                    
                 self._md5s[key] = {
                     'canvas_info': canvas_info,
                     'checksum': value

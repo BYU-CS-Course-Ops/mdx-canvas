@@ -8,7 +8,8 @@ from .course_settings import CourseObj
 from .syllabus import SyllabusObj
 
 from .util import get_canvas_object, ResourceNotFoundException
-from ..resources import AnnouncementInfo, AssignmentInfo, FileInfo, AssignmentGroupInfo, ModuleInfo, OverrideInfo, PageInfo, QuizInfo
+from ..resources import AnnouncementInfo, AssignmentInfo, FileInfo, AssignmentGroupInfo, ModuleInfo, OverrideInfo, \
+    PageInfo, QuizInfo, SyllabusInfo, CourseSettings, CourseSettingsInfo
 
 
 # ============================== Announcements ==============================
@@ -16,7 +17,7 @@ def get_announcement(course: Course, title: str) -> DiscussionTopic:
     # NB: the `course` object here was modified in main.py to have a `canvas` field
     # That's why the following code works
     return get_canvas_object(
-        lambda: course.canvas.get_announcements(context_codes=[f'course_{course.id}']),
+        lambda: course.get_discussion_topics(course_id=course.id, only_announcements=True),
         'title', title
     )
 
@@ -27,7 +28,8 @@ def lookup_announcement(course: Course, announcement_name: str) -> AnnouncementI
         raise ResourceNotFoundException(f'Announcement {announcement_name} not found')
 
     announcement_info = AnnouncementInfo(
-        id=str(announcement.id)
+        id=str(announcement.id),
+        url=getattr(announcement, 'html_url', None)
     )
 
     return announcement_info
@@ -45,15 +47,18 @@ def lookup_assignment(course: Course, assignment_name: str) -> AssignmentInfo:
 
     assignment_info = AssignmentInfo(
         id=str(assignment.id),
-        uri=getattr(assignment, 'html_url', None)
+        uri=getattr(assignment, 'html_url', None),
+        url=getattr(assignment, 'html_url', None)
     )
 
     return assignment_info
 
 
 # ============================== Course Settings ==============================
-def lookup_settings(course: Course, _: str) -> CourseObj:
-    return CourseObj(course.id)
+def lookup_settings(course: Course, _: str) -> CourseSettingsInfo:
+    return CourseSettingsInfo(
+        id=str(course.id),
+    )
 
 
 # ============================== Files ==============================
@@ -134,7 +139,8 @@ def lookup_page(course: Course, page_title: str) -> PageInfo:
         raise ResourceNotFoundException(f'Page {page_title} not found')
 
     page_info = PageInfo(
-        id=str(canvas_page.page_id)
+        id=str(canvas_page.page_id),
+        url=getattr(canvas_page, 'url', None)
     )
 
     return page_info
@@ -150,15 +156,18 @@ def lookup_quiz(course: Course, quiz_name: str) -> QuizInfo:
         raise ResourceNotFoundException(f'Quiz {quiz_name} not found')
 
     quiz_info = QuizInfo(
-        id=str(canvas_quiz.id)
+        id=str(canvas_quiz.id),
+        url=getattr(canvas_quiz, 'html_url', None)
     )
 
     return quiz_info
 
 
 # ============================== Syllabus ==============================
-def lookup_syllabus(course: Course, _: str) -> SyllabusObj:
-    return SyllabusObj(course.id)
+def lookup_syllabus(course: Course, _: str) -> SyllabusInfo:
+    return SyllabusInfo(
+        id=str(course.id),
+    )
 
 
 # ============================== Zips ==============================
