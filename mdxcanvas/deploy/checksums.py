@@ -91,6 +91,7 @@ class MD5Sums:
                     'canvas_info': canvas_info,
                     'checksum': value
                 }
+                logger.info(f"Successfully migrated MD5 entry {key}: {value}")
 
     def get(self, item, *args, **kwargs):
         return self._md5s.get(item, *args, **kwargs)
