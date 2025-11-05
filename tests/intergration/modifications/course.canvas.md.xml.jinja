@@ -1,0 +1,37 @@
+<div>
+    <course-settings
+        name='Bean Lab Testing'
+        code='Testing'
+    />
+
+    <assignment-groups>
+        <group name="Assignments" weight="33.333" />
+        <group name="Quizzes" weight="33.333" />
+        <group name="Pages" weight="33.3333" />
+    </assignment-groups>
+
+    <include path="demo-assignment.canvas.md.xml.jinja" />
+    <include path="demo-quiz.canvas.md.xml.jinja" />
+    <include path="demo-page.canvas.md.xml.jinja" />
+
+    <module id="External Tool Module" title="External Tools">
+        <item type="File" title="Demo File" indent="1" />
+        <item type="Discussion" title="Demo Discussion" indent="1" />
+        <item type="ExternalURL"
+              title="Demo Link"
+              external_url="https://www.google.com/search?q=google+snake&amp;sourceid=chrome&amp;ie=UTF-8" />
+    </module>
+
+    <module id="Assignment Module" title="Assignments">
+        {# TODO: Do we to let <item> tags have `id` attributes? Since we just reference the item by its name #}
+        <item type="assignment" title="{{ demo_assignment_title }}" indent="1" />
+    </module>
+
+    <module id="Quiz Module" title="Quizzes">
+        <item type="quiz" title="{{ demo_quiz_title }}" indent="1" />
+    </module>
+
+    <module id="Page Module" title="Pages">
+        <item type="page" title="{{ demo_page_title }}" indent="1" />
+    </module>
+</div>
