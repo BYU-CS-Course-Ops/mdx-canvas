@@ -9,6 +9,10 @@ from canvasapi.course import Course
 from .file import get_file, deploy_file
 from ..resources import FileData
 
+from ..our_logging import get_logger
+
+logger = get_logger()
+
 from .migration import lookup_resource
 
 MD5_FILE_NAME = '_md5sums.json'
@@ -19,7 +23,7 @@ def compute_md5(obj: dict):
         path = Path(obj['path'])
         hashable = path.name.encode() + path.read_bytes()
     else:
-        hashable = json.dumps(obj).encode()
+        hashable = json.dumps(obj, sort_keys=True).encode()
 
     return hashlib.md5(hashable).hexdigest()
 
@@ -58,7 +62,7 @@ class MD5Sums:
             self._md5s = {}
         else:
             self._md5s = {
-                tuple(k.split('|')): v
+                tuple(k.split('|', maxsplit=1)): v
                 for k, v in json.loads(requests.get(md5_file.url).text).items()
             }
         self._migrate()
@@ -76,20 +80,13 @@ class MD5Sums:
     def _migrate(self):
         for key, value in list(self._md5s.items()):
             if isinstance(value, str):
-                rtype = key[0]
-                rid = key[1]
+                rtype, rid = key
+                try:
+                    canvas_info = lookup_resource(self._course, rtype, rid)
+                except Exception as ex:
+                    logger.info(f"Failed to lookup resource for migration of MD5 entry {key}: {ex}")
+                    continue
 
-                if rtype == 'override':
-                    section_id = key[2]
-                    rid = f'{rid}|{section_id}'
-
-                canvas_info = lookup_resource(self._course, rtype, rid)
-
-                if rtype == 'override':
-                    del self._md5s[key]
-                    assignment_name, course_section_id = rid.split('|')
-                    key = (rtype, f"{assignment_name} - Section {course_section_id}")
-                    
                 self._md5s[key] = {
                     'canvas_info': canvas_info,
                     'checksum': value
@@ -102,13 +99,11 @@ class MD5Sums:
         entry = self.get(item)
         return entry.get('checksum', None) if entry else None
 
-    def get_canvas_info(self, item):
-        entry = self.get(item)
-        return entry.get('canvas_info', None) if entry else None
+    def has_canvas_info(self, item):
+        return item in self._md5s
 
-    def get_canvas_id(self, item):
-        canvas_info = self.get_canvas_info(item)
-        return canvas_info.get('id', None) if canvas_info else None
+    def get_canvas_info(self, item):
+        return self.get(item, {}).get('canvas_info', None)
 
     def __getitem__(self, item):
         # Act like a dictionary

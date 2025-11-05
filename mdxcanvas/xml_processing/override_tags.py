@@ -27,12 +27,11 @@ class OverrideTagProcessor:
 
         settings.update(parse_settings(override_tag, fields))
 
-        settings['name'] = f"{settings['assignment_name']} - Section {settings['course_section_id']}"
         settings['assignment_id'] = get_key(settings['rtype'], settings['assignment_name'], 'id')
 
         assignment = CanvasResource(
             type='override',
-            id=override_tag.get('id', settings['name']),
+            id=f"{settings['assignment_name']}|{settings['course_section_id']}",
             data=settings
         )
         self._resources.add_resource(assignment)

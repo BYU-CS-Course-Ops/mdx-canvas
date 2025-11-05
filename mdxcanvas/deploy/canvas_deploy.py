@@ -73,7 +73,11 @@ def update_links(md5s: MD5Sums, data: dict, resource_objs: dict[tuple[str, str],
                          f'Was not deployed in this run and not found in stored MD5s.')
             raise
 
-        repl_text = canvas_info.get(field)
+        try:
+            repl_text = canvas_info.get(field)
+        except Exception as ex:
+            logger.error(f'Error getting field {field} from canvas info for {rtype} {rid}: {ex}')
+            raise
 
         if repl_text is None:
             raise Exception(f'Canvas {rtype}|{rid} has no {field}')
@@ -184,7 +188,7 @@ def identify_modified_or_outdated(
 
         # Attach the Canvas object id (stored as `canvas_id`) to the resource data
         # so deployment can detect whether to create a new item or update an existing one.
-        resource['data']['canvas_id'] = md5s.get_canvas_id(item)
+        resource['data']['canvas_id'] = md5s.get_canvas_info(item).get('id') if md5s.has_canvas_info(item) else None
 
         if stored_md5 != current_md5:
             # New or changed data

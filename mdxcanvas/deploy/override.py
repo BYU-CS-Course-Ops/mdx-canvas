@@ -1,20 +1,19 @@
+from canvasapi.assignment import Assignment
 from canvasapi.course import Course
 
 from ..resources import OverrideInfo
 
 def deploy_assignment_override(course: Course, assignment_id: int, override_info: dict)-> tuple[OverrideInfo, None]:
-    assignment = course.get_assignment(assignment_id)
-    has_override = getattr(assignment, 'has_overrides', False)
+    assignment: Assignment = course.get_assignment(assignment_id)
 
-    if has_override:
-        overrides = assignment.get_overrides()
-        override = overrides[0]
+    if cid := override_info.get('canvas_id'):
+        override = assignment.get_override(cid)
         override.edit(assignment_override=override_info)
     else:
         override = assignment.create_override(assignment_override=override_info)
 
     override_object_info: OverrideInfo = {
-        'id': override.id
+        'id': override.id,
     }
 
     return override_object_info, None
