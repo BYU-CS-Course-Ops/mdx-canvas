@@ -68,6 +68,7 @@ def process_markdown_text(text: str) -> str:
         'fenced_code',
         'tables',
         'attr_list',
+        'pymdownx.superfences',
 
         # This embeds the highlight style directly into the HTML
         # instead of using CSS classes
