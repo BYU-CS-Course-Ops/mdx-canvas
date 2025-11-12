@@ -28,7 +28,7 @@ def lookup_announcement(course: Course, announcement_name: str) -> AnnouncementI
         raise ResourceNotFoundException(f'Announcement {announcement_name} not found')
 
     announcement_info = AnnouncementInfo(
-        id=str(announcement.id),
+        id=announcement.id,
         url=getattr(announcement, 'html_url', None)
     )
 
@@ -46,7 +46,7 @@ def lookup_assignment(course: Course, assignment_name: str) -> AssignmentInfo:
         raise ResourceNotFoundException(f'Assignment {assignment_name} not found')
 
     assignment_info = AssignmentInfo(
-        id=str(assignment.id),
+        id=assignment.id,
         uri=getattr(assignment, 'html_url', None),
         url=getattr(assignment, 'html_url', None)
     )
@@ -57,7 +57,7 @@ def lookup_assignment(course: Course, assignment_name: str) -> AssignmentInfo:
 # ============================== Course Settings ==============================
 def lookup_settings(course: Course, _: str) -> CourseSettingsInfo:
     return CourseSettingsInfo(
-        id=str(course.id),
+        id=course.id,
     )
 
 
@@ -72,7 +72,7 @@ def lookup_file(course: Course, name: str) -> FileInfo:
         raise ResourceNotFoundException(f'File {name} not found')
 
     file_info = FileInfo(
-        id=str(file.id),
+        id=file.id,
         uri=f'/files/{file.id}'
     )
 
@@ -86,7 +86,7 @@ def lookup_group(course: Course, name: str) -> AssignmentGroupInfo:
         raise ResourceNotFoundException(f'Assignment group {name} not found')
 
     group_info = AssignmentGroupInfo(
-        id=str(group.id)
+        id=group.id
     )
 
     return group_info
@@ -99,7 +99,7 @@ def lookup_module(course: Course, name: str) -> ModuleInfo:
         raise ResourceNotFoundException(f'Module {name} not found')
 
     module_info = ModuleInfo(
-        id=str(module.id)
+        id=module.id
     )
 
     return module_info
@@ -123,7 +123,7 @@ def lookup_override(course: Course, override_name: str) -> OverrideInfo:
         raise ResourceNotFoundException(f'Override {override_name} not found')
 
     override_info = OverrideInfo(
-        id=str(override.id)
+        id=override.id
     )
 
     return override_info
@@ -139,7 +139,7 @@ def lookup_page(course: Course, page_title: str) -> PageInfo:
         raise ResourceNotFoundException(f'Page {page_title} not found')
 
     page_info = PageInfo(
-        id=str(canvas_page.page_id),
+        id=canvas_page.page_id,
         url=getattr(canvas_page, 'url', None)
     )
 
@@ -156,7 +156,8 @@ def lookup_quiz(course: Course, quiz_name: str) -> QuizInfo:
         raise ResourceNotFoundException(f'Quiz {quiz_name} not found')
 
     quiz_info = QuizInfo(
-        id=str(canvas_quiz.id),
+        id=canvas_quiz.id,
+        assignment_id=canvas_quiz.assignment_id,
         url=getattr(canvas_quiz, 'html_url', None)
     )
 
@@ -166,7 +167,7 @@ def lookup_quiz(course: Course, quiz_name: str) -> QuizInfo:
 # ============================== Syllabus ==============================
 def lookup_syllabus(course: Course, _: str) -> SyllabusInfo:
     return SyllabusInfo(
-        id=str(course.id),
+        id=course.id,
     )
 
 

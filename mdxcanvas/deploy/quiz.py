@@ -94,6 +94,7 @@ def deploy_quiz(course: Course, quiz_data: dict) -> tuple[QuizInfo, tuple[str, s
 
     quiz_object_info: QuizInfo = {
         'id': canvas_quiz.id,
+        'assignment_id': canvas_quiz.assignment_id,
         'url': canvas_quiz.url if hasattr(canvas_quiz, 'url') else None
     }
 

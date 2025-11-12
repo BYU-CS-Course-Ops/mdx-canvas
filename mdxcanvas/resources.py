@@ -9,53 +9,54 @@ class CanvasResource(TypedDict):
 
 
 class ResourceInfo(TypedDict):
-    id:  str
+    id:  int
 
 
 class AnnouncementInfo(ResourceInfo):
-    id:  str
+    id:  int
     url: str | None
 
 
 class CourseSettingsInfo(ResourceInfo):
-    id: str
+    id: int
 
 
 class AssignmentInfo(ResourceInfo):
-    id: str
+    id: int
     uri: str | None
     url: str | None
 
 
 class FileInfo(ResourceInfo):
-    id: str
+    id: int
     uri: str | None
 
 
 class AssignmentGroupInfo(ResourceInfo):
-    id: str
+    id: int
 
 
 class ModuleInfo(ResourceInfo):
-    id: str
+    id: int
 
 
 class OverrideInfo(ResourceInfo):
-    id: str
+    id: int
 
 
 class PageInfo(ResourceInfo):
-    id: str
+    id: int
     url: str | None
 
 
 class QuizInfo(ResourceInfo):
-    id: str
+    id: int
+    assignment_id: int
     url: str | None
 
 
 class SyllabusInfo(ResourceInfo):
-    id: str
+    id: int
 
 
 class CourseSettings(TypedDict):
