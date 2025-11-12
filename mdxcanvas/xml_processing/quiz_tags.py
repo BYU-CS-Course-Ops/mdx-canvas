@@ -6,6 +6,7 @@ from .quiz_questions import parse_text_question, parse_true_false_question, pars
     parse_fill_in_multiple_blanks_question, parse_fill_in_multiple_blanks_filled_answers
 from ..resources import ResourceManager, CanvasResource
 from bs4 import Tag
+from .override_parsing import parse_overrides_container
 
 
 class QuizTagProcessor:
@@ -44,12 +45,18 @@ class QuizTagProcessor:
             elif tag.name == "description":
                 quiz["description"] = retrieve_contents(tag)
 
+        rid = quiz_tag.get('id', quiz['title'])
         info = CanvasResource(
             type='quiz',
-            id=quiz_tag.get('id', quiz_tag['title']),
+            id=rid,
             data=quiz
         )
         self._resources.add_resource(info)
+
+        # Process <overrides> child tag if present
+        for tag in quiz_tag.children:
+            if isinstance(tag, Tag) and tag.name == "overrides":
+                parse_overrides_container(tag, 'quiz', rid, self._resources)
 
     def _parse_quiz_settings(self, settings_tag):
         fields = [
