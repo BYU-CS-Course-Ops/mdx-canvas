@@ -5,7 +5,7 @@ from xml.etree.ElementTree import Element
 import markdown as md
 from bs4 import NavigableString, Tag, Comment
 from markdown import Extension
-from markdown.extensions.codehilite import makeExtension as makeCodehiliteExtension
+from pymdownx.highlight import makeExtension as makeCodehiliteExtension
 from markdown.inlinepatterns import BACKTICK_RE, BacktickInlineProcessor
 
 from .inline_math import InlineMathExtension
@@ -68,6 +68,7 @@ def process_markdown_text(text: str) -> str:
         'fenced_code',
         'tables',
         'attr_list',
+        'pymdownx.superfences',
 
         # This embeds the highlight style directly into the HTML
         # instead of using CSS classes
