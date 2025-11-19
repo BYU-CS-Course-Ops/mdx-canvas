@@ -52,9 +52,15 @@ class AssignmentTagProcessor:
         ]
 
         settings = {
-            "type": "assignment",
-            "description": retrieve_contents(assignment_tag),
+            "type": "assignment"
         }
+
+        for tag in assignment_tag.children:
+            if not isinstance(tag, Tag):
+                continue  # Top-level content is not supported in an assignment tag
+
+            if tag.name == "description":
+                settings["description"] = retrieve_contents(tag)
 
         settings.update(parse_settings(assignment_tag, fields))
 
