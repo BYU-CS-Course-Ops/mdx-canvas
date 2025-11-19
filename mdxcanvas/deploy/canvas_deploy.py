@@ -160,8 +160,7 @@ def predeploy_resource(rtype: str, resource_data: dict, timezone: str, tmpdir: P
 
 
 def identify_modified_or_outdated(
-        resources: dict[tuple[str, str], CanvasResource],
-        linearized_resources: list[tuple[str, str]],
+        linearized_resources: list[tuple[tuple[str, str], CanvasResource]],
         resource_dependencies: dict[tuple[str, str], list[tuple[str, str]]],
         md5s: MD5Sums
 ) -> dict[tuple[str, str], tuple[str, CanvasResource]]:
@@ -173,8 +172,7 @@ def identify_modified_or_outdated(
     """
     modified = {}
 
-    for resource_key in linearized_resources:
-        resource = resources[resource_key]
+    for resource_key, resource in linearized_resources:
         if (resource_data := resource.get('data')) is None:
             # Just a resource reference
             continue
@@ -213,7 +211,7 @@ def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, s
     resource_dependencies = get_dependencies(resources)
     logger.debug(f'Dependency graph: {resource_dependencies}')
 
-    resource_order = linearize_dependencies(resource_dependencies)
+    resource_order = linearize_dependencies(resource_dependencies, resources)
     logger.debug(f'Linearized dependencies: {resource_order}')
 
     warnings = []
@@ -223,7 +221,7 @@ def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, s
 
         predeploy_resources(resources, timezone, tmpdir)
 
-        to_deploy = identify_modified_or_outdated(resources, resource_order, resource_dependencies, md5s)
+        to_deploy = identify_modified_or_outdated(resource_order, resource_dependencies, md5s)
 
         logger.info('Items to deploy:')
         for rtype, rid in to_deploy.keys():

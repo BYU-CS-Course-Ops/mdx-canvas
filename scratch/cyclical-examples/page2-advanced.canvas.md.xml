@@ -1,0 +1,36 @@
+<page
+    id="advanced"
+    title="Advanced Topics"
+>
+
+# Advanced Topics in the Course
+
+This section covers more complex concepts that build upon the fundamentals.
+
+## Prerequisites
+
+**IMPORTANT:** Before reading this advanced material, make sure you've reviewed the basics:
+
+<include path="page1-intro.canvas.md.xml" />
+
+## Advanced Concepts
+
+Now that you've reviewed the introduction, let's explore some advanced topics:
+
+### Topic 1: Deep Dive into Theory
+
+This section requires strong foundational knowledge. The concepts here are complex and interconnected.
+
+### Topic 2: Practical Applications
+
+Apply what you've learned in <course-link type="assignment" title="Homework 2"/>.
+
+### Topic 3: Assessment
+
+Test your understanding with the <course-link type="quiz" title="Final Quiz"/>.
+
+## Conclusion
+
+Remember to revisit the introduction if you need clarification on any fundamental concepts covered here.
+
+</page>

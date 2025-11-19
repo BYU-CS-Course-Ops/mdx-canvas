@@ -1,0 +1,68 @@
+<assignment
+    id="hw1"
+    title="Homework 1"
+    due_at="Jan 15, 2025, 11:59 PM"
+    available_from="Jan 8, 2025, 12:00 AM"
+    available_to="Jan 15, 2025, 11:59 PM"
+    assignment_group="Homework"
+    points_possible="100"
+>
+
+<description>
+
+# Homework 1: Fundamentals
+
+This is the first homework assignment. It covers the fundamental concepts introduced in the course.
+
+## Overview
+
+This assignment will test your understanding of the basic concepts. Make sure you've read the introduction page before starting.
+
+## Background Reading
+
+Review the course introduction for context:
+
+<include path="page1-intro.canvas.md.xml" />
+
+## Assignment Tasks
+
+### Part 1: Basic Concepts (40 points)
+
+Answer the following questions based on the introduction material:
+
+1. What are the three key principles discussed in the introduction?
+2. How do these principles relate to the advanced topics?
+3. Provide examples of each principle.
+
+### Part 2: Preparing for Advanced Work (30 points)
+
+This section prepares you for the next assignment. Review the instructions from Homework 2:
+
+<include path="assignment2-hw2.canvas.md.xml" />
+
+Understanding what's coming next will help you focus your efforts appropriately.
+
+### Part 3: Application (30 points)
+
+Apply the concepts you've learned to solve the following problems:
+
+1. Problem A: [Description here]
+2. Problem B: [Description here]
+3. Problem C: [Description here]
+
+## Submission Guidelines
+
+- Submit your work as a PDF
+- Ensure all questions are answered completely
+- Show your work for all problems
+- Late submissions will be penalized 10% per day
+
+## Getting Help
+
+If you have questions:
+- Review the <course-link type="page" title="Introduction to Course"/>
+- Check the <course-link type="page" title="Study Guide"/>
+- Attend office hours
+
+</description>
+</assignment>

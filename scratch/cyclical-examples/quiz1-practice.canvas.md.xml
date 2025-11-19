@@ -1,0 +1,80 @@
+<quiz
+    id="practice"
+    title="Practice Quiz"
+    assignment_group="Quizzes"
+    quiz_type="practice_quiz"
+    time_limit="60"
+    allowed_attempts="-1"
+    published="True"
+>
+
+<description>
+
+# Practice Quiz
+
+This is a practice quiz to help you prepare for the final assessment. You can take this quiz multiple times.
+
+## Purpose
+
+This quiz is designed to:
+- Test your understanding of course concepts
+- Familiarize you with the quiz format
+- Help you identify areas that need more study
+
+## Before You Begin
+
+Make sure you've reviewed the study guide:
+
+<include path="page3-study-guide.canvas.md.xml" />
+
+## Important Note
+
+Before attempting the final quiz, you should:
+1. Complete this practice quiz at least once
+2. Review all incorrect answers
+3. Study any weak areas
+
+## Final Quiz Information
+
+Here's what to expect on the final quiz:
+
+<include path="quiz2-final.canvas.md.xml" />
+
+Knowing what's on the final quiz will help you focus your practice efforts.
+
+</description>
+
+<questions>
+
+<question type="multiple-choice">
+What is the main purpose of this course?
+
+<correct>To build a strong foundation in the subject matter</correct>
+<incorrect>To memorize facts and figures</incorrect>
+<incorrect>To complete assignments quickly</incorrect>
+<incorrect>To pass the final exam</incorrect>
+</question>
+
+<question type="true-false" answer="true">
+You should review the introduction page before taking quizzes.
+</question>
+
+<question type="multiple-answers">
+Which of the following are covered in Homework 1?
+
+<correct>Fundamental concepts</correct>
+<correct>Basic principles</correct>
+<incorrect>Advanced theoretical applications</incorrect>
+<incorrect>Complex integration problems</incorrect>
+</question>
+
+<question type="essay">
+Reflect on what you've learned so far. What concepts are still unclear to you?
+</question>
+
+<question type="text">
+Based on the study guide, what are the three most important things to remember before taking the final quiz?
+</question>
+
+</questions>
+</quiz>

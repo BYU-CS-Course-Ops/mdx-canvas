@@ -1,0 +1,143 @@
+<quiz
+    id="final"
+    title="Final Quiz"
+    due_at="Jan 25, 2025, 11:59 PM"
+    available_from="Jan 22, 2025, 12:00 AM"
+    available_to="Jan 25, 2025, 11:59 PM"
+    assignment_group="Quizzes"
+    quiz_type="assignment"
+    time_limit="120"
+    allowed_attempts="1"
+    show_correct_answers_at="Jan 26, 2025, 12:00 AM"
+    published="True"
+>
+
+<description>
+
+# Final Quiz
+
+This is the final assessment for the course. It covers all material from the introduction through the advanced topics.
+
+## Prerequisites
+
+**You must complete ALL of the following before taking this quiz:**
+
+### 1. Assignments
+
+You must have completed both homework assignments:
+
+<include path="assignment2-hw2.canvas.md.xml" />
+
+Review your homework carefully as many questions are based on those concepts.
+
+### 2. Practice
+
+You should have taken the practice quiz multiple times:
+
+<include path="quiz1-practice.canvas.md.xml" />
+
+The practice quiz format is similar to this final quiz.
+
+### 3. Study Materials
+
+Review all course pages and materials thoroughly.
+
+## Quiz Format
+
+- **Time Limit:** 120 minutes
+- **Attempts:** 1 attempt only
+- **Question Types:** Multiple choice, true/false, multiple answers, essay, and text questions
+- **Total Points:** 100 points
+
+## Coverage
+
+This quiz covers:
+- All fundamental concepts from the introduction
+- Advanced topics and applications
+- Material from both homework assignments
+- Integration of concepts across the course
+
+## Tips for Success
+
+1. Read each question carefully
+2. Manage your time wisely (120 minutes)
+3. Answer all questions (even if you're unsure)
+4. Review your answers before submitting
+5. You cannot retake this quiz, so do your best!
+
+## Important Reminders
+
+- This is a graded assessment
+- Academic integrity policies apply
+- No collaboration is allowed
+- You may reference your notes and homework
+- Correct answers will be shown after the due date
+
+Good luck!
+
+</description>
+
+<questions>
+
+<question type="multiple-choice">
+Which concept from the introduction is most fundamental to understanding the advanced topics?
+
+<correct>The three key principles discussed in the first section</correct>
+<incorrect>The historical background</incorrect>
+<incorrect>The course syllabus</incorrect>
+<incorrect>The grading policy</incorrect>
+</question>
+
+<question type="true-false" answer="true">
+Homework 2 builds upon concepts from Homework 1.
+</question>
+
+<question type="multiple-answers">
+Which of the following were required prerequisites for this quiz?
+
+<correct>Completing Homework 1</correct>
+<correct>Completing Homework 2</correct>
+<correct>Taking the Practice Quiz</correct>
+<incorrect>Attending all lectures</incorrect>
+</question>
+
+<question type="essay">
+Explain how the fundamental concepts from the introduction relate to the advanced topics. Use specific examples from both homework assignments.
+</question>
+
+<question type="text">
+What is the relationship between the basic principles and their advanced applications? Provide at least two concrete examples.
+</question>
+
+<question type="multiple-choice">
+Based on Homework 1 Part 2, what was the main purpose of previewing Homework 2 content?
+
+<correct>To help you focus your efforts appropriately</correct>
+<incorrect>To confuse students</incorrect>
+<incorrect>To make the assignment longer</incorrect>
+<incorrect>To test reading comprehension only</incorrect>
+</question>
+
+<question type="true-false" answer="false">
+The practice quiz and final quiz have different question formats.
+</question>
+
+<question type="fill-in-the-blank">
+The study guide recommends taking the [blank] before attempting the final quiz.
+
+<correct text="practice quiz" />
+<correct text="Practice Quiz" />
+</question>
+
+<question type="numerical" numerical_answer_type="exact">
+How many homework assignments were required for this course?
+
+<correct answer_exact="2" answer_error_margin="0" />
+</question>
+
+<question type="essay">
+Reflect on your learning journey through this course. How did the progression from basic to advanced topics help you understand the material? What would you do differently if you could start over?
+</question>
+
+</questions>
+</quiz>

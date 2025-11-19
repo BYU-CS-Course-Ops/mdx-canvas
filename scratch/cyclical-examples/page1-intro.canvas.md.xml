@@ -1,0 +1,32 @@
+<page
+    id="intro"
+    title="Introduction to Course"
+>
+
+# Welcome to the Course!
+
+This is the introduction page for our course. Here you'll find all the essential information to get started.
+
+## Getting Started
+
+Before diving into the material, we recommend:
+1. Reading this introduction carefully
+2. Reviewing the <course-link type="assignment" title="Homework 1"/> to understand the expectations
+3. Checking out the advanced topics below
+
+## Advanced Topics
+
+For students who want to dive deeper, please see the advanced topics section:
+
+<include path="page2-advanced.canvas.md.xml" />
+
+## Next Steps
+
+After reading this introduction, make sure to:
+- Complete <course-link type="assignment" title="Homework 1"/>
+- Take the <course-link type="quiz" title="Practice Quiz"/>
+- Review the <course-link type="page" title="Study Guide"/>
+
+Good luck!
+
+</page>
