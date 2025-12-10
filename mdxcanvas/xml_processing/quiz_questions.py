@@ -230,12 +230,12 @@ def _add_answers_to_multiple_blanks_question(text):
     letter_generator = letter_generator()
     answers = []
     def get_next_letter(match):
-        answer = match.group()[1:-1]
+        answer = match.group()[2:-2]
         associated_id = next(letter_generator)
         answers.append({'answer_text': answer, 'blank_id': associated_id, 'answer_weight': FULL_POINTS})
         return f'[{associated_id}]'
 
-    updated_text = re.sub(r"\[(.*?)\]", get_next_letter, text)
+    updated_text = re.sub(r"\[\[(.*?)\]\]", get_next_letter, text)
 
     return updated_text, answers
 
@@ -247,23 +247,23 @@ def parse_fill_in_multiple_blanks_filled_answers(tag: Tag):
     The default number of points is the number of fill in the blank questions, but can be overwritten using "points".
 
     <question type='fill-in-multiple-blanks-filled-answers' points="5">
-            The U.S. flag has [13] stripes and [50] stars.
+            The U.S. flag has [[13]] stripes and [[50]] stars.
     </question>
 
     This is also useful for tables
     <question type="fill-in-multiple-blanks-filled-answers">
         Fill in the table using the algorithm discussed in class.
 
-        | Node | 0     | 1     | 2     |
-        |------|-------|-------|-------|
-        | A    | 0     | [0]   | [0]   |
-        | B    | [inf] | [1]   | [1]   |
-        | C    | [inf] | [inf] | [3]   |
-        | D    | [inf] | inf   | [inf] |
-        | E    | [inf] | [4]   | 4     |
-        | F    | [inf] | 8     | [7]   |
-        | G    | inf   | [inf] | [7]   |
-        | H    | [inf] | [inf] | [inf] |
+    | Node | 0        | 1        | 2         |
+    |------|----------|----------|-----------|
+    | A    | 0        | [[0]]    | [[0]]     |
+    | B    | [[inf]]  | [[1]]    | [[1]]     |
+    | C    | [[inf]]  | [[inf]]  | [[3]]     |
+    | D    | [[inf]]  | inf      | [[inf]]   |
+    | E    | [[inf]]  | [[4]]    | 4         |
+    | F    | [[inf]]  | 8        | [[7]]     |
+    | G    | inf      | [[inf]]  | [[7]]     |
+    | H    | [[inf]]  | [[inf]]  | [[inf]]   |
 
     </question>
     """

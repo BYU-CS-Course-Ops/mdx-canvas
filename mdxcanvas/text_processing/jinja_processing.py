@@ -53,6 +53,7 @@ def _render_template(
         "zip": zip,
         "enumerate": enumerate,
         "split_list": lambda x: x.split(";"),
+        "read_file": lambda f: (parent_folder / f).absolute().read_text()
     }
 
     if global_args:

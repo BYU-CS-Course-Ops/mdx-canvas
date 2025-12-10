@@ -1,0 +1,10 @@
+<page
+    title='Jinja read_file demo'
+>
+{% set list_md = read_file('small.md') %}
+```
+{% for line in list_md.splitlines() %}
+{% if line %}<correct>{{ line }}</correct>{% endif %}
+{% endfor %}
+```
+</page>
