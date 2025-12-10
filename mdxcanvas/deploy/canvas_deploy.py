@@ -237,7 +237,10 @@ def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, s
 
         logger.info('Items to deploy:')
         for (rtype, rid), is_shell in to_deploy.keys():
-            logger.info(f' - {rtype} {rid}')
+            if is_shell:
+                logger.info(f' - {rtype} {rid} (shell deployment)')
+            else:
+                logger.info(f' - {rtype} {rid}')
 
         if dryrun:
             return
@@ -251,7 +254,7 @@ def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, s
                 logger.info(f'Processing {rtype} {rid}')
                 if (resource_data := resource.get('data')) is not None:
                     if is_shell:
-                        logger.info(f'Deploying shell page for {rtype} {rid}')
+                        logger.info(f'Deploying {rtype} {rid} (shell)')
                         canvas_obj_info, info = deploy_resource(SHELL_DEPLOYERS, course, rtype, resource_data)
                         resource['data']['canvas_id'] = canvas_obj_info.get('id') if canvas_obj_info else None
 
