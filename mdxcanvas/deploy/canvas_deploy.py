@@ -199,8 +199,19 @@ def identify_modified_or_outdated(
         # so deployment can detect whether to create a new item or update an existing one.
         resource['data']['canvas_id'] = md5s.get_canvas_info(item).get('id') if md5s.has_canvas_info(item) else None
 
+        if stored_md5 is None:
+            # New resource that needs to be deployed
+            modified[resource_key, is_shell] = current_md5, resource
+            continue
+
+        if is_shell:
+            # Shell deployments only needed for new resources
+            # stored_md5 is not None, so the resource is not new
+            # so we can skip
+            continue
+
         if stored_md5 != current_md5:
-            # New or changed data
+            # Changed data, need to deploy
             modified[resource_key, is_shell] = current_md5, resource
             continue
 
@@ -256,6 +267,8 @@ def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, s
                     if is_shell:
                         logger.info(f'Deploying {rtype} {rid} (shell)')
                         canvas_obj_info, info = deploy_resource(SHELL_DEPLOYERS, course, rtype, resource_data)
+                        # This line needed to ensure that the full deployment can find the canvas_id
+                        # of the shell object
                         resource['data']['canvas_id'] = canvas_obj_info.get('id') if canvas_obj_info else None
 
                     else:
@@ -263,11 +276,10 @@ def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, s
                         logger.info(f'Deploying {rtype} {rid}')
                         canvas_obj_info, info = deploy_resource(DEPLOYERS, course, rtype, resource_data)
 
-                    try:
-                        url = canvas_obj_info['url']
+                    # noinspection PyTypedDict
+                    # Many ResourceInfo types do have URL, but not all
+                    if url := canvas_obj_info.get('url'):
                         result.add_deployed_content(rtype, rid, url)
-                    except KeyError:
-                        logger.debug(f'Canvas {rtype} has no link to {rid}')
 
                     if info:
                         result.add_content_to_review(*info)
