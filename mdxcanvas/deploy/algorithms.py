@@ -77,7 +77,7 @@ def linearize_dependencies(
 ) -> list[tuple[tuple[str, str], bool]]:
     """
     Linearize dependencies with cycle breaking via shell deployments.
-    Example: A→B→C→A returns [((page, A),True), ((A, False), (B, False), (C, False)]
+    Example: A→B→C→A returns [((page, C),True), ((page, B), False), ((page, A), False), ((page, C), False)]
     """
     sccs = tarjan_scc(graph)
 
