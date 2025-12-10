@@ -10,15 +10,15 @@ from canvasapi.course import Course
 
 from .algorithms import linearize_dependencies
 from .announcement import deploy_announcement
-from .assignment import deploy_assignment
+from .assignment import deploy_assignment, deploy_shell_assignment
 from .checksums import MD5Sums, compute_md5
 from .course_settings import deploy_settings
 from .file import deploy_file
 from .group import deploy_group
 from .module import deploy_module
 from .override import deploy_override
-from .page import deploy_page
-from .quiz import deploy_quiz
+from .page import deploy_page, deploy_shell_page
+from .quiz import deploy_quiz, deploy_shell_quiz
 from .syllabus import deploy_syllabus
 from .zip import deploy_zip, predeploy_zip
 from ..generate_result import MDXCanvasResult
@@ -27,22 +27,31 @@ from ..resources import CanvasResource, iter_keys, ResourceInfo
 
 logger = get_logger()
 
+SHELL_DEPLOYERS = {
+    #TODO: What other shell deployers are needed?
+    'assignment': deploy_shell_assignment,
+    'page': deploy_shell_page,
+    'quiz': deploy_shell_quiz
+}
 
-def deploy_resource(course: Course, resource_type: str, resource_data: dict) -> tuple[ResourceInfo, tuple[str, str] | None]:
-    deployers: dict[str, Callable[[Course, dict], tuple[ResourceInfo, tuple[str, str] | None]]] = {
-        'announcement': deploy_announcement,
-        'assignment': deploy_assignment,
-        'assignment_group': deploy_group,
-        'course_settings': deploy_settings,
-        'file': deploy_file,
-        'module': deploy_module,
-        'override': deploy_override,
-        'page': deploy_page,
-        'quiz': deploy_quiz,
-        'syllabus': deploy_syllabus,
-        'zip': deploy_zip
-    }
+DEPLOYERS = {
+    'announcement': deploy_announcement,
+    'assignment': deploy_assignment,
+    'assignment_group': deploy_group,
+    'course_settings': deploy_settings,
+    'file': deploy_file,
+    'module': deploy_module,
+    'override': deploy_override,
+    'page': deploy_page,
+    'quiz': deploy_quiz,
+    'syllabus': deploy_syllabus,
+    'zip': deploy_zip
+}
 
+
+def deploy_resource(deployers: dict[str, Callable[[Course, dict], tuple[ResourceInfo, tuple[str, str] | None]]],
+                    course: Course, resource_type: str, resource_data: dict) -> tuple[
+    ResourceInfo, tuple[str, str] | None]:
     if (deploy := deployers.get(resource_type, None)) is None:
         raise Exception(f'Deployment unsupported for resource of type {resource_type}')
 
@@ -161,7 +170,7 @@ def predeploy_resource(rtype: str, resource_data: dict, timezone: str, tmpdir: P
 
 def identify_modified_or_outdated(
         resources: dict[tuple[str, str], CanvasResource],
-        linearized_resources: list[tuple[str, str]],
+        linearized_resources: list[tuple[tuple[str, str], bool]],
         resource_dependencies: dict[tuple[str, str], list[tuple[str, str]]],
         md5s: MD5Sums
 ) -> dict[tuple[str, str], tuple[str, CanvasResource]]:
@@ -173,7 +182,7 @@ def identify_modified_or_outdated(
     """
     modified = {}
 
-    for resource_key in linearized_resources:
+    for resource_key, is_shell in linearized_resources:
         resource = resources[resource_key]
         if (resource_data := resource.get('data')) is None:
             # Just a resource reference
@@ -192,12 +201,12 @@ def identify_modified_or_outdated(
 
         if stored_md5 != current_md5:
             # New or changed data
-            modified[resource_key] = current_md5, resource
+            modified[resource_key, is_shell] = current_md5, resource
             continue
 
         for dep_type, dep_name in resource_dependencies[resource_key]:
             if dep_type in ['file', 'zip'] and (dep_type, dep_name) in modified:
-                modified[resource_key] = current_md5, resource
+                modified[resource_key, is_shell] = current_md5, resource
                 break
 
     return modified
@@ -209,7 +218,8 @@ def predeploy_resources(resources, timezone, tmpdir):
             resource['data'] = predeploy_resource(resource['type'], resource['data'], timezone, tmpdir)
 
 
-def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, str], CanvasResource], result: MDXCanvasResult, dryrun=False):
+def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, str], CanvasResource],
+                     result: MDXCanvasResult, dryrun=False):
     resource_dependencies = get_dependencies(resources)
     logger.debug(f'Dependency graph: {resource_dependencies}')
 
@@ -226,25 +236,29 @@ def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, s
         to_deploy = identify_modified_or_outdated(resources, resource_order, resource_dependencies, md5s)
 
         logger.info('Items to deploy:')
-        for rtype, rid in to_deploy.keys():
+        for (rtype, rid), is_shell in to_deploy.keys():
             logger.info(f' - {rtype} {rid}')
 
         if dryrun:
             return
 
         resource_objs: dict[tuple[str, str], CanvasObject] = {}
-        for resource_key, (current_md5, resource) in to_deploy.items():
+        for (resource_key, is_shell), (current_md5, resource) in to_deploy.items():
             try:
                 logger.debug(f'Processing {resource_key}')
 
                 rtype, rid = resource_key
                 logger.info(f'Processing {rtype} {rid}')
                 if (resource_data := resource.get('data')) is not None:
-                    resource_data = update_links(md5s, resource_data, resource_objs)
+                    if is_shell:
+                        logger.info(f'Deploying shell page for {rtype} {rid}')
+                        canvas_obj_info, info = deploy_resource(SHELL_DEPLOYERS, course, rtype, resource_data)
+                        resource['data']['canvas_id'] = canvas_obj_info.get('id') if canvas_obj_info else None
 
-                    logger.info(f'Deploying {rtype} {rid}')
-
-                    canvas_obj_info, info = deploy_resource(course, rtype, resource_data)
+                    else:
+                        resource_data = update_links(md5s, resource_data, resource_objs)
+                        logger.info(f'Deploying {rtype} {rid}')
+                        canvas_obj_info, info = deploy_resource(DEPLOYERS, course, rtype, resource_data)
 
                     try:
                         url = canvas_obj_info['url']

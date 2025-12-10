@@ -47,11 +47,13 @@ class OverrideInfo(ResourceInfo):
 class PageInfo(ResourceInfo):
     id: str
     url: str | None
+    uri: str | None
 
 
 class QuizInfo(ResourceInfo):
     id: str
     url: str | None
+    uri: str | None
 
 
 class SyllabusInfo(ResourceInfo):
