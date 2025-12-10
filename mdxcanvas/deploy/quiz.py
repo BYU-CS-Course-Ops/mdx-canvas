@@ -8,17 +8,6 @@ from ..resources import QuizInfo
 logger = get_logger()
 
 
-def create_quiz_shell(quiz_data: dict) -> dict:
-    """Create minimal quiz shell for cycle resolution"""
-    return {
-        'title': quiz_data.get('title', 'Placeholder'),
-        'description': '<p>Loading...</p>',
-        'quiz_type': 'assignment',
-        'published': False,
-        'canvas_id': quiz_data.get('canvas_id')
-    }
-
-
 def debug_quiz_creation(canvas_quiz: Quiz, course: Course, data):
     new_settings = {"title": data["title"]}
 

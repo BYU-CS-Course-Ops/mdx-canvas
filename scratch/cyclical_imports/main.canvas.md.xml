@@ -1,8 +1,0 @@
-<div>
-    <include path="assignment-a.canvas.md.xml" />
-    <include path="page-a.canvas.md.xml" />
-    <module title="TEST">
-        <item type="assignment" title="Assignment A: Coding Assignment" />
-        <item type="page" title="Page A: Instructions" />
-    </module>
-</div>

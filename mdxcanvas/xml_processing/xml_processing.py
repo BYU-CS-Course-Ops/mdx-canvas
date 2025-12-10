@@ -45,7 +45,6 @@ def preprocess_xml(
         'zip': make_zip_preprocessor(parent, resources),
         'include': make_include_preprocessor(parent, process_file),
         'course-link': make_link_preprocessor(),
-        'course_link': make_link_preprocessor(),  # Support underscore variant
         'md-page': make_markdown_page_preprocessor(parent, process_file)
     }
 

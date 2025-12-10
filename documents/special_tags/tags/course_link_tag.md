@@ -24,7 +24,7 @@ This is the title of the item you are linking to. It should match the title of t
 If you have a page titled "Introduction" and you want to link to it, you would use:
 
 ```xml
-<course-link type="page" title="Introduction" />
+<course_link type="page" title="Introduction" />
 ```
 
 Another example can be found in the demo course [here](../../../demo_course/pages/module_overview_args.md)
