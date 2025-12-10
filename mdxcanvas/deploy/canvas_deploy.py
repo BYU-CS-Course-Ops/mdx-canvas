@@ -209,12 +209,79 @@ def predeploy_resources(resources, timezone, tmpdir):
             resource['data'] = predeploy_resource(resource['type'], resource['data'], timezone, tmpdir)
 
 
+def _create_shell_data(resource_type: str, original_data: dict) -> dict:
+    """Create shell data based on resource type"""
+    if resource_type == 'page':
+        from .page import create_page_shell
+        return create_page_shell(original_data)
+    elif resource_type == 'assignment':
+        from .assignment import create_assignment_shell
+        return create_assignment_shell(original_data)
+    elif resource_type == 'quiz':
+        from .quiz import create_quiz_shell
+        return create_quiz_shell(original_data)
+    else:
+        raise ValueError(f'Shell creation not supported for type: {resource_type}')
+
+
+def _deploy_single_resource(
+    course: Course,
+    resource_key: tuple[str, str],
+    to_deploy: dict,
+    md5s: MD5Sums,
+    resource_objs: dict,
+    resources: dict,
+    result: MDXCanvasResult
+):
+    """Deploy a single resource (extracted from deployment loop)"""
+    current_md5, resource = to_deploy[resource_key]
+    rtype, rid = resource_key
+
+    logger.info(f'Deploying {rtype} {rid}')
+
+    if (resource_data := resource.get('data')) is not None:
+        resource_data = update_links(md5s, resource_data, resource_objs)
+        canvas_obj_info, info = deploy_resource(course, rtype, resource_data)
+
+        try:
+            url = canvas_obj_info['url']
+            result.add_deployed_content(rtype, rid, url)
+        except KeyError:
+            logger.debug(f'Canvas {rtype} has no link to {rid}')
+
+        if info:
+            result.add_content_to_review(*info)
+
+        md5s[resource_key] = {
+            "checksum": current_md5,
+            "canvas_info": canvas_obj_info
+        }
+
+        resource_objs[resource_key] = canvas_obj_info
+
+
 def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, str], CanvasResource], result: MDXCanvasResult, dryrun=False):
     resource_dependencies = get_dependencies(resources)
     logger.debug(f'Dependency graph: {resource_dependencies}')
 
-    resource_order = linearize_dependencies(resource_dependencies)
+    resource_order, shell_candidates = linearize_dependencies(resource_dependencies, resources)
     logger.debug(f'Linearized dependencies: {resource_order}')
+
+    # Track shell data for cycle resolution
+    shell_data = {}  # Maps (type, id) -> original data dict
+    shell_keys = set()
+
+    if shell_candidates:
+        logger.info(f'Detected {len(shell_candidates)} shell candidates for cycle resolution')
+        for resource_key, resource in shell_candidates:
+            logger.info(f'  - Shell candidate: {resource_key[0]} {resource_key[1]}')
+            if resource['data'] is not None:
+                # Store original data
+                shell_data[resource_key] = resource['data'].copy()
+                shell_keys.add(resource_key)
+
+                # Replace with shell data
+                resource['data'] = _create_shell_data(resource_key[0], resource['data'])
 
     warnings = []
     logger.info('Beginning deployment to Canvas')
@@ -225,6 +292,16 @@ def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, s
 
         to_deploy = identify_modified_or_outdated(resources, resource_order, resource_dependencies, md5s)
 
+        # Ensure shell candidates are always deployed (even if not modified)
+        if shell_keys:
+            for resource_key in shell_keys:
+                if resource_key not in to_deploy:
+                    resource = resources[resource_key]
+                    if resource.get('data') is not None:
+                        current_md5 = compute_md5(resource['data'])
+                        to_deploy[resource_key] = (current_md5, resource)
+                        logger.info(f'Added shell candidate to deployment: {resource_key[0]} {resource_key[1]}')
+
         logger.info('Items to deploy:')
         for rtype, rid in to_deploy.keys():
             logger.info(f' - {rtype} {rid}')
@@ -233,41 +310,91 @@ def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, s
             return
 
         resource_objs: dict[tuple[str, str], CanvasObject] = {}
-        for resource_key, (current_md5, resource) in to_deploy.items():
-            try:
-                logger.debug(f'Processing {resource_key}')
 
-                rtype, rid = resource_key
-                logger.info(f'Processing {rtype} {rid}')
-                if (resource_data := resource.get('data')) is not None:
-                    resource_data = update_links(md5s, resource_data, resource_objs)
-
-                    logger.info(f'Deploying {rtype} {rid}')
-
-                    canvas_obj_info, info = deploy_resource(course, rtype, resource_data)
-
+        # PHASE 1: Deploy shells for cycle resolution
+        if shell_keys:
+            logger.info('=== Phase 1: Deploying shells for cycle resolution ===')
+            for resource_key in shell_keys:
+                if resource_key in to_deploy:
                     try:
-                        url = canvas_obj_info['url']
-                        result.add_deployed_content(rtype, rid, url)
-                    except KeyError:
-                        logger.debug(f'Canvas {rtype} has no link to {rid}')
+                        logger.debug(f'Processing shell {resource_key}')
+                        _deploy_single_resource(course, resource_key, to_deploy, md5s, resource_objs, resources, result)
+                    except Exception as ex:
+                        rtype, rid = resource_key
+                        error = f'Error deploying shell {rtype} {rid}: {str(ex)}'
+                        logger.error(error)
+                        result.add_error(error)
+                        result.output()
+                        raise
 
-                    if info:
-                        result.add_content_to_review(*info)
+        # PHASE 2: Deploy remaining resources
+        logger.info('=== Phase 2: Deploying remaining resources ===')
+        for resource_key in to_deploy:
+            if resource_key not in shell_keys:
+                try:
+                    logger.debug(f'Processing {resource_key}')
+                    _deploy_single_resource(course, resource_key, to_deploy, md5s, resource_objs, resources, result)
+                except Exception as ex:
+                    rtype, rid = resource_key
+                    error = f'Error deploying resource {rtype} {rid}: {str(ex)}'
+                    logger.error(error)
+                    result.add_error(error)
+                    result.output()
+                    raise
 
-                    md5s[resource_key] = {
-                        "checksum": current_md5,
-                        "canvas_info": canvas_obj_info
-                    }
+        # PHASE 3: Update shells with full content
+        if shell_keys:
+            logger.info('=== Phase 3: Updating shells with actual content ===')
+            for resource_key in shell_keys:
+                if resource_key in shell_data:
+                    try:
+                        # Restore original data
+                        resource = resources[resource_key]
+                        original_data = shell_data[resource_key].copy()
 
-            except Exception as ex:
-                error = f'Error deploying resource {rtype} {rid}: {str(ex)}'
+                        # Get the canvas_id from the shell deployment in Phase 1
+                        if resource_key in resource_objs:
+                            shell_canvas_info = resource_objs[resource_key]
+                            canvas_id_value = shell_canvas_info.get('id')
+                            logger.info(f'Shell canvas info: {shell_canvas_info}')
+                            logger.info(f'Setting canvas_id to: {canvas_id_value}')
+                            original_data['canvas_id'] = canvas_id_value
+                        else:
+                            logger.warning(f'Resource {resource_key} not found in resource_objs - shell may not have been deployed')
 
-                logger.error(error)
+                        # Update links
+                        original_data = update_links(md5s, original_data, resource_objs)
 
-                result.add_error(error)
-                result.output()
-                raise
+                        # Redeploy with full content
+                        rtype, rid = resource_key
+                        logger.info(f'Updating shell: {rtype} {rid} (canvas_id: {original_data.get("canvas_id")})')
+                        canvas_obj_info, info = deploy_resource(course, rtype, original_data)
+
+                        # Update resource data with final version
+                        resource['data'] = original_data
+
+                        # Update result
+                        try:
+                            url = canvas_obj_info['url']
+                            result.add_deployed_content(rtype, rid, url)
+                        except KeyError:
+                            logger.debug(f'Canvas {rtype} has no link to {rid}')
+
+                        if info:
+                            result.add_content_to_review(*info)
+
+                        # Update MD5
+                        current_md5 = compute_md5(resource['data'])
+                        md5s[resource_key] = {
+                            "checksum": current_md5,
+                            "canvas_info": canvas_obj_info
+                        }
+                    except Exception as ex:
+                        error = f'Error updating shell {rtype} {rid}: {str(ex)}'
+                        logger.error(error)
+                        result.add_error(error)
+                        result.output()
+                        raise
 
         if result.get_content_to_review():
             for content in result.get_content_to_review():

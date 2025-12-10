@@ -46,7 +46,9 @@ class OverrideInfo(ResourceInfo):
 
 class PageInfo(ResourceInfo):
     id: str
-    url: str | None
+    url: str | None  # Full URL path (e.g., "/courses/123/pages/my-page") for links
+    uri: str | None  # Alias for url, used by course_link tags
+    page_url: str | None  # Page slug (e.g., "my-page") for module items
 
 
 class QuizInfo(ResourceInfo):
