@@ -1,9 +1,9 @@
-<quiz title="Quiz A">
+<quiz title="Complex Quiz A">
 
 <description>
-    This is the description for **Quiz A**.
+    This is the description for **Complex Quiz A**.
 
-    You should check out <course-link type="quiz" title="Quiz B" />
+    You should check out <course-link type="assignment" title="Complex Assignment B" />
 
 </description>
 
@@ -14,7 +14,6 @@
     </question>
 
     <question type="multiple-choice">
-        You should check out <course-link type="quiz" title="Quiz B" />
         What is the capital of France?
 
         <correct>Paris</correct>

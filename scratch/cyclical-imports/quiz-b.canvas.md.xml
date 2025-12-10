@@ -10,6 +10,7 @@
 <questions>
 
     <question type="true-false" answer="false">
+        You should check out <course-link type="quiz" title="Quiz C" />
         Zebras have **5** legs.
     </question>
 
