@@ -147,9 +147,9 @@ def main(
     course_info = load_config(course_info_file)
     global_args = course_info.get('GLOBAL_ARGS', {})
 
-    logger.info('Connecting to Canvas')
     course = get_course(canvas_api_token, course_info['CANVAS_API_URL'], course_info['CANVAS_COURSE_ID'])
     logger = get_logger(course.name)
+    logger.info('Connected to Canvas')
 
     result = MDXCanvasResult(output_file)
 
