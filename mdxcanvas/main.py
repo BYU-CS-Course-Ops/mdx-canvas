@@ -145,16 +145,17 @@ def main(
 ):
     # Make sure the course actually exists before doing any real effort
     course_info = load_config(course_info_file)
+    global_args = course_info.get('GLOBAL_ARGS', {})
+
     course = get_course(canvas_api_token, course_info['CANVAS_API_URL'], course_info['CANVAS_COURSE_ID'])
     logger = get_logger(course.name)
-    logger.info('Connecting to Canvas')
+    logger.info('Connected to Canvas')
 
     result = MDXCanvasResult(output_file)
 
     if global_args_file:
-        global_args = load_config(global_args_file)
-    else:
-        global_args = None
+        global_args |= load_config(global_args_file)
+
     resources = ResourceManager()
 
     # Load file
