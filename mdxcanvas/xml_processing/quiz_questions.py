@@ -459,11 +459,10 @@ def parse_numerical_question(tag: Tag):
     fields = [
         Attribute('numerical_answer_type', required=True, ignore=True)
     ]
-    question.update(parse_settings(tag, fields + common_fields))
+    question.update(parse_settings(tag, fields + mostly_common_fields))
 
     for answer in question["answers"]:
         answer["numerical_answer_type"] = answer_type
 
-    question.update(parse_settings(tag, mostly_common_fields))
     return [question]
 
