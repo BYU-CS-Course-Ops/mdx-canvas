@@ -75,10 +75,11 @@ def update_links(md5s: MD5Sums, data: dict, resource_objs: dict[tuple[str, str],
         logger.debug(f'Processing key: {key}, {rtype}, {rid}, {field}')
 
         # Get the canvas object if we just deployed it else check for it in the stored MD5s
-        try:
-            canvas_info = resource_objs.get((rtype, rid), md5s.get_canvas_info((rtype, rid)))
-        except Exception as ex:
-            logger.error(f'Error getting canvas info for {rtype} {rid}: {ex}. '
+        canvas_info = resource_objs.get((rtype, rid), md5s.get_canvas_info((rtype, rid)))
+
+        if canvas_info is None:
+            logger.error(f'Updating links in {text}')
+            logger.error(f'No canvas info for {rtype} {rid}: '
                          f'Was not deployed in this run and not found in stored MD5s.')
             raise
 

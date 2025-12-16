@@ -5,7 +5,7 @@ from typing import TypedDict, Iterator
 class CanvasResource(TypedDict):
     type: str
     id:   str
-    data: dict | None
+    data: dict
 
 
 class ResourceInfo(TypedDict):
@@ -14,7 +14,7 @@ class ResourceInfo(TypedDict):
 
 class AnnouncementInfo(ResourceInfo):
     id:  str
-    url: str | None
+    url: str
 
 
 class CourseSettingsInfo(ResourceInfo):
@@ -23,13 +23,13 @@ class CourseSettingsInfo(ResourceInfo):
 
 class AssignmentInfo(ResourceInfo):
     id: str
-    uri: str | None
-    url: str | None
+    uri: str
+    url: str
 
 
 class FileInfo(ResourceInfo):
     id: str
-    uri: str | None
+    uri: str
 
 
 class AssignmentGroupInfo(ResourceInfo):
@@ -46,14 +46,14 @@ class OverrideInfo(ResourceInfo):
 
 class PageInfo(ResourceInfo):
     id: str
-    url: str | None
-    uri: str | None
+    url: str
+    uri: str
 
 
 class QuizInfo(ResourceInfo):
     id: str
-    url: str | None
-    uri: str | None
+    url: str
+    uri: str
 
 
 class SyllabusInfo(ResourceInfo):
