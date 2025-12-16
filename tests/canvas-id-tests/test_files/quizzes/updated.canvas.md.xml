@@ -1,0 +1,15 @@
+<quiz
+    id="test_quiz"
+    title="Updated Test Quiz"
+    quiz_type="assignment"
+>
+    <question type="multiple_choice_question" id="q1">
+        <question_name>Sample Question</question_name>
+        <question_text>What is 2 + 2?</question_text>
+        <points_possible>1</points_possible>
+        <answer correct="true">4</answer>
+        <answer>3</answer>
+        <answer>5</answer>
+    </question>
+
+</quiz>

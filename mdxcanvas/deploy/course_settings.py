@@ -1,6 +1,6 @@
 from canvasapi.course import Course
 
-from ..resources import CourseSettings
+from ..resources import CourseSettings, CourseSettingsInfo
 
 
 class CourseObj:
@@ -9,15 +9,17 @@ class CourseObj:
         self.uri = f'/courses/{course_id}'
 
 
-def deploy_settings(course: Course, data: CourseSettings) -> tuple[CourseObj, str | None]:
+def deploy_settings(course: Course, data: CourseSettings) -> tuple[CourseSettingsInfo, None]:
 
     course.update(course={
         'name': data['name'],
         'course_code': data['code'],
         'image_id': int(data['image']) if data.get('image') else None
+        # TODO: syllabus field
     })
-    return CourseObj(course.id), None
 
+    settings_object_info: CourseSettingsInfo = {
+        'id': str(course.id)
+    }
 
-def lookup_settings(course: Course, _: str) -> CourseObj:
-    return CourseObj(course.id)
+    return settings_object_info, None

@@ -3,7 +3,6 @@ from pathlib import Path
 from typing import Callable
 
 from .assignment_tags import AssignmentTagProcessor
-from .override_tags import OverrideTagProcessor
 from .syllabus_tags import SyllabusTagProcessor
 from .announcement_tags import AnnouncementTagProcessor
 from ..resources import ResourceManager
@@ -81,7 +80,6 @@ def process_canvas_xml(resources: ResourceManager, text: str):
         'assignment': AssignmentTagProcessor(resources),
         'group': AssignmentGroupTagProcessor(resources),
         'module': ModuleTagProcessor(resources),
-        'override': OverrideTagProcessor(resources),
         'page': PageTagProcessor(resources),
         'quiz': QuizTagProcessor(resources),
         'syllabus': SyllabusTagProcessor(resources)

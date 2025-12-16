@@ -1,0 +1,9 @@
+<assignment
+    title="Complex Assignment B">
+<description>
+    Here is the description for Complex Assignment B.
+
+    Check out <course-link type="page" title="Complex Page C" />
+
+</description>
+</assignment>

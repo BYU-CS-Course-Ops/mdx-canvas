@@ -1,0 +1,7 @@
+<announcement
+    id="test_announcement"
+    title="Test Announcement"
+>
+    This is just a test announcement.
+
+</announcement>

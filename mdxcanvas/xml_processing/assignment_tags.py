@@ -4,6 +4,7 @@ from .attributes import parse_settings, Attribute, parse_bool, parse_date, parse
     parse_int
 from ..util import retrieve_contents
 from ..resources import ResourceManager, CanvasResource
+from .override_parsing import parse_overrides_container
 
 
 class AssignmentTagProcessor:
@@ -57,9 +58,15 @@ class AssignmentTagProcessor:
 
         settings.update(parse_settings(assignment_tag, fields))
 
+        rid = assignment_tag.get('id', settings['name'])
         assignment = CanvasResource(
             type='assignment',
-            name=settings['name'],
+            id=rid,
             data=settings
         )
         self._resources.add_resource(assignment)
+
+        # Process <overrides> child tag if present
+        for tag in assignment_tag.children:
+            if isinstance(tag, Tag) and tag.name == "overrides":
+                parse_overrides_container(tag, 'assignment', rid, self._resources)

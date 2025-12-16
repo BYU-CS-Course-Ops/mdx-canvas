@@ -1,0 +1,9 @@
+<assignment
+    title="Assignment A">
+<description>
+    Here is the description for Assignment A.
+
+    Check out <course-link type="assignment" title="Assignment B" />
+
+</description>
+</assignment>

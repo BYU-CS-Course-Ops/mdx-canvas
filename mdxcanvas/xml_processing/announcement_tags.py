@@ -39,7 +39,7 @@ class AnnouncementTagProcessor:
 
         announcement = CanvasResource(
             type='announcement',
-            name=settings['title'],
+            id=announcement_tag.get('id', settings['title']),
             data=settings,
         )
         self._resources.add_resource(announcement)

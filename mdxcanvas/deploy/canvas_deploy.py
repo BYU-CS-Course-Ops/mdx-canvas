@@ -9,41 +9,49 @@ from canvasapi.canvas_object import CanvasObject
 from canvasapi.course import Course
 
 from .algorithms import linearize_dependencies
-from .announcement import deploy_announcement, lookup_announcement
-from .assignment import deploy_assignment, lookup_assignment
+from .announcement import deploy_announcement
+from .assignment import deploy_assignment, deploy_shell_assignment
 from .checksums import MD5Sums, compute_md5
-from .course_settings import deploy_settings, lookup_settings
-from .file import deploy_file, lookup_file
-from .group import deploy_group, lookup_group
-from .module import deploy_module, lookup_module
-from .override import deploy_override, lookup_override
-from .page import deploy_page, lookup_page
-from .quiz import deploy_quiz, lookup_quiz
-from .syllabus import deploy_syllabus, lookup_syllabus
-from .util import get_canvas_uri
-from .zip import deploy_zip, lookup_zip, predeploy_zip
+from .course_settings import deploy_settings
+from .file import deploy_file
+from .group import deploy_group
+from .module import deploy_module
+from .override import deploy_override
+from .page import deploy_page, deploy_shell_page
+from .quiz import deploy_quiz, deploy_shell_quiz
+from .syllabus import deploy_syllabus
+from .zip import deploy_zip, predeploy_zip
 from ..generate_result import MDXCanvasResult
 from ..our_logging import log_warnings, get_logger
-from ..resources import CanvasResource, iter_keys
+from ..resources import CanvasResource, iter_keys, ResourceInfo
 
 logger = get_logger()
 
+SHELL_DEPLOYERS = {
+    #TODO: What other shell deployers are needed?
+    'assignment': deploy_shell_assignment,
+    'page': deploy_shell_page,
+    'quiz': deploy_shell_quiz
+}
 
-def deploy_resource(course: Course, resource_type: str, resource_data: dict) -> tuple[CanvasObject, str | None]:
-    deployers: dict[str, Callable[[Course, dict] , tuple[CanvasObject, str | None]]] = {
-        'announcement': deploy_announcement,
-        'assignment': deploy_assignment,
-        'assignment_group': deploy_group,
-        'course_settings': deploy_settings,
-        'file': deploy_file,
-        'module': deploy_module,
-        'override': deploy_override,
-        'page': deploy_page,
-        'quiz': deploy_quiz,
-        'syllabus': deploy_syllabus,
-        'zip': deploy_zip
-    }
+DEPLOYERS = {
+    'announcement': deploy_announcement,
+    'assignment': deploy_assignment,
+    'assignment_group': deploy_group,
+    'course_settings': deploy_settings,
+    'file': deploy_file,
+    'module': deploy_module,
+    'override': deploy_override,
+    'page': deploy_page,
+    'quiz': deploy_quiz,
+    'syllabus': deploy_syllabus,
+    'zip': deploy_zip
+}
 
+
+def deploy_resource(deployers: dict[str, Callable[[Course, dict], tuple[ResourceInfo, tuple[str, str] | None]]],
+                    course: Course, resource_type: str, resource_data: dict) -> tuple[
+    ResourceInfo, tuple[str, str] | None]:
     if (deploy := deployers.get(resource_type, None)) is None:
         raise Exception(f'Deployment unsupported for resource of type {resource_type}')
 
@@ -59,49 +67,32 @@ def deploy_resource(course: Course, resource_type: str, resource_data: dict) -> 
     return deployed, info
 
 
-def lookup_resource(course: Course, resource_type: str, resource_name: str) -> CanvasObject:
-    finders: dict[str, Callable[[Course, str], CanvasObject]] = {
-        'announcement': lookup_announcement,
-        'assignment': lookup_assignment,
-        'assignment_group': lookup_group,
-        'course_settings': lookup_settings,
-        'file': lookup_file,
-        'page': lookup_page,
-        'module': lookup_module,
-        'override': lookup_override,
-        'quiz': lookup_quiz,
-        'syllabus': lookup_syllabus,
-        'zip': lookup_zip
-    }
-
-    if (finder := finders.get(resource_type, None)) is None:
-        raise Exception(f'Lookup unsupported for resource of type {resource_type}')
-
-    found = finder(course, resource_name)
-
-    if found is None:
-        raise Exception(f'Resource not found: {resource_type} {resource_name}')
-
-    return found
-
-
-def update_links(course: Course, data: dict, resource_objs: dict[tuple[str, str], CanvasObject]) -> dict:
+def update_links(md5s: MD5Sums, data: dict, resource_objs: dict[tuple[str, str], CanvasObject]) -> dict:
     text = json.dumps(data)
     logger.debug(f'Updating links in {text}')
 
-    for key, rtype, rname, field in iter_keys(text):
-        logger.debug(f'Processing key: {key}, {rtype}, {rname}, {field}')
+    for key, rtype, rid, field in iter_keys(text):
+        logger.debug(f'Processing key: {key}, {rtype}, {rid}, {field}')
 
-        if (rtype, rname) not in resource_objs:
-            logger.info(f'Retrieving {rtype} {rname}')
-            resource_objs[rtype, rname] = lookup_resource(course, rtype, rname)
+        # Get the canvas object if we just deployed it else check for it in the stored MD5s
+        canvas_info = resource_objs.get((rtype, rid), md5s.get_canvas_info((rtype, rid)))
 
-        obj = resource_objs[rtype, rname]
-        if field == 'uri':
-            repl_text = get_canvas_uri(obj)
-        else:
-            repl_text = str(getattr(obj, field))
-        text = text.replace(key, repl_text)
+        if canvas_info is None:
+            logger.error(f'Updating links in {text}')
+            logger.error(f'No canvas info for {rtype} {rid}: '
+                         f'Was not deployed in this run and not found in stored MD5s.')
+            raise
+
+        try:
+            repl_text = canvas_info.get(field)
+        except Exception as ex:
+            logger.error(f'Error getting field {field} from canvas info for {rtype} {rid}: {ex}')
+            raise
+
+        if repl_text is None:
+            raise Exception(f'Canvas {rtype}|{rid} has no {field}')
+
+        text = text.replace(key, f'{repl_text}')
 
     return json.loads(text)
 
@@ -152,14 +143,14 @@ def get_dependencies(resources: dict[tuple[str, str], CanvasResource]) -> dict[t
     for key, resource in resources.items():
         deps[key] = []
         text = json.dumps(resource)
-        for _, rtype, rname, _ in iter_keys(text):
-            resource_key = (rtype, rname)
+        for _, rtype, rid, _ in iter_keys(text):
+            resource_key = (rtype, rid)
             deps[key].append(resource_key)
             if resource_key not in resources:
                 missing_resources.append(resource_key)
 
-    for rtype, rname in missing_resources:
-        resources[rtype, rname] = CanvasResource(type=rtype, name=rname, data=None)
+    for rtype, rid in missing_resources:
+        resources[rtype, rid] = CanvasResource(type=rtype, id=rid, data=None)
 
     return deps
 
@@ -180,7 +171,7 @@ def predeploy_resource(rtype: str, resource_data: dict, timezone: str, tmpdir: P
 
 def identify_modified_or_outdated(
         resources: dict[tuple[str, str], CanvasResource],
-        linearized_resources: list[tuple[str, str]],
+        linearized_resources: list[tuple[tuple[str, str], bool]],
         resource_dependencies: dict[tuple[str, str], list[tuple[str, str]]],
         md5s: MD5Sums
 ) -> dict[tuple[str, str], tuple[str, CanvasResource]]:
@@ -192,25 +183,42 @@ def identify_modified_or_outdated(
     """
     modified = {}
 
-    for resource_key in linearized_resources:
+    for resource_key, is_shell in linearized_resources:
         resource = resources[resource_key]
         if (resource_data := resource.get('data')) is None:
             # Just a resource reference
             continue
 
-        stored_md5 = md5s.get(resource_key)
+        item = (resource['type'], resource['id'])
+
+        stored_md5 = md5s.get_checksum(item)
         current_md5 = compute_md5(resource_data)
 
         logger.debug(f'MD5 {resource_key}: {current_md5} vs {stored_md5}')
 
+        # Attach the Canvas object id (stored as `canvas_id`) to the resource data
+        # so deployment can detect whether to create a new item or update an existing one.
+        resource['data']['canvas_id'] = md5s.get_canvas_info(item).get('id') if md5s.has_canvas_info(item) else None
+
+        if stored_md5 is None:
+            # New resource that needs to be deployed
+            modified[resource_key, is_shell] = current_md5, resource
+            continue
+
+        if is_shell:
+            # Shell deployments only needed for new resources
+            # stored_md5 is not None, so the resource is not new
+            # so we can skip
+            continue
+
         if stored_md5 != current_md5:
-            # New or changed data
-            modified[resource_key] = current_md5, resource
+            # Changed data, need to deploy
+            modified[resource_key, is_shell] = current_md5, resource
             continue
 
         for dep_type, dep_name in resource_dependencies[resource_key]:
             if dep_type in ['file', 'zip'] and (dep_type, dep_name) in modified:
-                modified[resource_key] = current_md5, resource
+                modified[resource_key, is_shell] = current_md5, resource
                 break
 
     return modified
@@ -222,7 +230,8 @@ def predeploy_resources(resources, timezone, tmpdir):
             resource['data'] = predeploy_resource(resource['type'], resource['data'], timezone, tmpdir)
 
 
-def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, str], CanvasResource], result: MDXCanvasResult, dryrun=False):
+def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, str], CanvasResource],
+                     result: MDXCanvasResult, dryrun=False):
     resource_dependencies = get_dependencies(resources)
     logger.debug(f'Dependency graph: {resource_dependencies}')
 
@@ -239,35 +248,50 @@ def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, s
         to_deploy = identify_modified_or_outdated(resources, resource_order, resource_dependencies, md5s)
 
         logger.info('Items to deploy:')
-        for rtype, rname in to_deploy.keys():
-            logger.info(f' - {rtype} {rname}')
+        for (rtype, rid), is_shell in to_deploy.keys():
+            if is_shell:
+                logger.info(f' - {rtype} {rid} (shell deployment)')
+            else:
+                logger.info(f' - {rtype} {rid}')
 
         if dryrun:
             return
 
         resource_objs: dict[tuple[str, str], CanvasObject] = {}
-        for resource_key, (current_md5, resource) in to_deploy.items():
+        for (resource_key, is_shell), (current_md5, resource) in to_deploy.items():
             try:
                 logger.debug(f'Processing {resource_key}')
 
-                rtype, rname = resource_key
-                logger.info(f'Processing {rtype} {rname}')
+                rtype, rid = resource_key
+                logger.info(f'Processing {rtype} {rid}')
                 if (resource_data := resource.get('data')) is not None:
-                    resource_data = update_links(course, resource_data, resource_objs)
+                    if is_shell:
+                        logger.info(f'Deploying {rtype} {rid} (shell)')
+                        canvas_obj_info, info = deploy_resource(SHELL_DEPLOYERS, course, rtype, resource_data)
+                        # This line needed to ensure that the full deployment can find the canvas_id
+                        # of the shell object
+                        resource['data']['canvas_id'] = canvas_obj_info.get('id') if canvas_obj_info else None
 
-                    logger.info(f'Deploying {rtype} {rname}')
+                    else:
+                        resource_data = update_links(md5s, resource_data, resource_objs)
+                        logger.info(f'Deploying {rtype} {rid}')
+                        canvas_obj_info, info = deploy_resource(DEPLOYERS, course, rtype, resource_data)
 
-                    resource_obj, info = deploy_resource(course, rtype, resource_data)
-
-                    url = resource_obj.html_url if hasattr(resource_obj, 'html_url') else None
-                    result.add_deployed_content(rtype, rname, url)
+                    # noinspection PyTypedDict
+                    # Many ResourceInfo types do have URL, but not all
+                    if url := canvas_obj_info.get('url'):
+                        result.add_deployed_content(rtype, rid, url)
 
                     if info:
                         result.add_content_to_review(*info)
-                    resource_objs[resource_key] = resource_obj
-                    md5s[resource_key] = current_md5
+
+                    md5s[resource_key] = {
+                        "checksum": current_md5,
+                        "canvas_info": canvas_obj_info
+                    }
+
             except Exception as ex:
-                error = f'Error deploying resource {rtype} {rname}: {str(ex)}'
+                error = f'Error deploying resource {rtype} {rid}: {str(ex)}'
 
                 logger.error(error)
 

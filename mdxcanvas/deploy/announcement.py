@@ -1,29 +1,24 @@
 from canvasapi.course import Course
-from canvasapi.discussion_topic import DiscussionTopic
 
-from .util import get_canvas_object
-
-
-def get_announcement(course: Course, title: str) -> DiscussionTopic:
-    # NB: the `course` object here was modified in main.py to have a `canvas` field
-    # That's why the following code works
-    return get_canvas_object(
-        lambda: course.canvas.get_announcements(context_codes=[f'course_{course.id}']),
-        'title', title
-    )
+from ..resources import AnnouncementInfo
 
 
-def deploy_announcement(course: Course, announcement_info: dict) -> tuple[DiscussionTopic, str | None]:
-    title = announcement_info["title"]
+def deploy_announcement(course: Course, announcement_info: dict) -> tuple[AnnouncementInfo, None]:
+    announcement_id = announcement_info["canvas_id"]
 
-    canvas_announcement: DiscussionTopic
-    if canvas_announcement := get_announcement(course, title):
+    if announcement_id:
+        canvas_announcements = course.get_discussion_topics(course_id=course.id, only_announcements=True)
+        canvas_announcement = next(
+            (a for a in canvas_announcements if a.id == announcement_id), None
+        )
         canvas_announcement.update(**announcement_info)
+
     else:
         canvas_announcement = course.create_discussion_topic(**announcement_info)
 
-    return canvas_announcement, None
+    announcement_object_info: AnnouncementInfo = {
+        'id':  canvas_announcement.id,
+        'url': canvas_announcement.html_url if hasattr(canvas_announcement, 'html_url') else None
+    }
 
-
-def lookup_announcement(course: Course, announcement_name: str) -> DiscussionTopic:
-    return get_announcement(course, announcement_name)
+    return announcement_object_info, None

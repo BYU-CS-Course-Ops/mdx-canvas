@@ -52,7 +52,7 @@ class ModuleTagProcessor:
 
         self._resources.add_resource(CanvasResource(
             type='module',
-            name=module_data['name'],
+            id=module_tag.get('id', module_data['name']),
             data=module_data
         ))
 
@@ -68,7 +68,7 @@ class ModuleTagProcessor:
             Attribute('published', parser=parse_bool),
         ]
 
-        name = tag['title']
+        rid = tag.get('id', tag['title'])
         rtype = self._module_item_type_casing[tag['type'].lower()]
 
         item = {
@@ -76,7 +76,7 @@ class ModuleTagProcessor:
         }
 
         if rtype == 'Page':
-            item['page_url'] = get_key(rtype.lower(), name, 'url')
+            item['page_url'] = get_key(rtype.lower(), rid, 'url')
 
         elif rtype == 'ExternalUrl':
             fields.append(Attribute(
@@ -87,7 +87,7 @@ class ModuleTagProcessor:
             pass  # TODO - fix the fields for this (if necessary?)
 
         else:
-            item['id'] = get_key(rtype.lower(), name, 'id')
+            item['id'] = get_key(rtype.lower(), rid, 'id')
 
         item.update(parse_settings(tag, fields))
 

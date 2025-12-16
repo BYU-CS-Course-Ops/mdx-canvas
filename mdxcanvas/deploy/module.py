@@ -1,15 +1,7 @@
 from canvasapi.course import Course
 from canvasapi.module import Module, ModuleItem
 
-from .assignment import get_assignment
-from .file import get_file
-from .page import get_page
-from .quiz import get_quiz
-from .util import get_canvas_object
-
-
-def _get_module(course: Course, name: str) -> Module:
-    return get_canvas_object(course.get_modules, 'name', name)
+from ..resources import ModuleInfo
 
 
 def _get_module_item(module: Module, item: dict) -> ModuleItem | None:
@@ -31,24 +23,29 @@ def _add_canvas_id(course: Course, item: dict):
     # Add the content_id or page_url as described in
     # https://canvas.instructure.com/doc/api/modules.html#method.context_module_items_api.create
 
+    # Note: The 'id' and 'page_url' fields should have been filled in by update_links()
+    # in canvas_deploy.py, which replaces @@resource||id||field@@ placeholders with actual Canvas IDs/URLs
+
     if item['type'] in ['ExternalUrl', 'SubHeader']:
-        # content_id not required
         return
 
-    if item['type'] == 'Page':
-        item['page_url'] = get_page(course, item['title']).url
+    item_type = item['type']
 
-    elif item['type'] == 'Quiz':
-        item['content_id'] = get_quiz(course, item['title']).id
+    if item_type == 'Page':
+        if 'page_url' not in item:
+            raise ValueError(f"Module item '{item['title']}' of type 'Page' missing page_url")
 
-    elif item['type'] == 'Assignment':
-        item['content_id'] = get_assignment(course, item['title']).id
-
-    elif item['type'] == 'File':
-        item['content_id'] = get_file(course, item['title']).id
+    elif item_type in ['Quiz', 'Assignment', 'File']:
+        if 'id' in item and isinstance(item['id'], (int, str)):
+            item['content_id'] = item['id']
+        else:
+            raise ValueError(
+                f"Module item '{item['title']}' of type '{item_type}' missing valid Canvas ID. "
+                f"This resource may not have been deployed yet."
+            )
 
     else:
-        raise NotImplementedError('Module item of type ' + item['type'])
+        raise NotImplementedError('Module item of type ' + item_type)
 
 
 def _create_or_update_module_items(course: Course, module: Module, module_items: list[dict]):
@@ -66,10 +63,11 @@ def _create_or_update_module_items(course: Course, module: Module, module_items:
             module.create_module_item(module_item=item)
 
 
-def deploy_module(course: Course, module_data: dict) -> tuple[Module, str | None]:
-    name = module_data["name"]
+def deploy_module(course: Course, module_data: dict) -> tuple[ModuleInfo, None]:
+    module_id = module_data["canvas_id"]
 
-    if canvas_module := _get_module(course, name):
+    if module_id:
+        canvas_module = course.get_module(module_id)
         if 'published' not in module_data:
             module_data['published'] = canvas_module.published
         canvas_module.edit(module=module_data)
@@ -78,7 +76,8 @@ def deploy_module(course: Course, module_data: dict) -> tuple[Module, str | None
 
     _create_or_update_module_items(course, canvas_module, module_data.get('items', []))
 
-    return canvas_module, None
+    module_object_info: ModuleInfo = {
+        'id': canvas_module.id
+    }
 
-
-lookup_module = _get_module
+    return module_object_info, None

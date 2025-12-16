@@ -1,0 +1,27 @@
+<quiz title="Quiz B">
+
+<description>
+    This is the description for **Quiz B**.
+
+    You should check out <course-link type="quiz" title="Quiz C" />
+
+</description>
+
+<questions>
+
+    <question type="true-false" answer="false">
+        You should check out <course-link type="quiz" title="Quiz C" />
+        Zebras have **5** legs.
+    </question>
+
+    <question type="multiple-choice">
+        What is the capital of France?
+
+        <correct>Paris</correct>
+        <incorrect>London</incorrect>
+        <incorrect>Berlin</incorrect>
+        <incorrect>Madrid</incorrect>
+    </question>
+
+</questions>
+</quiz>

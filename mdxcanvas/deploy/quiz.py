@@ -1,14 +1,11 @@
 from canvasapi.course import Course
 from canvasapi.quiz import Quiz
 
-from .util import get_canvas_object, update_group_name_to_id, ResourceNotFoundException
+from .util import update_group_name_to_id
 from ..our_logging import get_logger
+from ..resources import QuizInfo
 
 logger = get_logger()
-
-
-def get_quiz(course: Course, title: str) -> Quiz:
-    return get_canvas_object(course.get_quizzes, "title", title)
 
 
 def debug_quiz_creation(canvas_quiz: Quiz, course: Course, data):
@@ -34,7 +31,8 @@ def create_quiz(course: Course, data: dict, name: str):
         logger.exception(f"Error creating canvas quiz {name}")
 
         # Perhaps the quiz was partially created, and then the program crashed
-        if canvas_quiz := get_quiz(course, name):
+        quiz_id = data["canvas_id"]
+        if canvas_quiz := course.get_quiz(quiz_id):
             logger.warning(f"Attempting to edit partially created quiz {name}...")
             try:
                 canvas_quiz.edit(quiz=data)
@@ -68,12 +66,15 @@ def replace_questions(quiz: Quiz, questions: list[dict]):
         quiz.create_question(question=question)
 
 
-def deploy_quiz(course: Course, quiz_data: dict) -> tuple[Quiz, tuple[str, str]]:
+def deploy_quiz(course: Course, quiz_data: dict) -> tuple[QuizInfo, tuple[str, str] | None]:
+    quiz_id = quiz_data["canvas_id"]
     name = quiz_data['title']
 
     update_group_name_to_id(course, quiz_data)
+
     info = None
-    if canvas_quiz := get_quiz(course, name):
+    if quiz_id:
+        canvas_quiz = course.get_quiz(quiz_id)
         canvas_quiz: Quiz
         if any(canvas_quiz.get_submissions()):
             # If there are submission, we can't save the new material programmatically,
@@ -91,11 +92,18 @@ def deploy_quiz(course: Course, quiz_data: dict) -> tuple[Quiz, tuple[str, str]]
         canvas_quiz = create_quiz(course, quiz_data, name)
         replace_questions(canvas_quiz, quiz_data['questions'])
 
-    return canvas_quiz, info
+    quiz_object_info: QuizInfo = {
+        'id': canvas_quiz.id,
+        'url': canvas_quiz.url if hasattr(canvas_quiz, 'url') else None,
+        'uri': canvas_quiz.html_url if hasattr(canvas_quiz, 'html_url') else None
+    }
+
+    return quiz_object_info, info
 
 
-def lookup_quiz(course: Course, quiz_name: str) -> Quiz:
-    canvas_quiz = get_quiz(course, quiz_name)
-    if not canvas_quiz:
-        raise ResourceNotFoundException(f'Quiz {quiz_name} not found')
-    return canvas_quiz
+def deploy_shell_quiz(course: Course, quiz_data: dict) -> tuple[QuizInfo, None]:
+    shell_quiz_data = quiz_data.copy()
+    shell_quiz_data['questions'] = []
+    shell_quiz_data['description'] = "<p>This is a shell page created to break a dependency cycle. The full content will be deployed later.</p>"
+
+    return deploy_quiz(course, shell_quiz_data)

@@ -1,0 +1,42 @@
+<div>
+    <include path="page-a.canvas.md.xml" />
+    <include path="page-b.canvas.md.xml" />
+    <include path="page-c.canvas.md.xml" />
+
+    <include path="quiz-a.canvas.md.xml" />
+    <include path="quiz-b.canvas.md.xml" />
+    <include path="quiz-c.canvas.md.xml" />
+
+    <include path="assignment-a.canvas.md.xml" />
+    <include path="assignment-b.canvas.md.xml" />
+    <include path="assignment-c.canvas.md.xml" />
+
+    <include path="complex-quiz-a.canvas.md.xml" />
+    <include path="complex-assignment-b.canvas.md.xml" />
+    <include path="complex-page-c.canvas.md.xml" />
+
+    <module title="Page Cycles">
+        <item type="page" title="Page A" />
+        <item type="page" title="Page B" />
+        <item type="page" title="Page C" />
+    </module>
+
+    <module title="Quiz Cycles">
+        <item type="quiz" title="Quiz A" />
+        <item type="quiz" title="Quiz B" />
+        <item type="quiz" title="Quiz C" />
+    </module>
+
+    <module title="Assignment Cycles">
+        <item type="assignment" title="Assignment A" />
+        <item type="assignment" title="Assignment B" />
+        <item type="assignment" title="Assignment C" />
+    </module>
+
+    <module title="Complex Cycles">
+        <item type="quiz" title="Complex Quiz A" />
+        <item type="assignment" title="Complex Assignment B" />
+        <item type="page" title="Complex Page C" />
+    </module>
+
+</div>
