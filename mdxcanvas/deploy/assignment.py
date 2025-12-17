@@ -19,8 +19,7 @@ def deploy_assignment(course: Course, assignment_info: dict) -> tuple[Assignment
 
     assignment_object_info: AssignmentInfo = {
         'id': canvas_assignment.id,
-        'uri': canvas_assignment.html_url if hasattr(canvas_assignment, 'html_url') else None,
-        'url': canvas_assignment.html_url if hasattr(canvas_assignment, 'html_url') else None
+        'url': canvas_assignment.html_url,
     }
 
     return assignment_object_info, None

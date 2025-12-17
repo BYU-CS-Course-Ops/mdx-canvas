@@ -11,7 +11,6 @@ from canvasapi import Canvas
 from canvasapi.course import Course
 
 from .deploy.canvas_deploy import deploy_to_canvas
-from .deploy.file import get_canvas_folder, get_file
 from .generate_result import MDXCanvasResult
 from .our_logging import get_logger
 from .resources import ResourceManager
@@ -180,6 +179,7 @@ def main(
     deploy_to_canvas(course, course_info['LOCAL_TIME_ZONE'], resources, result, dryrun=dryrun)
 
     result.output()
+    print(result.json)
 
 
 def entry():

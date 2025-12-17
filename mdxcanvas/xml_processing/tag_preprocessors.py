@@ -257,7 +257,11 @@ def make_markdown_page_preprocessor(
 
         page_title = tag.get('title')
         if page_title is None:
-            page_title = Path(content_path).stem
+            content_path_obj = Path(parent_folder) / content_path
+            if (first_line := content_path_obj.read_text().splitlines()[0]).startswith('# '):
+                page_title = first_line.strip('#').strip()
+            else:
+                page_title = content_path_obj.stem
 
         include_tag = Tag(name='include', attrs={'path': content_path})
 

@@ -23,7 +23,6 @@ class CourseSettingsInfo(ResourceInfo):
 
 class AssignmentInfo(ResourceInfo):
     id: str
-    uri: str
     url: str
 
 
@@ -47,13 +46,11 @@ class OverrideInfo(ResourceInfo):
 class PageInfo(ResourceInfo):
     id: str
     url: str
-    uri: str
 
 
 class QuizInfo(ResourceInfo):
     id: str
     url: str
-    uri: str
 
 
 class SyllabusInfo(ResourceInfo):

@@ -14,15 +14,15 @@ def deploy_page(course: Course, page_info: dict) -> tuple[PageInfo, None]:
 
     page_object_info: PageInfo = {
         'id': canvas_page.page_id,
-        'url': canvas_page.url if hasattr(canvas_page, 'url') else None,
-        'uri': canvas_page.html_url if hasattr(canvas_page, 'html_url') else None
+        'url': canvas_page.html_url,
     }
 
     return page_object_info, None
 
+
 def deploy_shell_page(course: Course, page_info: dict) -> tuple[PageInfo, None]:
     shell_page_info = page_info.copy()
-    shell_page_info['body'] = "<p>This is a shell page created to break a dependency cycle. The full content will be deployed later.</p>"
+    shell_page_info[
+        'body'] = "<p>This is a shell page created to break a dependency cycle. The full content will be deployed later.</p>"
 
     return deploy_page(course, shell_page_info)
-

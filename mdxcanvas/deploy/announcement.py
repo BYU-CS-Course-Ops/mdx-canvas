@@ -18,7 +18,7 @@ def deploy_announcement(course: Course, announcement_info: dict) -> tuple[Announ
 
     announcement_object_info: AnnouncementInfo = {
         'id':  canvas_announcement.id,
-        'url': canvas_announcement.html_url if hasattr(canvas_announcement, 'html_url') else None
+        'url': canvas_announcement.html_url
     }
 
     return announcement_object_info, None

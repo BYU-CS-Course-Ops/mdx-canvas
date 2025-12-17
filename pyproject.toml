@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "mdxcanvas"
-version = "0.5.1"
+version = "0.5.2"
 description = "A Canvas LMS API wrapper for maintaining content in markdown"
 authors = ["Gordon Bean <gbean@cs.byu.edu>", "Preston Raab <phr23@byu.edu>", "Robert Greathouse <robbykap@byu.edu>"]
 license = "MIT"
