@@ -13,7 +13,8 @@ def deploy_syllabus(course: Course, data: SyllabusData) -> tuple[SyllabusInfo, N
     course.update(course={'syllabus_body': data['content']})
 
     syllabus_object_info: SyllabusInfo = {
-        'id': str(course.id)
+        'id': str(course.id),
+        'uri': f'/courses/{course.id}/assignments/syllabus'
     }
 
     return syllabus_object_info, None
