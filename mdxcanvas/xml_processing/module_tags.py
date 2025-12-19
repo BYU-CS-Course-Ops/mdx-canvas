@@ -77,7 +77,7 @@ class ModuleTagProcessor:
         }
 
         if rtype == 'Page':
-            item['page_url'] = get_key(rtype.lower(), rid, 'url')
+            item['page_url'] = get_key(rtype.lower(), rid, 'uri')
 
         elif rtype == 'ExternalUrl':
             fields.append(Attribute(
