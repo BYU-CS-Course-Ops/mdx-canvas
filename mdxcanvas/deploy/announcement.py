@@ -18,8 +18,10 @@ def deploy_announcement(course: Course, announcement_info: dict) -> tuple[Announ
 
     announcement_object_info: AnnouncementInfo = {
         'id':  canvas_announcement.id,
-        'url': canvas_announcement.html_url,
-        'uri': canvas_announcement.url
+
+        # Following fields have been observed to be missing in some cases
+        'url': canvas_announcement.url if hasattr(canvas_announcement, 'url') else None,
+        'uri': canvas_announcement.html_url if hasattr(canvas_announcement, 'html_url') else None
     }
 
     return announcement_object_info, None
