@@ -94,8 +94,10 @@ def deploy_quiz(course: Course, quiz_data: dict) -> tuple[QuizInfo, tuple[str, s
 
     quiz_object_info: QuizInfo = {
         'id': canvas_quiz.id,
-        'url': canvas_quiz.html_url,
-        'uri': canvas_quiz.url
+
+        # Following fields have been observed to be missing in some cases
+        'url': canvas_quiz.url if hasattr(canvas_quiz, 'url') else None,
+        'uri': canvas_quiz.html_url if hasattr(canvas_quiz, 'html_url') else None
     }
 
     return quiz_object_info, info
