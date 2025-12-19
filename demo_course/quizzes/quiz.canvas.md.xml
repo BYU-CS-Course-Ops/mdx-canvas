@@ -6,7 +6,7 @@
     This is an **example** quiz!
 
     You should read
-    <course-link type="page" title="Welcome"/>
+    <course-link type="page" id="Welcome"/>
     before taking this quiz. :)
 
 </description>

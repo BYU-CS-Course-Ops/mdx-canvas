@@ -1,5 +1,5 @@
 <page title="Complex Page C">
     Here is some content for Complex Page C.
 
-    Go to <course-link type="quiz" title="Complex Quiz A" />
+    Go to <course-link type="quiz" id="Complex Quiz A" />
 </page>

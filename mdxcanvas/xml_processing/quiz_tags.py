@@ -60,6 +60,7 @@ class QuizTagProcessor:
 
     def _parse_quiz_settings(self, settings_tag):
         fields = [
+            Attribute('id', ignore=True),
             Attribute('title', required=True),
             Attribute('quiz_type', 'assignment'),
             Attribute('assignment_group'),

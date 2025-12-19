@@ -132,14 +132,14 @@ def parse_settings(tag: Tag, attributes: list[Attribute]):
                 settings[name] = attribute.default
 
             elif attribute.required:
-                raise Exception(f'Required field {attribute.name} missing from tag {tag.name} @ {get_tag_path(tag)}')
+                raise Exception(f'Required field "{attribute.name}" missing from tag <{tag.name}> @ {get_tag_path(tag)}')
         except:
-            logger.exception(f"Error processing attribute {attribute.name} in tag {get_tag_path(tag)}")
+            logger.exception(f'Error processing attribute "{attribute.name}" in tag {get_tag_path(tag)}')
             raise
 
     for key in tag.attrs:
         if key not in processed_fields:
-            logger.warning(f'Unprocessed_fields field {key} @ {get_tag_path(tag)}')
+            logger.warning(f'Unprocessed_fields field "{key}" @ {get_tag_path(tag)}')
 
     return settings
 

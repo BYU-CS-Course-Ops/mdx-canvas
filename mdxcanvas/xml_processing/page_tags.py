@@ -16,6 +16,7 @@ class PageTagProcessor:
         }
 
         fields = [
+            Attribute('id', ignore=True),
             Attribute('title', required=True),
             Attribute('editing_roles', 'teachers'),
             Attribute('notify_of_update', False, parse_bool),

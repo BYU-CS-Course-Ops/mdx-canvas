@@ -13,6 +13,7 @@ class AssignmentTagProcessor:
 
     def __call__(self, assignment_tag: Tag):
         fields = [
+            Attribute('id', ignore=True),
             Attribute('allowed_attempts', parser=lambda x: -1 if x == 'not_graded' else int(x)),
             Attribute('allowed_extensions', [], parse_list),
             Attribute('annotatable_attachment_id'),  # TODO keep?

@@ -17,6 +17,7 @@ class AnnouncementTagProcessor:
         # Gordon Bean (Jan 17, 2025)
 
         fields = [
+            Attribute('id', ignore=True),
             Attribute('title', required=True),
             Attribute('is_announcement', True, parser=parse_bool),
             Attribute('publish_date', required=True, new_name='delayed_post_at', parser=parse_date,

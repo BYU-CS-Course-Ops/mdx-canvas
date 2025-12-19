@@ -22,6 +22,7 @@ class ModuleTagProcessor:
 
     def __call__(self, module_tag: Tag):
         fields = [
+            Attribute('id', ignore=True),
             Attribute('title', required=True, new_name='name'),
             Attribute('position'),
             Attribute('published', parser=parse_bool),
@@ -76,7 +77,7 @@ class ModuleTagProcessor:
         }
 
         if rtype == 'Page':
-            item['page_url'] = get_key(rtype.lower(), rid, 'url')
+            item['page_url'] = get_key(rtype.lower(), rid, 'uri')
 
         elif rtype == 'ExternalUrl':
             fields.append(Attribute(
