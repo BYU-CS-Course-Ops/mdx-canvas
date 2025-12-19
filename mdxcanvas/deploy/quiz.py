@@ -95,6 +95,7 @@ def deploy_quiz(course: Course, quiz_data: dict) -> tuple[QuizInfo, tuple[str, s
     quiz_object_info: QuizInfo = {
         'id': canvas_quiz.id,
         'url': canvas_quiz.html_url,
+        'uri': canvas_quiz.url
     }
 
     return quiz_object_info, info

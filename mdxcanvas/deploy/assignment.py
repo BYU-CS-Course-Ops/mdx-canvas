@@ -20,6 +20,7 @@ def deploy_assignment(course: Course, assignment_info: dict) -> tuple[Assignment
     assignment_object_info: AssignmentInfo = {
         'id': canvas_assignment.id,
         'url': canvas_assignment.html_url,
+        'uri': canvas_assignment.url
     }
 
     return assignment_object_info, None

@@ -234,14 +234,14 @@ def make_include_preprocessor(
 def make_link_preprocessor():
     def process_link(tag: Tag):
         link_type = tag['type']
-        link_title = tag['title']
+        link_rid = tag['id']
 
         new_tag = Tag(name='a')
-        new_tag['href'] = get_key(link_type, link_title, 'uri')
+        new_tag['href'] = get_key(link_type, link_rid, 'uri')
         # TODO - add other course-link attributes here
         link_text = tag.string.strip() if tag.string is not None else ''
         if not link_text:
-            link_text = tag['title']
+            link_text = f'{link_type}-{link_rid}'
         new_tag.string = link_text
         tag.replace_with(new_tag)
 

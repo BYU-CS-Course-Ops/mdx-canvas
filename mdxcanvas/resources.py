@@ -15,6 +15,7 @@ class ResourceInfo(TypedDict):
 class AnnouncementInfo(ResourceInfo):
     id:  str
     url: str
+    uri: str  # for course-link
 
 
 class CourseSettingsInfo(ResourceInfo):
@@ -24,6 +25,7 @@ class CourseSettingsInfo(ResourceInfo):
 class AssignmentInfo(ResourceInfo):
     id: str
     url: str
+    uri: str  # for course-link
 
 
 class FileInfo(ResourceInfo):
@@ -46,11 +48,13 @@ class OverrideInfo(ResourceInfo):
 class PageInfo(ResourceInfo):
     id: str
     url: str
+    uri: str  # for course-link
 
 
 class QuizInfo(ResourceInfo):
     id: str
     url: str
+    uri: str  # for course-link
 
 
 class SyllabusInfo(ResourceInfo):

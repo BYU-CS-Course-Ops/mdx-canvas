@@ -22,6 +22,7 @@ class ModuleTagProcessor:
 
     def __call__(self, module_tag: Tag):
         fields = [
+            Attribute('id', ignore=True),
             Attribute('title', required=True, new_name='name'),
             Attribute('position'),
             Attribute('published', parser=parse_bool),

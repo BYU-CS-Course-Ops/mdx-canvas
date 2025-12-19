@@ -3,7 +3,7 @@
 <description>
     Here is the description for Complex Assignment B.
 
-    Check out <course-link type="page" title="Complex Page C" />
+    Check out <course-link type="page" id="Complex Page C" />
 
 </description>
 </assignment>
