@@ -75,6 +75,7 @@ class AssignmentGroupTagProcessor:
         never_drop_ids = _parse_never_drop_assignments(tag)
 
         attribute_fields = [
+            Attribute('id', ignore=True),
             Attribute('name', required=True),
             Attribute('weight', new_name='group_weight', parser=parse_int),
             Attribute('drop_lowest', parser=parse_int),

@@ -12,6 +12,9 @@ def deploy_group(course: Course, group_data: dict) -> tuple[AssignmentGroupInfo,
         group = course.create_assignment_group(name=group_data["name"])
 
     group.edit(**group_data)
+    course.update(course={
+        'apply_assignment_group_weights': True,
+    })
 
     group_object_info: AssignmentGroupInfo = {
         'id': group.id
