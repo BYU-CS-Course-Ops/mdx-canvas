@@ -79,9 +79,8 @@ def update_links(md5s: MD5Sums, data: dict, resource_objs: dict[tuple[str, str],
 
         if canvas_info is None:
             logger.error(f'Updating links in {text}')
-            logger.error(f'No canvas info for {rtype} {rid}: '
-                         f'Was not deployed in this run and not found in stored MD5s.')
-            raise
+            logger.error(f'No canvas info for {rtype} {rid} found. Was it defined?')
+            raise ValueError(f'No canvas info for {rtype} {rid} found. Was it defined?')
 
         try:
             repl_text = canvas_info.get(field)

@@ -1,6 +1,6 @@
 from bs4 import Tag
 
-from .attributes import Attribute, parse_bool, parse_settings, parse_int
+from .attributes import Attribute, parse_bool, parse_settings, parse_int, get_tag_path
 from ..resources import ResourceManager, get_key, CanvasResource
 
 
@@ -49,18 +49,20 @@ class ModuleTagProcessor:
         if prev_mod := module_data.get('previous-module'):
             module_data['_comments']['previous_module'] = get_key('module', prev_mod, 'id')
 
-        self._previous_module = module_data['name']
+        module_id = module_tag.get('id', module_data['name'])
+        self._previous_module = module_id
 
         self._resources.add_resource(CanvasResource(
             type='module',
-            id=module_tag.get('id', module_data['name']),
+            id=module_id,
             data=module_data
         ))
 
     def _parse_module_item(self, tag: Tag) -> dict:
         fields = [
             Attribute('type', ignore=True),
-            Attribute('title', required=True),
+            Attribute('id', ignore=True),
+            Attribute('title', ignore=True),
             Attribute('position', parser=parse_int),
             Attribute('indent', parser=parse_int),
             Attribute('new_tab', True, parse_bool),
@@ -69,7 +71,10 @@ class ModuleTagProcessor:
             Attribute('published', parser=parse_bool),
         ]
 
-        rid = tag.get('id', tag['title'])
+        rid = tag.get('id', tag.get('title'))
+        if rid is None:
+            raise ValueError(f'Module item must have "id" or "title": {get_tag_path(tag)}')
+
         rtype = self._module_item_type_casing[tag['type'].lower()]
 
         item = {

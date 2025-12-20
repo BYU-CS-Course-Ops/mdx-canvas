@@ -6,13 +6,13 @@ from ..resources import ModuleInfo
 
 def _get_module_item(module: Module, item: dict) -> ModuleItem | None:
     for module_item in module.get_module_items():
-        if item['title'] == module_item.title:
+        if item['id'] == module_item.id:
             return module_item
     return None
 
 
 def _delete_obsolete_module_items(module: Module, module_items: list[dict]):
-    keepers = set(item['title'] for item in module_items)
+    keepers = set(item['id'] for item in module_items)
 
     for module_item in module.get_module_items():
         if module_item.title not in keepers:
@@ -33,14 +33,14 @@ def _add_canvas_id(course: Course, item: dict):
 
     if item_type == 'Page':
         if 'page_url' not in item:
-            raise ValueError(f"Module item '{item['title']}' of type 'Page' missing page_url")
+            raise ValueError(f"Module item '{item['id']}' of type 'Page' missing page_url")
 
     elif item_type in ['Quiz', 'Assignment', 'File']:
         if 'id' in item and isinstance(item['id'], (int, str)):
             item['content_id'] = item['id']
         else:
             raise ValueError(
-                f"Module item '{item['title']}' of type '{item_type}' missing valid Canvas ID. "
+                f"Module item '{item['id']}' of type '{item_type}' missing valid Canvas ID. "
                 f"This resource may not have been deployed yet."
             )
 
@@ -57,7 +57,7 @@ def _create_or_update_module_items(course: Course, module: Module, module_items:
 
         _add_canvas_id(course, item)
 
-        if module_item := _get_module_item(module, item):
+        if (item_id := item.get('canvas_id')) and (module_item := module.get_module_item(item_id)):
             module_item.edit(module_item=item)
         else:
             module.create_module_item(module_item=item)
