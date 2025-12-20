@@ -16,8 +16,8 @@ def deploy_page(course: Course, page_info: dict) -> tuple[PageInfo, None]:
         'id': canvas_page.page_id,
 
         # Following fields have been observed to be missing in some cases
-        'uri': canvas_page.url if hasattr(canvas_page, 'url') else None,
-        'url': canvas_page.html_url if hasattr(canvas_page, 'html_url') else None
+        'uri': canvas_page.html_url if hasattr(canvas_page, 'html_url') else None,
+        'url': canvas_page.url if hasattr(canvas_page, 'url') else None
     }
 
     return page_object_info, None
