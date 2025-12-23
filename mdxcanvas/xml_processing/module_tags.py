@@ -31,11 +31,6 @@ class ModuleTagProcessor:
 
         module_data = parse_settings(module_tag, fields)
 
-        module_data['items'] = [
-            self._parse_module_item(item_tag)
-            for item_tag in module_tag.find_all('item')
-        ]
-
         module_data['_comments'] = {
             'previous_module': ''
         }
@@ -58,11 +53,12 @@ class ModuleTagProcessor:
             data=module_data
         ))
 
-    def _parse_module_item(self, tag: Tag) -> dict:
+        for item_tag in module_tag.find_all('item'):
+            self._parse_module_item(module_id, item_tag)
+
+    def _parse_module_item(self, module_rid: str, tag: Tag):
         fields = [
             Attribute('type', ignore=True),
-            Attribute('id', ignore=True),
-            Attribute('title', ignore=True),
             Attribute('position', parser=parse_int),
             Attribute('indent', parser=parse_int),
             Attribute('new_tab', True, parse_bool),
@@ -71,30 +67,65 @@ class ModuleTagProcessor:
             Attribute('published', parser=parse_bool),
         ]
 
-        rid = tag.get('id', tag.get('title'))
-        if rid is None:
-            raise ValueError(f'Module item must have "id" or "title": {get_tag_path(tag)}')
-
         rtype = self._module_item_type_casing[tag['type'].lower()]
-
         item = {
             'type': rtype
         }
 
-        if rtype == 'Page':
-            item['page_url'] = get_key(rtype.lower(), rid, 'uri')
-
-        elif rtype == 'ExternalUrl':
-            fields.append(Attribute(
-                'external_url', required=True
-            ))
+        if rtype == 'ExternalUrl':
+            fields.extend([
+                Attribute('external_url', required=True),
+                Attribute('title'),
+                Attribute('id', ignore=True)
+            ])
+            item.update(parse_settings(tag, fields))
+            if 'title' not in item:
+                item['title'] = item['external_url']
+            if 'id' not in item:
+                item['id'] = item['title']
 
         elif rtype == 'SubHeader':
-            pass  # TODO - fix the fields for this (if necessary?)
+            fields.extend([
+                Attribute('id', ignore=True),
+                Attribute('title', required=True)
+            ])
+            item.update(parse_settings(tag, fields))
+            if 'id' not in item:
+                item['id'] = item['title']
+
+        elif rtype == 'Page':
+            fields.append(
+                Attribute('content_id', ignore=True)
+            )
+
+            rid = tag.get('content_id')
+            if rid is None:
+                raise ValueError(f'Module "Page" item must have "content_id": {get_tag_path(tag)}')
+
+            item.update(parse_settings(tag, fields))
+            item['page_url'] = get_key(rtype.lower(), rid, 'uri')
+            item['id'] = rid
+
+        elif rtype in ['Quiz', 'Assignment', 'File']:
+            fields.append(
+                Attribute('content_id', ignore=True)
+            )
+
+            rid = tag.get('content_id')
+            if rid is None:
+                raise ValueError(f'Module "{rtype}" item must have "content_id": {get_tag_path(tag)}')
+
+            item.update(parse_settings(tag, fields))
+            item['content_id'] = get_key(rtype.lower(), rid, 'id')
+            item['id'] = rid
 
         else:
-            item['id'] = get_key(rtype.lower(), rid, 'id')
+            raise NotImplementedError(f'Unrecognized module item type "{rtype}": {get_tag_path(tag)}')
 
-        item.update(parse_settings(tag, fields))
+        item['module_id'] = get_key('module', module_rid, 'id')
 
-        return item
+        self._resources.add_resource(CanvasResource(
+            type='module_item',
+            id=item['id'],
+            data=item
+        ))
