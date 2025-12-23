@@ -39,10 +39,12 @@ class AssignmentGroupInfo(ResourceInfo):
 
 class ModuleInfo(ResourceInfo):
     id: str
+    url: str
 
 
 class ModuleItemInfo(ResourceInfo):
     id: str
+    url: str
 
 
 class OverrideInfo(ResourceInfo):

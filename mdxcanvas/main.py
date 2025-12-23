@@ -179,7 +179,7 @@ def main(
     deploy_to_canvas(course, course_info['LOCAL_TIME_ZONE'], resources, result, dryrun=dryrun)
 
     result.output()
-    print(result.json)
+    result.print()
 
 
 def entry():

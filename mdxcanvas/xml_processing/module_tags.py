@@ -1,3 +1,5 @@
+from typing import Any
+
 from bs4 import Tag
 
 from .attributes import Attribute, parse_bool, parse_settings, parse_int, get_tag_path
@@ -54,6 +56,7 @@ class ModuleTagProcessor:
             data=module_data
         ))
 
+        self._previous_module_item = None
         for item_tag in module_tag.find_all('item'):
             self._parse_module_item(module_id, item_tag)
 
@@ -77,7 +80,7 @@ class ModuleTagProcessor:
             fields.extend([
                 Attribute('external_url', required=True),
                 Attribute('title'),
-                Attribute('id', ignore=True)
+                Attribute('id')
             ])
             item.update(parse_settings(tag, fields))
             if 'title' not in item:
@@ -87,8 +90,8 @@ class ModuleTagProcessor:
 
         elif rtype == 'SubHeader':
             fields.extend([
-                Attribute('id', ignore=True),
-                Attribute('title', required=True)
+                Attribute('title', required=True),
+                Attribute('id'),
             ])
             item.update(parse_settings(tag, fields))
             if 'id' not in item:

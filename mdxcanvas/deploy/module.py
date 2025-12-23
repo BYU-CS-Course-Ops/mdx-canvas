@@ -15,7 +15,8 @@ def deploy_module_item(course: Course, module_item_data: dict) -> tuple[ModuleIt
         module_item = canvas_module.create_module_item(module_item=module_item_data)
 
     return ModuleItemInfo(
-        id=module_item.id
+        id=module_item.id,
+        url=f'{course.canvas._Canvas__requester.original_url}/courses/{course.id}#module_{canvas_module.id}'
     ), None
 
 
@@ -31,7 +32,8 @@ def deploy_module(course: Course, module_data: dict) -> tuple[ModuleInfo, None]:
         canvas_module = course.create_module(module=module_data)
 
     module_object_info: ModuleInfo = {
-        'id': canvas_module.id
+        'id': canvas_module.id,
+        'url': f'{course.canvas._Canvas__requester.original_url}/courses/{course.id}#module_{canvas_module.id}'
     }
 
     return module_object_info, None
