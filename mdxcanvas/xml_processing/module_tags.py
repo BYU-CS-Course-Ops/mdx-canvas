@@ -7,7 +7,8 @@ from ..resources import ResourceManager, get_key, CanvasResource
 class ModuleTagProcessor:
     def __init__(self, resource_manager: ResourceManager):
         self._resources = resource_manager
-        self._previous_module = None  # The name of the previous module
+        self._previous_module = None  # The id of the previous module
+        self._previous_module_item = None  # The id of the previous module item
 
     _module_item_type_casing = {
         "file": "File",
@@ -68,7 +69,7 @@ class ModuleTagProcessor:
         ]
 
         rtype = self._module_item_type_casing[tag['type'].lower()]
-        item = {
+        item: dict[str, Any] = {
             'type': rtype
         }
 
@@ -123,6 +124,13 @@ class ModuleTagProcessor:
             raise NotImplementedError(f'Unrecognized module item type "{rtype}": {get_tag_path(tag)}')
 
         item['module_id'] = get_key('module', module_rid, 'id')
+        item['_comments'] = {
+            'previous_module_item':
+                get_key('module_item', self._previous_module_item, 'id')
+                if self._previous_module_item is not None
+                else None
+        }
+        self._previous_module_item = item['id']
 
         self._resources.add_resource(CanvasResource(
             type='module_item',
