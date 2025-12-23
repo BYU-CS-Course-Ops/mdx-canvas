@@ -65,7 +65,7 @@ class QuizInfo(ResourceInfo):
 
 class SyllabusInfo(ResourceInfo):
     id: str
-    uri: str
+    url: str
 
 
 class CourseSettings(TypedDict):
