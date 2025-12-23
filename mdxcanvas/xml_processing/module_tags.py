@@ -1,13 +1,16 @@
+from typing import Any
+
 from bs4 import Tag
 
-from .attributes import Attribute, parse_bool, parse_settings, parse_int
+from .attributes import Attribute, parse_bool, parse_settings, parse_int, get_tag_path
 from ..resources import ResourceManager, get_key, CanvasResource
 
 
 class ModuleTagProcessor:
     def __init__(self, resource_manager: ResourceManager):
         self._resources = resource_manager
-        self._previous_module = None  # The name of the previous module
+        self._previous_module = None  # The id of the previous module
+        self._previous_module_item = None  # The id of the previous module item
 
     _module_item_type_casing = {
         "file": "File",
@@ -31,11 +34,6 @@ class ModuleTagProcessor:
 
         module_data = parse_settings(module_tag, fields)
 
-        module_data['items'] = [
-            self._parse_module_item(item_tag)
-            for item_tag in module_tag.find_all('item')
-        ]
-
         module_data['_comments'] = {
             'previous_module': ''
         }
@@ -49,18 +47,22 @@ class ModuleTagProcessor:
         if prev_mod := module_data.get('previous-module'):
             module_data['_comments']['previous_module'] = get_key('module', prev_mod, 'id')
 
-        self._previous_module = module_data['name']
+        module_id = module_tag.get('id', module_data['name'])
+        self._previous_module = module_id
 
         self._resources.add_resource(CanvasResource(
             type='module',
-            id=module_tag.get('id', module_data['name']),
+            id=module_id,
             data=module_data
         ))
 
-    def _parse_module_item(self, tag: Tag) -> dict:
+        self._previous_module_item = None
+        for item_tag in module_tag.find_all('item'):
+            self._parse_module_item(module_id, item_tag)
+
+    def _parse_module_item(self, module_rid: str, tag: Tag):
         fields = [
             Attribute('type', ignore=True),
-            Attribute('title', required=True),
             Attribute('position', parser=parse_int),
             Attribute('indent', parser=parse_int),
             Attribute('new_tab', True, parse_bool),
@@ -69,27 +71,76 @@ class ModuleTagProcessor:
             Attribute('published', parser=parse_bool),
         ]
 
-        rid = tag.get('id', tag['title'])
         rtype = self._module_item_type_casing[tag['type'].lower()]
-
-        item = {
+        item: dict[str, Any] = {
             'type': rtype
         }
 
-        if rtype == 'Page':
-            item['page_url'] = get_key(rtype.lower(), rid, 'uri')
-
-        elif rtype == 'ExternalUrl':
-            fields.append(Attribute(
-                'external_url', required=True
-            ))
+        if rtype == 'ExternalUrl':
+            fields.extend([
+                Attribute('external_url', required=True),
+                Attribute('title'),
+                Attribute('id')
+            ])
+            item.update(parse_settings(tag, fields))
+            if 'title' not in item:
+                item['title'] = item['external_url']
+            if 'id' not in item:
+                item['id'] = item['title']
 
         elif rtype == 'SubHeader':
-            pass  # TODO - fix the fields for this (if necessary?)
+            fields.extend([
+                Attribute('title', required=True),
+                Attribute('id'),
+            ])
+            item.update(parse_settings(tag, fields))
+            if 'id' not in item:
+                item['id'] = item['title']
+
+        elif rtype == 'Page':
+            fields.append(
+                Attribute('content_id', ignore=True)
+            )
+
+            rid = tag.get('content_id')
+            if rid is None:
+                raise ValueError(f'Module "Page" item must have "content_id": {get_tag_path(tag)}')
+
+            item.update(parse_settings(tag, fields))
+            item['page_url'] = get_key(rtype.lower(), rid, 'page_url')
+            item['id'] = rid
+
+        elif rtype in ['Quiz', 'Assignment', 'File']:
+            fields.append(
+                Attribute('content_id', ignore=True)
+            )
+
+            rid = tag.get('content_id')
+            if rid is None:
+                raise ValueError(f'Module "{rtype}" item must have "content_id": {get_tag_path(tag)}')
+
+            item.update(parse_settings(tag, fields))
+            item['content_id'] = get_key(rtype.lower(), rid, 'id')
+            item['id'] = rid
 
         else:
-            item['id'] = get_key(rtype.lower(), rid, 'id')
+            raise NotImplementedError(f'Unrecognized module item type "{rtype}": {get_tag_path(tag)}')
 
-        item.update(parse_settings(tag, fields))
+        # Namespace each module item ID to the module
+        # Otherwise, a resource can only be linked to a single module
+        item['id'] = f'{module_rid}|{item["id"]}'
+        item['module_id'] = get_key('module', module_rid, 'id')
 
-        return item
+        item['_comments'] = {
+            'previous_module_item':
+                get_key('module_item', self._previous_module_item, 'id')
+                if self._previous_module_item is not None
+                else None
+        }
+        self._previous_module_item = item['id']
+
+        self._resources.add_resource(CanvasResource(
+            type='module_item',
+            id=item['id'],
+            data=item
+        ))

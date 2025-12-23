@@ -241,7 +241,7 @@ def make_link_preprocessor():
         # TODO - add other course-link attributes here
         link_text = tag.string.strip() if tag.string is not None else ''
         if not link_text:
-            link_text = f'{link_rid}'
+            link_text = str(link_rid)
         new_tag.string = link_text
         tag.replace_with(new_tag)
 

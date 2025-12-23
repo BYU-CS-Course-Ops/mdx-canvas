@@ -15,7 +15,7 @@ from .checksums import MD5Sums, compute_md5
 from .course_settings import deploy_settings
 from .file import deploy_file
 from .group import deploy_group
-from .module import deploy_module
+from .module import deploy_module, deploy_module_item
 from .override import deploy_override
 from .page import deploy_page, deploy_shell_page
 from .quiz import deploy_quiz, deploy_shell_quiz
@@ -41,6 +41,7 @@ DEPLOYERS = {
     'course_settings': deploy_settings,
     'file': deploy_file,
     'module': deploy_module,
+    'module_item': deploy_module_item,
     'override': deploy_override,
     'page': deploy_page,
     'quiz': deploy_quiz,
@@ -79,9 +80,8 @@ def update_links(md5s: MD5Sums, data: dict, resource_objs: dict[tuple[str, str],
 
         if canvas_info is None:
             logger.error(f'Updating links in {text}')
-            logger.error(f'No canvas info for {rtype} {rid}: '
-                         f'Was not deployed in this run and not found in stored MD5s.')
-            raise
+            logger.error(f'No canvas info for {rtype} {rid} found. Was it defined?')
+            raise ValueError(f'No canvas info for {rtype} {rid} found. Was it defined?')
 
         try:
             repl_text = canvas_info.get(field)
