@@ -1,10 +1,4 @@
-import hashlib
-import json
-
 from canvasapi.course import Course
-from canvasapi.file import File
-
-from .syllabus import SyllabusObj
 
 
 def update_group_name_to_id(course: Course, data: dict):
@@ -29,22 +23,6 @@ def get_canvas_object(course_getter, attr_name, attr):
         if obj.__getattribute__(attr_name) == attr:
             return obj
     return None
-
-
-def get_canvas_uri(canvas_obj):
-    if hasattr(canvas_obj, 'html_url'):
-        html_url: str = canvas_obj.html_url[len('https://'):]
-        domain_end_pos = html_url.find('/')
-        return html_url[domain_end_pos:]
-
-    elif isinstance(canvas_obj, File):
-        return f'/files/{canvas_obj.id}'
-
-    elif isinstance(canvas_obj, SyllabusObj):
-        return canvas_obj.uri
-
-    else:
-        raise NotImplementedError(type(canvas_obj))
 
 
 class ResourceNotFoundException(Exception):

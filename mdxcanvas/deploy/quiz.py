@@ -94,9 +94,9 @@ def deploy_quiz(course: Course, quiz_data: dict) -> tuple[QuizInfo, tuple[str, s
 
     quiz_object_info: QuizInfo = {
         'id': canvas_quiz.id,
+        'uri': f'/courses/{course.id}/quizzes/{canvas_quiz.id}',
 
         # Following fields have been observed to be missing in some cases
-        'uri': canvas_quiz.url if hasattr(canvas_quiz, 'url') else None,
         'url': canvas_quiz.html_url if hasattr(canvas_quiz, 'html_url') else None
     }
 

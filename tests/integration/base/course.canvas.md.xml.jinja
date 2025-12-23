@@ -4,6 +4,8 @@
         code='MDXCanvas Integration'
     />
 
+    <syllabus> <include path="syllabus.md"/> </syllabus>
+
     <assignment-groups>
         <group name="Assignments" weight="50" />
         <group name="Quizzes" weight="50" />
@@ -25,15 +27,16 @@
     </module>
 
     <module id="Assignment Module" title="Assignments">
-        {# TODO: Do we to let <item> tags have `id` attributes? Since we just reference the item by its name #}
         <item type="assignment" content_id="demo assignment" indent="1" />
     </module>
 
     <module id="Quiz Module" title="Quizzes">
         <item type="quiz" content_id="demo quiz" indent="1" />
+        <item type="page" content_id="demo page" indent="1" />
     </module>
 
     <module id="Page Module" title="Pages">
         <item type="page" content_id="demo page" indent="1" />
+        <item type="quiz" content_id="demo quiz" indent="1" />
     </module>
 </div>

@@ -1,15 +1,12 @@
+from canvasapi.assignment import Assignment, AssignmentOverride
 from canvasapi.course import Course
 from canvasapi.discussion_topic import DiscussionTopic
-from canvasapi.assignment import Assignment, AssignmentOverride
 from canvasapi.file import File
 from canvasapi.quiz import Quiz
 
-from .course_settings import CourseObj
-from .syllabus import SyllabusObj
-
 from .util import get_canvas_object, ResourceNotFoundException
 from ..resources import AnnouncementInfo, AssignmentInfo, FileInfo, AssignmentGroupInfo, ModuleInfo, OverrideInfo, \
-    PageInfo, QuizInfo, SyllabusInfo, CourseSettings, CourseSettingsInfo
+    PageInfo, QuizInfo, SyllabusInfo, CourseSettingsInfo
 
 
 # ============================== Announcements ==============================
@@ -133,6 +130,7 @@ def lookup_override(course: Course, override_name: str) -> OverrideInfo:
 def get_page(course: Course, title: str):
     return get_canvas_object(course.get_pages, 'title', title)
 
+
 def lookup_page(course: Course, page_title: str) -> PageInfo:
     canvas_page = get_page(course, page_title)
     if not canvas_page:
@@ -149,6 +147,7 @@ def lookup_page(course: Course, page_title: str) -> PageInfo:
 # ============================== Quizzes ==============================
 def get_quiz(course: Course, title: str) -> Quiz:
     return get_canvas_object(course.get_quizzes, "title", title)
+
 
 def lookup_quiz(course: Course, quiz_name: str) -> QuizInfo:
     canvas_quiz = get_quiz(course, quiz_name)
@@ -172,7 +171,6 @@ def lookup_syllabus(course: Course, _: str) -> SyllabusInfo:
 
 # ============================== Zips ==============================
 lookup_zip = lookup_file
-
 
 # ============================== Resource Lookup Map ==============================
 RESOURCE_LOOKUP_MAP = {

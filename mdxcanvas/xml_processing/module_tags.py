@@ -107,7 +107,7 @@ class ModuleTagProcessor:
                 raise ValueError(f'Module "Page" item must have "content_id": {get_tag_path(tag)}')
 
             item.update(parse_settings(tag, fields))
-            item['page_url'] = get_key(rtype.lower(), rid, 'uri')
+            item['page_url'] = get_key(rtype.lower(), rid, 'page_url')
             item['id'] = rid
 
         elif rtype in ['Quiz', 'Assignment', 'File']:
@@ -126,7 +126,11 @@ class ModuleTagProcessor:
         else:
             raise NotImplementedError(f'Unrecognized module item type "{rtype}": {get_tag_path(tag)}')
 
+        # Namespace each module item ID to the module
+        # Otherwise, a resource can only be linked to a single module
+        item['id'] = f'{module_rid}|{item["id"]}'
         item['module_id'] = get_key('module', module_rid, 'id')
+
         item['_comments'] = {
             'previous_module_item':
                 get_key('module_item', self._previous_module_item, 'id')

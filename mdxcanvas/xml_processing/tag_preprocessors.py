@@ -237,7 +237,7 @@ def make_link_preprocessor():
         link_rid = tag['id']
 
         new_tag = Tag(name='a')
-        new_tag['href'] = get_key(link_type, link_rid, 'url')
+        new_tag['href'] = get_key(link_type, link_rid, 'uri')
         # TODO - add other course-link attributes here
         link_text = tag.string.strip() if tag.string is not None else ''
         if not link_text:

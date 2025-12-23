@@ -39,11 +39,13 @@ class AssignmentGroupInfo(ResourceInfo):
 
 class ModuleInfo(ResourceInfo):
     id: str
+    uri: str
     url: str
 
 
 class ModuleItemInfo(ResourceInfo):
     id: str
+    uri: str
     url: str
 
 
@@ -53,19 +55,21 @@ class OverrideInfo(ResourceInfo):
 
 class PageInfo(ResourceInfo):
     id: str
+    page_url: str  # for module item
+    uri: str  # for course-link
     url: str | None
-    uri: str | None  # for course-link
 
 
 class QuizInfo(ResourceInfo):
     id: str
+    uri: str  # for course-link
     url: str | None
-    uri: str | None  # for course-link
 
 
 class SyllabusInfo(ResourceInfo):
     id: str
     uri: str
+    url: str
 
 
 class CourseSettings(TypedDict):
