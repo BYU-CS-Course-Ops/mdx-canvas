@@ -2,7 +2,7 @@ from typing import Any
 
 from bs4 import Tag
 
-from .attributes import Attribute, parse_bool, parse_settings, parse_int, get_tag_path
+from .attributes import Attribute, parse_bool, parse_dict, parse_module_list, parse_settings, parse_int, get_tag_path
 from ..resources import ResourceManager, get_key, CanvasResource
 
 
@@ -29,7 +29,8 @@ class ModuleTagProcessor:
             Attribute('title', required=True, new_name='name'),
             Attribute('position'),
             Attribute('published', parser=parse_bool),
-            Attribute('previous-module')
+            Attribute('previous-module'),
+            Attribute('prerequisite_module_ids', parser=parse_module_list)
         ]
 
         module_data = parse_settings(module_tag, fields)
@@ -66,7 +67,7 @@ class ModuleTagProcessor:
             Attribute('position', parser=parse_int),
             Attribute('indent', parser=parse_int),
             Attribute('new_tab', True, parse_bool),
-            Attribute('completion_requirement'),
+            Attribute('completion_requirement', parser=parse_dict),
             Attribute('iframe'),
             Attribute('published', parser=parse_bool),
         ]

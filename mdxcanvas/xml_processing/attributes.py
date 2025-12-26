@@ -4,6 +4,8 @@ from typing import Callable, Any
 
 from bs4 import Tag
 
+from mdxcanvas.resources import get_key
+
 from ..our_logging import get_logger
 from ..util import retrieve_contents
 
@@ -65,6 +67,11 @@ def parse_bool(text):
 def parse_list(text):
     items = text.strip().split(',')
     return [cell.strip() for cell in items if cell.strip()]
+
+
+def parse_module_list(text):
+    modules = parse_list(text)
+    return [get_key('module', module, 'id') for module in modules]
 
 
 def parse_dict(text):
