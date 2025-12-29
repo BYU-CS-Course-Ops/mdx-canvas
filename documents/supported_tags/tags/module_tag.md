@@ -9,7 +9,19 @@ The `<module>` tag defines a course module. Modules organize related content int
 Sets the title of the module as it appears in Canvas.
 
 ```xml
-<module title="Week 1: Introduction">
+<module id="week-1" title="Week 1: Introduction">
+...
+</module>
+```
+
+### `prerequisite_module_ids` (optional)
+
+Takes a comma separated list module `id` tags that must have all of their items `completion_requirement` attributes met before this module will unlock.
+
+For mor details on the `completion_requirement` attribute see the [`<item>` tag documentation](./item_tag.md#completion_requirement_optional)
+
+```xml
+<module id="week-3" title="Week 3: NP-Complete Problems" prerequisite_module_ids="week-1,week-2">
 ...
 </module>
 ```
@@ -18,7 +30,7 @@ Sets the title of the module as it appears in Canvas.
 
 A `<module>` contains one or more `<item>` tags, each representing a piece of content within the module (e.g., page, quiz, assignment).
 
-For details on valid item types and attributes, see the [`<item>` tag documentation](item_tag.md).
+For details on valid item types and attributes, see the [`<item>` tag documentation](./item_tag.md).
 
 ## Example
 
