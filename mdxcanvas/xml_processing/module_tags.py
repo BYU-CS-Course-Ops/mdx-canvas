@@ -2,8 +2,13 @@ from typing import Any
 
 from bs4 import Tag
 
-from .attributes import Attribute, parse_bool, parse_dict, parse_module_list, parse_settings, parse_int, get_tag_path
+from .attributes import Attribute, parse_bool, parse_dict, parse_list, parse_settings, parse_int, get_tag_path
 from ..resources import ResourceManager, get_key, CanvasResource
+
+
+def _parse_module_list(text: str) -> list[str]:
+    modules = parse_list(text)
+    return [get_key('module', module, 'id') for module in modules]
 
 
 class ModuleTagProcessor:
@@ -30,7 +35,7 @@ class ModuleTagProcessor:
             Attribute('position'),
             Attribute('published', parser=parse_bool),
             Attribute('previous-module'),
-            Attribute('prerequisite_module_ids', parser=parse_module_list)
+            Attribute('prerequisite_module_ids', parser=_parse_module_list)
         ]
 
         module_data = parse_settings(module_tag, fields)
