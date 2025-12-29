@@ -11,6 +11,7 @@ class ModuleTagProcessor:
         self._resources = resource_manager
         self._previous_module = None  # The id of the previous module
         self._previous_module_item = None  # The id of the previous module item
+        self._previous_module_position = 1
 
     _module_item_type_casing = {
         "file": "File",
@@ -57,6 +58,7 @@ class ModuleTagProcessor:
         ))
 
         self._previous_module_item = None
+        self._previous_module_position = 1
         for item_tag in module_tag.find_all('item'):
             self._parse_module_item(module_id, item_tag)
 
@@ -98,9 +100,10 @@ class ModuleTagProcessor:
                 item['id'] = item['title']
 
         elif rtype == 'Page':
-            fields.append(
-                Attribute('content_id', ignore=True)
-            )
+            fields.extend([
+                Attribute('content_id', ignore=True),
+                Attribute('title')
+            ])
 
             rid = tag.get('content_id')
             if rid is None:
@@ -111,9 +114,10 @@ class ModuleTagProcessor:
             item['id'] = rid
 
         elif rtype in ['Quiz', 'Assignment', 'File']:
-            fields.append(
-                Attribute('content_id', ignore=True)
-            )
+            fields.extend([
+                Attribute('content_id', ignore=True),
+                Attribute('title')
+            ])
 
             rid = tag.get('content_id')
             if rid is None:
@@ -131,11 +135,17 @@ class ModuleTagProcessor:
         item['id'] = f'{module_rid}|{item["id"]}'
         item['module_id'] = get_key('module', module_rid, 'id')
 
+        if prev_pos := item.get('position'):
+            self._previous_module_position = prev_pos
+        else:
+            item['position'] = self._previous_module_position
+            self._previous_module_position += 1
+
         item['_comments'] = {
             'previous_module_item':
                 get_key('module_item', self._previous_module_item, 'id')
                 if self._previous_module_item is not None
-                else None
+                else ''
         }
         self._previous_module_item = item['id']
 
