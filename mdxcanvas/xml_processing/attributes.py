@@ -5,7 +5,9 @@ from typing import Callable, Any
 from bs4 import Tag
 
 from ..our_logging import get_logger
+from ..processing_context import get_file_context
 from ..util import retrieve_contents
+from .error_helpers import format_tag_for_error, format_required_field_error
 
 logger = get_logger()
 
@@ -132,9 +134,15 @@ def parse_settings(tag: Tag, attributes: list[Attribute]):
                 settings[name] = attribute.default
 
             elif attribute.required:
-                raise Exception(f'Required field "{attribute.name}" missing from tag <{tag.name}> @ {get_tag_path(tag)}')
+                raise Exception(format_required_field_error(tag, attribute.name))
         except:
-            logger.exception(f'Error processing attribute "{attribute.name}" in tag {get_tag_path(tag)}')
+            file_context = get_file_context()
+            tag_path = get_tag_path(tag)
+            formatted_tag = format_tag_for_error(tag)
+            error_msg = f'Error processing attribute "{attribute.name}" in tag {formatted_tag} @ {tag_path}'
+            if file_context:
+                error_msg += f' {file_context}'
+            logger.exception(error_msg)
             raise
 
     for key in tag.attrs:

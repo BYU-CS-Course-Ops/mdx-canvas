@@ -3,6 +3,8 @@ from typing import TypedDict, List
 
 from .attributes import Attribute, parse_settings, parse_int
 from ..resources import ResourceManager, CanvasResource, get_key
+from .error_helpers import format_tag_for_error
+from ..processing_context import get_file_context
 
 
 class AssignmentGroupRules(TypedDict, total=False):

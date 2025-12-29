@@ -2,7 +2,7 @@ import json
 import sys
 
 
-class MDXCanvasResult:
+class DeploymentReport:
     def __init__(self, output_file: str):
         self.output_file = output_file
         self.json = {
@@ -20,8 +20,10 @@ class MDXCanvasResult:
     def get_content_to_review(self):
         return self.json["content_to_review"]
 
-    def add_error(self, error: str):
-        self.json["error"] = error
+    def add_error(self, error: Exception):
+        error_type = type(error).__name__
+        error_msg = str(error)
+        self.json["error"] = f"{error_type}: {error_msg}"
 
     def output(self):
         if self.output_file:
@@ -29,23 +31,4 @@ class MDXCanvasResult:
                 f.write(json.dumps(self.json, indent=4))
 
     def print(self):
-        if self.json['deployed_content']:
-            groups = {}
-            for rtype, rid, url in self.json['deployed_content']:
-                if url not in groups:
-                    groups[url] = []
-                groups[url].append((rtype, rid))
-
-            print(' Deployed Content '.center(60, '-'))
-            for url, resources in groups.items():
-                resources_str = ', '.join(rid for _, rid in resources)
-                print(f'{resources_str}: {url}')
-
-        if self.json['content_to_review']:
-            print(' Content to Review '.center(60, '-'))
-            for rtype, rid, url in self.json['content_to_review']:
-                print(f'{rid}: {url}')
-
-        if self.json['error']:
-            print(file=sys.stderr)
-            print(self.json['error'], file=sys.stderr)
+        print(json.dumps(self.json, indent=4) + '\n')

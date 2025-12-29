@@ -21,7 +21,7 @@ from .page import deploy_page, deploy_shell_page
 from .quiz import deploy_quiz, deploy_shell_quiz
 from .syllabus import deploy_syllabus
 from .zip import deploy_zip, predeploy_zip
-from ..generate_result import MDXCanvasResult
+from ..generate_result import DeploymentReport
 from ..our_logging import log_warnings, get_logger
 from ..resources import CanvasResource, iter_keys, ResourceInfo
 
@@ -231,7 +231,7 @@ def predeploy_resources(resources, timezone, tmpdir):
 
 
 def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, str], CanvasResource],
-                     result: MDXCanvasResult, dryrun=False):
+                     result: DeploymentReport, dryrun=False):
     resource_dependencies = get_dependencies(resources)
     logger.debug(f'Dependency graph: {resource_dependencies}')
 

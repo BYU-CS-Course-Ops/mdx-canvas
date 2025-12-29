@@ -5,6 +5,8 @@ from bs4 import Tag
 from .attributes import parse_settings, Attribute, parse_date, parse_bool
 from ..resources import ResourceManager, CanvasResource
 from ..util import retrieve_contents
+from .error_helpers import format_tag_for_error
+from ..processing_context import get_file_context
 
 
 class AnnouncementTagProcessor:
