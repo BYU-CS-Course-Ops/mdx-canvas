@@ -34,3 +34,19 @@ Controls the indentation level (hierarchy) of the item within the module.
 ```xml
 <item type="assignment" title="Homework 1" indent="1" />
 ```
+
+### `completion_requirement` (optional)
+
+Controls how a module item is marked complete. This can be paired with the module's `prerequisite_module_ids` to lock content behind completion requirements.
+
+For more details on the `prerequisite_module_ids` attribute see [`<module>` tag documenetation](./module_tag.md#prerequisite_module_ids_optional)
+
+The attribute takes a comma separated list of `key=value` pairs that are parsed into a dictionary.
+
+For a full list of supported attributes and what they do, please reference the [Canvas API documentation](https://developerdocs.instructure.com/services/canvas/resources/modules#modules-api)
+
+```xml
+<module id="week-1"
+    <item type="quiz" content_id="RQ_SYL" title="Syllabus Reading Quiz" completion_requirement="type=min_percentage,min_percentage=100"/>
+</module>
+```
