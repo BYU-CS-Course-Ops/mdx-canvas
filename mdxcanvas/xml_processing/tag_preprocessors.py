@@ -3,11 +3,11 @@ from typing import Callable
 
 from bs4 import Tag
 
-from ..processing_context import FileContext, get_file_stack, get_file_context
+from ..processing_context import FileContext, get_file_stack, get_current_file
 from ..resources import ResourceManager, FileData, ZipFileData, CanvasResource, get_key
 from ..util import parse_soup_from_xml
-from ..xml_processing.attributes import parse_bool, get_tag_path
-from ..xml_processing.error_helpers import format_tag_for_error, validate_required_attribute, validate_file_exists
+from ..xml_processing.attributes import parse_bool
+from ..error_helpers import format_tag, get_file_path, validate_required_attribute
 
 
 def make_course_settings_preprocessor(parent: Path, resources: ResourceManager):
@@ -17,21 +17,13 @@ def make_course_settings_preprocessor(parent: Path, resources: ResourceManager):
         image_path = tag.get('image')
 
         if not (any([name, course_code, image_path])):
-            file_context = get_file_context()
-            error_msg = f"Course settings tag must have at least one of: name, code, or image @ {format_tag_for_error(tag)}"
-            if file_context:
-                error_msg += f"\n  {file_context}"
-            raise ValueError(error_msg)
+            raise ValueError(f"Course settings tag must have at least one of: name, code, or image @ {format_tag(tag)}\n  in {get_file_path(tag)}")
 
         image_resource_key = None
         if image_path:
             image_path = (parent / image_path).resolve().absolute()
             if not image_path.is_file():
-                file_context = get_file_context()
-                error_msg = f"Course image file not found @ {format_tag_for_error(tag)}\n  Image path: {image_path}"
-                if file_context:
-                    error_msg += f"\n  {file_context}"
-                raise ValueError(error_msg)
+                raise ValueError(f"Course image file not found @ {format_tag(tag)}\n  Image path: {image_path}\n  in {get_file_path(tag)}")
 
             file = CanvasResource(
                 type='file',
@@ -39,7 +31,8 @@ def make_course_settings_preprocessor(parent: Path, resources: ResourceManager):
                 data=FileData(
                     path=str(image_path),
                     canvas_folder=tag.get('canvas_folder', None)
-                )
+                ),
+                content_path=str(get_current_file().resolve())
             )
             image_resource_key = resources.add_resource(file, 'id')
 
@@ -50,7 +43,8 @@ def make_course_settings_preprocessor(parent: Path, resources: ResourceManager):
                 'name': name,
                 'code': course_code,
                 'image': image_resource_key
-            }
+            },
+            content_path=str(get_current_file().resolve())
         )
         resources.add_resource(course_settings, 'name')
 
@@ -69,11 +63,7 @@ def make_image_preprocessor(parent: Path, resources: ResourceManager):
         # Assume it's a local file
         src_path = (parent / src).resolve().absolute()
         if not src_path.is_file():
-            file_context = get_file_context()
-            error_msg = f"Image file not found @ {format_tag_for_error(tag)}\n  File path: {src_path}"
-            if file_context:
-                error_msg += f"\n  {file_context}"
-            raise ValueError(error_msg)
+            raise ValueError(f"Image file not found @ {format_tag(tag)}\n  File path: {src_path}\n  in {get_file_path(tag)}")
         src = src_path
 
         file = CanvasResource(
@@ -82,7 +72,8 @@ def make_image_preprocessor(parent: Path, resources: ResourceManager):
             data=FileData(
                 path=str(src),
                 canvas_folder=tag.get('canvas_folder', None)
-            )
+            ),
+            content_path=str(get_current_file().resolve())
         )
         tag['src'] = resources.add_resource(file, 'uri') + '/preview'
 
@@ -107,18 +98,11 @@ def make_file_anchor_tag(resource_key: str, filename: str, **kwargs):
 
 def make_file_preprocessor(parent: Path, resources: ResourceManager):
     def process_file(tag: Tag):
+        path_value = validate_required_attribute(tag, 'path', 'file')
         attrs = tag.attrs
-        if 'path' not in attrs:
-            from .error_helpers import format_required_field_error
-            raise ValueError(format_required_field_error(tag, 'path', 'file'))
-        path_value = attrs['path']
         path = (parent / path_value).resolve().absolute()
         if not path.is_file():
-            file_context = get_file_context()
-            error_msg = f"File not found @ {format_tag_for_error(tag)}\n  File path: {path}"
-            if file_context:
-                error_msg += f"\n  {file_context}"
-            raise ValueError(error_msg)
+            raise ValueError(f"File not found @ {format_tag(tag)}\n  File path: {path}\n  in {get_file_path(tag)}")
         # Only pop the path after validation succeeds
         attrs.pop('path')
         file = CanvasResource(
@@ -129,7 +113,8 @@ def make_file_preprocessor(parent: Path, resources: ResourceManager):
                 canvas_folder=attrs.get('canvas_folder', None),
                 unlock_at=attrs.get('unlock_at', None),
                 lock_at=attrs.get('lock_at', None)
-            )
+            ),
+            content_path=str(get_current_file().resolve())
         )
         resource_key = resources.add_resource(file, 'uri')
         new_tag = make_file_anchor_tag(resource_key, path.name, **tag.attrs)
@@ -141,10 +126,7 @@ def make_file_preprocessor(parent: Path, resources: ResourceManager):
 
 def make_zip_preprocessor(parent: Path, resources: ResourceManager):
     def process_zip(tag: Tag):
-        content_folder = tag.get("path")
-        if not content_folder:
-            from .error_helpers import format_required_field_error
-            raise ValueError(format_required_field_error(tag, 'path', 'zip'))
+        content_folder = validate_required_attribute(tag, 'path', 'zip')
 
         name = tag.get("name")
         if not name:
@@ -157,11 +139,7 @@ def make_zip_preprocessor(parent: Path, resources: ResourceManager):
 
         content_folder_path = (parent / content_folder).resolve().absolute()
         if not content_folder_path.exists():
-            file_context = get_file_context()
-            error_msg = f"Folder not found @ {format_tag_for_error(tag)}\n  Folder path: {content_folder_path}"
-            if file_context:
-                error_msg += f"\n  {file_context}"
-            raise ValueError(error_msg)
+            raise ValueError(f"Folder not found @ {format_tag(tag)}\n  Folder path: {content_folder_path}\n  in {get_file_path(tag)}")
         content_folder = str(content_folder_path)
 
         additional_files = tag.get("additional_files")
@@ -184,7 +162,8 @@ def make_zip_preprocessor(parent: Path, resources: ResourceManager):
                 exclude_pattern=exclude_pattern,
                 priority_folder=priority_folder,
                 canvas_folder=tag.get('canvas_folder')
-            )
+            ),
+            content_path=str(get_current_file().resolve())
         )
 
         resource_key = resources.add_resource(file, 'uri')
@@ -235,8 +214,8 @@ def make_include_preprocessor(
                 # Check if the included file exists first
                 if not imported_file.exists():
                     raise FileNotFoundError(
-                        f"Include file not found @ include tag: <include path=\"{imported_filename}\" />\n"
-                        f"  In file: {containing_file}"
+                        f"Include file not found @ {format_tag(tag)}\n"
+                        f"  in {containing_file}"
                     )
 
                 imported_raw_content = imported_file.read_text(encoding='utf-8')
@@ -258,8 +237,8 @@ def make_include_preprocessor(
                     # Check if args file exists
                     if not args_file.exists():
                         raise FileNotFoundError(
-                            f"Args file not found @ include tag: <include path=\"{imported_filename}\" args=\"{args_file_path}\" />\n"
-                            f"  In file: {containing_file}"
+                            f"Args file not found @ {format_tag(tag)}\n"
+                            f"  in {containing_file}"
                         )
 
                 imported_html = process_file(
@@ -285,12 +264,10 @@ def make_include_preprocessor(
                     tag.replace_with(new_tag)
 
         except FileNotFoundError:
-            # Re-raise FileNotFoundError with our enhanced message
             raise
         except Exception as e:
-            # Add context to other exceptions
             raise Exception(
-                f"Error processing <include path=\"{imported_filename}\" /> tag: {e}"
+                f"Error processing {format_tag(tag)}\n  in {containing_file}\n  Error: {e}"
             ) from e
 
     return process_include
@@ -298,32 +275,16 @@ def make_include_preprocessor(
 
 def make_link_preprocessor():
     def process_link(tag: Tag):
-        link_type = tag.get('type')
-        link_rid = tag.get('id')
+        link_type = validate_required_attribute(tag, 'type', 'course-link')
+        link_rid = validate_required_attribute(tag, 'id', 'course-link')
 
-        if not link_type:
-            from .error_helpers import format_required_field_error
-            raise ValueError(format_required_field_error(tag, 'type', 'course-link'))
-        if not link_rid:
-            from .error_helpers import format_required_field_error
-            raise ValueError(format_required_field_error(tag, 'id', 'course-link'))
-
-        try:
-            new_tag = Tag(name='a')
-            new_tag['href'] = get_key(link_type, link_rid, 'uri')
-            # TODO - add other course-link attributes here
-            link_text = tag.string.strip() if tag.string is not None else ''
-            if not link_text:
-                link_text = str(link_rid)
-            new_tag.string = link_text
-            tag.replace_with(new_tag)
-        except Exception as e:
-            file_context = get_file_context()
-            error_msg = f"Error processing {format_tag_for_error(tag)}"
-            if file_context:
-                error_msg += f"\n  {file_context}"
-            error_msg += f"\n  Error: {e}"
-            raise Exception(error_msg) from e
+        new_tag = Tag(name='a')
+        new_tag['href'] = get_key(link_type, link_rid, 'uri')
+        link_text = tag.string.strip() if tag.string is not None else ''
+        if not link_text:
+            link_text = str(link_rid)
+        new_tag.string = link_text
+        tag.replace_with(new_tag)
 
     return process_link
 
@@ -333,10 +294,7 @@ def make_markdown_page_preprocessor(
         process_file: Callable
 ):
     def process_markdown_page(tag: Tag):
-        content_path = tag.get('path')
-        if not content_path:
-            from .error_helpers import format_required_field_error
-            raise ValueError(format_required_field_error(tag, 'path', 'md-page'))
+        content_path = validate_required_attribute(tag, 'path', 'md-page')
         content_path_obj = Path(parent_folder) / content_path
 
         page_title = tag.get('title')
@@ -362,12 +320,7 @@ def make_markdown_page_preprocessor(
         try:
             include_processor(include_tag)  # Replaces include_tag with new content
         except FileNotFoundError as e:
-            # Re-raise with context that this came from a md-page tag
-            file_context = get_file_context()
-            error_msg = f"File not found @ {format_tag_for_error(tag)}"
-            if file_context:
-                error_msg += f"\n  {file_context}"
-            raise FileNotFoundError(error_msg) from e
+            raise FileNotFoundError(f"File not found @ {format_tag(tag)}\n  in {get_file_path(tag)}") from e
 
         tag.replace_with(page_tag)
 
