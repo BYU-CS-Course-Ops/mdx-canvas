@@ -96,11 +96,12 @@ def linearize_dependencies(
 
     acyclic_graph = {}
     for node, deps in graph.items():
-        if node in cycle_breakers:
-            if node in scc_map:
-                acyclic_graph[node] = [d for d in deps if d not in scc_map[node]]
-            else:
-                acyclic_graph[node] = [d for d in deps if d != node]
+        if node in scc_map:
+            # Remove all edges within the same SCC to break cycles
+            acyclic_graph[node] = [d for d in deps if d not in scc_map[node]]
+        elif node in cycle_breakers:
+            # Self-loop case
+            acyclic_graph[node] = [d for d in deps if d != node]
         else:
             acyclic_graph[node] = deps
 
