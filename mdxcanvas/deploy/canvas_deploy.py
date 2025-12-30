@@ -21,14 +21,18 @@ from .page import deploy_page, deploy_shell_page
 from .quiz import deploy_quiz, deploy_shell_quiz
 from .syllabus import deploy_syllabus
 from .zip import deploy_zip, predeploy_zip
-from ..generate_result import DeploymentReport
-from ..our_logging import log_warnings, get_logger
+from ..deployment_report import DeploymentReport
+from ..our_logging import get_logger
 from ..resources import CanvasResource, iter_keys, ResourceInfo
 
 logger = get_logger()
 
+PREDEPLOYERS: dict[str, Callable[[dict, Path], dict]] = {
+    'zip': predeploy_zip
+}
+
 SHELL_DEPLOYERS = {
-    #TODO: What other shell deployers are needed?
+    # Current known resources that need shell deployments
     'assignment': deploy_shell_assignment,
     'page': deploy_shell_page,
     'quiz': deploy_shell_quiz
@@ -50,92 +54,6 @@ DEPLOYERS = {
 }
 
 
-def deploy_resource(deployers: dict[str, Callable[[Course, dict], tuple[ResourceInfo, tuple[str, str] | None]]],
-                    course: Course, resource_type: str, resource_data: dict) -> tuple[
-    ResourceInfo, tuple[str, str] | None]:
-    if (deploy := deployers.get(resource_type, None)) is None:
-        raise Exception(f'Deployment unsupported for resource of type {resource_type}')
-
-    try:
-        deployed, info = deploy(course, resource_data)
-    except:
-        logger.error(f'Failed to deploy resource: {resource_type} {resource_data}')
-        raise
-
-    if deployed is None:
-        raise Exception(f'Resource not found: {resource_type} {resource_data}')
-
-    return deployed, info
-
-
-def update_links(md5s: MD5Sums, data: dict, resource_objs: dict[tuple[str, str], CanvasObject]) -> dict:
-    text = json.dumps(data)
-    logger.debug(f'Updating links in {text}')
-
-    for key, rtype, rid, field in iter_keys(text):
-        logger.debug(f'Processing key: {key}, {rtype}, {rid}, {field}')
-
-        # Get the canvas object if we just deployed it else check for it in the stored MD5s
-        canvas_info = resource_objs.get((rtype, rid), md5s.get_canvas_info((rtype, rid)))
-
-        if canvas_info is None:
-            logger.error(f'Updating links in {text}')
-            logger.error(f'No canvas info for {rtype} {rid} found. Was it defined?')
-            raise ValueError(f'No canvas info for {rtype} {rid} found. Was it defined?')
-
-        try:
-            repl_text = canvas_info.get(field)
-        except Exception as ex:
-            logger.error(f'Error getting field {field} from canvas info for {rtype} {rid}: {ex}')
-            raise
-
-        if repl_text is None:
-            raise Exception(f'Canvas {rtype}|{rid} has no {field}')
-
-        text = text.replace(key, f'{repl_text}')
-
-    return json.loads(text)
-
-
-def make_iso(date: datetime | str | None, time_zone: str) -> str:
-    if isinstance(date, datetime):
-        return datetime.isoformat(date)
-    elif isinstance(date, str):
-        try_formats = [
-            "%b %d, %Y, %I:%M %p",
-            "%b %d %Y %I:%M %p",
-            "%Y-%m-%dT%H:%M:%S",
-            "%Y-%m-%dT%H:%M:%S%z"
-        ]
-        for format_str in try_formats:
-            try:
-                parsed_date = datetime.strptime(date, format_str)
-                if parsed_date.tzinfo:
-                    return datetime.isoformat(parsed_date)
-                break
-            except ValueError:
-                pass
-        else:
-            raise ValueError(f"Invalid date format: {date}")
-
-        # Convert the parsed datetime object to the desired timezone
-        to_zone = pytz.timezone(time_zone)
-        localized_date = to_zone.localize(parsed_date)
-        return datetime.isoformat(localized_date)
-    else:
-        raise TypeError("Date must be a datetime object or a string")
-
-
-def fix_dates(data, time_zone):
-    for attr in ['due_at', 'unlock_at', 'lock_at', 'show_correct_answers_at']:
-        if attr not in data or data.get(attr) is None:
-            continue
-
-        datetime_version = datetime.fromisoformat(make_iso(data[attr], time_zone))
-        utc_version = datetime_version.astimezone(pytz.utc)
-        data[attr] = utc_version.isoformat()
-
-
 def get_dependencies(resources: dict[tuple[str, str], CanvasResource]) -> dict[tuple[str, str], list[tuple[str, str]]]:
     """Returns the dependency graph in resources. Adds missing resources to the input dictionary."""
     deps = {}
@@ -150,23 +68,65 @@ def get_dependencies(resources: dict[tuple[str, str], CanvasResource]) -> dict[t
                 missing_resources.append(resource_key)
 
     for rtype, rid in missing_resources:
-        resources[rtype, rid] = CanvasResource(type=rtype, id=rid, data=None)
+        resources[rtype, rid] = CanvasResource(type=rtype, id=rid, data={}, content_path='')
 
     return deps
 
 
-def predeploy_resource(rtype: str, resource_data: dict, timezone: str, tmpdir: Path) -> dict:
-    fix_dates(resource_data, timezone)
+def make_iso(date: datetime | str | None, time_zone: str) -> str:
+    if isinstance(date, datetime):
+        return datetime.isoformat(date)
 
-    predeployers: dict[str, Callable[[dict, Path], dict]] = {
-        'zip': predeploy_zip
-    }
+    if isinstance(date, str):
+        try_formats = [
+            "%b %d, %Y, %I:%M %p",
+            "%b %d %Y %I:%M %p",
+            "%Y-%m-%dT%H:%M:%S",
+            "%Y-%m-%dT%H:%M:%S%z"
+        ]
 
-    if (predeploy := predeployers.get(rtype)) is not None:
-        logger.debug(f'Predeploying {rtype} {resource_data}')
-        resource_data = predeploy(resource_data, tmpdir)
+        for format_str in try_formats:
+            try:
+                parsed_date = datetime.strptime(date, format_str)
+                if parsed_date.tzinfo:
+                    return datetime.isoformat(parsed_date)
+                break
+            except ValueError:
+                pass
+        else:
+            raise ValueError(f"Invalid date format: {date}")
 
-    return resource_data
+        to_zone = pytz.timezone(time_zone)
+        localized_date = to_zone.localize(parsed_date)
+        return datetime.isoformat(localized_date)
+
+    raise TypeError("Date must be a datetime object or a string")
+
+
+def fix_dates(data: dict, time_zone: str, resource: CanvasResource):
+    for attr in ['due_at', 'unlock_at', 'lock_at', 'show_correct_answers_at']:
+        if (val := data.get(attr)) is None:
+            continue
+
+        try:
+            dt = datetime.fromisoformat(make_iso(val, time_zone))
+            data[attr] = dt.astimezone(pytz.utc).isoformat()
+        except (ValueError, TypeError) as e:
+            raise ValueError(
+                f"Invalid date format for {resource['type']} {resource['id']}\n  {attr}: '{val}'\n  in {resource['content_path']}") from e
+
+
+def predeploy_resources(resources: dict, timezone: str, tmpdir: Path):
+    for resource in resources.values():
+        if (data := resource.get('data')) is None:
+            continue
+
+        fix_dates(data, timezone, resource)
+
+        rtype = resource['type']
+        if predeploy := PREDEPLOYERS.get(rtype):
+            logger.debug(f'Predeploying {rtype} {data}')
+            resource['data'] = predeploy(data, tmpdir)
 
 
 def identify_modified_or_outdated(
@@ -177,9 +137,22 @@ def identify_modified_or_outdated(
 ) -> dict[tuple[str, str], tuple[str, CanvasResource]]:
     """
     A resource is modified or outdated if:
-    - It is new
-    - It has changed its own data
-    - It depends on another resource with a new ID (a file)
+        - It is new
+        - It has changed its own data
+        - It depends on another resource with a new ID (a file)
+
+    Returns:
+        dict: A dictionary mapping resource keys to their current MD5 and resource data.
+            - Key: (resource_key, is_shell)
+                - resource_key: (type, id)
+                    - type: str, the resource type (e.g., 'assignment', 'page', etc.)
+                    - id: str, the resource identifier that the user assigned (not the Canvas ID)
+                - is_shell: bool, indicating if this is a shell deployment
+                    - Unfortunately needed to handle shell deployments properly, otherwise shell deployments are
+                      overwritten by full deployments of the same resource.
+            - Value: (current_md5, resource)
+                - current_md5: str, the current MD5 checksum of the resource data
+                - resource: CanvasResource, the resource data itself
     """
     modified = {}
 
@@ -224,21 +197,49 @@ def identify_modified_or_outdated(
     return modified
 
 
-def predeploy_resources(resources, timezone, tmpdir):
-    for resource_key, resource in resources.items():
-        if resource.get('data') is not None:
-            resource['data'] = predeploy_resource(resource['type'], resource['data'], timezone, tmpdir)
+def update_links(md5s: MD5Sums, data: dict, resource_objs: dict, current_resource: CanvasResource) -> dict:
+    text = json.dumps(data)
+
+    for key, rtype, rid, field in iter_keys(text):
+        canvas_info = resource_objs.get((rtype, rid)) or md5s.get_canvas_info((rtype, rid))
+
+        if not canvas_info:
+            raise ValueError(
+                f"No canvas info for {rtype} {rid}\n  Referenced in {current_resource['type']} {current_resource['id']}\n  in {current_resource['content_path']}")
+
+        if not (repl_text := canvas_info.get(field)):
+            raise ValueError(
+                f"Missing field '{field}' in {rtype} {rid}\n  Referenced in {current_resource['type']} {current_resource['id']}\n  in {current_resource['content_path']}")
+
+        text = text.replace(key, str(repl_text))
+
+    return json.loads(text)
+
+
+def deploy_resource(deployers: dict, course: Course, rtype: str, data: dict, resource: CanvasResource):
+    if not (deploy := deployers.get(rtype)):
+        raise Exception(f"Unsupported resource type {rtype} {resource['id']}\n  in {resource['content_path']}")
+
+    try:
+        deployed, info = deploy(course, data)
+    except Exception as e:
+        raise Exception(
+            f"Error deploying {rtype} {resource['id']}\n  {type(e).__name__}: {e}\n  in {resource['content_path']}") from e
+
+    if not deployed:
+        raise Exception(f"Deployment returned None for {rtype} {resource['id']}\n  in {resource['content_path']}")
+
+    return deployed, info
 
 
 def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, str], CanvasResource],
-                     result: DeploymentReport, dryrun=False):
+                     report: DeploymentReport, dryrun=False):
     resource_dependencies = get_dependencies(resources)
     logger.debug(f'Dependency graph: {resource_dependencies}')
 
     resource_order = linearize_dependencies(resource_dependencies)
     logger.debug(f'Linearized dependencies: {resource_order}')
 
-    warnings = []
     logger.info('Beginning deployment to Canvas')
     with MD5Sums(course) as md5s, TemporaryDirectory() as tmpdir:
         tmpdir = Path(tmpdir)
@@ -249,58 +250,38 @@ def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, s
 
         logger.info('Items to deploy:')
         for (rtype, rid), is_shell in to_deploy.keys():
-            if is_shell:
-                logger.info(f' - {rtype} {rid} (shell deployment)')
-            else:
-                logger.info(f' - {rtype} {rid}')
+            logger.info(f' - Shell {rtype} {rid}' if is_shell else f' - {rtype} {rid}')
 
         if dryrun:
             return
 
         resource_objs: dict[tuple[str, str], CanvasObject] = {}
         for (resource_key, is_shell), (current_md5, resource) in to_deploy.items():
-            try:
-                logger.debug(f'Processing {resource_key}')
+            rtype, rid = resource_key
+            logger.info(f'Processing {rtype} {rid}')
 
-                rtype, rid = resource_key
-                logger.info(f'Processing {rtype} {rid}')
-                if (resource_data := resource.get('data')) is not None:
-                    if is_shell:
-                        logger.info(f'Deploying {rtype} {rid} (shell)')
-                        canvas_obj_info, info = deploy_resource(SHELL_DEPLOYERS, course, rtype, resource_data)
-                        # This line needed to ensure that the full deployment can find the canvas_id
-                        # of the shell object
-                        resource['data']['canvas_id'] = canvas_obj_info.get('id') if canvas_obj_info else None
+            if (resource_data := resource.get('data')) is not None:
+                if not is_shell:
+                    logger.info(f'Deploying Shell Resource - Type: {rtype} - ID: {rid}')
+                    canvas_obj_info, info = deploy_resource(SHELL_DEPLOYERS, course, rtype, resource_data, resource)
+                    resource['data']['canvas_id'] = canvas_obj_info.get('id') if canvas_obj_info else None
 
-                    else:
-                        resource_data = update_links(md5s, resource_data, resource_objs)
-                        logger.info(f'Deploying {rtype} {rid}')
-                        canvas_obj_info, info = deploy_resource(DEPLOYERS, course, rtype, resource_data)
+                else:
+                    resource_data = update_links(md5s, resource_data, resource_objs, resource)
+                    logger.info(f'Deploying Resource - Type: {rtype} - ID: {rid}')
+                    canvas_obj_info, info = deploy_resource(DEPLOYERS, course, rtype, resource_data, resource)
 
-                    # noinspection PyTypedDict
-                    # Many ResourceInfo types do have URL, but not all
-                    if url := canvas_obj_info.get('url'):
-                        result.add_deployed_content(rtype, rid, url)
+                if url := canvas_obj_info.get('url'):
+                    report.add_deployed_content(rtype, rid, url)
 
-                    if info:
-                        result.add_content_to_review(*info)
+                if info:
+                    report.add_content_to_review(*info)
 
-                    md5s[resource_key] = {
-                        "checksum": current_md5,
-                        "canvas_info": canvas_obj_info
-                    }
+                md5s[resource_key] = {
+                    "checksum": current_md5,
+                    "canvas_info": canvas_obj_info
+                }
 
-            except Exception as ex:
-                error = f'Error deploying resource {rtype} {rid}: {str(ex)}'
-
-                logger.error(error)
-
-                result.add_error(error)
-                result.output()
-                raise
-
-        if result.get_content_to_review():
-            for content in result.get_content_to_review():
-                warnings.append(content)
-            log_warnings(warnings)
-    # Done!
+        if content_to_review := report.get_content_to_review():
+            for content in content_to_review:
+                logger.warning(content)
