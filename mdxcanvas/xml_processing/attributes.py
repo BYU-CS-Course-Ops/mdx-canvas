@@ -106,37 +106,31 @@ def parse_settings(tag: Tag, attributes: list[Attribute]):
     processed_fields = set()
 
     for attribute in attributes:
-        try:
+        processed_fields.add(attribute.name)
+        if attribute.new_name:
+            processed_fields.add(attribute.new_name)
+        name = attribute.new_name or attribute.name
 
-            processed_fields.add(attribute.name)
-            if attribute.new_name:
-                processed_fields.add(attribute.new_name)
-            name = attribute.new_name or attribute.name
+        if attribute.ignore:
+            continue
 
-            if attribute.ignore:
-                continue
+        if (field := (
+                tag.get(attribute.name, None)
+                or tag.get(attribute.new_name, None)
+        )) is not None:
+            value = attribute.parser(field)
+            settings[name] = value
 
-            if (field := (
-                    tag.get(attribute.name, None)
-                    or tag.get(attribute.new_name, None)
-            )) is not None:
-                # Parse the value
-                value = attribute.parser(field)
-                settings[name] = value
+        elif attribute.is_tag:
+            child = tag.find(attribute.name, recursive=False)
+            value = retrieve_contents(child)
+            settings[name] = attribute.parser(value)
 
-            elif attribute.is_tag:
-                child = tag.find(attribute.name, recursive=False)
-                value = retrieve_contents(child)
-                settings[name] = attribute.parser(value)
+        elif attribute.default is not None:
+            settings[name] = attribute.default
 
-            elif attribute.default is not None:
-                settings[name] = attribute.default
-
-            elif attribute.required:
-                raise Exception(f'Required field "{attribute.name}" missing from {tag.name} tag {format_tag(tag)}\n  in {get_file_path(tag)}')
-        except:
-            logger.exception(f'Error processing attribute "{attribute.name}" in tag {format_tag(tag)} @ {get_tag_path(tag)} in {get_file_path(tag)}')
-            raise
+        elif attribute.required:
+            raise Exception(f'Required field "{attribute.name}" missing from {tag.name} tag {format_tag(tag)}\n  in {get_file_path(tag)}')
 
     for key in tag.attrs:
         if key not in processed_fields:
