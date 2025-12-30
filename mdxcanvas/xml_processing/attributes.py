@@ -118,19 +118,30 @@ def parse_settings(tag: Tag, attributes: list[Attribute]):
                 tag.get(attribute.name, None)
                 or tag.get(attribute.new_name, None)
         )) is not None:
-            value = attribute.parser(field)
+            try:
+                value = attribute.parser(field)
+            except (ValueError, TypeError) as e:
+                raise ValueError(
+                    f"Invalid '{attribute.name}' value '{field}' for {tag.name} tag {format_tag(tag)}\n  in {get_file_path(tag)}"
+                ) from e
             settings[name] = value
 
         elif attribute.is_tag:
             child = tag.find(attribute.name, recursive=False)
             value = retrieve_contents(child)
-            settings[name] = attribute.parser(value)
+            try:
+                settings[name] = attribute.parser(value)
+            except (ValueError, TypeError) as e:
+                raise ValueError(
+                    f"Invalid '{attribute.name}' value for {tag.name} tag {format_tag(tag)}\n  in {get_file_path(tag)}"
+                ) from e
 
         elif attribute.default is not None:
             settings[name] = attribute.default
 
         elif attribute.required:
-            raise Exception(f'Required field "{attribute.name}" missing from {tag.name} tag {format_tag(tag)}\n  in {get_file_path(tag)}')
+            raise Exception(
+                f'Required field "{attribute.name}" missing from {tag.name} tag {format_tag(tag)}\n  in {get_file_path(tag)}')
 
     for key in tag.attrs:
         if key not in processed_fields:

@@ -263,12 +263,8 @@ def make_include_preprocessor(
                     new_tag.extend(include_result)
                     tag.replace_with(new_tag)
 
-        except FileNotFoundError:
+        except Exception:
             raise
-        except Exception as e:
-            raise Exception(
-                f"Error processing {format_tag(tag)}\n  in {containing_file}\n  Error: {e}"
-            ) from e
 
     return process_include
 
@@ -276,6 +272,10 @@ def make_include_preprocessor(
 def make_link_preprocessor():
     def process_link(tag: Tag):
         link_type = validate_required_attribute(tag, 'type', 'course-link')
+        # TODO: Canvas supports `course navigation` links, do we?
+        if link_type not in ['syllabus', 'page', 'assignment', 'quiz', 'announcement', 'discussion', 'module']:
+            raise ValueError(f'Invalid course-link type "{link_type}" @ {format_tag(tag)}\n  in {get_file_path(tag)}')
+
         link_rid = validate_required_attribute(tag, 'id', 'course-link')
 
         new_tag = Tag(name='a')

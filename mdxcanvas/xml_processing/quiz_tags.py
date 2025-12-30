@@ -93,11 +93,9 @@ class QuizTagProcessor:
         questions = []
         for question in questions_tag.findAll('question', recursive=False):
             if not (question_type := question.get("type")):
-                raise ValueError(
-                    f"Question type not specified @ {format_tag(question)}\n  in {get_file_path(question)}")
+                raise ValueError(f"Question type not specified @ {format_tag(question)}\n  in {get_file_path(question)}")
             if question_type not in self.question_types:
-                raise ValueError(
-                    f"Question type '{question_type}' not supported @ {format_tag(question)}\n  Supported types: {', '.join(self.question_types.keys())}\n  in {get_file_path(question)}")
+                raise ValueError(f"Question type '{question_type}' not supported @ {format_tag(question)}\n  Supported types: {', '.join(self.question_types.keys())}\n  in {get_file_path(question)}")
 
             parse_tag = self.question_types[question_type]
             result = parse_tag(question)
