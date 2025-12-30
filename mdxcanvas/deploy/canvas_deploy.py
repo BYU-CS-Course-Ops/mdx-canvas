@@ -1,7 +1,9 @@
+import time
 import json
 from datetime import datetime
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from collections import defaultdict
 from typing import Callable
 
 import pytz
@@ -241,47 +243,63 @@ def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, s
     logger.debug(f'Linearized dependencies: {resource_order}')
 
     logger.info('Beginning deployment to Canvas')
+    start_time = time.perf_counter()
+
     with MD5Sums(course) as md5s, TemporaryDirectory() as tmpdir:
         tmpdir = Path(tmpdir)
 
         predeploy_resources(resources, timezone, tmpdir)
 
         to_deploy = identify_modified_or_outdated(resources, resource_order, resource_dependencies, md5s)
+        total = len(to_deploy)
 
-        logger.info('Items to deploy:')
-        for (rtype, rid), is_shell in to_deploy.keys():
-            logger.info(f' - Shell {rtype} {rid}' if is_shell else f' - {rtype} {rid}')
+        # Summary by type
+        grouped = defaultdict(int)
+        for (rtype, _), _ in to_deploy.keys():
+            grouped[rtype] += 1
+
+        logger.info('=' * 80)
+
+        logger.info(f'Resources to deploy: {total}')
+        max_len = max(len(rtype) for rtype in grouped)
+        for rtype, count in sorted(grouped.items()):
+            logger.info(f'  {rtype:{max_len}}  {count:>3}')
+
+        logger.info('=' * 80)
 
         if dryrun:
+            logger.info('Dry run - no resources deployed')
             return
 
         resource_objs: dict[tuple[str, str], CanvasObject] = {}
-        for (resource_key, is_shell), (current_md5, resource) in to_deploy.items():
+        index_width = len(str(total))
+        for index, ((resource_key, is_shell), (current_md5, resource)) in enumerate(to_deploy.items(), start=1):
             rtype, rid = resource_key
-            logger.info(f'Processing {rtype} {rid}')
 
             if (resource_data := resource.get('data')) is not None:
-                if not is_shell:
-                    logger.info(f'Deploying Shell Resource - Type: {rtype} - ID: {rid}')
+                shell_tag = '(shell) ' if is_shell else ''
+                logger.info(f'[{index:>{index_width}}/{total}] {shell_tag}{rtype:{max_len}}  {rid}')
+
+                if is_shell:
                     canvas_obj_info, info = deploy_resource(SHELL_DEPLOYERS, course, rtype, resource_data, resource)
                     resource['data']['canvas_id'] = canvas_obj_info.get('id') if canvas_obj_info else None
-
                 else:
                     resource_data = update_links(md5s, resource_data, resource_objs, resource)
-                    logger.info(f'Deploying Resource - Type: {rtype} - ID: {rid}')
                     canvas_obj_info, info = deploy_resource(DEPLOYERS, course, rtype, resource_data, resource)
 
-                if url := canvas_obj_info.get('url'):
-                    report.add_deployed_content(rtype, rid, url)
+                if canvas_obj_info:
+                    resource_objs[resource_key] = canvas_obj_info
+                    if url := canvas_obj_info.get('url'):
+                        report.add_deployed_content(rtype, rid, url)
 
                 if info:
                     report.add_content_to_review(*info)
 
-                md5s[resource_key] = {
-                    "checksum": current_md5,
-                    "canvas_info": canvas_obj_info
-                }
+                md5s[resource_key] = {"checksum": current_md5, "canvas_info": canvas_obj_info}
 
         if content_to_review := report.get_content_to_review():
             for content in content_to_review:
                 logger.warning(content)
+
+        elapsed = time.perf_counter() - start_time
+        logger.info(f'Deployment complete - {total} resources in {elapsed:.1f}s')
