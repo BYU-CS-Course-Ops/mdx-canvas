@@ -11,7 +11,7 @@ from canvasapi import Canvas
 from canvasapi.course import Course
 
 from .deploy.canvas_deploy import deploy_to_canvas
-from .generate_result import DeploymentReport
+from .deployment_report import DeploymentReport
 from .our_logging import get_logger
 from .processing_context import FileContext
 from .resources import ResourceManager
