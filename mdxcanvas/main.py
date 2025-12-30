@@ -155,7 +155,6 @@ def main(
         logger = get_logger(course.name)
         logger.info('Connected to Canvas')
 
-
         if global_args_file:
             global_args |= load_config(global_args_file)
 
@@ -188,8 +187,9 @@ def main(
         report.add_error(e)
 
     finally:
-        report.output()
-        report.print()
+        report.save_report()
+        # TODO: Do we want to print this all the time?
+        report.print_report()
 
 
 def entry():
