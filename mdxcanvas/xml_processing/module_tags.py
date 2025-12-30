@@ -2,10 +2,10 @@ from typing import Any
 
 from bs4 import Tag
 
-from .attributes import Attribute, parse_bool, parse_dict, parse_list, parse_settings, parse_int, get_tag_path
+from .attributes import Attribute, parse_bool, parse_dict, parse_list, parse_settings, parse_int
 from ..resources import ResourceManager, get_key, CanvasResource
-from .error_helpers import format_tag_for_error
-from ..processing_context import get_file_context
+from ..error_helpers import format_tag, get_file_path
+from ..processing_context import get_current_file
 
 
 def _parse_module_list(text: str) -> list[str]:
@@ -62,7 +62,8 @@ class ModuleTagProcessor:
         self._resources.add_resource(CanvasResource(
             type='module',
             id=module_id,
-            data=module_data
+            data=module_data,
+            content_path=str(get_current_file().resolve())
         ))
 
         self._previous_module_item = None
@@ -107,48 +108,26 @@ class ModuleTagProcessor:
             if 'id' not in item:
                 item['id'] = item['title']
 
-        elif rtype == 'Page':
+        elif rtype in ['Page', 'Quiz', 'Assignment', 'File']:
             fields.extend([
                 Attribute('content_id', ignore=True),
                 Attribute('title')
             ])
 
-            rid = tag.get('content_id')
-            if rid is None:
-                file_context = get_file_context()
-                error_msg = f'Module "Page" item must have "content_id" @ {format_tag_for_error(tag)}'
-                if file_context:
-                    error_msg += f'\n  {file_context}'
-                raise ValueError(error_msg)
+            if not (rid := tag.get('content_id')):
+                raise ValueError(
+                    f'Module "{rtype}" item must have "content_id" @ {format_tag(tag)}\n  in {get_file_path(tag)}')
 
             item.update(parse_settings(tag, fields))
-            item['page_url'] = get_key(rtype.lower(), rid, 'page_url')
-            item['id'] = rid
-
-        elif rtype in ['Quiz', 'Assignment', 'File']:
-            fields.extend([
-                Attribute('content_id', ignore=True),
-                Attribute('title')
-            ])
-
-            rid = tag.get('content_id')
-            if rid is None:
-                file_context = get_file_context()
-                error_msg = f'Module "{rtype}" item must have "content_id" @ {format_tag_for_error(tag)}'
-                if file_context:
-                    error_msg += f'\n  {file_context}'
-                raise ValueError(error_msg)
-
-            item.update(parse_settings(tag, fields))
-            item['content_id'] = get_key(rtype.lower(), rid, 'id')
+            if rtype == 'Page':
+                item['page_url'] = get_key('page', rid, 'page_url')
+            else:
+                item['content_id'] = get_key(rtype.lower(), rid, 'id')
             item['id'] = rid
 
         else:
-            file_context = get_file_context()
-            error_msg = f'Unrecognized module item type "{rtype}" @ {format_tag_for_error(tag)}'
-            if file_context:
-                error_msg += f'\n  {file_context}'
-            raise NotImplementedError(error_msg)
+            raise NotImplementedError(
+                f'Unrecognized module item type "{rtype}" @ {format_tag(tag)}\n  in {get_file_path(tag)}')
 
         # Namespace each module item ID to the module
         # Otherwise, a resource can only be linked to a single module
@@ -172,5 +151,6 @@ class ModuleTagProcessor:
         self._resources.add_resource(CanvasResource(
             type='module_item',
             id=item['id'],
-            data=item
+            data=item,
+            content_path=str(get_current_file().resolve())
         ))

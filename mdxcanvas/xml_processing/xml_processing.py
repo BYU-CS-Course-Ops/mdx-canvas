@@ -5,7 +5,7 @@ from typing import Callable
 from .assignment_tags import AssignmentTagProcessor
 from .syllabus_tags import SyllabusTagProcessor
 from .announcement_tags import AnnouncementTagProcessor
-from ..processing_context import get_file_context
+from ..processing_context import get_current_file
 from ..resources import ResourceManager
 from ..util import parse_soup_from_xml
 from ..xml_processing.tag_preprocessors import make_image_preprocessor, make_file_preprocessor, \
@@ -27,13 +27,11 @@ def _walk_xml(tag, tag_processors):
             try:
                 processor(child)
             except:
-                file_context = get_file_context()
                 tag_path = get_tag_path(child)
                 error_msg = f'Error @ {tag_path}'
-                if file_context:
-                    error_msg += f' {file_context}'
-                logging.exception(error_msg)
-                raise
+                if current_file := get_current_file():
+                    error_msg += f' in {current_file}'
+                raise Exception(error_msg)
         _walk_xml(child, tag_processors)
 
 
