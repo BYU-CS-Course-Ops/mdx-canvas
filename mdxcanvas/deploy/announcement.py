@@ -17,7 +17,7 @@ def deploy_announcement(course: Course, announcement_info: dict) -> tuple[Announ
         canvas_announcement = course.create_discussion_topic(**announcement_info)
 
     announcement_object_info: AnnouncementInfo = {
-        'id':  canvas_announcement.id,
+        'id': canvas_announcement.id,
         'uri': f'/courses/{course.id}/discussion_topics/{canvas_announcement.id}',
 
         # Following fields have been observed to be missing in some cases

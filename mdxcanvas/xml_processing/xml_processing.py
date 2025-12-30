@@ -17,6 +17,7 @@ from ..xml_processing.module_tags import ModuleTagProcessor
 from ..xml_processing.group_tags import AssignmentGroupTagProcessor
 from ..xml_processing.attributes import get_tag_path
 
+
 def _walk_xml(tag, tag_processors):
     if not hasattr(tag, 'children'):
         return

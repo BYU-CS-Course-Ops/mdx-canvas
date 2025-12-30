@@ -10,7 +10,6 @@ class CourseObj:
 
 
 def deploy_settings(course: Course, data: CourseSettings) -> tuple[CourseSettingsInfo, None]:
-
     course.update(course={
         'name': data['name'],
         'course_code': data['code'],

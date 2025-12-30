@@ -2,7 +2,6 @@ from pathlib import Path
 from contextvars import ContextVar
 from typing import Optional
 
-
 # Create a context variable to store the file stack
 # Each execution context gets its own isolated copy
 _file_stack: ContextVar[list[Path] | None] = ContextVar('file_stack', default=None)
