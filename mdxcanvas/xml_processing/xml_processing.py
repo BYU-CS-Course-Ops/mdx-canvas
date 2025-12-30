@@ -1,11 +1,9 @@
-import logging
 from pathlib import Path
 from typing import Callable
 
 from .assignment_tags import AssignmentTagProcessor
 from .syllabus_tags import SyllabusTagProcessor
 from .announcement_tags import AnnouncementTagProcessor
-from ..processing_context import get_current_file
 from ..resources import ResourceManager
 from ..util import parse_soup_from_xml
 from ..xml_processing.tag_preprocessors import make_image_preprocessor, make_file_preprocessor, \
@@ -15,7 +13,6 @@ from ..xml_processing.quiz_tags import QuizTagProcessor
 from ..xml_processing.page_tags import PageTagProcessor
 from ..xml_processing.module_tags import ModuleTagProcessor
 from ..xml_processing.group_tags import AssignmentGroupTagProcessor
-from ..xml_processing.attributes import get_tag_path
 
 
 def _walk_xml(tag, tag_processors):
@@ -27,11 +24,7 @@ def _walk_xml(tag, tag_processors):
             try:
                 processor(child)
             except:
-                tag_path = get_tag_path(child)
-                error_msg = f'Error @ {tag_path}'
-                if current_file := get_current_file():
-                    error_msg += f' in {current_file}'
-                raise Exception(error_msg)
+                raise
         _walk_xml(child, tag_processors)
 
 
