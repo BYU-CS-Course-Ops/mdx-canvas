@@ -54,6 +54,7 @@ def replace_problematic_characters(text: str, replacements: dict[str, str]) -> s
                 if any(char in code for char in replacements):
                     return f"`{replace_characters(code, replacements)}`"
                 return match.group(0)
+
             output_lines.append(inline_code_pattern.sub(replacer, line))
         else:
             output_lines.append(line)

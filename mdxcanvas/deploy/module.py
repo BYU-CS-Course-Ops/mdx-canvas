@@ -9,7 +9,8 @@ def deploy_module_item(course: Course, module_item_data: dict) -> tuple[ModuleIt
     if canvas_module is None:
         raise ValueError(f'Unable to find module {module_item_data["module_id"]}')
 
-    if module_item_data['canvas_id'] is not None and (module_item := canvas_module.get_module_item(module_item_data['canvas_id'])):
+    if module_item_data['canvas_id'] is not None and (
+    module_item := canvas_module.get_module_item(module_item_data['canvas_id'])):
         module_item.edit(module_item=module_item_data)
     else:
         module_item = canvas_module.create_module_item(module_item=module_item_data)

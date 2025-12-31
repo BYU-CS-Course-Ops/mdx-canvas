@@ -2,6 +2,7 @@ from bs4 import Tag
 
 from .attributes import parse_settings, Attribute, parse_date, parse_int
 from ..resources import ResourceManager, CanvasResource, get_key
+from ..processing_context import get_current_file
 
 
 def parse_override_tag(override_tag: Tag, parent_type: str, parent_rid: str, resources: ResourceManager):
@@ -37,7 +38,8 @@ def parse_override_tag(override_tag: Tag, parent_type: str, parent_rid: str, res
     override_resource = CanvasResource(
         type='override',
         id=override_rid,
-        data=settings
+        data=settings,
+        content_path=str(get_current_file().resolve())
     )
     resources.add_resource(override_resource)
 

@@ -106,6 +106,7 @@ def deploy_quiz(course: Course, quiz_data: dict) -> tuple[QuizInfo, tuple[str, s
 def deploy_shell_quiz(course: Course, quiz_data: dict) -> tuple[QuizInfo, None]:
     shell_quiz_data = quiz_data.copy()
     shell_quiz_data['questions'] = []
-    shell_quiz_data['description'] = "<p>This is a shell page created to break a dependency cycle. The full content will be deployed later.</p>"
+    shell_quiz_data[
+        'description'] = "<p>This is a shell page created to break a dependency cycle. The full content will be deployed later.</p>"
 
     return deploy_quiz(course, shell_quiz_data)

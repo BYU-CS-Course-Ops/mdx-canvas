@@ -13,7 +13,6 @@ question_children_names = [
     'correct', 'incorrect', 'pair', 'distractors', 'correct-comments', 'neutral-comments', 'incorrect-comments'
 ]
 
-
 common_fields = [
     Attribute('correct-comments', new_name='correct_comments'),
     Attribute('neutral-comments', new_name='neutral_comments'),
@@ -222,13 +221,16 @@ def parse_multiple_true_false_question(tag: Tag):
 
     return resulting_questions
 
+
 def _add_answers_to_multiple_blanks_question(text):
     def letter_generator():
         for repeat in range(1, 10):
             for letter in string.ascii_uppercase:
                 yield letter * repeat
+
     letter_generator = letter_generator()
     answers = []
+
     def get_next_letter(match):
         answer = match.group()[2:-2]
         associated_id = next(letter_generator)
@@ -238,6 +240,7 @@ def _add_answers_to_multiple_blanks_question(text):
     updated_text = re.sub(r"\[\[(.*?)\]\]", get_next_letter, text)
 
     return updated_text, answers
+
 
 def parse_fill_in_multiple_blanks_filled_answers(tag: Tag):
     """
@@ -283,6 +286,7 @@ def parse_fill_in_multiple_blanks_filled_answers(tag: Tag):
     settings = parse_settings(tag, question_attributes + common_fields)
     question.update(settings)
     return [question]
+
 
 def parse_fill_in_the_blank_question(tag: Tag):
     """
@@ -465,4 +469,3 @@ def parse_numerical_question(tag: Tag):
         answer["numerical_answer_type"] = answer_type
 
     return [question]
-

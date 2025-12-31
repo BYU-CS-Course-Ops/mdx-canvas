@@ -3,6 +3,7 @@ from typing import TypedDict, List
 
 from .attributes import Attribute, parse_settings, parse_int
 from ..resources import ResourceManager, CanvasResource, get_key
+from ..processing_context import get_current_file
 
 
 class AssignmentGroupRules(TypedDict, total=False):
@@ -90,7 +91,8 @@ class AssignmentGroupTagProcessor:
         assignment_group = CanvasResource(
             type='assignment_group',
             id=tag.get('id', group_data['name']),
-            data=group_data
+            data=group_data,
+            content_path=str(get_current_file().resolve())
         )
 
         self._resources.add_resource(assignment_group)

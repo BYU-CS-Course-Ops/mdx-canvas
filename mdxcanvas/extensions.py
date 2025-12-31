@@ -10,6 +10,7 @@ from typing import Protocol
 from .xml_processing.inline_styling import get_style, parse_css, apply_inline_styles
 from .util import parse_soup_from_xml
 
+
 # Make a Protocol for any tag processor, it should take a Tag and return a Tag
 # This way we can define a type hint for the tag_processors dictionary
 class TagProcessor(Protocol):
@@ -42,6 +43,7 @@ class PrintLinesPreprocessor(Preprocessor):
     Used for debugging the state of the document
     in the middle of the preprocessor chain
     """
+
     def __init__(self, md, label):
         super().__init__(md)
         self.label = label

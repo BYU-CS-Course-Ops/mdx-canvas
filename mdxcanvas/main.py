@@ -11,8 +11,9 @@ from canvasapi import Canvas
 from canvasapi.course import Course
 
 from .deploy.canvas_deploy import deploy_to_canvas
-from .generate_result import MDXCanvasResult
+from .deployment_report import DeploymentReport
 from .our_logging import get_logger
+from .processing_context import FileContext
 from .resources import ResourceManager
 from .text_processing.jinja_processing import process_jinja
 from .text_processing.markdown_processing import process_markdown
@@ -142,44 +143,54 @@ def main(
         dryrun: bool = False,
         output_file: str = None
 ):
-    # Make sure the course actually exists before doing any real effort
-    course_info = load_config(course_info_file)
-    global_args = course_info.get('GLOBAL_ARGS', {})
+    # Initialize deployment report
+    report = DeploymentReport(output_file)
+    logger = get_logger()
 
-    course = get_course(canvas_api_token, course_info['CANVAS_API_URL'], course_info['CANVAS_COURSE_ID'])
-    logger = get_logger(course.name)
-    logger.info('Connected to Canvas')
+    try:
+        # Make sure the course actually exists before doing any real effort
+        course_info = load_config(course_info_file)
+        global_args = course_info.get('GLOBAL_ARGS', {})
 
-    result = MDXCanvasResult(output_file)
+        course = get_course(canvas_api_token, course_info['CANVAS_API_URL'], course_info['CANVAS_COURSE_ID'])
+        logger.info(f'Connected to Canvas: {course.name}')
 
-    if global_args_file:
-        global_args |= load_config(global_args_file)
+        if global_args_file:
+            global_args |= load_config(global_args_file)
 
-    resources = ResourceManager()
+        resources = ResourceManager()
 
-    # Load file
-    logger.info('Reading file: ' + str(input_file))
-    content_type, content = read_content(input_file)
-    processed_content = process_file(
-        resources,
-        input_file.parent,
-        content,
-        content_type,
-        global_args,
-        args_file,
-        templates,
-        css_file
-    )
+        # Track the input file in context for error messages
+        with FileContext(input_file):
+            # Load file
+            logger.info('Reading file: ' + str(input_file))
+            content_type, content = read_content(input_file)
+            processed_content = process_file(
+                resources,
+                input_file.parent,
+                content,
+                content_type,
+                global_args,
+                args_file,
+                templates,
+                css_file
+            )
 
-    # Parse file into XML
-    resources = process_canvas_xml(resources, processed_content)
+            # Parse file into XML
+            resources = process_canvas_xml(resources, processed_content)
 
-    # Deploy XML
-    logger.info('Deploying to Canvas')
-    deploy_to_canvas(course, course_info['LOCAL_TIME_ZONE'], resources, result, dryrun=dryrun)
+            # Deploy XML
+            logger.info('Deploying to Canvas')
+            deploy_to_canvas(course, course_info['LOCAL_TIME_ZONE'], resources, report, dryrun=dryrun)
 
-    result.output()
-    result.print()
+    except Exception as e:
+        logger.error(f"{type(e).__name__}: {e}")
+        report.add_error(e)
+
+    finally:
+        report.save_report()
+        report.print_report()
+
 
 
 def entry():

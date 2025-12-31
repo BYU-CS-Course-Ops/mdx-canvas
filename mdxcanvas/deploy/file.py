@@ -33,21 +33,21 @@ def get_canvas_folder(course: Course, folder_name: str, parent_folder_path="") -
 
 
 def deploy_file(course: Course, data: FileData) -> tuple[FileInfo, None]:
-        lock_at = data.get('lock_at')
-        unlock_at = data.get('unlock_at')
+    lock_at = data.get('lock_at')
+    unlock_at = data.get('unlock_at')
 
-        canvas_folder = data.get('canvas_folder') or DEFAULT_CANVAS_FOLDER
-        folder = get_canvas_folder(course, canvas_folder)
-        file_id = folder.upload(data['path'])[1]['id']
-        file = course.get_file(file_id)
+    canvas_folder = data.get('canvas_folder') or DEFAULT_CANVAS_FOLDER
+    folder = get_canvas_folder(course, canvas_folder)
+    file_id = folder.upload(data['path'])[1]['id']
+    file = course.get_file(file_id)
 
-        # Update the file with lock_at and unlock_at if provided
-        if lock_at or unlock_at:
-            file.update(lock_at=lock_at, unlock_at=unlock_at)
+    # Update the file with lock_at and unlock_at if provided
+    if lock_at or unlock_at:
+        file.update(lock_at=lock_at, unlock_at=unlock_at)
 
-        file_object_info: FileInfo = {
-            'id': file.id,
-            'uri': f'/files/{file.id}'
-        }
+    file_object_info: FileInfo = {
+        'id': file.id,
+        'uri': f'/files/{file.id}'
+    }
 
-        return file_object_info, None
+    return file_object_info, None
