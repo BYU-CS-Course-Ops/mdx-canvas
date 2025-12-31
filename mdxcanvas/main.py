@@ -145,6 +145,7 @@ def main(
 ):
     # Initialize deployment report
     report = DeploymentReport(output_file)
+    logger = get_logger()
 
     try:
         # Make sure the course actually exists before doing any real effort
@@ -152,8 +153,7 @@ def main(
         global_args = course_info.get('GLOBAL_ARGS', {})
 
         course = get_course(canvas_api_token, course_info['CANVAS_API_URL'], course_info['CANVAS_COURSE_ID'])
-        logger = get_logger(course.name)
-        logger.info('Connected to Canvas')
+        logger.info(f'Connected to Canvas: {course.name}')
 
         if global_args_file:
             global_args |= load_config(global_args_file)
@@ -189,8 +189,8 @@ def main(
 
     finally:
         report.save_report()
-        # TODO: Do we want to print this all the time?
         report.print_report()
+
 
 
 def entry():

@@ -21,10 +21,7 @@ def _walk_xml(tag, tag_processors):
     for child in tag.children:
         if hasattr(child, 'name') and child.name in tag_processors:
             processor = tag_processors[child.name]
-            try:
-                processor(child)
-            except:
-                raise
+            processor(child)
         _walk_xml(child, tag_processors)
 
 

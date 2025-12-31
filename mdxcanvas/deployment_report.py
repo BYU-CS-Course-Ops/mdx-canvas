@@ -34,5 +34,23 @@ class DeploymentReport:
                 f.write(json.dumps(self.report, indent=4))
 
     def print_report(self):
-        # TODO: Do we want to print to stderr instead?
-        print(json.dumps(self.report, indent=4) + '\n')
+        if self.report['deployed_content']:
+            groups = {}
+            for rtype, rid, url in self.report['deployed_content']:
+                if url not in groups:
+                    groups[url] = []
+                groups[url].append((rtype, rid))
+
+            print(' Deployed Content '.center(60, '-'))
+            for url, resources in groups.items():
+                resources_str = ', '.join(rid for _, rid in resources)
+                print(f'{resources_str}: {url}')
+
+        if self.report['content_to_review']:
+            print(' Content to Review '.center(60, '-'))
+            for rtype, rid, url in self.report['content_to_review']:
+                print(f'{rid}: {url}')
+
+        if self.report['error']:
+            print(file=sys.stderr)
+            print(self.report['error'], file=sys.stderr)

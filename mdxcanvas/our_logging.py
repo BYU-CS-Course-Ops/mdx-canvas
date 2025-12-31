@@ -3,7 +3,7 @@ import logging
 logger: logging.Logger = None
 
 
-def get_logger(course_name: str = None):
+def get_logger():
     global logger
     if logger is None:
         logger = logging.getLogger('MDXCANVAS')
@@ -15,7 +15,6 @@ def get_logger(course_name: str = None):
         format_tokens = [
             '%(asctime)s',
             # '%(name)s',
-            *([course_name] if course_name is not None else []),
             '%(levelname)s',
             '%(message)s'
         ]

@@ -25,7 +25,7 @@ from .syllabus import deploy_syllabus
 from .zip import deploy_zip, predeploy_zip
 from ..deployment_report import DeploymentReport
 from ..our_logging import get_logger
-from ..resources import CanvasResource, iter_keys, ResourceInfo
+from ..resources import CanvasResource, iter_keys
 
 logger = get_logger()
 
@@ -296,10 +296,6 @@ def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, s
                     report.add_content_to_review(*info)
 
                 md5s[resource_key] = {"checksum": current_md5, "canvas_info": canvas_obj_info}
-
-        if content_to_review := report.get_content_to_review():
-            for content in content_to_review:
-                logger.warning(content)
 
         elapsed = time.perf_counter() - start_time
         logger.info(f'Deployment complete - {total} resources in {elapsed:.1f}s')
