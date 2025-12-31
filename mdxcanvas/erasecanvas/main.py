@@ -73,7 +73,6 @@ def main(
         canvas_api_token: str,
         course_info: CourseInfo
 ):
-
     course = get_course(canvas_api_token,
                         course_info['CANVAS_API_URL'],
                         course_info['CANVAS_COURSE_ID'])
@@ -101,7 +100,6 @@ def main(
 
     announcements = course.canvas.get_announcements(context_codes=[f'course_{course.id}'])
     remove(announcements, 'Announcement') if len(list(announcements)) > 0 else None
-
 
 
 def entry():
@@ -132,4 +130,3 @@ def entry():
 
 if __name__ == '__main__':
     entry()
-    

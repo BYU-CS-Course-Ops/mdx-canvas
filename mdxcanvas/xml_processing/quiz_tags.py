@@ -7,6 +7,8 @@ from .quiz_questions import parse_text_question, parse_true_false_question, pars
 from ..resources import ResourceManager, CanvasResource
 from bs4 import Tag
 from .override_parsing import parse_overrides_container
+from ..error_helpers import format_tag, get_file_path
+from ..processing_context import get_current_file
 
 
 class QuizTagProcessor:
@@ -49,7 +51,8 @@ class QuizTagProcessor:
         info = CanvasResource(
             type='quiz',
             id=rid,
-            data=quiz
+            data=quiz,
+            content_path=str(get_current_file().resolve())
         )
         self._resources.add_resource(info)
 
@@ -90,9 +93,9 @@ class QuizTagProcessor:
         questions = []
         for question in questions_tag.findAll('question', recursive=False):
             if not (question_type := question.get("type")):
-                raise ValueError("Question type not specified.")
+                raise ValueError(f"Question type not specified @ {format_tag(question)}\n  in {get_file_path(question)}")
             if question_type not in self.question_types:
-                raise ValueError(f"Question type {question_type} not supported. Supported types: {', '.join(self.question_types.keys())}")
+                raise ValueError(f"Question type '{question_type}' not supported @ {format_tag(question)}\n  Supported types: {', '.join(self.question_types.keys())}\n  in {get_file_path(question)}")
 
             parse_tag = self.question_types[question_type]
             result = parse_tag(question)

@@ -3,6 +3,7 @@ from canvasapi.course import Course
 from .util import update_group_name_to_id
 from ..resources import AssignmentInfo
 
+
 def deploy_assignment(course: Course, assignment_info: dict) -> tuple[AssignmentInfo, None]:
     assignment_id = assignment_info["canvas_id"]
 
@@ -30,6 +31,7 @@ def deploy_assignment(course: Course, assignment_info: dict) -> tuple[Assignment
 
 def deploy_shell_assignment(course: Course, assignment_info: dict) -> tuple[AssignmentInfo, None]:
     shell_assignment_info = assignment_info.copy()
-    shell_assignment_info['description'] = "<p>This is a shell assignment created to break a dependency cycle. The full content will be deployed later.</p>"
+    shell_assignment_info[
+        'description'] = "<p>This is a shell assignment created to break a dependency cycle. The full content will be deployed later.</p>"
 
     return deploy_assignment(course, shell_assignment_info)

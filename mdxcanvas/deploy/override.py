@@ -3,7 +3,8 @@ from canvasapi.course import Course
 
 from ..resources import OverrideInfo
 
-def deploy_assignment_override(course: Course, assignment_id: int, override_info: dict)-> tuple[OverrideInfo, None]:
+
+def deploy_assignment_override(course: Course, assignment_id: int, override_info: dict) -> tuple[OverrideInfo, None]:
     assignment: Assignment = course.get_assignment(assignment_id)
 
     if cid := override_info.get('canvas_id'):

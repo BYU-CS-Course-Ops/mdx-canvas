@@ -10,7 +10,6 @@ from bs4 import BeautifulSoup
 from bs4.element import Tag, NavigableString
 from jinja2 import Environment
 
-
 ResourceExtractor: TypeAlias = Callable[[str], tuple[str, list]]
 
 
@@ -634,7 +633,7 @@ class DocumentParser:
         parser = Parser()
 
         self.element_processors = {
-            "quiz": QuizParser(self.markdown_processor, group_identifier, self.date_formatter,parser),
+            "quiz": QuizParser(self.markdown_processor, group_identifier, self.date_formatter, parser),
             "assignment": AssignmentParser(self.markdown_processor, group_identifier, self.date_formatter, parser),
             "page": PageParser(self.markdown_processor, self.date_formatter, parser),
             "module": ModuleParser(parser),
@@ -653,4 +652,3 @@ class DocumentParser:
                     templates = [templates]
                 templates = [order_elements(template) for template in templates]
         return document
-

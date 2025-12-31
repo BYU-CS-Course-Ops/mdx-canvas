@@ -5,6 +5,7 @@ from bs4 import Tag
 from .attributes import parse_settings, Attribute, parse_date, parse_bool
 from ..resources import ResourceManager, CanvasResource
 from ..util import retrieve_contents
+from ..processing_context import get_current_file
 
 
 class AnnouncementTagProcessor:
@@ -42,5 +43,6 @@ class AnnouncementTagProcessor:
             type='announcement',
             id=announcement_tag.get('id', settings['title']),
             data=settings,
+            content_path=str(get_current_file().resolve())
         )
         self._resources.add_resource(announcement)

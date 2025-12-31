@@ -6,6 +6,7 @@ class CanvasResource(TypedDict):
     type: str
     id: str
     data: dict
+    content_path: str
 
 
 class ResourceInfo(TypedDict):

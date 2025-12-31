@@ -5,6 +5,7 @@ from .attributes import parse_settings, Attribute, parse_bool, parse_date, parse
 from ..util import retrieve_contents
 from ..resources import ResourceManager, CanvasResource
 from .override_parsing import parse_overrides_container
+from ..processing_context import get_current_file
 
 
 class AssignmentTagProcessor:
@@ -63,7 +64,8 @@ class AssignmentTagProcessor:
         assignment = CanvasResource(
             type='assignment',
             id=rid,
-            data=settings
+            data=settings,
+            content_path=str(get_current_file().resolve())
         )
         self._resources.add_resource(assignment)
 

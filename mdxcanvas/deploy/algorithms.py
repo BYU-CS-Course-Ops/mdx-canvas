@@ -73,7 +73,7 @@ def kahns_topological_sort(graph: dict[tuple[str, str], list[tuple[str, str]]]) 
 
 
 def linearize_dependencies(
-    graph: dict[tuple[str, str], list[tuple[str, str]]]
+        graph: dict[tuple[str, str], list[tuple[str, str]]]
 ) -> list[tuple[tuple[str, str], bool]]:
     """
     Linearize dependencies with cycle breaking via shell deployments.
