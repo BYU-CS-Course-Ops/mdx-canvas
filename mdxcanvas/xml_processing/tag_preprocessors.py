@@ -3,11 +3,11 @@ from typing import Callable
 
 from bs4 import Tag
 
-from ..processing_context import FileContext, get_file_stack, get_current_file
+from ..error_helpers import format_tag, get_file_path, validate_required_attribute
+from ..processing_context import FileContext, get_current_file
 from ..resources import ResourceManager, FileData, ZipFileData, CanvasResource, get_key
 from ..util import parse_soup_from_xml
 from ..xml_processing.attributes import parse_bool
-from ..error_helpers import format_tag, get_file_path, validate_required_attribute
 
 
 def make_course_settings_preprocessor(parent: Path, resources: ResourceManager):
@@ -17,13 +17,15 @@ def make_course_settings_preprocessor(parent: Path, resources: ResourceManager):
         image_path = tag.get('image')
 
         if not (any([name, course_code, image_path])):
-            raise ValueError(f"Course settings tag must have at least one of: name, code, or image @ {format_tag(tag)}\n  in {get_file_path(tag)}")
+            raise ValueError(
+                f"Course settings tag must have at least one of: name, code, or image @ {format_tag(tag)}\n  in {get_file_path(tag)}")
 
         image_resource_key = None
         if image_path:
             image_path = (parent / image_path).resolve().absolute()
             if not image_path.is_file():
-                raise ValueError(f"Course image file not found @ {format_tag(tag)}\n  Image path: {image_path}\n  in {get_file_path(tag)}")
+                raise ValueError(
+                    f"Course image file not found @ {format_tag(tag)}\n  Image path: {image_path}\n  in {get_file_path(tag)}")
 
             file = CanvasResource(
                 type='file',
@@ -63,7 +65,8 @@ def make_image_preprocessor(parent: Path, resources: ResourceManager):
         # Assume it's a local file
         src_path = (parent / src).resolve().absolute()
         if not src_path.is_file():
-            raise ValueError(f"Image file not found @ {format_tag(tag)}\n  File path: {src_path}\n  in {get_file_path(tag)}")
+            raise ValueError(
+                f"Image file not found @ {format_tag(tag)}\n  File path: {src_path}\n  in {get_file_path(tag)}")
         src = src_path
 
         file = CanvasResource(
@@ -139,7 +142,8 @@ def make_zip_preprocessor(parent: Path, resources: ResourceManager):
 
         content_folder_path = (parent / content_folder).resolve().absolute()
         if not content_folder_path.exists():
-            raise ValueError(f"Folder not found @ {format_tag(tag)}\n  Folder path: {content_folder_path}\n  in {get_file_path(tag)}")
+            raise ValueError(
+                f"Folder not found @ {format_tag(tag)}\n  Folder path: {content_folder_path}\n  in {get_file_path(tag)}")
         content_folder = str(content_folder_path)
 
         additional_files = tag.get("additional_files")
@@ -204,67 +208,61 @@ def make_include_preprocessor(
         imported_file = (parent_folder / imported_filename).resolve()
         args_file_path = tag.get('args', None)
 
-        # Get the file that contains this include tag
-        file_stack = get_file_stack()
-        containing_file = file_stack[-1] if file_stack else "unknown file"
+        # Check if the included file exists first
+        if not imported_file.exists():
+            containing_file = get_current_file() or "unknown file"
+            raise FileNotFoundError(
+                f"Include file not found @ {format_tag(tag)}\n"
+                f"  in {containing_file}"
+            )
 
-        try:
-            # Track the included file in context for error messages
-            with FileContext(imported_file):
-                # Check if the included file exists first
-                if not imported_file.exists():
-                    raise FileNotFoundError(
-                        f"Include file not found @ {format_tag(tag)}\n"
-                        f"  in {containing_file}"
-                    )
+        args_file = None
+        if args_file_path is not None:
+            args_file = (parent_folder / args_file_path).resolve().absolute()
 
-                imported_raw_content = imported_file.read_text(encoding='utf-8')
-                suffixes = imported_file.suffixes
-
-                lines = tag.get('lines', '')
-                if lines:
-                    grab = _parse_slice(lines)
-                    imported_raw_content = '\n'.join(imported_raw_content.splitlines()[grab])
-
-                if parse_bool(tag.get('fenced', 'false')):
-                    imported_raw_content = f'```{imported_file.suffix.lstrip(".")}\n{imported_raw_content}\n```\n'
-                    suffixes = suffixes + ['.md']
-
-                args_file = None
-                if args_file_path is not None:
-                    args_file = (parent_folder / args_file_path).resolve().absolute()
-
-                    # Check if args file exists
-                    if not args_file.exists():
-                        raise FileNotFoundError(
-                            f"Args file not found @ {format_tag(tag)}\n"
-                            f"  in {containing_file}"
-                        )
-
-                imported_html = process_file(
-                    imported_file.parent,
-                    imported_raw_content,
-                    suffixes,
-                    args_file=args_file
+            # Check if args file exists
+            if not args_file.exists():
+                containing_file = get_current_file() or "unknown file"
+                raise FileNotFoundError(
+                    f"Args file not found @ {format_tag(tag)}\n"
+                    f"  in {containing_file}"
                 )
 
-                use_div = parse_bool(tag.get('usediv', 'true'))
+        # Track the included file in context for error messages
+        with FileContext(imported_file):
+            imported_raw_content = imported_file.read_text(encoding='utf-8')
+            suffixes = imported_file.suffixes
 
-                include_result = parse_soup_from_xml(imported_html)
+            lines = tag.get('lines', '')
+            if lines:
+                grab = _parse_slice(lines)
+                imported_raw_content = '\n'.join(imported_raw_content.splitlines()[grab])
 
-                if not use_div:
-                    tag.replace_with(include_result)
+            if parse_bool(tag.get('fenced', 'false')):
+                imported_raw_content = f'```{imported_file.suffix.lstrip(".")}\n{imported_raw_content}\n```\n'
+                suffixes = suffixes + ['.md']
 
-                else:
-                    new_tag = Tag(name='div')
-                    new_tag['data-source'] = str(imported_file)
-                    if lines:
-                        new_tag['data-lines'] = lines
-                    new_tag.extend(include_result)
-                    tag.replace_with(new_tag)
+            imported_html = process_file(
+                imported_file.parent,
+                imported_raw_content,
+                suffixes,
+                args_file=args_file
+            )
 
-        except Exception:
-            raise
+            use_div = parse_bool(tag.get('usediv', 'true'))
+
+            include_result = parse_soup_from_xml(imported_html)
+
+            if not use_div:
+                tag.replace_with(include_result)
+
+            else:
+                new_tag = Tag(name='div')
+                new_tag['data-source'] = str(imported_file)
+                if lines:
+                    new_tag['data-lines'] = lines
+                new_tag.extend(include_result)
+                tag.replace_with(new_tag)
 
     return process_include
 
@@ -273,7 +271,7 @@ def make_link_preprocessor():
     def process_link(tag: Tag):
         link_type = validate_required_attribute(tag, 'type', 'course-link')
         # TODO: Canvas supports `course navigation` links, do we?
-        if link_type not in ['syllabus', 'page', 'assignment', 'quiz', 'announcement', 'discussion', 'module']:
+        if link_type not in ['syllabus', 'page', 'assignment', 'quiz', 'announcement', 'discussion', 'module', 'file']:
             raise ValueError(f'Invalid course-link type "{link_type}" @ {format_tag(tag)}\n  in {get_file_path(tag)}')
 
         link_rid = validate_required_attribute(tag, 'id', 'course-link')
