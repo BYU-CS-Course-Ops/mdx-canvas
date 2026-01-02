@@ -7,6 +7,7 @@ import yaml
 from jinja2 import Environment, FileSystemLoader
 
 from ..our_logging import get_logger
+from ..processing_context import get_current_file
 
 logger = get_logger()
 
@@ -53,6 +54,7 @@ def _render_template(
         "zip": zip,
         "enumerate": enumerate,
         "split_list": lambda x: x.split(";"),
+        "exists": lambda path: (parent_folder / path).exists(),
         "read_file": lambda f: (parent_folder / f).absolute().read_text(),
         "glob": lambda *args, **kwargs: [str(f.relative_to(parent_folder)) for f in
                                          parent_folder.glob(*args, **kwargs)],
@@ -66,9 +68,11 @@ def _render_template(
 
     if args:
         context |= {"args": args}
-
-    jj_template = env.from_string(template)
-    return jj_template.render(context)
+    try:
+        jj_template = env.from_string(template)
+        return jj_template.render(context)
+    except Exception as ex:
+        raise Exception(f'Error processing {get_current_file()}', ex)
 
 
 def process_jinja(

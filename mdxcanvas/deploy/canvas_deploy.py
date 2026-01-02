@@ -242,8 +242,7 @@ def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, s
     resource_order = linearize_dependencies(resource_dependencies)
     logger.debug(f'Linearized dependencies: {resource_order}')
 
-    logger.info('Beginning deployment to Canvas')
-    start_time = time.perf_counter()
+    logger.info('Preparing resources for deployment to Canvas')
 
     with MD5Sums(course) as md5s, TemporaryDirectory() as tmpdir:
         tmpdir = Path(tmpdir)
@@ -252,6 +251,9 @@ def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, s
 
         to_deploy = identify_modified_or_outdated(resources, resource_order, resource_dependencies, md5s)
         total = len(to_deploy)
+        if not total:
+            logger.info('No resources to deploy')
+            return
 
         # Summary by type
         grouped = defaultdict(int)
@@ -271,6 +273,8 @@ def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, s
             logger.info('Dry run - no resources deployed')
             return
 
+        logger.info('Deploying resources to Canvas')
+        start_time = time.perf_counter()
         resource_objs: dict[tuple[str, str], CanvasObject] = {}
         index_width = len(str(total))
         for index, ((resource_key, is_shell), (current_md5, resource)) in enumerate(to_deploy.items(), start=1):
