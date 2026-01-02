@@ -184,7 +184,7 @@ def main(
             deploy_to_canvas(course, course_info['LOCAL_TIME_ZONE'], resources, report, dryrun=dryrun)
 
     except Exception as e:
-        logger.error(f"{type(e).__name__}: {e}")
+        logger.exception(f"{type(e).__name__}: {e}")
         report.add_error(e)
 
     finally:

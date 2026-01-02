@@ -58,7 +58,7 @@ def make_image_preprocessor(parent: Path, resources: ResourceManager):
         # TODO - handle b64-encoded images
 
         src = validate_required_attribute(tag, 'src', 'img')
-        if src.startswith('http') or src.startswith('@@'):
+        if src.startswith('http') or src.startswith('__@@'):
             # No changes necessary
             return
 

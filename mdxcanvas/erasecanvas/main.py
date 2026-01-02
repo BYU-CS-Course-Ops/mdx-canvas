@@ -77,7 +77,7 @@ def main(
                         course_info['CANVAS_API_URL'],
                         course_info['CANVAS_COURSE_ID'])
 
-    logger = get_logger(course.name)
+    logger = get_logger()
     logger.info('Connecting to Canvas...')
 
     course.update(course={'syllabus_body': ''})
