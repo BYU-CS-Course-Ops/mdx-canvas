@@ -48,8 +48,8 @@ class DeploymentReport:
 
         if self.report['content_to_review']:
             print(' Content to Review '.center(60, '-'))
-            for rtype, rid, url in self.report['content_to_review']:
-                print(f'{rid}: {url}')
+            for quiz_name, link_to_quiz in self.report['content_to_review']:
+                print(f'{quiz_name}: {link_to_quiz}')
 
         if self.report['error']:
             print(file=sys.stderr)
