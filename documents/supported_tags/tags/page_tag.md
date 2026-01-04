@@ -6,13 +6,29 @@ The `<page>` tag creates a content page in the course. You can use Markdown, HTM
 
 ### `title`
 
-Sets the title of the page. This is how the page will appear in Canvas and how it should be referenced in `<item>` tags.
+Sets the title of the page (required). This is how the page will appear in Canvas and how it should be referenced in `<item>` tags.
 
 ```xml
 <page title="Example Page">
 ...
 </page>
 ```
+
+### `id`
+
+Optional unique identifier for the page. If not specified, defaults to the `title` value.
+
+Use an explicit `id` when you need to change the page's title later without creating a new resource, or when you want a more stable identifier for referencing.
+
+```xml
+<page
+    id="intro_page"
+    title="Introduction">
+...
+</page>
+```
+
+**Legacy scenario:** If you have an existing page without an `id` and want to rename it, add an `id` attribute with the value of the old title before changing the title.
 
 ## Content
 

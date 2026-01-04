@@ -32,6 +32,26 @@ Includes only specific lines from the source file. Use the format `"start:end"` 
 
 This is useful when including only a portion of a script or document.
 
+### `args` (optional)
+
+Path to an arguments file for Jinja template processing. Use when including `.jinja` files that require variables.
+
+```xml
+<include path="template.jinja" args="arguments.json" />
+```
+
+### `usediv` (optional, defaults to `true`)
+
+Controls whether the included content is wrapped in a `<div>` element.
+
+- When `true` (default): Wraps content in `<div data-source="..." data-lines="...">`
+- When `false`: Inserts content directly without wrapper
+
+```xml
+<!-- Include without wrapper div -->
+<include path="content.md" usediv="false" />
+```
+
 ## Examples
 
 ### Markdown Inclusion

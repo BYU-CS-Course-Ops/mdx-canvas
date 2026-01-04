@@ -1,30 +1,92 @@
-# `<course_link>` Tag
+# `<course-link>` Tag
 
-The `<course_link>` tag  creates a link to a canvas item (like a page, assignment, or quiz) within a page or assignment.
-
-This allows you to reference other course content without needing to hard-code URLs, making it easier to maintain 
-links as your course evolves.
+The `<course-link>` tag creates a link to course content (pages, assignments, quizzes, etc.). The link automatically resolves to the correct Canvas URL.
 
 ## Attributes
 
-### `type`
+### `type` (required)
 
-Specifies the canvas item type you are linking to. Valid values include:
+The type of content to link to. Valid values:
 
-- `page` - Links to a page in the course.
-- `assignment` - Links to an assignment.
-- `quiz` - Links to a quiz.
-
-### `title`
-
-This is the title of the item you are linking to. It should match the title of the page, assignment, or quiz exactly.
-
-## Example
-
-If you have a page titled "Introduction" and you want to link to it, you would use:
+- `page`
+- `assignment`
+- `quiz`
+- `announcement`
+- `discussion`
+- `module`
+- `syllabus`
 
 ```xml
-<course_link type="page" title="Introduction" />
+<course-link type="page" id="intro_page" />
 ```
 
-Another example can be found in the demo course [here](../../../demo_course/pages/module_overview_args.md)
+### `id` (required)
+
+The `id` of the content to link to. This must match the `id` attribute of the target resource.
+
+**Important:** This is the `id` attribute, not the `title`.
+
+```xml
+<!-- Elsewhere: define the page -->
+<page id="intro_page" title="Introduction to the Course">
+  ...
+</page>
+
+<!-- Link to it using the id -->
+<course-link type="page" id="intro_page" />
+```
+
+## Link Text
+
+### Default Behavior
+
+By default, the link text is automatically set to the **title** of the target content.
+
+```xml
+<!-- If the page has title="Introduction to the Course" -->
+<course-link type="page" id="intro_page" />
+<!-- Displays: "Introduction to the Course" -->
+```
+
+### Custom Link Text
+
+Add text inside the tag to override the default link text:
+
+```xml
+<course-link type="page" id="intro_page">Click here to read the intro</course-link>
+<!-- Displays: "Click here to read the intro" -->
+```
+
+## Examples
+
+### Basic Links
+
+```xml
+<!-- Link to a page -->
+<course-link type="page" id="syllabus" />
+
+<!-- Link to an assignment -->
+<course-link type="assignment" id="hw1" />
+
+<!-- Link to a quiz -->
+<course-link type="quiz" id="midterm_exam" />
+```
+
+### Custom Link Text
+
+```xml
+<assignment title="Homework 1">
+  Before starting, please review the
+  <course-link type="page" id="style_guide">coding style guide</course-link>.
+
+  Submit your work to <course-link type="assignment" id="hw1_submission">the submission page</course-link>.
+</assignment>
+```
+
+### Linking to Syllabus
+
+```xml
+<page title="Welcome">
+  Welcome to the course! Please read the <course-link type="syllabus">syllabus</course-link> carefully.
+</page>
+```

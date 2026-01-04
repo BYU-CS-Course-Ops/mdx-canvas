@@ -31,8 +31,8 @@ Click on a tag to view its full documentation and usage examples.
 - [`<syllabus>`](tags/syllabus_tag.md)  
   Sets the content of the course syllabus page.
 
-- [`<override>`](tags/override_tag.md)  
-  _fill_
+- [`<override>`](tags/override_tag.md)
+  Apply section-specific dates to assignments or quizzes.
 
-- [`<announcement>`](tags/announcement_tag.md)  
-  _fill_
+- [`<announcement>`](tags/announcement_tag.md)
+  Post course-wide announcements with optional scheduled publishing.
