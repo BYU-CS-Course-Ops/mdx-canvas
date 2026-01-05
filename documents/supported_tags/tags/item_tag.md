@@ -1,6 +1,7 @@
 # `<item>` Tag
 
-The `<item>` tag defines individual items within a module. Items can link to existing content (pages, assignments, quizzes, files) or create structure (subheaders, external links).
+The `<item>` tag defines individual items within a module. Items can link to existing content (pages, assignments, 
+quizzes, files) or create structure (subheaders, external links).
 
 ## Common Attributes
 
@@ -61,7 +62,8 @@ See [Canvas API documentation](https://canvas.instructure.com/doc/api/modules.ht
 
 #### `content_id` (required)
 
-The `id` of the existing content to link to. This must match the `id` attribute of a `<page>`, `<assignment>`, `<quiz>`, or `<file>` tag defined elsewhere.
+The `id` of the existing content to link to. This must match the `id` attribute of a `<page>`, `<assignment>`, 
+`<quiz>`, or `<file>` tag defined elsewhere.
 
 ```xml
 <!-- Elsewhere in your content -->

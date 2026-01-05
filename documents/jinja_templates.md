@@ -113,14 +113,18 @@ following JSON:
 ```json
 {
     "Homework 1": {
-        "Due_At": "Jan 1, 2025, 11:59 PM", 
-        "Points_Possible": 100, 
+        "content": {
+            "Due_At": "Jan 1, 2025, 11:59 PM",
+            "Points_Possible": 100
+        },
         "Description": "This is the HW 1 instructions"
     },
     ...
     "Homework 3": {
-        "Due_At": "Jan 15, 2025, 11:59 PM", 
-        "Points_Possible": 75, 
+        "content": {
+            "Due_At": "Jan 15, 2025, 11:59 PM",
+            "Points_Possible": 75
+        },
         "Description": "This is the HW 3 instructions"
     }
 }

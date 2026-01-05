@@ -30,14 +30,6 @@ Relative path to an image file to use as the course banner/image.
 <course-settings image="course_banner.png" />
 ```
 
-### `canvas_folder` (optional)
-
-Canvas folder path to upload the course image to. Only applies when `image` is specified.
-
-```xml
-<course-settings image="course_banner.png" canvas_folder="Course Assets" />
-```
-
 ## Examples
 
 ### Set Course Name and Code
@@ -52,8 +44,7 @@ Canvas folder path to upload the course image to. Only applies when `image` is s
 
 ```xml
 <course-settings
-    image="images/cs101_banner.png"
-    canvas_folder="Branding" />
+    image="images/cs101_banner.png" />
 ```
 
 ### Set All Course Metadata
@@ -62,6 +53,5 @@ Canvas folder path to upload the course image to. Only applies when `image` is s
 <course-settings
     name="Data Structures and Algorithms"
     code="CS 235"
-    image="images/cs235_banner.png"
-    canvas_folder="Course Images" />
+    image="images/cs235_banner.png" />
 ```

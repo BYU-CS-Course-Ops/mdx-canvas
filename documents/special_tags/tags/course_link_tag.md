@@ -1,6 +1,7 @@
 # `<course-link>` Tag
 
-The `<course-link>` tag creates a link to course content (pages, assignments, quizzes, etc.). The link automatically resolves to the correct Canvas URL.
+The `<course-link>` tag creates a link to course content (pages, assignments, quizzes, etc.). The link automatically 
+resolves to the correct Canvas URL.
 
 ## Attributes
 
@@ -24,7 +25,8 @@ The type of content to link to. Valid values:
 
 The `id` of the content to link to. This must match the `id` attribute of the target resource.
 
-**Important:** This is the `id` attribute, not the `title`.
+**Important:** This is the `id` attribute, not the `title`. If a resource you are attempting to link to does not have 
+an `id` attribute, you would put the resources `title` attribute in its place.
 
 ```xml
 <!-- Elsewhere: define the page -->

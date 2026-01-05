@@ -55,24 +55,6 @@ This creates a Canvas page titled "Introduction to Computer Science" with the ma
     title="Week 1: Getting Started" />
 ```
 
-### Multiple Pages from Markdown Files
-
-```xml
-<module title="Course Content">
-    <item type="page" content_id="intro">
-        <md-page path="pages/introduction.md" />
-    </item>
-
-    <item type="page" content_id="setup">
-        <md-page path="pages/environment_setup.md" />
-    </item>
-
-    <item type="page" content_id="resources">
-        <md-page path="pages/additional_resources.md" />
-    </item>
-</module>
-```
-
 ## Notes
 
 - The markdown file is processed using the same logic as the `<include>` tag

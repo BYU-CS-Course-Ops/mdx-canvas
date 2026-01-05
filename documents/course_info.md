@@ -1,14 +1,16 @@
 # Course Info
 
-The `course_info` file is a configuration file used to define key settings for your Canvas course deployment via **MDXCanvas**.
+The `course_info` file is a configuration file used to define key settings for your Canvas course deployment via 
+**MDXCanvas**.
 
 ## Supported Formats
 
 - **YAML** (`.yaml`, `.yml`) - Recommended format for readability
 - **JSON** (`.json`) - Standard JSON format
-- **MarkdownData** (`.md`, `.mdd`) - Embedded data in markdown files
+- **MarkdownData** (`.md`, `.mdd`) - See [MarkdownData documentation](https://github.com/BYU-CS-Course-Ops/markdowndata) for details.
 
-In addition to required values (such as `CANVAS_API_URL` and `CANVAS_COURSE_ID`), you can include optional fields to further customize your course setup.
+In addition to required values (such as `CANVAS_API_URL` and `CANVAS_COURSE_ID`), you can include optional fields to 
+further customize your course setup.
 
 ## Available Fields
 

@@ -34,7 +34,7 @@ A comma-separated list of additional files (outside the `path`) to include in th
 
 ### `priority_path` (optional)
 
-Specifies a folder inside the zip to prioritize. Files from this folder will be placed at the top of the archive when possible.
+Specifies a folder inside the zip to prioritize.
 
 ```xml
 <zip name="lab1.zip" path="labs/lab1" priority_path="labs/lab1/starter" />

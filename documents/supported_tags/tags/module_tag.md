@@ -20,7 +20,6 @@ Sets the title of the module as it appears in Canvas (required).
 Optional unique identifier for the module. If not specified, defaults to the `title` value.
 
 Use an explicit `id` when you need to:
-- Reference this module in `prerequisite_module_ids` of other modules
 - Change the module's title later without creating a new resource
 - Have a more stable identifier for referencing
 
