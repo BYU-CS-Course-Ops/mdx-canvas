@@ -1,4 +1,3 @@
-import json
 import uuid
 from pathlib import Path
 from tempfile import NamedTemporaryFile

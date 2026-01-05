@@ -88,7 +88,7 @@ Example (`.xml` quiz):
 
 As shown above, Markdown formatting is supported within content.
 
-See the [Demo Course](demo_course) for complete examples.
+See the [Demo Course](demo-course) for complete examples.
 
 ## Command-Line Options
 
@@ -167,4 +167,4 @@ Apply custom styling across your content using external CSS files.
 
 ## Demo Course
 
-Explore the [`demo_course`](demo_course) folder to see MDXCanvas in action:
+Explore the [`demo_course`](demo-course) folder to see MDXCanvas in action:
