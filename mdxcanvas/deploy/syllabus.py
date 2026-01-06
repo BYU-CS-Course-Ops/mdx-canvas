@@ -8,6 +8,7 @@ def deploy_syllabus(course: Course, data: SyllabusData) -> tuple[SyllabusInfo, N
 
     syllabus_object_info: SyllabusInfo = {
         'id': str(course.id),
+        'title': 'Syllabus',
         'uri': f'/courses/{course.id}/assignments/syllabus',
         'url': f'{course.canvas._Canvas__requester.original_url}/courses/{course.id}/assignments/syllabus'
     }

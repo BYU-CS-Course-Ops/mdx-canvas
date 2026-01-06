@@ -169,8 +169,6 @@ def identify_modified_or_outdated(
         stored_md5 = md5s.get_checksum(item)
         current_md5 = compute_md5(resource_data)
 
-        logger.debug(f'MD5 {resource_key}: {current_md5} vs {stored_md5}')
-
         # Attach the Canvas object id (stored as `canvas_id`) to the resource data
         # so deployment can detect whether to create a new item or update an existing one.
         resource['data']['canvas_id'] = md5s.get_canvas_info(item).get('id') if md5s.has_canvas_info(item) else None
@@ -188,6 +186,7 @@ def identify_modified_or_outdated(
 
         if stored_md5 != current_md5:
             # Changed data, need to deploy
+            logger.debug(f'MD5 {resource_key}: {current_md5} vs {stored_md5}')
             modified[resource_key, is_shell] = current_md5, resource
             continue
 
@@ -206,6 +205,7 @@ def update_links(md5s: MD5Sums, data: dict, resource_objs: dict, current_resourc
         canvas_info = resource_objs.get((rtype, rid)) or md5s.get_canvas_info((rtype, rid))
 
         if not canvas_info:
+            logger.debug(data)
             raise ValueError(
                 f"No canvas info for {rtype} {rid}\n  Referenced in {current_resource['type']} {current_resource['id']}\n  in {current_resource['content_path']}")
 

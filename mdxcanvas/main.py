@@ -27,9 +27,6 @@ logger = get_logger()
 class CourseInfo(TypedDict):
     CANVAS_API_URL: str
     CANVAS_COURSE_ID: int
-    COURSE_NAME: str
-    COURSE_CODE: str
-    COURSE_IMAGE: Path
     LOCAL_TIME_ZONE: str
 
 

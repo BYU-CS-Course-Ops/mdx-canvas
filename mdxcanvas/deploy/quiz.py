@@ -94,6 +94,7 @@ def deploy_quiz(course: Course, quiz_data: dict) -> tuple[QuizInfo, tuple[str, s
 
     quiz_object_info: QuizInfo = {
         'id': canvas_quiz.id,
+        'title': canvas_quiz.title,
         'uri': f'/courses/{course.id}/quizzes/{canvas_quiz.id}',
 
         # Following fields have been observed to be missing in some cases

@@ -14,6 +14,7 @@ def deploy_page(course: Course, page_info: dict) -> tuple[PageInfo, None]:
 
     page_object_info: PageInfo = {
         'id': canvas_page.page_id,
+        'title': canvas_page.title,
         'page_url': canvas_page.url,
         'uri': f'/courses/{course.id}/pages/{canvas_page.url}',
 
