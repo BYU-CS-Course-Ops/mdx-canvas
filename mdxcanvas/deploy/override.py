@@ -15,6 +15,10 @@ def deploy_override(course: Course, override_info: dict) -> tuple[OverrideInfo, 
     assignment_id = int(override_info.get('assignment_id'))
 
     if rtype == 'quiz':
+        # Quizzes are unique in that they have two IDs: the quiz ID and the assignment ID.
+        # To get and modify a quizzes override, we need the assignment ID which we do not track directly.
+        # This step gets the quiz object to retrieve the assignment ID.
+
         quiz = course.get_quiz(assignment_id)
         assignment_id = quiz.assignment_id
 
