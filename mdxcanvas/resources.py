@@ -63,7 +63,6 @@ class PageInfo(ResourceInfo):
 
 class QuizInfo(ResourceInfo):
     id: str
-    assignment_id: str
     uri: str  # for course-link
     url: str | None
 
