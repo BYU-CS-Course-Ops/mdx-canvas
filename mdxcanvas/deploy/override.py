@@ -4,7 +4,7 @@ from canvasapi.course import Course
 from ..resources import OverrideInfo
 
 
-def deploy_override(course: Course, override_info: dict) -> tuple[OverrideInfo, None]:
+def _get_assignment(course: Course, override_info: dict) -> Assignment:
     rtype = override_info.get('rtype')
 
     # Not necessarily needed, as it never occurs in practice, but just to be safe.
@@ -22,7 +22,11 @@ def deploy_override(course: Course, override_info: dict) -> tuple[OverrideInfo, 
         quiz = course.get_quiz(assignment_id)
         assignment_id = quiz.assignment_id
 
-    assignment: Assignment = course.get_assignment(assignment_id)
+    return course.get_assignment(assignment_id)
+
+
+def deploy_override(course: Course, override_info: dict) -> tuple[OverrideInfo, None]:
+    assignment: Assignment = _get_assignment(course, override_info)
 
     if cid := override_info.get('canvas_id'):
         override = assignment.get_override(cid)
