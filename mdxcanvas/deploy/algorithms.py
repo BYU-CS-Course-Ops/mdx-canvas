@@ -84,7 +84,6 @@ def linearize_dependencies(
     Other types (syllabus, file, etc.) have deterministic IDs and don't need shell deployments.
     """
 
-    # Lazy import for python cyclical imports
     sccs = tarjan_scc(graph)
 
     cycle_breakers = set()
