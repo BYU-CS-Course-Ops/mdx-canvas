@@ -7,6 +7,8 @@ from ..resources import OverrideInfo
 def deploy_override(course: Course, override_info: dict) -> tuple[OverrideInfo, None]:
     rtype = override_info.get('rtype')
 
+    # Not necessarily needed, as it never occurs in practice, but just to be safe.
+    # Only assignments and quizzes parse overrides.
     if rtype not in ['assignment', 'quiz']:
         raise ValueError(f"Invalid override rtype: {rtype}. Must be 'assignment' or 'quiz'.")
 
