@@ -1,0 +1,33 @@
+<!--<assignment title="Override Assignment"-->
+<!--      due_at="Dec 31, 2026, 11:59 PM">-->
+
+<!--<description>-->
+<!--    This is an **overridden** assignment!-->
+<!--</description>-->
+
+<!--<overrides>-->
+<!--    <override section_id="21853" due_at="Jan 10, 2027, 11:59 PM" />-->
+<!--    <override section_id="27154" due_at="Jan 5, 2027, 11:59 PM" />-->
+<!--</overrides>-->
+
+<!--</assignment>-->
+
+<quiz title="Override Quiz"
+      due_at="Dec 31, 2026, 11:59 PM">
+
+<description>
+    This is an **overridden** quiz!
+</description>
+
+<questions>
+    <question type="true-false" answer="true">
+        The sky is blue.
+    </question>
+</questions>
+
+<overrides>
+    <override section_id="21853" due_at="Jan 10, 2027, 11:59 PM" />
+    <override section_id="27154" due_at="Jan 5, 2027, 11:59 PM" />
+</overrides>
+
+</quiz>
