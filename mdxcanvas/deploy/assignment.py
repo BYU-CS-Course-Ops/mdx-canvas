@@ -20,6 +20,7 @@ def deploy_assignment(course: Course, assignment_info: dict) -> tuple[Assignment
 
     assignment_object_info: AssignmentInfo = {
         'id': canvas_assignment.id,
+        'title': canvas_assignment.name,
         'uri': f'/courses/{course.id}/assignments/{canvas_assignment.id}',
 
         # Following fields have been observed to be missing in some cases

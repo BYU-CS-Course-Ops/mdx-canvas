@@ -1,5 +1,6 @@
 import csv
 import json
+import re
 from pathlib import Path
 
 import markdowndata
@@ -61,6 +62,9 @@ def _render_template(
         "parent": lambda path: str(Path(path).parent),
         "load": lambda path: _get_args((parent_folder / path).absolute(), global_args),
         "debug": lambda msg: logger.debug(msg),
+        "get_arg": lambda *args: global_args.get(*args),
+        # "grep": lambda pattern, string, *args: m.groups() if (m := re.search(pattern, string, *args)) else None
+        "search": re.search
     }
 
     if global_args:
@@ -68,6 +72,7 @@ def _render_template(
 
     if args:
         context |= {"args": args}
+
     try:
         jj_template = env.from_string(template)
         return jj_template.render(context)

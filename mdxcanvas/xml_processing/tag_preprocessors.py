@@ -4,10 +4,13 @@ from typing import Callable
 from bs4 import Tag
 
 from ..error_helpers import format_tag, get_file_path, validate_required_attribute
+from ..our_logging import get_logger
 from ..processing_context import FileContext, get_current_file
 from ..resources import ResourceManager, FileData, ZipFileData, CanvasResource, get_key
 from ..util import parse_soup_from_xml
-from ..xml_processing.attributes import parse_bool
+from ..xml_processing.attributes import parse_bool, get_tag_path
+
+logger = get_logger()
 
 
 def make_course_settings_preprocessor(parent: Path, resources: ResourceManager):
@@ -280,7 +283,7 @@ def make_link_preprocessor():
         new_tag['href'] = get_key(link_type, link_rid, 'uri')
         link_text = tag.string.strip() if tag.string is not None else ''
         if not link_text:
-            link_text = str(link_rid)
+            link_text = get_key(link_type, link_rid, 'title')
         new_tag.string = link_text
         tag.replace_with(new_tag)
 
@@ -312,6 +315,9 @@ def make_markdown_page_preprocessor(
 
         page_tag = Tag(name='page', attrs={'title': page_title})
         page_tag.append(include_tag)
+
+        if (page_id := tag.get('id', None)) is not None:
+            page_tag['id'] = page_id
 
         include_processor = make_include_preprocessor(parent_folder, process_file)
 

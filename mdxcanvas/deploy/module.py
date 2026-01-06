@@ -35,6 +35,7 @@ def deploy_module(course: Course, module_data: dict) -> tuple[ModuleInfo, None]:
 
     module_object_info: ModuleInfo = {
         'id': canvas_module.id,
+        'title': canvas_module.name,
         'uri': f'/courses/{course.id}#module_{canvas_module.id}',
         'url': f'{course.canvas._Canvas__requester.original_url}/courses/{course.id}'
     }
