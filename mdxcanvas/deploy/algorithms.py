@@ -73,7 +73,8 @@ def kahns_topological_sort(graph: dict[tuple[str, str], list[tuple[str, str]]]) 
 
 
 def linearize_dependencies(
-        graph: dict[tuple[str, str], list[tuple[str, str]]]
+        graph: dict[tuple[str, str], list[tuple[str, str]]],
+        shell_deployers: list[str]
 ) -> list[tuple[tuple[str, str], bool]]:
     """
     Linearize dependencies with cycle breaking via shell deployments.
@@ -84,7 +85,6 @@ def linearize_dependencies(
     """
 
     # Lazy import for python cyclical imports
-    from .canvas_deploy import SHELL_DEPLOYERS
     sccs = tarjan_scc(graph)
 
     cycle_breakers = set()
@@ -98,7 +98,7 @@ def linearize_dependencies(
                 scc_map[node] = scc
                 # Check if any other node in the SCC depends on this node
                 # and that this node supports shell deployment
-                if node[0] in SHELL_DEPLOYERS.keys():
+                if node[0] in shell_deployers:
                     for other_node in scc:
                         if other_node != node and node in graph.get(other_node, []):
                             cycle_breakers.add(node)
@@ -106,7 +106,7 @@ def linearize_dependencies(
 
     for node, deps in graph.items():
         # Self-loops only need cycle breaking if the type supports shell deployment
-        if node in deps and node[0] in SHELL_DEPLOYERS.keys():
+        if node in deps and node[0] in shell_deployers:
             cycle_breakers.add(node)
 
     acyclic_graph = {}

@@ -239,7 +239,7 @@ def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, s
     resource_dependencies = get_dependencies(resources)
     logger.debug(f'Dependency graph: {resource_dependencies}')
 
-    resource_order = linearize_dependencies(resource_dependencies)
+    resource_order = linearize_dependencies(resource_dependencies, list(SHELL_DEPLOYERS.keys()))
     logger.debug(f'Linearized dependencies: {resource_order}')
 
     logger.info('Preparing resources for deployment to Canvas')
