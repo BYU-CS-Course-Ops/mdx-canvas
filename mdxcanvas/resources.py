@@ -17,6 +17,7 @@ class AnnouncementInfo(ResourceInfo):
     id: str
     url: str | None
     uri: str | None  # for course-link
+    title: str  # for course-link
 
 
 class CourseSettingsInfo(ResourceInfo):
@@ -27,11 +28,13 @@ class AssignmentInfo(ResourceInfo):
     id: str
     url: str | None
     uri: str | None  # for course-link
+    title: str  # for course-link text
 
 
 class FileInfo(ResourceInfo):
     id: str
     uri: str
+    title: str  # for course-link
 
 
 class AssignmentGroupInfo(ResourceInfo):
@@ -40,6 +43,7 @@ class AssignmentGroupInfo(ResourceInfo):
 
 class ModuleInfo(ResourceInfo):
     id: str
+    title: str  # for course-link
     uri: str
     url: str
 
@@ -59,18 +63,21 @@ class PageInfo(ResourceInfo):
     page_url: str  # for module item
     uri: str  # for course-link
     url: str | None
+    title: str  # for course-link text
 
 
 class QuizInfo(ResourceInfo):
     id: str
     uri: str  # for course-link
     url: str | None
+    title: str  # for course-link text
 
 
 class SyllabusInfo(ResourceInfo):
     id: str
     uri: str
     url: str
+    title: str  # for course-link title
 
 
 class CourseSettings(TypedDict):
