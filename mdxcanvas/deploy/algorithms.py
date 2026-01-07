@@ -73,12 +73,17 @@ def kahns_topological_sort(graph: dict[tuple[str, str], list[tuple[str, str]]]) 
 
 
 def linearize_dependencies(
-        graph: dict[tuple[str, str], list[tuple[str, str]]]
+        graph: dict[tuple[str, str], list[tuple[str, str]]],
+        shell_deployers: list[str]
 ) -> list[tuple[tuple[str, str], bool]]:
     """
     Linearize dependencies with cycle breaking via shell deployments.
     Example: A→B→C→A returns [((page, C),True), ((page, B), False), ((page, A), False), ((page, C), False)]
+
+    Note: Only certain resource types support shell deployments (assignment, page, quiz).
+    Other types (syllabus, file, etc.) have deterministic IDs and don't need shell deployments.
     """
+
     sccs = tarjan_scc(graph)
 
     cycle_breakers = set()
@@ -86,28 +91,41 @@ def linearize_dependencies(
 
     for scc in sccs:
         if len(scc) > 1:
-            cycle_breakers.add(scc[0])
+            # All nodes in an SCC that are depended upon by other nodes in the SCC
+            # need to be cycle breakers (deployed as shells first)
             for node in scc:
                 scc_map[node] = scc
+                # Check if any other node in the SCC depends on this node
+                # and that this node supports shell deployment
+                if node[0] in shell_deployers:
+                    for other_node in scc:
+                        if other_node != node and node in graph.get(other_node, []):
+                            cycle_breakers.add(node)
+                            break
 
     for node, deps in graph.items():
-        if node in deps:
+        # Self-loops only need cycle breaking if the type supports shell deployment
+        if node in deps and node[0] in shell_deployers:
             cycle_breakers.add(node)
 
     acyclic_graph = {}
     for node, deps in graph.items():
-        if node in cycle_breakers:
-            if node in scc_map:
-                acyclic_graph[node] = [d for d in deps if d not in scc_map[node]]
-            else:
-                acyclic_graph[node] = [d for d in deps if d != node]
+        if node in scc_map:
+            # Remove all edges within the same SCC to break cycles
+            acyclic_graph[node] = [d for d in deps if d not in scc_map[node]]
+        elif node in cycle_breakers:
+            # Self-loop case
+            acyclic_graph[node] = [d for d in deps if d != node]
         else:
             acyclic_graph[node] = deps
 
     topo_order = kahns_topological_sort(acyclic_graph)
 
-    result = [(node, node in cycle_breakers) for node in topo_order]
-    result.extend((node, False) for node in topo_order if node in cycle_breakers)
+    # Shell deployments for cycle breakers must happen FIRST (before everything else)
+    # so that other resources can reference them. Then the full deployment happens
+    # in the natural topological order.
+    result = [(node, True) for node in topo_order if node in cycle_breakers]
+    result.extend((node, False) for node in topo_order)
 
     return result
 

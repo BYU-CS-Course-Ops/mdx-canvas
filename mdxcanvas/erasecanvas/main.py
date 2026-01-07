@@ -1,5 +1,4 @@
 import argparse
-import json
 import os
 from pathlib import Path
 
@@ -7,7 +6,6 @@ from canvasapi import exceptions
 from canvasapi.paginated_list import PaginatedList
 
 from ..main import CourseInfo, get_course, load_config
-
 from ..our_logging import get_logger
 
 
@@ -32,7 +30,7 @@ def get_item_type(item):
             return 'Assignment'
 
 
-def delete_item(item, item_name):
+def delete_item(item, item_type, item_name):
     logger = get_logger()
 
     try:
@@ -41,7 +39,7 @@ def delete_item(item, item_name):
         if "Can't delete the root folder" in str(e):
             logger.info(f'Skipping root folder: {item_name}')
         else:
-            logger.warning(f'Failed to delete {item.type}: {item_name}')
+            logger.warning(f'Failed to delete {item_type}: {item_name}')
 
 
 def remove(items: PaginatedList, item_type=None):
@@ -66,19 +64,28 @@ def remove(items: PaginatedList, item_type=None):
         else:
             item_name = get_item_name(item)
             logger.info(f'Deleting {item_type}: {item_name}')
-        delete_item(item, item_name)
+        delete_item(item, item_type, item_name)
 
 
 def main(
         canvas_api_token: str,
-        course_info: CourseInfo
+        course_info: CourseInfo,
+        confirmed_delete: bool
 ):
+    logger = get_logger()
+    logger.info('Connecting to Canvas...')
+
     course = get_course(canvas_api_token,
                         course_info['CANVAS_API_URL'],
                         course_info['CANVAS_COURSE_ID'])
+    logger.info(f'Connected to {course.name} ({course.id})')
 
-    logger = get_logger(course.name)
-    logger.info('Connecting to Canvas...')
+    if not confirmed_delete:
+        print(f'Course: {course.name} ({course.id})')
+        confirm = input('Are you sure you want to delete all course content? (y/[n]): ')
+        if confirm.lower() != 'y':
+            logger.info('Exiting...')
+            return
 
     course.update(course={'syllabus_body': ''})
     logger.info('Deleting Syllabus')
@@ -114,17 +121,10 @@ def entry():
     if api_token is None:
         raise ValueError("Please set the CANVAS_API_TOKEN environment variable")
 
-    logger = get_logger()
-
-    if not args.y:
-        confirm = input('Are you sure you want to delete all course content? (y/[n]): ')
-        if confirm.lower() != 'y':
-            logger.info('Exiting...')
-            return
-
     main(
         canvas_api_token=api_token,
-        course_info=course_settings
+        course_info=course_settings,
+        confirmed_delete=args.y
     )
 
 

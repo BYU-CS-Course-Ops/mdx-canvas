@@ -27,9 +27,6 @@ logger = get_logger()
 class CourseInfo(TypedDict):
     CANVAS_API_URL: str
     CANVAS_COURSE_ID: int
-    COURSE_NAME: str
-    COURSE_CODE: str
-    COURSE_IMAGE: Path
     LOCAL_TIME_ZONE: str
 
 
@@ -184,7 +181,7 @@ def main(
             deploy_to_canvas(course, course_info['LOCAL_TIME_ZONE'], resources, report, dryrun=dryrun)
 
     except Exception as e:
-        logger.error(f"{type(e).__name__}: {e}")
+        logger.exception(f"{type(e).__name__}: {e}")
         report.add_error(e)
 
     finally:
