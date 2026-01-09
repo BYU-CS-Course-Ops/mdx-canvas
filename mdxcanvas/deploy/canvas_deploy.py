@@ -255,10 +255,6 @@ def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, s
             logger.info('No resources to deploy')
             return
 
-        if total == 0:
-            logger.info('No resources to deploy - all up to date')
-            return
-
         # Summary by type
         grouped = defaultdict(int)
         for (rtype, _), _ in to_deploy.keys():
