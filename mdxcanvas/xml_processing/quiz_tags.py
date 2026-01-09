@@ -84,6 +84,7 @@ class QuizTagProcessor:
             Attribute('access_code'),
             Attribute('published', parser=parse_bool),
             Attribute('one_time_results', False, parse_bool),
+            Attribute('only_visible_to_overrides', parser=parse_bool),
             Attribute('points_possible')
         ]
 
