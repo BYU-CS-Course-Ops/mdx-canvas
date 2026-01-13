@@ -310,7 +310,7 @@ def remove_stale_resources(course: Course, resources: dict[tuple[str, str], Canv
 
 
 def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, str], CanvasResource],
-                     report: DeploymentReport, dryrun=False):
+                     report: DeploymentReport, dryrun=False, cleanup=False):
     resource_dependencies = get_dependencies(resources)
     logger.debug(f'Dependency graph: {resource_dependencies}')
 
@@ -376,7 +376,8 @@ def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, s
 
                 md5s[resource_key] = {"checksum": current_md5, "canvas_info": canvas_obj_info}
 
-        remove_stale_resources(course, resources, md5s)
+        if cleanup:
+            remove_stale_resources(course, resources, md5s)
 
         elapsed = time.perf_counter() - start_time
         logger.info(f'Deployment complete - {total} resources in {elapsed:.1f}s')
