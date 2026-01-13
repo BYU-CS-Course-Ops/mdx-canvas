@@ -64,18 +64,28 @@ class MD5Sums:
                 canvas_folder="_md5s"
             ))
 
-    def has_canvas_info(self, item):
-        return item in self._md5s
+    def items(self):
+        return self._md5s.items()
 
     def get(self, item, *args, **kwargs):
         return self._md5s.get(item, *args, **kwargs)
+
+    def get_canvas_info(self, item):
+        return self.get(item, {}).get('canvas_info', None)
+
+    def has_canvas_info(self, item):
+        return item in self._md5s and 'canvas_info' in self._md5s[item]
 
     def get_checksum(self, item):
         entry = self.get(item)
         return entry.get('checksum', None) if entry else None
 
-    def get_canvas_info(self, item):
-        return self.get(item, {}).get('canvas_info', None)
+    def has_checksum(self, item):
+        return item in self._md5s and 'checksum' in self._md5s[item]
+
+    def remove(self, item):
+        if item in self._md5s:
+            del self._md5s[item]
 
     def __getitem__(self, item):
         # Act like a dictionary

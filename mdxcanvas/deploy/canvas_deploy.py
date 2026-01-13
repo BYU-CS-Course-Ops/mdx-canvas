@@ -1,5 +1,6 @@
 import time
 import json
+import heapq
 from datetime import datetime
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -11,14 +12,14 @@ from canvasapi.canvas_object import CanvasObject
 from canvasapi.course import Course
 
 from .algorithms import linearize_dependencies
-from .announcement import deploy_announcement
+from .announcement import deploy_announcement, get_announcement
 from .assignment import deploy_assignment, deploy_shell_assignment
 from .checksums import MD5Sums, compute_md5
 from .course_settings import deploy_settings
 from .file import deploy_file
 from .group import deploy_group
-from .module import deploy_module, deploy_module_item
-from .override import deploy_override
+from .module import deploy_module, deploy_module_item, get_module_item
+from .override import deploy_override, get_override
 from .page import deploy_page, deploy_shell_page
 from .quiz import deploy_quiz, deploy_shell_quiz
 from .syllabus import deploy_syllabus
@@ -53,6 +54,20 @@ DEPLOYERS = {
     'quiz': deploy_quiz,
     'syllabus': deploy_syllabus,
     'zip': deploy_zip
+}
+
+# Resource removal priorities (lower number = higher priority, removed first)
+REMOVAL_PRIORITY = {
+    'module_item': 0,
+    'override': 1
+    # All other resources default to priority 2
+}
+
+# Special getters for stale resources requiring custom lookup logic
+STALE_RESOURCE_GETTERS = {
+    'module_item': get_module_item,
+    'announcement': get_announcement,
+    'override': get_override
 }
 
 
@@ -234,6 +249,66 @@ def deploy_resource(deployers: dict, course: Course, rtype: str, data: dict, res
     return deployed, info
 
 
+def _lookup_stale_canvas_resource(course: Course, item_type: str, item_id: str, canvas_info: dict):
+    if not (canvas_id := canvas_info.get('id')):
+        raise Exception(f"Can't find canvas id for {item_type} {item_id}")
+
+    # Handle special case resources with custom getters
+    if getter := STALE_RESOURCE_GETTERS.get(item_type):
+        if item_type == 'module_item':
+            canvas_resource = getter(course, canvas_info.get('module_id'), canvas_id)
+        elif item_type == 'override':
+            canvas_resource = getter(course, canvas_info.get('assignment_id'), canvas_id)
+        else:
+            canvas_resource = getter(course, canvas_id)
+    else:
+        # Standard Canvas API getters (course.get_assignment, course.get_page, etc.)
+        lookup = getattr(course, f'get_{item_type}', None)
+        if not lookup:
+            raise Exception(f"Unsupported stale resource type {item_type} {item_id}")
+        canvas_resource = lookup(canvas_id)
+
+    if not canvas_resource:
+        raise Exception(f"Could not find stale resource {item_type} {item_id} with canvas ID {canvas_id}")
+
+    return canvas_resource
+
+
+def remove_stale_resources(course: Course, resources: dict[tuple[str, str], CanvasResource], md5s: MD5Sums):
+    heap = [
+        (REMOVAL_PRIORITY.get(rtype, 2), rtype, rid, canvas_info)
+        for (rtype, rid), info in md5s.items()
+        if (rtype, rid) not in resources
+        if (canvas_info := md5s.get_canvas_info((rtype, rid)))
+    ]
+
+    if not heap:
+        return
+
+    heapq.heapify(heap)
+
+    logger.info('=' * 80)
+    logger.info(f"Stale resources to remove: {len(heap)}")
+    for priority, rtype, rid, _ in heap:
+        logger.info(f"  {rtype:{20}}  {rid}")
+    logger.info('=' * 80)
+
+    total = len(heap)
+    max_len = max(len(rtype) for _, rtype, _, _ in heap)
+    index_width = len(str(total))
+
+    logger.info('Removing stale resources from Canvas')
+
+    for index in range(1, total + 1):
+        _, rtype, rid, canvas_info = heapq.heappop(heap)
+        logger.info(f'[{index:>{index_width}}/{total}] {rtype:{max_len}}  {rid}')
+
+        if canvas_resource := _lookup_stale_canvas_resource(course, rtype, rid, canvas_info):
+            canvas_resource.delete()
+
+        md5s.remove((rtype, rid))
+
+
 def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, str], CanvasResource],
                      report: DeploymentReport, dryrun=False):
     resource_dependencies = get_dependencies(resources)
@@ -300,6 +375,8 @@ def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, s
                     report.add_content_to_review(*info)
 
                 md5s[resource_key] = {"checksum": current_md5, "canvas_info": canvas_obj_info}
+
+        remove_stale_resources(course, resources, md5s)
 
         elapsed = time.perf_counter() - start_time
         logger.info(f'Deployment complete - {total} resources in {elapsed:.1f}s')
