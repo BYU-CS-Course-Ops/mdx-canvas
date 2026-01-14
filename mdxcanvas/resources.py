@@ -57,6 +57,7 @@ class ModuleItemInfo(ResourceInfo):
 
 class OverrideInfo(ResourceInfo):
     id: str
+    assignment_id: str
 
 
 class PageInfo(ResourceInfo):

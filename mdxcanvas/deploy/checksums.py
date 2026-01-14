@@ -2,7 +2,6 @@ import hashlib
 import json
 import requests
 from pathlib import Path
-from copy import deepcopy
 from tempfile import TemporaryDirectory
 
 from canvasapi.course import Course
@@ -65,21 +64,18 @@ class MD5Sums:
                 canvas_folder="_md5s"
             ))
 
-    def copy(self):
-        return deepcopy(self._md5s)
+    def get(self, item, *args, **kwargs):
+        return self._md5s.get(item, *args, **kwargs)
+
+    def get_canvas_info(self, item):
+        return self.get(item, {}).get('canvas_info', None)
 
     def has_canvas_info(self, item):
         return item in self._md5s
 
-    def get(self, item, *args, **kwargs):
-        return self._md5s.get(item, *args, **kwargs)
-
     def get_checksum(self, item):
         entry = self.get(item)
         return entry.get('checksum', None) if entry else None
-
-    def get_canvas_info(self, item):
-        return self.get(item, {}).get('canvas_info', None)
 
     def __getitem__(self, item):
         # Act like a dictionary
