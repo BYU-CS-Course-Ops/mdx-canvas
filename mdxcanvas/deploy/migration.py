@@ -4,21 +4,21 @@ from ..our_logging import get_logger
 logger = get_logger()
 
 
-def migrate(canvas, md5s: MD5Sums):
+def migrate(course, md5s: MD5Sums):
     """Update the md5 data to match the latest schema"""
     logger.info('Migrating cached data')
 
     # Module Item -> Module ID map (0.6.6)
     item_id_map = {
         module_item.id: module_item.module_id
-        for module in canvas.course.get_modules()
+        for module in course.get_modules()
         for module_item in module.get_module_items()
     }
 
     # Override -> Assignment ID map (0.6.6)
     assignment_id_map = {
         override.id: override.assignment_id
-        for assignment in canvas.course.get_assignments()
+        for assignment in course.get_assignments()
         for override in assignment.get_overrides()
     }
 
@@ -28,7 +28,7 @@ def migrate(canvas, md5s: MD5Sums):
                 and not data['canvas_info'].get('title'):
             logger.debug(f'Migrating title for {rtype} {rid}')
 
-            canvas_obj = getattr(canvas, f'get_{rtype}')(data['canvas_info']['id'])
+            canvas_obj = getattr(course, f'get_{rtype}')(data['canvas_info']['id'])
             title = (
                 canvas_obj.title if hasattr(canvas_obj, 'title') else
                 canvas_obj.name if hasattr(canvas_obj, 'name') else

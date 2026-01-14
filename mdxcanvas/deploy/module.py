@@ -1,6 +1,5 @@
 from canvasapi.course import Course
 
-from .migration import migration
 from ..resources import ModuleInfo, ModuleItemInfo
 
 

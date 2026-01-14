@@ -16,8 +16,8 @@
     </style>
 
     <assignment-groups>
-        <group name="Homework" weight="50" drop_lowest="1" never_drop="foo" />
-        <group name="Quizzes" weight="50" drop_highest="1" never_drop="bar" />
+        <group name="Homework" weight="50" />
+        <group name="Quizzes" weight="50" />
     </assignment-groups>
 
     <assignment title="foo"
@@ -30,5 +30,15 @@
                 assignment_group="Quizzes"
     >
         bar
+
+        <overrides>
+            <override section_id="21853" due_at="Jan 10, 2027, 11:59 PM" />
+            <override section_id="27154" due_at="Jan 5, 2027, 11:59 PM" />
+        </overrides>
     </assignment>
+
+    <module title="Sample Module">
+        <item type="Assignment" content_id="foo" />
+        <item type="Assignment" content_id="bar" />
+    </module>
 </div>
