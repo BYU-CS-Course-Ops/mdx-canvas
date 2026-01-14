@@ -1,4 +1,5 @@
 import csv
+from datetime import datetime
 import json
 import re
 from pathlib import Path
@@ -64,7 +65,8 @@ def _render_template(
         "debug": lambda msg: logger.debug(msg),
         "get_arg": lambda *args: global_args.get(*args),
         # "grep": lambda pattern, string, *args: m.groups() if (m := re.search(pattern, string, *args)) else None
-        "search": re.search
+        "search": re.search,
+        "timestamp": lambda fmt="%B %d, %Y at %I:%M %p": datetime.now().strftime(fmt)
     }
 
     if global_args:
