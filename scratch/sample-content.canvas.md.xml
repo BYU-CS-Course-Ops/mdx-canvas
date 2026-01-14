@@ -29,13 +29,23 @@
         </questions>
     </quiz>
 
-    <assignment title="Example Assignment"
+    <assignment title="Ex Assignment"
                 assignment_group="Homework">
         First Assignment Content
     </assignment>
 
+    <assignment title="Example Assignment"
+                assignment_group="Homework">
+        First Assignment Content
+
+        <overrides>
+            <override section_id="21853" due_at="Jan 10, 2027, 11:59 PM" />
+            <override section_id="27154" due_at="Jan 5, 2027, 11:59 PM" />
+        </overrides>
+    </assignment>
+
     <module title="Sample Module">
-        <item content_id="Example Assignment" type="assignment" />
+        <item content_id="Ex Assignment" type="assignment" />
     </module>
 
 </div>

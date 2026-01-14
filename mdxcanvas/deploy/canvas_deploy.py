@@ -1,6 +1,5 @@
 import time
 import json
-import heapq
 from datetime import datetime
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -12,7 +11,7 @@ from canvasapi.canvas_object import CanvasObject
 from canvasapi.course import Course
 
 from .algorithms import linearize_dependencies
-from .announcement import deploy_announcement, get_announcement
+from .announcement import deploy_announcement
 from .assignment import deploy_assignment, deploy_shell_assignment
 from .checksums import MD5Sums, compute_md5
 from .course_settings import deploy_settings
@@ -54,20 +53,6 @@ DEPLOYERS = {
     'quiz': deploy_quiz,
     'syllabus': deploy_syllabus,
     'zip': deploy_zip
-}
-
-# Resource removal priorities (lower number = higher priority, removed first)
-REMOVAL_PRIORITY = {
-    'module_item': 0,
-    'override': 1
-    # All other resources default to priority 2
-}
-
-# Special getters for stale resources requiring custom lookup logic
-STALE_RESOURCE_GETTERS = {
-    'module_item': get_module_item,
-    'announcement': get_announcement,
-    'override': get_override
 }
 
 
@@ -249,64 +234,70 @@ def deploy_resource(deployers: dict, course: Course, rtype: str, data: dict, res
     return deployed, info
 
 
-def _lookup_stale_canvas_resource(course: Course, item_type: str, item_id: str, canvas_info: dict):
-    if not (canvas_id := canvas_info.get('id')):
-        raise Exception(f"Can't find canvas id for {item_type} {item_id}")
-
-    # Handle special case resources with custom getters
-    if getter := STALE_RESOURCE_GETTERS.get(item_type):
-        if item_type == 'module_item':
-            canvas_resource = getter(course, canvas_info.get('module_id'), canvas_id)
-        elif item_type == 'override':
-            canvas_resource = getter(course, canvas_info.get('assignment_id'), canvas_id)
-        else:
-            canvas_resource = getter(course, canvas_id)
-    else:
-        # Standard Canvas API getters (course.get_assignment, course.get_page, etc.)
-        lookup = getattr(course, f'get_{item_type}', None)
-        if not lookup:
-            raise Exception(f"Unsupported stale resource type {item_type} {item_id}")
-        canvas_resource = lookup(canvas_id)
-
-    if not canvas_resource:
-        raise Exception(f"Could not find stale resource {item_type} {item_id} with canvas ID {canvas_id}")
-
-    return canvas_resource
-
-
-def remove_stale_resources(course: Course, resources: dict[tuple[str, str], CanvasResource], md5s: MD5Sums):
-    heap = [
-        (REMOVAL_PRIORITY.get(rtype, 2), rtype, rid, canvas_info)
+def get_stale_resources(resources: dict[tuple[str, str], CanvasResource], md5s: MD5Sums) -> list[tuple[str, str, dict]]:
+    stale = [
+        (rtype, rid, canvas_info)
         for (rtype, rid), info in md5s.items()
         if (rtype, rid) not in resources
         if (canvas_info := md5s.get_canvas_info((rtype, rid)))
     ]
 
-    if not heap:
-        return
+    priority = (lambda item:
+                0 if item[0] == 'module_item' else
+                1 if item[0] == 'override' else
+                2
+                )
 
-    heapq.heapify(heap)
+    return sorted(stale, key=priority)
 
+
+def _lookup_stale_canvas_resource(course: Course, item_type: str, item_id: str, canvas_info: dict) -> CanvasObject:
+    canvas_id = canvas_info.get('id')
+
+    # Handle special case resources (i.e. those that require a parent object to look up the specific object
+    if item_type in ['module_item', 'override']:
+        if item_type == 'module_item':
+            canvas_resource = get_module_item(course, canvas_info.get('module_id'), canvas_id)
+        elif item_type == 'override':
+            canvas_resource = get_override(course, canvas_info.get('assignment_id'), canvas_id)
+        else:
+            raise NotImplementedError(f"Unsupported stale resource type {item_type} {item_id}")
+
+    else:
+        # Standard Canvas API getters (course.get_assignment, course.get_page, etc.)
+        if item_type == 'announcement':
+            lookup = course.get_discussion_topic
+        else:
+            lookup = getattr(course, f'get_{item_type}', None)
+
+        if not lookup:
+            raise NotImplementedError(f"Unsupported stale resource type {item_type} {item_id}")
+        canvas_resource = lookup(canvas_id)
+
+    return canvas_resource
+
+
+def remove_stale_resources(course: Course, stale: list[tuple[str, str, dict]], md5s: MD5Sums):
+    # Logging stale resource information
     logger.info('=' * 80)
-    logger.info(f"Stale resources to remove: {len(heap)}")
-    for priority, rtype, rid, _ in heap:
+    logger.info(f"Stale resources to remove: {len(stale)}")
+    for rtype, rid, _ in stale:
         logger.info(f"  {rtype:{20}}  {rid}")
     logger.info('=' * 80)
 
-    total = len(heap)
-    max_len = max(len(rtype) for _, rtype, _, _ in heap)
+    total = len(stale)
+    max_len = max(len(rtype) for rtype, _, _ in stale)
     index_width = len(str(total))
 
     logger.info('Removing stale resources from Canvas')
 
-    for index in range(1, total + 1):
-        _, rtype, rid, canvas_info = heapq.heappop(heap)
+    # Main logic to remove stale resources
+    for index, (rtype, rid, canvas_info) in enumerate(stale, start=1):
         logger.info(f'[{index:>{index_width}}/{total}] {rtype:{max_len}}  {rid}')
 
         if canvas_resource := _lookup_stale_canvas_resource(course, rtype, rid, canvas_info):
             canvas_resource.delete()
-
-        md5s.remove((rtype, rid))
+            md5s.remove((rtype, rid))
 
 
 def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, str], CanvasResource],
@@ -319,6 +310,8 @@ def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, s
 
     logger.info('Preparing resources for deployment to Canvas')
 
+    start_time = time.perf_counter()
+
     with MD5Sums(course) as md5s, TemporaryDirectory() as tmpdir:
         tmpdir = Path(tmpdir)
 
@@ -326,58 +319,66 @@ def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, s
 
         to_deploy = identify_modified_or_outdated(resources, resource_order, resource_dependencies, md5s)
         total = len(to_deploy)
-        if not total:
-            logger.info('No resources to deploy')
-            return
 
-        # Summary by type
-        grouped = defaultdict(int)
-        for (rtype, _), _ in to_deploy.keys():
-            grouped[rtype] += 1
+        if total:
+            # Summary by type
+            grouped = defaultdict(int)
+            for (rtype, _), _ in to_deploy.keys():
+                grouped[rtype] += 1
 
-        logger.info('=' * 80)
+            logger.info('=' * 80)
 
-        logger.info(f'Resources to deploy: {total}')
-        max_len = max(len(rtype) for rtype in grouped)
-        for rtype, count in sorted(grouped.items()):
-            logger.info(f'  {rtype:{max_len}}  {count:>3}')
+            logger.info(f'Resources to deploy: {total}')
+            max_len = max(len(rtype) for rtype in grouped)
+            for rtype, count in sorted(grouped.items()):
+                logger.info(f'  {rtype:{max_len}}  {count:>3}')
 
-        logger.info('=' * 80)
+            logger.info('=' * 80)
 
-        if dryrun:
-            logger.info('Dry run - no resources deployed')
-            return
+            if dryrun:
+                logger.info('Dry run - no resources deployed')
+                return
 
-        logger.info('Deploying resources to Canvas')
-        start_time = time.perf_counter()
-        resource_objs: dict[tuple[str, str], CanvasObject] = {}
-        index_width = len(str(total))
-        for index, ((resource_key, is_shell), (current_md5, resource)) in enumerate(to_deploy.items(), start=1):
-            rtype, rid = resource_key
+            logger.info('Deploying resources to Canvas')
+            resource_objs: dict[tuple[str, str], CanvasObject] = {}
+            index_width = len(str(total))
+            for index, ((resource_key, is_shell), (current_md5, resource)) in enumerate(to_deploy.items(), start=1):
+                rtype, rid = resource_key
 
-            if (resource_data := resource.get('data')) is not None:
-                shell_tag = '(shell) ' if is_shell else ''
-                logger.info(f'[{index:>{index_width}}/{total}] {shell_tag}{rtype:{max_len}}  {rid}')
+                if (resource_data := resource.get('data')) is not None:
+                    shell_tag = '(shell) ' if is_shell else ''
+                    logger.info(f'[{index:>{index_width}}/{total}] {shell_tag}{rtype:{max_len}}  {rid}')
 
-                if is_shell:
-                    canvas_obj_info, info = deploy_resource(SHELL_DEPLOYERS, course, rtype, resource_data, resource)
-                    resource['data']['canvas_id'] = canvas_obj_info.get('id') if canvas_obj_info else None
-                else:
-                    resource_data = update_links(md5s, resource_data, resource_objs, resource)
-                    canvas_obj_info, info = deploy_resource(DEPLOYERS, course, rtype, resource_data, resource)
+                    if is_shell:
+                        canvas_obj_info, info = deploy_resource(SHELL_DEPLOYERS, course, rtype, resource_data, resource)
+                        resource['data']['canvas_id'] = canvas_obj_info.get('id') if canvas_obj_info else None
+                    else:
+                        resource_data = update_links(md5s, resource_data, resource_objs, resource)
+                        canvas_obj_info, info = deploy_resource(DEPLOYERS, course, rtype, resource_data, resource)
 
-                if canvas_obj_info:
-                    resource_objs[resource_key] = canvas_obj_info
-                    if url := canvas_obj_info.get('url'):
-                        report.add_deployed_content(rtype, rid, url)
+                    if canvas_obj_info:
+                        resource_objs[resource_key] = canvas_obj_info
+                        if url := canvas_obj_info.get('url'):
+                            report.add_deployed_content(rtype, rid, url)
 
-                if info:
-                    report.add_content_to_review(*info)
+                    if info:
+                        report.add_content_to_review(*info)
 
-                md5s[resource_key] = {"checksum": current_md5, "canvas_info": canvas_obj_info}
+                    md5s[resource_key] = {"checksum": current_md5, "canvas_info": canvas_obj_info}
 
         if cleanup:
-            remove_stale_resources(course, resources, md5s)
+            if stale_resources := get_stale_resources(resources, md5s):
+                remove_stale_resources(course, stale_resources, md5s)
 
         elapsed = time.perf_counter() - start_time
-        logger.info(f'Deployment complete - {total} resources in {elapsed:.1f}s')
+
+        actions = []
+        if total:
+            actions.append(f'{total} resources deployed')
+        if stale_resources:
+            actions.append(f'{len(stale_resources)} stale resources removed')
+
+        logger.info(
+            f"Deployment complete - {' and '.join(actions)} in {elapsed:.1f}s" if actions else
+            'No changes detected - nothing to do'
+        )
