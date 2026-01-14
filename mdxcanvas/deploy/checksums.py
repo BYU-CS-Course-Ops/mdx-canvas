@@ -2,6 +2,7 @@ import hashlib
 import json
 import requests
 from pathlib import Path
+from copy import deepcopy
 from tempfile import TemporaryDirectory
 
 from canvasapi.course import Course
@@ -63,6 +64,9 @@ class MD5Sums:
                 path=str(tmpfile.absolute()),
                 canvas_folder="_md5s"
             ))
+
+    def copy(self):
+        return deepcopy(self._md5s)
 
     def has_canvas_info(self, item):
         return item in self._md5s

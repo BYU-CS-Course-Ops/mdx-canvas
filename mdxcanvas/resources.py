@@ -50,6 +50,7 @@ class ModuleInfo(ResourceInfo):
 
 class ModuleItemInfo(ResourceInfo):
     id: str
+    module_id: str
     uri: str
     url: str
 

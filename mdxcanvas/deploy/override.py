@@ -1,6 +1,7 @@
 from canvasapi.assignment import Assignment
 from canvasapi.course import Course
 
+from .migration import migration
 from ..resources import OverrideInfo
 
 
@@ -39,3 +40,22 @@ def deploy_override(course: Course, override_info: dict) -> tuple[OverrideInfo, 
     }
 
     return override_object_info, None
+
+
+@migration(rtype='override', attr='assignment_id')
+def get_assignment_id(course: Course, resources: list[tuple[str, str, dict]]) -> dict[tuple[str, str], dict | None]:
+    assignment_id_map = {
+        override.id: override.assignment_id
+        for assignment in course.get_assignments()
+        for override in assignment.get_overrides()
+    }
+
+    result = {(rtype, rid): {} for rtype, rid, _ in resources}
+
+    for rtype, rid, canvas_info in resources:
+        override_id = canvas_info.get('id')
+        if override_id in assignment_id_map:
+            canvas_info['assignment_id'] = assignment_id_map[override_id]
+            result[(rtype, rid)] = canvas_info
+
+    return result

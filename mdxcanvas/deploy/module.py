@@ -1,6 +1,6 @@
 from canvasapi.course import Course
-from canvasapi.module import Module, ModuleItem
 
+from .migration import migration
 from ..resources import ModuleInfo, ModuleItemInfo
 
 
@@ -10,7 +10,7 @@ def deploy_module_item(course: Course, module_item_data: dict) -> tuple[ModuleIt
         raise ValueError(f'Unable to find module {module_item_data["module_id"]}')
 
     if module_item_data['canvas_id'] is not None and (
-    module_item := canvas_module.get_module_item(module_item_data['canvas_id'])):
+            module_item := canvas_module.get_module_item(module_item_data['canvas_id'])):
         module_item.edit(module_item=module_item_data)
     else:
         module_item = canvas_module.create_module_item(module_item=module_item_data)
@@ -41,3 +41,22 @@ def deploy_module(course: Course, module_data: dict) -> tuple[ModuleInfo, None]:
     }
 
     return module_object_info, None
+
+
+@migration(rtype='module_item', attr='module_id')
+def get_module_id(course, resources: list[tuple[str, str, dict]]) -> dict[tuple[str, str], dict | None]:
+    item_id_map = {
+        module_item.id: module_item.module_id
+        for module in course.get_modules()
+        for module_item in module.get_module_items()
+    }
+
+    result = {(rtype, rid): {} for rtype, rid, _ in resources}
+
+    for rtype, rid, canvas_info in resources:
+        module_item_id = canvas_info.get('id')
+        if module_item_id in item_id_map:
+            canvas_info['module_id'] = item_id_map[module_item_id]
+            result[(rtype, rid)] = canvas_info
+
+    return result
