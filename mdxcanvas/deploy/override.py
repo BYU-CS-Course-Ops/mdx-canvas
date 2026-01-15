@@ -36,6 +36,7 @@ def deploy_override(course: Course, override_info: dict) -> tuple[OverrideInfo, 
 
     override_object_info: OverrideInfo = {
         'id': override.id,
+        'assignment_id': assignment.id,
     }
 
     return override_object_info, None
