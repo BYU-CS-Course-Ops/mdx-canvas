@@ -14,6 +14,7 @@ Specifies the type of the module item. Valid values include:
 - `assignment`
 - `quiz`
 - `file`
+- `syllabus`
 
 ```xml
 <item type="page" title="Example Page" />
