@@ -28,7 +28,8 @@ class ModuleTagProcessor:
         "quiz": "Quiz",
         "subheader": "SubHeader",
         "externalurl": "ExternalUrl",
-        "externaltool": "ExternalTool"
+        "externaltool": "ExternalTool",
+        "syllabus": "Syllabus",
     }
 
     def __call__(self, module_tag: Tag):
@@ -87,7 +88,21 @@ class ModuleTagProcessor:
             'type': rtype
         }
 
-        if rtype == 'ExternalUrl':
+        if rtype == 'Syllabus':
+            fields.extend([
+                Attribute('title'),
+                Attribute('id')
+            ])
+            item.update(parse_settings(tag, fields))
+
+            item['type'] = 'ExternalUrl'
+            item['external_url'] = get_key('syllabus', 'syllabus', 'url')
+            if 'title' not in item:
+                item['title'] = 'Syllabus'
+            if 'id' not in item:
+                item['id'] = item['title']
+
+        elif rtype == 'ExternalUrl':
             fields.extend([
                 Attribute('external_url', required=True),
                 Attribute('title'),
