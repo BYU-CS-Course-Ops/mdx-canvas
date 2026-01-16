@@ -27,6 +27,8 @@ from ..deployment_report import DeploymentReport
 from ..our_logging import get_logger
 from ..resources import CanvasResource, iter_keys
 
+from .migration import migrate
+
 logger = get_logger()
 
 PREDEPLOYERS: dict[str, Callable[[dict, Path], dict]] = {
@@ -414,6 +416,8 @@ def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, s
     start_time = time.perf_counter()
 
     with MD5Sums(course) as md5s, TemporaryDirectory() as tmpdir:
+        migrate(course, md5s)
+
         tmpdir = Path(tmpdir)
 
         predeploy_resources(resources, timezone, tmpdir)
