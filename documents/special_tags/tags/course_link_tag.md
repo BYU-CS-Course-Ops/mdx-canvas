@@ -64,9 +64,6 @@ Add text inside the tag to override the default link text:
 ### Basic Links
 
 ```xml
-<!-- Link to a page -->
-<course-link type="page" id="syllabus" />
-
 <!-- Link to an assignment -->
 <course-link type="assignment" id="hw1" />
 
@@ -83,12 +80,4 @@ Add text inside the tag to override the default link text:
 
   Submit your work to <course-link type="assignment" id="hw1_submission">the submission page</course-link>.
 </assignment>
-```
-
-### Linking to Syllabus
-
-```xml
-<page title="Welcome">
-  Welcome to the course! Please read the <course-link type="syllabus">syllabus</course-link> carefully.
-</page>
 ```
