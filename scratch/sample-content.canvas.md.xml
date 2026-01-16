@@ -29,10 +29,10 @@
         </questions>
     </quiz>
 
-    <assignment title="Ex Assignment"
-                assignment_group="Homework">
-        First Assignment Content
-    </assignment>
+<!--    <assignment title="Ex Assignment"-->
+<!--                assignment_group="Homework">-->
+<!--        First Assignment Content-->
+<!--    </assignment>-->
 
     <assignment title="Example Assignment"
                 assignment_group="Homework">
@@ -45,7 +45,7 @@
     </assignment>
 
     <module title="Sample Module">
-        <item content_id="Ex Assignment" type="assignment" />
+<!--        <item content_id="Ex Assignment" type="assignment" />-->
     </module>
 
 </div>

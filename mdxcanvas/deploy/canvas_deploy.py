@@ -256,7 +256,7 @@ def get_stale_resources(resources: dict[tuple[str, str], CanvasResource], md5s: 
     stale = [
         (rtype, rid, canvas_info)
         for (rtype, rid), info in md5s.items()
-        if (rtype, rid) not in resources
+        if (rtype, rid) not in resources and rtype not in ['syllabus', 'course_settings']
         if (canvas_info := md5s.get_canvas_info((rtype, rid)))
     ]
 
@@ -269,7 +269,8 @@ def get_stale_resources(resources: dict[tuple[str, str], CanvasResource], md5s: 
     return sorted(stale, key=priority)
 
 
-def _lookup_stale_canvas_resource(course: Course, item_type: str, item_id: str, canvas_info: dict) -> CanvasObject:
+def _lookup_stale_canvas_resource(course: Course, item_type: str, item_id: str,
+                                  canvas_info: dict) -> CanvasObject | None:
     canvas_id = canvas_info.get('id')
 
     # Handle special case resources (i.e. those that require a parent object to look up the specific object
@@ -285,6 +286,8 @@ def _lookup_stale_canvas_resource(course: Course, item_type: str, item_id: str, 
         # Standard Canvas API getters (course.get_assignment, course.get_page, etc.)
         if item_type == 'announcement':
             lookup = course.get_discussion_topic
+        elif item_type == 'zip':
+            lookup = course.get_file
         else:
             lookup = getattr(course, f'get_{item_type}', None)
 
