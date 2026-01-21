@@ -50,12 +50,14 @@ class ModuleInfo(ResourceInfo):
 
 class ModuleItemInfo(ResourceInfo):
     id: str
+    module_id: str
     uri: str
     url: str
 
 
 class OverrideInfo(ResourceInfo):
     id: str
+    assignment_id: str
 
 
 class PageInfo(ResourceInfo):

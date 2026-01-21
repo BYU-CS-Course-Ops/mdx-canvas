@@ -18,7 +18,7 @@ class InlineMathPreprocessor(Preprocessor):
         # See https://docs.mathjax.org/en/latest/basic/mathematics.html
         #  for the rationale for why the $...$ syntax is not usually supported
 
-        mathjax_inline_pattern = re.compile(r'\\\((.+?)\\\)')
+        mathjax_inline_pattern = re.compile(r'\\\((.+?)\\\)|\\\{(.+?)\\\}|\\\[(.+?)\\\]')
 
         for line in lines:
             m = mathjax_inline_pattern.search(line)

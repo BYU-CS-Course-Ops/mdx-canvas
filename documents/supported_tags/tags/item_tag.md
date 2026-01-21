@@ -15,6 +15,7 @@ Specifies the type of module item:
 - `file` - Link to a course file
 - `subheader` - Section divider with text
 - `externalurl` - Link to external website
+- `syllabus` - Link to the course syllabus
 
 ```xml
 <item type="page" content_id="intro_page" />
