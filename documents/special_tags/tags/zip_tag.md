@@ -4,12 +4,16 @@ The `<zip>` tag is used to upload and include a `.zip` file in the course. This 
 
 ## Attributes
 
-### `name`
+### `name` (optional)
 
-The name of the resulting zip file that students will download.
+The name of the resulting zip file that students will download. If not specified, automatically uses the filename from the `path`.
 
 ```xml
-<zip name="assignment_resources.zip" />
+<!-- Explicit name -->
+<zip name="assignment_resources.zip" path="resources" />
+
+<!-- Auto-generated name from path (uses "resources.zip") -->
+<zip path="resources" />
 ```
 
 ### `path`
@@ -30,7 +34,7 @@ A comma-separated list of additional files (outside the `path`) to include in th
 
 ### `priority_path` (optional)
 
-Specifies a folder inside the zip to prioritize. Files from this folder will be placed at the top of the archive when possible.
+Specifies a folder inside the zip to prioritize.
 
 ```xml
 <zip name="lab1.zip" path="labs/lab1" priority_path="labs/lab1/starter" />
@@ -45,6 +49,14 @@ A regex pattern for excluding specific files or folders from the zip archive.
 ```
 
 This would exclude all `.tmp` files.
+
+### `canvas_folder` (optional)
+
+Canvas folder path to upload the zip file to. Organizes files in Canvas file storage.
+
+```xml
+<zip path="labs/lab1" canvas_folder="Lab Materials" />
+```
 
 ## Example
 

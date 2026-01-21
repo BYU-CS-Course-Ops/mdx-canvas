@@ -6,13 +6,32 @@ The `<module>` tag defines a course module. Modules organize related content int
 
 ### `title`
 
-Sets the title of the module as it appears in Canvas.
+Sets the title of the module as it appears in Canvas (required).
 
 ```xml
-<module id="week-1" title="Week 1: Introduction">
+
+<module title="Week 1: Introduction">
+    ...
+</module>
+```
+
+### `id`
+
+Optional unique identifier for the module. If not specified, defaults to the `title` value.
+
+Use an explicit `id` when you need to:
+- Change the module's title later without creating a new resource
+- Have a more stable identifier for referencing
+
+```xml
+<module
+    id="week-1"
+    title="Week 1: Introduction">
 ...
 </module>
 ```
+
+**Legacy scenario:** If you have an existing module without an `id` and want to rename it, add an `id` attribute with the value of the old title before changing the title.
 
 ### `prerequisite_module_ids` (optional)
 

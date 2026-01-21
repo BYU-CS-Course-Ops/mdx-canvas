@@ -69,9 +69,9 @@ Requires students to match items from two columns. Use `<pair>` for correct matc
     <pair left="Spain" right="Madrid" />
 
     <distractors>
-        <distractor>London</distractor>
-        <distractor>Rome</distractor>
-        <distractor>Lisbon</distractor>
+        London
+        Rome
+        Lisbon
     </distractors>
 </question>
 ```

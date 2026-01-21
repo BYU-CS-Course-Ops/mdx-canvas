@@ -6,17 +6,42 @@ The `<quiz>` tag defines a quiz in the course. It supports various attributes fo
 
 The following attributes are supported on the `<quiz>` tag. Several of them are shared with `<assignment>` and behave the same way.
 
+### `title`
+
+Sets the quiz title (required).
+
+```xml
+<quiz title="Midterm Exam">
+...
+</quiz>
+```
+
+### `id`
+
+Optional unique identifier for the quiz. If not specified, defaults to the `title` value.
+
+Use an explicit `id` when you need to change the quiz's title later without creating a new resource, or when you want a more stable identifier for referencing.
+
+```xml
+<quiz
+    id="midterm_exam"
+    title="Midterm Exam">
+...
+</quiz>
+```
+
+**Legacy scenario:** If you have an existing quiz without an `id` and want to rename it, add an `id` attribute with the value of the old title before changing the title.
+
 ### Shared Assignment Attributes
 
 You may use these assignment-style attributes on quizzes:
 
-- `title`
 - `due_at`
 - `available_from`
 - `available_to`
 - `assignment_group`
 
-See the [<`assignment tag`> documentation](assignment_tag.md) for details on how these attributes work.
+See the [`<assignment>` tag documentation](assignment_tag.md) for details on how these attributes work.
 
 ### `shuffle_answers`
 
@@ -57,9 +82,58 @@ Sets how many times a student may attempt the quiz. Use `-1` for unlimited attem
 Sets a passcode students must enter to access the quiz.
 
 ```xml
-<quiz 
-    title="Quiz 1" 
+<quiz
+    title="Quiz 1"
     access_code="secure123">
+...
+</quiz>
+```
+
+### `quiz_type`
+
+Specifies the type of quiz. Valid values: `assignment` (default), `practice_quiz`, `graded_survey`.
+
+```xml
+<quiz
+    title="Practice Quiz"
+    quiz_type="practice_quiz">
+...
+</quiz>
+```
+
+### `points_possible`
+
+Sets the total points for the quiz. If omitted, calculated from question points.
+
+```xml
+<quiz
+    title="Quiz 1"
+    points_possible="100">
+...
+</quiz>
+```
+
+### `scoring_policy`
+
+Determines how multiple attempts are scored. Valid values: `keep_highest` (default), `keep_latest`, `keep_average`.
+
+```xml
+<quiz
+    title="Quiz 1"
+    allowed_attempts="3"
+    scoring_policy="keep_highest">
+...
+</quiz>
+```
+
+### `show_correct_answers_at`
+
+Date/time when correct answers become visible to students. Format: `MMM d, yyyy, h:mm AM/PM`.
+
+```xml
+<quiz
+    title="Quiz 1"
+    show_correct_answers_at="Jan 20, 2025, 12:00 PM">
 ...
 </quiz>
 ```
@@ -86,6 +160,29 @@ Each question must define a `type` and may include `<correct>`, `<incorrect>`, `
 
 See [quiz question types](quiz_question_types.md) for full documentation of supported types and examples.
 
+## Section-Specific Dates
+
+You can specify different due dates for different course sections using the `<overrides>` container with `<override>` tags.
+
+```xml
+<quiz title="Midterm Exam" due_at="Feb 15, 2025, 11:59 PM">
+  <overrides>
+    <override section_id="12345" due_at="Feb 20, 2025, 11:59 PM" />
+    <override section_id="67890" due_at="Feb 22, 2025, 11:59 PM" />
+  </overrides>
+
+  <description>
+    Complete the midterm exam...
+  </description>
+
+  <questions>
+    ...
+  </questions>
+</quiz>
+```
+
+See the [`<override>` tag documentation](override_tag.md) for more details on section-specific dates.
+
 ## Example
 
 ```xml
@@ -97,7 +194,9 @@ See [quiz question types](quiz_question_types.md) for full documentation of supp
     assignment_group="Quizzes"
     shuffle_answers="true"
     time_limit="30"
-    allowed_attempts="3">
+    allowed_attempts="3"
+    scoring_policy="keep_highest"
+    points_possible="100">
 
     <description>
         This quiz includes various question types.
