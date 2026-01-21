@@ -138,6 +138,7 @@ def main(
         templates: list[Path] = None,
         css_file: Path = None,
         dryrun: bool = False,
+        cleanup: bool = False,
         output_file: str = None
 ):
     # Initialize deployment report
@@ -150,7 +151,7 @@ def main(
         global_args = course_info.get('GLOBAL_ARGS', {})
 
         course = get_course(canvas_api_token, course_info['CANVAS_API_URL'], course_info['CANVAS_COURSE_ID'])
-        logger.info(f'Connected to Canvas: {course.name}')
+        logger.info(f'Connected to Canvas: {course.name} - {course_info['CANVAS_API_URL']}/courses/{course.id}')
 
         if global_args_file:
             global_args |= load_config(global_args_file)
@@ -178,7 +179,7 @@ def main(
 
             # Deploy XML
             logger.info('Deploying to Canvas')
-            deploy_to_canvas(course, course_info['LOCAL_TIME_ZONE'], resources, report, dryrun=dryrun)
+            deploy_to_canvas(course, course_info['LOCAL_TIME_ZONE'], resources, report, dryrun=dryrun, cleanup=cleanup)
 
     except Exception as e:
         logger.exception(f"{type(e).__name__}: {e}")
@@ -187,7 +188,6 @@ def main(
     finally:
         report.save_report()
         report.print_report()
-
 
 
 def entry():
@@ -202,6 +202,7 @@ def entry():
     parser.add_argument("--css", type=Path, default=None)
     parser.add_argument('--debug', action='store_true')
     parser.add_argument('--dryrun', '--dry-run', action='store_true')
+    parser.add_argument('--cleanup', action='store_true', help="Remove canvas resources not present in the input file")
     parser.add_argument('--output-file', type=str, default=None)
     args = parser.parse_args()
 
@@ -221,6 +222,7 @@ def entry():
         templates=args.templates,
         css_file=args.css,
         dryrun=args.dryrun,
+        cleanup=args.cleanup,
         output_file=args.output_file
     )
 

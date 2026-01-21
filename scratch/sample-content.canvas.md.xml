@@ -15,21 +15,28 @@
         }
     </style>
 
-    <assignment-groups>
-        <group name="Homework" weight="50" />
-        <group name="Quizzes" weight="50" />
-    </assignment-groups>
+    <quiz title="Ex Quiz"
+          assignment_group="Quizzes">
+        <description>
+            First Quiz Description
+        </description>
+        <questions>
+            <question type="multiple-choice">
+                What is 2 + 2?
+                <correct_answer>4</correct_answer>
+                <incorrect_answer>3</incorrect_answer>
+            </question>
+        </questions>
+    </quiz>
 
-    <assignment title="foo"
-                assignment_group="Homework"
-    >
-        foo
-    </assignment>
+<!--    <assignment title="Ex Assignment"-->
+<!--                assignment_group="Homework">-->
+<!--        First Assignment Content-->
+<!--    </assignment>-->
 
-    <assignment title="bar"
-                assignment_group="Quizzes"
-    >
-        bar
+    <assignment title="Example Assignment"
+                assignment_group="Homework">
+        First Assignment Content
 
         <overrides>
             <override section_id="21853" due_at="Jan 10, 2027, 11:59 PM" />
@@ -38,7 +45,7 @@
     </assignment>
 
     <module title="Sample Module">
-        <item type="Assignment" content_id="foo" />
-        <item type="Assignment" content_id="bar" />
+<!--        <item content_id="Ex Assignment" type="assignment" />-->
     </module>
+
 </div>
