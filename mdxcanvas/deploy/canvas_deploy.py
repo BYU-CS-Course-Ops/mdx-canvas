@@ -454,7 +454,7 @@ def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, s
     start_time = time.perf_counter()
 
     with MD5Sums(course) as md5s, TemporaryDirectory() as tmpdir:
-        # migrate(course, md5s)
+        migrate(course, md5s)
 
         tmpdir = Path(tmpdir)
 
