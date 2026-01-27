@@ -15,37 +15,29 @@
         }
     </style>
 
-    <quiz title="Ex Quiz"
+    <quiz title="Ex Quiz 4"
           assignment_group="Quizzes">
+
         <description>
             First Quiz Description
         </description>
+
         <questions>
-            <question type="multiple-choice">
-                What is 2 + 2?
+            <question id='q1' type="multiple-choice">
+                What is 2 + 2? BYE
                 <correct_answer>4</correct_answer>
                 <incorrect_answer>3</incorrect_answer>
             </question>
+            <question id='q3' type="multiple-choice">
+                What is 1 + 2?
+                <correct_answer>4</correct_answer>
+                <incorrect_answer>3</incorrect_answer>
+            </question>
+            <question id='q2' type="true-false" answer="true">
+                The sky is blue.
+            </question>
         </questions>
+
     </quiz>
-
-<!--    <assignment title="Ex Assignment"-->
-<!--                assignment_group="Homework">-->
-<!--        First Assignment Content-->
-<!--    </assignment>-->
-
-    <assignment title="Example Assignment"
-                assignment_group="Homework">
-        First Assignment Content
-
-        <overrides>
-            <override section_id="21853" due_at="Jan 10, 2027, 11:59 PM" />
-            <override section_id="27154" due_at="Jan 5, 2027, 11:59 PM" />
-        </overrides>
-    </assignment>
-
-    <module title="Sample Module">
-<!--        <item content_id="Ex Assignment" type="assignment" />-->
-    </module>
 
 </div>

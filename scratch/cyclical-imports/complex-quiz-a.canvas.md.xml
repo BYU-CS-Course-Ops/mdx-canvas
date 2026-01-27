@@ -3,7 +3,7 @@
 <description>
     This is the description for **Complex Quiz A**.
 
-    You should check out <course-link type="assignment" title="Complex Assignment B" />
+    You should check out <course-link type="assignment" id="Complex Assignment B" />
 
 </description>
 
