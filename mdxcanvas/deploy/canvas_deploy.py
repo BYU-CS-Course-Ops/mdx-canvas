@@ -20,7 +20,7 @@ from .group import deploy_group
 from .module import deploy_module, deploy_module_item, get_module_item
 from .override import deploy_override, get_override
 from .page import deploy_page, deploy_shell_page
-from .quiz import deploy_quiz, deploy_shell_quiz
+from .quiz import deploy_quiz, deploy_quiz_question, deploy_shell_quiz, get_quiz_question, reorder_quiz_questions
 from .syllabus import deploy_syllabus
 from .zip import deploy_zip, predeploy_zip
 from ..deployment_report import DeploymentReport
@@ -53,6 +53,7 @@ DEPLOYERS = {
     'override': deploy_override,
     'page': deploy_page,
     'quiz': deploy_quiz,
+    'quiz_question': deploy_quiz_question,
     'syllabus': deploy_syllabus,
     'zip': deploy_zip
 }
@@ -262,8 +263,9 @@ def get_stale_resources(resources: dict[tuple[str, str], CanvasResource], md5s: 
 
     priority = (lambda item:
                 0 if item[0] == 'module_item' else
-                1 if item[0] == 'override' else
-                2
+                1 if item[0] == 'quiz_question' else
+                2 if item[0] == 'override' else
+                3
                 )
 
     return sorted(stale, key=priority)
@@ -274,11 +276,13 @@ def _lookup_stale_canvas_resource(course: Course, item_type: str, item_id: str,
     canvas_id = canvas_info.get('id')
 
     # Handle special case resources (i.e. those that require a parent object to look up the specific object
-    if item_type in ['module_item', 'override']:
+    if item_type in ['module_item', 'override', 'quiz_question']:
         if item_type == 'module_item':
             canvas_resource = get_module_item(course, canvas_info.get('module_id'), canvas_id)
         elif item_type == 'override':
             canvas_resource = get_override(course, canvas_info.get('assignment_id'), canvas_id)
+        elif item_type == 'quiz_question':
+            canvas_resource = get_quiz_question(course, canvas_info.get('quiz_id'), canvas_id)
         else:
             raise NotImplementedError(f"Unsupported stale resource type {item_type} {item_id}")
 
@@ -400,6 +404,37 @@ def _remove_stale_resources(course: Course, resources: dict, md5s: MD5Sums) -> i
     return len(stale_resources) if stale_resources else 0
 
 
+def _reorder_quiz_questions(course: Course, to_deploy: dict, md5s: MD5Sums):
+    """Reorder quiz questions to match document order after deployment."""
+    # Collect deployed quiz questions grouped by quiz
+    quiz_order = defaultdict(list)
+
+    for (resource_key, is_shell), (current_md5, resource) in to_deploy.items():
+        rtype, rid = resource_key
+
+        if rtype == 'quiz_question':
+            data = resource.get('data', {})
+            question_canvas_info = md5s.get_canvas_info(resource_key)
+
+            quiz_rid = rid.split('|')[0]
+            quiz_canvas_info = md5s.get_canvas_info(('quiz', quiz_rid))
+
+            quiz_canvas_id = quiz_canvas_info.get('id')
+
+            quiz_order[quiz_canvas_id].append({
+                'canvas_id': question_canvas_info.get('id'),
+                'position': data['position']
+            })
+
+    # Reorder each quiz's questions
+    for quiz_id, questions in quiz_order.items():
+        # Sort by position and build order array
+        questions.sort(key=lambda q: q['position'])
+        order = [{'id': q['canvas_id'], 'type': 'question'} for q in questions]
+
+        reorder_quiz_questions(course, quiz_id, order)
+
+
 def _log_completion(actions: list[str], elapsed: float):
     logger.info(
         f"Deployment complete - {' and '.join(actions)} in {elapsed:.1f}s" if actions else
@@ -419,7 +454,7 @@ def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, s
     start_time = time.perf_counter()
 
     with MD5Sums(course) as md5s, TemporaryDirectory() as tmpdir:
-        migrate(course, md5s)
+        # migrate(course, md5s)
 
         tmpdir = Path(tmpdir)
 
@@ -431,6 +466,7 @@ def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, s
 
         if to_deploy:
             _deploy_resources(course, to_deploy, md5s, report, dryrun=dryrun)
+            _reorder_quiz_questions(course, to_deploy, md5s)
             actions.append(f'{len(to_deploy)} resources deployed')
 
         if cleanup:

@@ -75,6 +75,13 @@ class QuizInfo(ResourceInfo):
     title: str  # for course-link text
 
 
+class QuizQuestionInfo(ResourceInfo):
+    id: str
+    quiz_id: str
+    uri: str
+    url: str
+
+
 class SyllabusInfo(ResourceInfo):
     id: str
     uri: str
