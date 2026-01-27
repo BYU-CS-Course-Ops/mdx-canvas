@@ -93,7 +93,10 @@ def process_file(
     if '.md' in content_type:
         # Process Markdown
         excluded = ['pre', 'style', 'distractors']
-        inline = ['br', 'a', 'strong', 'em', 'span', 'file', 'link', 'zip', 'course-link']
+        inline = [
+            'br', 'a', 'strong', 'em', 'span', 'file',
+            'link', 'zip', 'course-link', 'timestamp'
+        ]
         xml_content = process_markdown(content, excluded=excluded, inline=inline)
 
     else:
@@ -151,7 +154,7 @@ def main(
         global_args = course_info.get('GLOBAL_ARGS', {})
 
         course = get_course(canvas_api_token, course_info['CANVAS_API_URL'], course_info['CANVAS_COURSE_ID'])
-        logger.info(f'Connected to Canvas: {course.name} - {course_info['CANVAS_API_URL']}/courses/{course.id}')
+        logger.info(f'Connected to Canvas: {course.name} - {course_info["CANVAS_API_URL"]}/courses/{course.id}')
 
         if global_args_file:
             global_args |= load_config(global_args_file)

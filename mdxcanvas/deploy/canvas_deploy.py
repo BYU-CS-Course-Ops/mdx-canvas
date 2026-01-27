@@ -1,5 +1,6 @@
 import time
 import json
+import re
 from datetime import datetime
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -140,6 +141,22 @@ def update_links(md5s: MD5Sums, data: dict, resource_objs: dict, current_resourc
                 f"Missing field '{field}' in {rtype} {rid}\n  Referenced in {current_resource['type']} {current_resource['id']}\n  in {current_resource['content_path']}")
 
         text = text.replace(key, str(repl_text))
+
+    return json.loads(text)
+
+
+def post_process_resource(resource_data) -> dict:
+    """
+    Post-processing involves changes that shouldn't be included
+    when considering whether a resource has changed and should be redeployed.
+    """
+    text = json.dumps(resource_data)
+
+    # <timestamp /> tags
+    # Because we are searching in JSON, double quotes will be escaped with \
+    while m := re.search(r'''<\s*timestamp\s*(?:format\s*=\s*(\\"|')([^"']*)\1)?\s*(\/>|>\s*<\/timestamp>)''', text):
+        timestamp = datetime.now().strftime(m.group(2) or '%B %d, %Y at %I:%M %p')
+        text = text.replace(m.group(0), timestamp)
 
     return json.loads(text)
 
@@ -380,6 +397,7 @@ def _deploy_resources(course: Course, to_deploy: dict, md5s: MD5Sums, report: De
                 resource['data']['canvas_id'] = canvas_obj_info.get('id') if canvas_obj_info else None
             else:
                 resource_data = update_links(md5s, resource_data, resource_objs, resource)
+                resource_data = post_process_resource(resource_data)
                 canvas_obj_info, info = deploy_resource(DEPLOYERS, course, rtype, resource_data, resource)
 
             if canvas_obj_info:
