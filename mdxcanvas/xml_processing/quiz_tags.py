@@ -90,38 +90,37 @@ class QuizTagProcessor:
 
         return parse_settings(settings_tag, fields)
 
-    def _parse_questions(self, quiz_rid: str, questions_tag: Tag):
-        for i, question in enumerate(questions_tag.findAll('question', recursive=False), start=1):
-            if not (question_type := question.get("type")):
-                raise ValueError(f"Question type not specified @ {format_tag(question)}\n  in {get_file_path(question)}")
+    def _iter_questions(self, questions_tag: Tag):
+        for i, tag in enumerate(questions_tag.findAll('question', recursive=False), start=1):
+            question_type = tag.get("type")
+
+            if not question_type:
+                raise ValueError(f"Question type not specified @ {format_tag(tag)}\n  in {get_file_path(tag)}")
 
             if question_type not in self.question_types:
-                raise ValueError(f"Question type '{question_type}' not supported @ {format_tag(question)}\n  Supported types: {', '.join(self.question_types.keys())}\n  in {get_file_path(question)}")
+                raise ValueError(
+                    f"Question type '{question_type}' not supported @ {format_tag(tag)}\n  Supported types: {', '.join(self.question_types.keys())}\n  in {get_file_path(tag)}")
 
-            parse_tag = self.question_types[question_type]
+            result = self.question_types[question_type](tag)
+            name = tag.get('id', f'q{i}')
+            items = result if isinstance(result, list) else [result]
 
-            question_data = parse_tag(question)
+            yield from ((name, j, len(items), q) for j, q in enumerate(items, start=1))
 
-            if question_type == 'multiple-tf':
-                # TODO: Handle multiple true/false questions flatten list into individual questions
-                # multiple-tf returns a list of questions
-                pass
+    def _parse_questions(self, quiz_rid: str, questions_tag: Tag):
+        for pos, (name, idx, count, q) in enumerate(self._iter_questions(questions_tag), start=1):
 
-            question_data['question_name'] = question.get('id', f'q{i}')
-            question_data['id'] = f"{quiz_rid}|{question_data['question_name']}"
-            question_data['quiz_id'] = get_key('quiz', quiz_rid, 'id')
-            question_data['position'] = i
+            # Multiple tf questions need to have unique names per sub-question as they are separate questions
+            # TODO: Consider how to better handle this in the future
+            q['question_name'] = f"{name}_{idx}" if count > 1 else name
+
+            q['id'] = f"{quiz_rid}|{q['question_name']}"
+            q['quiz_id'] = get_key('quiz', quiz_rid, 'id')
+            q['position'] = pos
 
             self._resources.add_resource(CanvasResource(
                 type='quiz_question',
-                id=question_data['id'],
-                data=question_data,
+                id=q['id'],
+                data=q,
                 content_path=str(get_current_file().resolve())
             ))
-
-
-
-
-
-
-
