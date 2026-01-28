@@ -15,7 +15,7 @@
         }
     </style>
 
-    <quiz title="Ex Quiz 4"
+    <quiz title="Ex Quiz"
           assignment_group="Quizzes">
 
         <description>
@@ -23,19 +23,32 @@
         </description>
 
         <questions>
-            <question id='q1' type="multiple-choice">
-                What is 2 + 2? BYE
-                <correct_answer>4</correct_answer>
-                <incorrect_answer>3</incorrect_answer>
-            </question>
-            <question id='q3' type="multiple-choice">
+            <question id="q1" type="multiple-choice">
                 What is 1 + 2?
                 <correct_answer>4</correct_answer>
                 <incorrect_answer>3</incorrect_answer>
             </question>
-            <question id='q2' type="true-false" answer="true">
+
+            <question id="q2" type="true-false" answer="true">
                 The sky is blue.
             </question>
+
+
+            <question id="q4" type="multiple-choice">
+                What is 2 + 2? BYE
+                <correct_answer>4</correct_answer>
+                <incorrect_answer>3</incorrect_answer>
+            </question>
+
+            <question id="q3" type="multiple-tf">
+                Which of the following statements are true?
+
+                <correct>Python is a programming language.</correct>
+                <incorrect>HTML is a programming language.</incorrect>
+                <correct>JavaScript can be used for web development.</correct>
+                <incorrect>CSS is a programming language.</incorrect>
+            </question>
+
         </questions>
 
     </quiz>

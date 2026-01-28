@@ -80,6 +80,7 @@ class QuizQuestionInfo(ResourceInfo):
     quiz_id: str
     uri: str
     url: str
+    position: int
 
 
 class SyllabusInfo(ResourceInfo):

@@ -109,10 +109,12 @@ class QuizTagProcessor:
 
     def _parse_questions(self, quiz_rid: str, questions_tag: Tag):
         for pos, (name, idx, count, q) in enumerate(self._iter_questions(questions_tag), start=1):
+            is_multi_part = count > 1
 
-            # Multiple tf questions need to have unique names per sub-question as they are separate questions
-            # TODO: Consider how to better handle this in the future
-            q['question_name'] = f"{name}_{idx}" if count > 1 else name
+            # Multi-part questions (e.g. multiple-tf) need unique names and group tracking
+            q['question_name'] = f"{name}_{idx}" if is_multi_part else name
+            if is_multi_part:
+                q['group_id'] = f"{quiz_rid}|{name}"
 
             q['id'] = f"{quiz_rid}|{q['question_name']}"
             q['quiz_id'] = get_key('quiz', quiz_rid, 'id')

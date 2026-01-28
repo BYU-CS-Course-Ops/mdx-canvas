@@ -26,7 +26,8 @@ def deploy_quiz_question(course: Course, quiz_question_data: dict) -> tuple[Quiz
         id=quiz_question.id,
         quiz_id=quiz_question.quiz_id,
         uri=f'/courses/{course.id}/quizzes/{canvas_quiz.id}',
-        url=f'{course.canvas._Canvas__requester.original_url}/courses/{course.id}/quizzes/{canvas_quiz.id}'
+        url=f'{course.canvas._Canvas__requester.original_url}/courses/{course.id}/quizzes/{canvas_quiz.id}',
+        position=quiz_question_data.get('position', 0)
     ), info
 
 

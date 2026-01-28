@@ -218,7 +218,11 @@ def identify_modified_or_outdated(
         item = (resource['type'], resource['id'])
 
         stored_md5 = md5s.get_checksum(item)
-        current_md5 = compute_md5(resource_data)
+        # Exclude 'position' from MD5 for quiz_questions (position changes handled by reorder API)
+        if resource['type'] == 'quiz_question':
+            current_md5 = compute_md5({k: v for k, v in resource_data.items() if k != 'position'})
+        else:
+            current_md5 = compute_md5(resource_data)
 
         # Attach the Canvas object id (stored as `canvas_id`) to the resource data
         # so deployment can detect whether to create a new item or update an existing one.
@@ -237,7 +241,9 @@ def identify_modified_or_outdated(
 
         if stored_md5 != current_md5:
             # Changed data, need to deploy
-            logger.debug(f'MD5 {resource_key}: {current_md5} vs {stored_md5}')
+            logger.debug(f'MD5 mismatch {resource_key}: current={current_md5} stored={stored_md5}')
+            if resource['type'] == 'quiz_question':
+                logger.debug(f'  Quiz question data (excluding position): {({k: v for k, v in resource_data.items() if k != "position"})}')
             modified[resource_key, is_shell] = current_md5, resource
             continue
 
@@ -404,35 +410,74 @@ def _remove_stale_resources(course: Course, resources: dict, md5s: MD5Sums) -> i
     return len(stale_resources) if stale_resources else 0
 
 
-def _reorder_quiz_questions(course: Course, to_deploy: dict, md5s: MD5Sums):
+def _has_quiz_resources(to_deploy: dict) -> bool:
+    """Check if any quiz or quiz_question is being deployed."""
+    return any(rtype in ('quiz', 'quiz_question') for (rtype, _), _ in to_deploy.keys())
+
+
+def _has_quiz_position_changes(resources: dict, md5s: MD5Sums) -> bool:
+    """Check if any quiz question positions have changed."""
+    for (rtype, rid), resource in resources.items():
+        if rtype != 'quiz_question':
+            continue
+
+        current_position = resource.get('data', {}).get('position')
+        canvas_info = md5s.get_canvas_info((rtype, rid))
+
+        if not canvas_info:
+            continue  # New question, will be handled by deployment
+
+        if current_position != canvas_info.get('position'):
+            return True
+
+    return False
+
+
+def _update_stored_positions(resources: dict, md5s: MD5Sums):
+    """Update stored positions in md5s after reordering."""
+    for (rtype, rid), resource in resources.items():
+        if rtype != 'quiz_question':
+            continue
+
+        current_position = resource.get('data', {}).get('position')
+        if md5s.has_canvas_info((rtype, rid)):
+            md5s[(rtype, rid)]['canvas_info']['position'] = current_position
+
+
+def _reorder_quiz_questions(course: Course, resources: dict, md5s: MD5Sums, report: DeploymentReport):
     """Reorder quiz questions to match document order after deployment."""
-    # Collect deployed quiz questions grouped by quiz
     quiz_order = defaultdict(list)
+    quiz_info_map = {}  # Track quiz info for reporting
 
-    for (resource_key, is_shell), (current_md5, resource) in to_deploy.items():
-        rtype, rid = resource_key
+    for (rtype, rid), resource in resources.items():
+        if rtype != 'quiz_question':
+            continue
 
-        if rtype == 'quiz_question':
-            data = resource.get('data', {})
-            question_canvas_info = md5s.get_canvas_info(resource_key)
+        question_info = md5s.get_canvas_info((rtype, rid))
+        quiz_info = md5s.get_canvas_info(('quiz', rid.split('|')[0]))
 
-            quiz_rid = rid.split('|')[0]
-            quiz_canvas_info = md5s.get_canvas_info(('quiz', quiz_rid))
+        if not question_info or not quiz_info:
+            continue
 
-            quiz_canvas_id = quiz_canvas_info.get('id')
+        quiz_order[quiz_info['id']].append({
+            'canvas_id': question_info['id'],
+            'position': resource.get('data', {})['position'],
+        })
+        quiz_info_map[quiz_info['id']] = quiz_info
 
-            quiz_order[quiz_canvas_id].append({
-                'canvas_id': question_canvas_info.get('id'),
-                'position': data['position']
-            })
-
-    # Reorder each quiz's questions
     for quiz_id, questions in quiz_order.items():
-        # Sort by position and build order array
         questions.sort(key=lambda q: q['position'])
         order = [{'id': q['canvas_id'], 'type': 'question'} for q in questions]
-
         reorder_quiz_questions(course, quiz_id, order)
+
+        # Add to deployed content (always)
+        info = quiz_info_map[quiz_id]
+        report.add_deployed_content('quiz', info['title'], info['url'])
+
+        # Add to content_to_review if quiz has submissions
+        canvas_quiz = course.get_quiz(quiz_id)
+        if any(canvas_quiz.get_submissions()):
+            report.add_content_to_review(info['title'], info['url'])
 
 
 def _log_completion(actions: list[str], elapsed: float):
@@ -466,8 +511,14 @@ def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, s
 
         if to_deploy:
             _deploy_resources(course, to_deploy, md5s, report, dryrun=dryrun)
-            _reorder_quiz_questions(course, to_deploy, md5s)
             actions.append(f'{len(to_deploy)} resources deployed')
+
+        # Handle quiz question reordering (independent of content deployment)
+        if _has_quiz_resources(to_deploy) or _has_quiz_position_changes(resources, md5s):
+            logger.info('Reordering quiz questions to match source document')
+            _reorder_quiz_questions(course, resources, md5s, report)
+            _update_stored_positions(resources, md5s)
+            actions.append('quiz questions reordered')
 
         if cleanup:
             if removed_count := _remove_stale_resources(course, resources, md5s):
