@@ -1,5 +1,6 @@
 import time
 import json
+import re
 from datetime import datetime
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -53,7 +54,6 @@ DEPLOYERS = {
     'override': deploy_override,
     'page': deploy_page,
     'quiz': deploy_quiz,
-    'quiz_question': deploy_quiz_question,
     'syllabus': deploy_syllabus,
     'zip': deploy_zip
 }
@@ -150,7 +150,7 @@ def deploy_resource(deployers: dict, course: Course, rtype: str, data: dict, res
         raise Exception(f"Unsupported resource type {rtype} {resource['id']}\n  in {resource['content_path']}")
 
     try:
-        deployed = deploy(course, data)
+        deployed, info = deploy(course, data)
     except Exception as e:
         raise Exception(
             f"Error deploying {rtype} {resource['id']}\n  {type(e).__name__}: {e}\n  in {resource['content_path']}") from e
@@ -158,7 +158,7 @@ def deploy_resource(deployers: dict, course: Course, rtype: str, data: dict, res
     if not deployed:
         raise Exception(f"Deployment returned None for {rtype} {resource['id']}\n  in {resource['content_path']}")
 
-    return deployed
+    return deployed, info
 
 
 # =============================================================================
@@ -241,10 +241,6 @@ def identify_modified_or_outdated(
 
         if stored_md5 != current_md5:
             # Changed data, need to deploy
-            logger.debug(f'MD5 mismatch {resource_key}: current={current_md5} stored={stored_md5}')
-            if resource['type'] == 'quiz_question':
-                logger.debug(
-                    f'  Quiz question data (excluding position): {({k: v for k, v in resource_data.items() if k != "position"})}')
             modified[resource_key, is_shell] = current_md5, resource
             continue
 
@@ -391,6 +387,7 @@ def _deploy_resources(course: Course, to_deploy: dict, md5s: MD5Sums, report: De
                 resource['data']['canvas_id'] = canvas_obj_info.get('id') if canvas_obj_info else None
             else:
                 resource_data = update_links(md5s, resource_data, resource_objs, resource)
+                resource_data = post_process_resource(resource_data)
                 canvas_obj_info = deploy_resource(DEPLOYERS, course, rtype, resource_data, resource)
 
             if canvas_obj_info:

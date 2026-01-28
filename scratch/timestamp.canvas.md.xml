@@ -1,0 +1,5 @@
+<page title="Timestamp Demo" id="timestamp-demo">
+    Last content change on <timestamp/>.
+
+    :)
+</page>
