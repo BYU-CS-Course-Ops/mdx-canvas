@@ -420,7 +420,7 @@ def identify_position_changes(
     """
     Returns quiz_rid -> [(canvas_id, position, rid), ...] for quizzes needing reorder.
     """
-    quiz_questions = {}
+    to_reorder = defaultdict(list)
     quizzes_to_reorder = set()
 
     for (rtype, rid), resource in resources.items():
@@ -434,9 +434,7 @@ def identify_position_changes(
         quiz_rid = rid.split('|')[0]
         position = resource.get('data', {}).get('position')
 
-        if quiz_rid not in quiz_questions:
-            quiz_questions[quiz_rid] = []
-        quiz_questions[quiz_rid].append((question_info['id'], position, rid))
+        to_reorder[quiz_rid].append((question_info['id'], position, rid))
 
         if position != question_info.get('position'):
             # If the position has changed, mark the quiz for reordering
@@ -448,18 +446,18 @@ def identify_position_changes(
 
     return {
         quiz_rid: sorted(questions, key=lambda q: q[1])
-        for quiz_rid, questions in quiz_questions.items()
+        for quiz_rid, questions in to_reorder.items()
         if quiz_rid in quizzes_to_reorder
     }
 
 
 def _reorder_quiz_questions(
     course: Course,
-    quiz_questions: dict[str, list[tuple[int, int, str]]],
+    to_reorder: dict[str, list[tuple[int, int, str]]],
     md5s: MD5Sums,
     report: DeploymentReport
 ):
-    for quiz_rid, questions in quiz_questions.items():
+    for quiz_rid, questions in to_reorder.items():
         quiz_info = md5s.get_canvas_info(('quiz', quiz_rid))
         if not quiz_info:
             continue
@@ -515,9 +513,9 @@ def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, s
             _deploy_resources(course, to_deploy, md5s, report, dryrun=dryrun)
             actions.append(f'{len(to_deploy)} resources deployed')
 
-        if quiz_questions := identify_position_changes(resources, to_deploy, md5s):
-            _reorder_quiz_questions(course, quiz_questions, md5s, report)
-            actions.append(f'{len(quiz_questions)} quizzes reordered')
+        if to_reorder := identify_position_changes(resources, to_deploy, md5s):
+            _reorder_quiz_questions(course, to_reorder, md5s, report)
+            actions.append(f'{len(to_reorder)} quizzes reordered')
 
         if cleanup:
             if removed_count := _remove_stale_resources(course, resources, md5s):
