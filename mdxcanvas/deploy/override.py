@@ -1,6 +1,7 @@
 from canvasapi.assignment import Assignment, AssignmentOverride
 from canvasapi.course import Course
 
+from mdxcanvas.resources import OverrideInfo
 from ..resources import OverrideInfo
 
 
@@ -32,7 +33,7 @@ def _get_assignment(course: Course, override_info: dict) -> Assignment:
     return course.get_assignment(assignment_id)
 
 
-def deploy_override(course: Course, override_info: dict) -> tuple[OverrideInfo, None]:
+def deploy_override(course: Course, override_info: dict) -> OverrideInfo:
     assignment: Assignment = _get_assignment(course, override_info)
 
     if cid := override_info.get('canvas_id'):
@@ -46,4 +47,4 @@ def deploy_override(course: Course, override_info: dict) -> tuple[OverrideInfo, 
         'assignment_id': assignment.id
     }
 
-    return override_object_info, None
+    return override_object_info

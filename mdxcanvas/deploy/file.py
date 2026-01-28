@@ -2,6 +2,7 @@ from canvasapi.course import Course
 from canvasapi.file import File
 from canvasapi.folder import Folder
 
+from mdxcanvas.resources import FileInfo
 from .util import get_canvas_object
 from ..resources import FileData, FileInfo
 from ..our_logging import get_logger
@@ -32,7 +33,7 @@ def get_canvas_folder(course: Course, folder_name: str, parent_folder_path="") -
     return course.create_folder(name=folder_name, parent_folder_path=parent_folder_path, hidden=True)
 
 
-def deploy_file(course: Course, data: FileData) -> tuple[FileInfo, None]:
+def deploy_file(course: Course, data: FileData) -> FileInfo:
     lock_at = data.get('lock_at')
     unlock_at = data.get('unlock_at')
 
@@ -51,4 +52,4 @@ def deploy_file(course: Course, data: FileData) -> tuple[FileInfo, None]:
         'uri': f'/files/{file.id}'
     }
 
-    return file_object_info, None
+    return file_object_info

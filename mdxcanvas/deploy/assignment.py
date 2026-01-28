@@ -1,10 +1,11 @@
 from canvasapi.course import Course
 
+from mdxcanvas.resources import AssignmentInfo
 from .util import update_group_name_to_id
 from ..resources import AssignmentInfo
 
 
-def deploy_assignment(course: Course, assignment_info: dict) -> tuple[AssignmentInfo, None]:
+def deploy_assignment(course: Course, assignment_info: dict) -> AssignmentInfo:
     assignment_id = assignment_info["canvas_id"]
 
     update_group_name_to_id(course, assignment_info)
@@ -27,10 +28,10 @@ def deploy_assignment(course: Course, assignment_info: dict) -> tuple[Assignment
         'url': canvas_assignment.html_url if hasattr(canvas_assignment, 'html_url') else None
     }
 
-    return assignment_object_info, None
+    return assignment_object_info
 
 
-def deploy_shell_assignment(course: Course, assignment_info: dict) -> tuple[AssignmentInfo, None]:
+def deploy_shell_assignment(course: Course, assignment_info: dict) -> AssignmentInfo:
     shell_assignment_info = assignment_info.copy()
     shell_assignment_info[
         'description'] = "<p>This is a shell assignment created to break a dependency cycle. The full content will be deployed later.</p>"
