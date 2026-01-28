@@ -14,7 +14,6 @@ from ..processing_context import get_current_file
 class QuizTagProcessor:
     def __init__(self, resources: ResourceManager):
         self._resources = resources
-        self._previous_question = None
         self.question_types = {
             'text': parse_text_question,
             'true-false': parse_true_false_question,
@@ -101,17 +100,16 @@ class QuizTagProcessor:
                 raise ValueError(
                     f"Question type '{question_type}' not supported @ {format_tag(tag)}\n  Supported types: {', '.join(self.question_types.keys())}\n  in {get_file_path(tag)}")
 
-            result = self.question_types[question_type](tag)
+            question_data = self.question_types[question_type](tag)
             name = tag.get('id', f'q{i}')
-            items = result if isinstance(result, list) else [result]
 
-            yield from ((name, j, len(items), q) for j, q in enumerate(items, start=1))
+            yield from ((name, j, len(question_data), q) for j, q in enumerate(question_data, start=1))
 
     def _parse_questions(self, quiz_rid: str, questions_tag: Tag):
         for pos, (name, idx, count, q) in enumerate(self._iter_questions(questions_tag), start=1):
             is_multi_part = count > 1
 
-            # Multi-part questions (e.g. multiple-tf) need unique names and group tracking
+            # Multipart questions (e.g. multiple-tf) need unique names and group tracking
             q['question_name'] = f"{name}_{idx}" if is_multi_part else name
             if is_multi_part:
                 q['group_id'] = f"{quiz_rid}|{name}"

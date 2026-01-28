@@ -1,11 +1,5 @@
 {
-    "deployed_content": [
-        [
-            "quiz",
-            "Ex Quiz",
-            "https://byu.instructure.com/courses/20736/quizzes/598553"
-        ]
-    ],
+    "deployed_content": [],
     "content_to_review": [],
     "error": ""
 }

@@ -34,7 +34,7 @@ def parse_text_question(tag: Tag):
         "question_text": question_text,
         "question_type": 'text_only_question',
     }
-    return question
+    return [question]
 
 
 def parse_true_false_question(tag: Tag):
@@ -77,7 +77,7 @@ def parse_true_false_question(tag: Tag):
         ]
     })
 
-    return question
+    return [question]
 
 
 def parse_multiple_choice_question(tag: Tag):
@@ -121,7 +121,7 @@ def _parse_multiple_option_question(question_type, tag):
         ]
     }
     question.update(parse_settings(tag, mostly_common_fields))
-    return question
+    return [question]
 
 
 def parse_matching_question(tag: Tag):
@@ -162,7 +162,7 @@ def parse_matching_question(tag: Tag):
         "matching_answer_incorrect_matches": distractors
     })
 
-    return question
+    return [question]
 
 
 def parse_multiple_true_false_question(tag: Tag):
@@ -285,7 +285,7 @@ def parse_fill_in_multiple_blanks_filled_answers(tag: Tag):
     ]
     settings = parse_settings(tag, question_attributes + common_fields)
     question.update(settings)
-    return question
+    return [question]
 
 
 def parse_fill_in_the_blank_question(tag: Tag):
@@ -315,7 +315,7 @@ def parse_fill_in_the_blank_question(tag: Tag):
     }
 
     question.update(parse_settings(tag, mostly_common_fields))
-    return question
+    return [question]
 
 
 def parse_fill_in_multiple_blanks_question(tag: Tag):
@@ -348,7 +348,7 @@ def parse_fill_in_multiple_blanks_question(tag: Tag):
     ]
     settings = parse_settings(tag, question_attributes + common_fields)
     question.update(settings)
-    return question
+    return [question]
 
 
 def parse_essay_question(tag: Tag):
@@ -358,7 +358,7 @@ def parse_essay_question(tag: Tag):
         "question_type": 'essay_question',
     }
     question.update(parse_settings(tag, mostly_common_fields))
-    return question
+    return [question]
 
 
 def parse_file_upload_question(tag: Tag):
@@ -367,7 +367,7 @@ def parse_file_upload_question(tag: Tag):
         "question_text": question_text,
         "question_type": 'file_upload_question',
     }
-    return question
+    return [question]
 
 
 def parse_exact_answer_question(tag: Tag):
@@ -468,4 +468,4 @@ def parse_numerical_question(tag: Tag):
     for answer in question["answers"]:
         answer["numerical_answer_type"] = answer_type
 
-    return question
+    return [question]

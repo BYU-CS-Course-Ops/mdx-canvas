@@ -15,7 +15,7 @@
         }
     </style>
 
-    <quiz title="Ex Quiz"
+    <quiz title="Ex Quiz 7"
           assignment_group="Quizzes">
 
         <description>
@@ -23,10 +23,8 @@
         </description>
 
         <questions>
-            <question id="q1" type="multiple-choice">
-                What is 1 + 2?
-                <correct_answer>4</correct_answer>
-                <incorrect_answer>3</incorrect_answer>
+            <question id="q2" type="true-false" answer="true">
+                The sky is blue.
             </question>
 
             <question id="q4" type="multiple-choice">
@@ -35,8 +33,10 @@
                 <incorrect_answer>3</incorrect_answer>
             </question>
 
-            <question id="q2" type="true-false" answer="true">
-                The sky is blue.
+            <question id="q1" type="multiple-choice">
+                What is 1 + 2?
+                <correct_answer>4</correct_answer>
+                <incorrect_answer>3</incorrect_answer>
             </question>
 
 

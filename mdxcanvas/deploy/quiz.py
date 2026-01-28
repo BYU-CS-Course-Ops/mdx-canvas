@@ -17,9 +17,9 @@ def deploy_quiz_question(course: Course, quiz_question_data: dict) -> tuple[Quiz
 
     return QuizQuestionInfo(
         id=quiz_question.id,
-        quiz_id=quiz_question.quiz_id,
+        quiz_id=canvas_quiz.id,
         uri=f'/courses/{course.id}/quizzes/{canvas_quiz.id}',
-        url=f'{course.canvas._Canvas__requester.original_url}/courses/{course.id}/quizzes/{canvas_quiz.id}',
+        url=canvas_quiz.html_url if hasattr(canvas_quiz, 'html_url') else None,
         position=quiz_question_data.get('position', 0)
     ), None
 

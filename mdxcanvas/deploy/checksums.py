@@ -76,6 +76,11 @@ class MD5Sums:
     def has_canvas_info(self, item):
         return item in self._md5s and 'canvas_info' in self._md5s[item]
 
+    def update_canvas_info(self, item, canvas_info):
+        if item not in self._md5s:
+            self._md5s[item] = {}
+        self._md5s[item]['canvas_info'] = canvas_info
+
     def get_checksum(self, item):
         entry = self.get(item)
         return entry.get('checksum', None) if entry else None
