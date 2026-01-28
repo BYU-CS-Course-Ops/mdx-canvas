@@ -22,6 +22,11 @@ def migrate(course, md5s: MD5Sums):
         for override in assignment.get_overrides()
     }
 
+    # TODO: QuizQuestionResources
+    #  going to need to iter though all quizzes and their questions to build a map here
+    #  init exploration shows quiz.get_questions() returns list of QuizQuestion objects
+    #  in order top down of how they appear in the quiz while `position` field is null
+
     for (rtype, rid), data in md5s._md5s.items():
         # Titles (0.6.2)
         if rtype in ['assignment', 'file', 'module', 'page', 'quiz'] \

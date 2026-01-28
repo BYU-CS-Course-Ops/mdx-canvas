@@ -1,3 +1,4 @@
+import json
 import os
 from pathlib import Path
 from canvasapi.quiz import Quiz
@@ -13,10 +14,13 @@ if __name__ == '__main__':
 
     course = get_course(canvas_api_token, course_info['CANVAS_API_URL'], course_info['CANVAS_COURSE_ID'])
 
-    quiz_id = 598481
+    quiz_id = 598553
 
     quiz: Quiz = course.get_quiz(quiz_id)
 
     print(f"Link to Quiz: {quiz.html_url}")
 
     quiz_questions = quiz.get_questions()
+
+    for question in quiz_questions:
+        print(json.dumps(question.__dict__['position'], indent=4, default=str))

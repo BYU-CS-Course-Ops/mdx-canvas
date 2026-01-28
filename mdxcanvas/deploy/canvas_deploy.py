@@ -234,8 +234,10 @@ def identify_modified_or_outdated(
         item = (resource['type'], resource['id'])
 
         stored_md5 = md5s.get_checksum(item)
-        # Exclude 'position' from MD5 for quiz_questions (position changes handled by reorder API)
+
         if resource['type'] == 'quiz_question':
+            # Exclude 'position' data from checksum for quiz_questions
+            # to avoid redeploying questions just because their position changed
             current_md5 = compute_md5({k: v for k, v in resource_data.items() if k != 'position'})
         else:
             current_md5 = compute_md5(resource_data)

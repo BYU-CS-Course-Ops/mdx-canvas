@@ -23,9 +23,6 @@
         </description>
 
         <questions>
-            <question id="q2" type="true-false" answer="true">
-                The sky is blue.
-            </question>
 
             <question id="q4" type="multiple-choice">
                 What is 2 + 2? BYE
@@ -49,6 +46,9 @@
                 <incorrect>CSS is a programming language.</incorrect>
             </question>
 
+            <question id="q2" type="true-false" answer="true">
+                The sky is blue.
+            </question>
         </questions>
 
     </quiz>
