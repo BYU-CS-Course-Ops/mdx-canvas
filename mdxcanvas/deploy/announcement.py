@@ -1,9 +1,10 @@
 from canvasapi.course import Course
 
+from mdxcanvas.resources import AnnouncementInfo
 from ..resources import AnnouncementInfo
 
 
-def deploy_announcement(course: Course, announcement_info: dict) -> tuple[AnnouncementInfo, None]:
+def deploy_announcement(course: Course, announcement_info: dict) -> AnnouncementInfo:
     announcement_id = announcement_info["canvas_id"]
 
     if announcement_id:
@@ -22,4 +23,4 @@ def deploy_announcement(course: Course, announcement_info: dict) -> tuple[Announ
         'url': canvas_announcement.html_url if hasattr(canvas_announcement, 'html_url') else None
     }
 
-    return announcement_object_info, None
+    return announcement_object_info

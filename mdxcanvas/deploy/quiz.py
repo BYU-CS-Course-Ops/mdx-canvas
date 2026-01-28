@@ -5,7 +5,7 @@ from .util import update_group_name_to_id
 from ..resources import QuizInfo, QuizQuestionInfo
 
 
-def deploy_quiz_question(course: Course, quiz_question_data: dict) -> tuple[QuizQuestionInfo, None]:
+def deploy_quiz_question(course: Course, quiz_question_data: dict) -> QuizQuestionInfo:
     if not (canvas_quiz := course.get_quiz(quiz_question_data['quiz_id'])):
         raise ValueError(f'Unable to find quiz {quiz_question_data["quiz_id"]}')
 
@@ -21,10 +21,10 @@ def deploy_quiz_question(course: Course, quiz_question_data: dict) -> tuple[Quiz
         uri=f'/courses/{course.id}/quizzes/{canvas_quiz.id}',
         url=canvas_quiz.html_url if hasattr(canvas_quiz, 'html_url') else None,
         position=quiz_question_data.get('position', 0)
-    ), None
+    )
 
 
-def deploy_quiz(course: Course, quiz_data: dict) -> tuple[QuizInfo, None]:
+def deploy_quiz(course: Course, quiz_data: dict) -> QuizInfo:
     """Deploy quiz settings/metadata only. Questions are deployed separately."""
     quiz_id = quiz_data["canvas_id"]
 
@@ -43,10 +43,10 @@ def deploy_quiz(course: Course, quiz_data: dict) -> tuple[QuizInfo, None]:
         title=canvas_quiz.title,
         uri=f'/courses/{course.id}/quizzes/{canvas_quiz.id}',
         url=canvas_quiz.html_url if hasattr(canvas_quiz, 'html_url') else None
-    ), None
+    )
 
 
-def deploy_shell_quiz(course: Course, quiz_data: dict) -> tuple[QuizInfo, None]:
+def deploy_shell_quiz(course: Course, quiz_data: dict) -> QuizInfo:
     shell_quiz_data = quiz_data.copy()
     shell_quiz_data['description'] = "<p>Shell quiz for dependency cycle.</p>"
     return deploy_quiz(course, shell_quiz_data)
