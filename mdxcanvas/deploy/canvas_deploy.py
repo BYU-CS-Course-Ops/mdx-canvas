@@ -145,6 +145,22 @@ def update_links(md5s: MD5Sums, data: dict, resource_objs: dict, current_resourc
     return json.loads(text)
 
 
+def post_process_resource(resource_data) -> dict:
+    """
+    Post-processing involves changes that shouldn't be included
+    when considering whether a resource has changed and should be redeployed.
+    """
+    text = json.dumps(resource_data)
+
+    # <timestamp /> tags
+    # Because we are searching in JSON, double quotes will be escaped with \
+    while m := re.search(r'''<\s*timestamp\s*(?:format\s*=\s*(\\"|')([^"']*)\1)?\s*(\/>|>\s*<\/timestamp>)''', text):
+        timestamp = datetime.now().strftime(m.group(2) or '%B %d, %Y at %I:%M %p')
+        text = text.replace(m.group(0), timestamp)
+
+    return json.loads(text)
+
+
 def deploy_resource(deployers: dict, course: Course, rtype: str, data: dict, resource: CanvasResource):
     if not (deploy := deployers.get(rtype)):
         raise Exception(f"Unsupported resource type {rtype} {resource['id']}\n  in {resource['content_path']}")
@@ -406,9 +422,9 @@ def _remove_stale_resources(course: Course, resources: dict, md5s: MD5Sums) -> i
 
 
 def identify_position_changes(
-    resources: dict[tuple[str, str], CanvasResource],
-    to_deploy: dict[tuple[str, str], tuple[str, CanvasResource]],
-    md5s: MD5Sums
+        resources: dict[tuple[str, str], CanvasResource],
+        to_deploy: dict[tuple[str, str], tuple[str, CanvasResource]],
+        md5s: MD5Sums
 ) -> dict[str, list[tuple[int, int, str]]]:
     """
     Returns quiz_rid -> [(canvas_id, position, rid), ...] for quizzes needing reorder.
@@ -445,10 +461,10 @@ def identify_position_changes(
 
 
 def _reorder_quiz_questions(
-    course: Course,
-    to_reorder: dict[str, list[tuple[int, int, str]]],
-    md5s: MD5Sums,
-    report: DeploymentReport
+        course: Course,
+        to_reorder: dict[str, list[tuple[int, int, str]]],
+        md5s: MD5Sums,
+        report: DeploymentReport
 ):
     for quiz_rid, questions in to_reorder.items():
         quiz_info = md5s.get_canvas_info(('quiz', quiz_rid))
