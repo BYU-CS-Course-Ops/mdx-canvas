@@ -5,7 +5,7 @@ from .util import update_group_name_to_id
 from ..resources import QuizInfo, QuizQuestionInfo
 
 
-def deploy_quiz_question(course: Course, quiz_question_data: dict) -> tuple[QuizQuestionInfo, tuple[str, str] | None]:
+def deploy_quiz_question(course: Course, quiz_question_data: dict) -> tuple[QuizQuestionInfo, None]:
     if not (canvas_quiz := course.get_quiz(quiz_question_data['quiz_id'])):
         raise ValueError(f'Unable to find quiz {quiz_question_data["quiz_id"]}')
 
@@ -15,20 +15,13 @@ def deploy_quiz_question(course: Course, quiz_question_data: dict) -> tuple[Quiz
     else:
         quiz_question = canvas_quiz.create_question(question=quiz_question_data)
 
-    if any(canvas_quiz.get_submissions()):
-            # If there are submission, we can't save the new material programmatically,
-            #  you have to go in and hit save in the browser
-            info = canvas_quiz.title, canvas_quiz.html_url
-    else:
-        info = None
-
     return QuizQuestionInfo(
         id=quiz_question.id,
         quiz_id=quiz_question.quiz_id,
         uri=f'/courses/{course.id}/quizzes/{canvas_quiz.id}',
         url=f'{course.canvas._Canvas__requester.original_url}/courses/{course.id}/quizzes/{canvas_quiz.id}',
         position=quiz_question_data.get('position', 0)
-    ), info
+    ), None
 
 
 def deploy_quiz(course: Course, quiz_data: dict) -> tuple[QuizInfo, None]:

@@ -29,16 +29,16 @@
                 <incorrect_answer>3</incorrect_answer>
             </question>
 
-            <question id="q2" type="true-false" answer="true">
-                The sky is blue.
-            </question>
-
-
             <question id="q4" type="multiple-choice">
                 What is 2 + 2? BYE
                 <correct_answer>4</correct_answer>
                 <incorrect_answer>3</incorrect_answer>
             </question>
+
+            <question id="q2" type="true-false" answer="true">
+                The sky is blue.
+            </question>
+
 
             <question id="q3" type="multiple-tf">
                 Which of the following statements are true?

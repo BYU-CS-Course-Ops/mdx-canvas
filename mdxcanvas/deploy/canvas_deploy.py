@@ -243,7 +243,8 @@ def identify_modified_or_outdated(
             # Changed data, need to deploy
             logger.debug(f'MD5 mismatch {resource_key}: current={current_md5} stored={stored_md5}')
             if resource['type'] == 'quiz_question':
-                logger.debug(f'  Quiz question data (excluding position): {({k: v for k, v in resource_data.items() if k != "position"})}')
+                logger.debug(
+                    f'  Quiz question data (excluding position): {({k: v for k, v in resource_data.items() if k != "position"})}')
             modified[resource_key, is_shell] = current_md5, resource
             continue
 
@@ -446,6 +447,11 @@ def _update_stored_positions(resources: dict, md5s: MD5Sums):
 
 def _reorder_quiz_questions(course: Course, resources: dict, md5s: MD5Sums, report: DeploymentReport):
     """Reorder quiz questions to match document order after deployment."""
+    # TODO: If the quiz is published and has no submissions, we could unpublish, reorder, and republish automatically
+    #  instead of requiring manual save. Can remove the `info` logic in the _deploy_resources function since only
+    #  quizzes had info to review before. This would simplify that function amd this function will always be called
+    #  if there are quiz resources deployed.
+
     quiz_order = defaultdict(list)
     quiz_info_map = {}  # Track quiz info for reporting
 
