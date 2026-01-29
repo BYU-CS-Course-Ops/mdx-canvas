@@ -106,21 +106,33 @@ class QuizTagProcessor:
             yield from ((name, j, len(question_data), q) for j, q in enumerate(question_data, start=1))
 
     def _parse_questions(self, quiz_rid: str, questions_tag: Tag):
-        for pos, (name, idx, count, q) in enumerate(self._iter_questions(questions_tag), start=1):
-            is_multi_part = count > 1
+        order_items = []
 
-            # Multipart questions (e.g. multiple-tf) need unique names and group tracking
-            q['question_name'] = f"{name}_{idx}" if is_multi_part else name
-            if is_multi_part:
-                q['group_id'] = f"{quiz_rid}|{name}"
-
+        for name, idx, count, q in self._iter_questions(questions_tag):
+            # Multipart questions (e.g. multiple-tf) need unique names
+            q['question_name'] = f"{name}_{idx}" if count > 1 else name
             q['id'] = f"{quiz_rid}|{q['question_name']}"
             q['quiz_id'] = get_key('quiz', quiz_rid, 'id')
-            q['position'] = pos
 
             self._resources.add_resource(CanvasResource(
                 type='quiz_question',
                 id=q['id'],
                 data=q,
+                content_path=str(get_current_file().resolve())
+            ))
+
+            order_items.append({
+                'id': get_key('quiz_question', q['id'], 'id'),
+                'type': 'question'
+            })
+
+        if order_items:
+            self._resources.add_resource(CanvasResource(
+                type='quiz_question_order',
+                id=f'{quiz_rid}|order',
+                data={
+                    'quiz_id': get_key('quiz', quiz_rid, 'id'),
+                    'order': order_items
+                },
                 content_path=str(get_current_file().resolve())
             ))

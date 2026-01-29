@@ -15,7 +15,7 @@
         }
     </style>
 
-    <quiz title="Ex Quiz 7"
+    <quiz title="Ex Quiz 9"
           assignment_group="Quizzes">
 
         <description>
@@ -23,20 +23,12 @@
         </description>
 
         <questions>
-
-            <question id="q4" type="multiple-choice">
-                What is 2 + 2? BYE
-                <correct_answer>4</correct_answer>
-                <incorrect_answer>3</incorrect_answer>
-            </question>
-
+r
             <question id="q1" type="multiple-choice">
                 What is 1 + 2?
                 <correct_answer>4</correct_answer>
                 <incorrect_answer>3</incorrect_answer>
             </question>
-
-
             <question id="q3" type="multiple-tf">
                 Which of the following statements are true?
 
@@ -46,8 +38,16 @@
                 <incorrect>CSS is a programming language.</incorrect>
             </question>
 
+            <question id="q4" type="multiple-choice">
+                What is 2 + 2? BYE
+                <correct_answer>4</correct_answer>
+                <incorrect_answer>3</incorrect_answer>
+            </question>
+
+
+
             <question id="q2" type="true-false" answer="true">
-                The sky is blue.
+                The sky is blue. Blahhhhh
             </question>
         </questions>
 

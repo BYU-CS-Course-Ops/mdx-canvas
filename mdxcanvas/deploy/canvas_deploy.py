@@ -21,7 +21,7 @@ from .group import deploy_group
 from .module import deploy_module, deploy_module_item, get_module_item
 from .override import deploy_override, get_override
 from .page import deploy_page, deploy_shell_page
-from .quiz import deploy_quiz, deploy_quiz_question, deploy_shell_quiz, get_quiz_question, reorder_quiz_questions
+from .quiz import deploy_quiz, deploy_quiz_question, deploy_quiz_question_order, deploy_shell_quiz, get_quiz_question
 from .syllabus import deploy_syllabus
 from .zip import deploy_zip, predeploy_zip
 from ..deployment_report import DeploymentReport
@@ -54,6 +54,8 @@ DEPLOYERS = {
     'override': deploy_override,
     'page': deploy_page,
     'quiz': deploy_quiz,
+    'quiz_question': deploy_quiz_question,
+    'quiz_question_order': deploy_quiz_question_order,
     'syllabus': deploy_syllabus,
     'zip': deploy_zip
 }
@@ -166,15 +168,15 @@ def deploy_resource(deployers: dict, course: Course, rtype: str, data: dict, res
         raise Exception(f"Unsupported resource type {rtype} {resource['id']}\n  in {resource['content_path']}")
 
     try:
-        deployed, info = deploy(course, data)
+        canvas_obj_info = deploy(course, data)
     except Exception as e:
         raise Exception(
             f"Error deploying {rtype} {resource['id']}\n  {type(e).__name__}: {e}\n  in {resource['content_path']}") from e
 
-    if not deployed:
+    if not canvas_obj_info:
         raise Exception(f"Deployment returned None for {rtype} {resource['id']}\n  in {resource['content_path']}")
 
-    return deployed, info
+    return canvas_obj_info
 
 
 # =============================================================================
@@ -235,12 +237,7 @@ def identify_modified_or_outdated(
 
         stored_md5 = md5s.get_checksum(item)
 
-        if resource['type'] == 'quiz_question':
-            # Exclude 'position' data from checksum for quiz_questions
-            # to avoid redeploying questions just because their position changed
-            current_md5 = compute_md5({k: v for k, v in resource_data.items() if k != 'position'})
-        else:
-            current_md5 = compute_md5(resource_data)
+        current_md5 = compute_md5(resource_data)
 
         # Attach the Canvas object id (stored as `canvas_id`) to the resource data
         # so deployment can detect whether to create a new item or update an existing one.
@@ -423,76 +420,6 @@ def _remove_stale_resources(course: Course, resources: dict, md5s: MD5Sums) -> i
     return len(stale_resources) if stale_resources else 0
 
 
-def identify_position_changes(
-        resources: dict[tuple[str, str], CanvasResource],
-        to_deploy: dict[tuple[str, str], tuple[str, CanvasResource]],
-        md5s: MD5Sums
-) -> dict[str, list[tuple[int, int, str]]]:
-    """
-    Returns quiz_rid -> [(canvas_id, position, rid), ...] for quizzes needing reorder.
-    """
-    to_reorder = defaultdict(list)
-    quizzes_to_reorder = set()
-
-    for (rtype, rid), resource in resources.items():
-        if rtype != 'quiz_question':
-            continue
-
-        question_info = md5s.get_canvas_info((rtype, rid))
-        if not question_info:
-            continue
-
-        quiz_rid = rid.split('|')[0]
-        position = resource.get('data', {}).get('position')
-
-        to_reorder[quiz_rid].append((question_info['id'], position, rid))
-
-        if position != question_info.get('position'):
-            # If the position has changed, mark the quiz for reordering
-            quizzes_to_reorder.add(quiz_rid)
-
-        elif ((rtype, rid), False) in to_deploy:
-            # If the question is new or modified, mark the quiz for reordering (NOT A SHELL)
-            quizzes_to_reorder.add(quiz_rid)
-
-    return {
-        quiz_rid: sorted(questions, key=lambda q: q[1])
-        for quiz_rid, questions in to_reorder.items()
-        if quiz_rid in quizzes_to_reorder
-    }
-
-
-def _reorder_quiz_questions(
-        course: Course,
-        to_reorder: dict[str, list[tuple[int, int, str]]],
-        md5s: MD5Sums,
-        report: DeploymentReport
-):
-    for quiz_rid, questions in to_reorder.items():
-        quiz_info = md5s.get_canvas_info(('quiz', quiz_rid))
-        if not quiz_info:
-            continue
-
-        quiz_id = quiz_info['id']
-        quiz = course.get_quiz(quiz_id)
-
-        logger.info(f'Reordering questions for quiz {quiz.title}')
-
-        question_order = [{'id': canvas_id, 'type': 'question'} for canvas_id, _, _ in questions]
-
-        reorder_quiz_questions(course, quiz_id, question_order)
-
-        for canvas_id, position, question_rid in questions:
-            question_data = md5s.get_canvas_info(('quiz_question', question_rid))
-            question_data['position'] = position
-            md5s.update_canvas_info(('quiz_question', question_rid), question_data)
-
-        if any(quiz.get_submissions()) or quiz.published:
-            report.add_content_to_review(quiz.title, quiz.html_url)
-
-        report.add_deployed_content('quiz', quiz_rid, quiz.html_url)
-
-
 def _log_completion(actions: list[str], elapsed: float):
     logger.info(
         f"Deployment complete - {' and '.join(actions)} in {elapsed:.1f}s" if actions else
@@ -523,10 +450,6 @@ def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, s
         if to_deploy := identify_modified_or_outdated(resources, resource_order, resource_dependencies, md5s):
             _deploy_resources(course, to_deploy, md5s, report, dryrun=dryrun)
             actions.append(f'{len(to_deploy)} resources deployed')
-
-        if to_reorder := identify_position_changes(resources, to_deploy, md5s):
-            _reorder_quiz_questions(course, to_reorder, md5s, report)
-            actions.append(f'{len(to_reorder)} quizzes reordered')
 
         if cleanup:
             if removed_count := _remove_stale_resources(course, resources, md5s):
