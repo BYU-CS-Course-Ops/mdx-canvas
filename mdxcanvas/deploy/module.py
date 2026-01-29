@@ -11,7 +11,7 @@ def get_module_item(course: Course, module_id: int, module_item_id: int) -> Modu
     return None
 
 
-def deploy_module_item(course: Course, module_item_data: dict) -> ModuleItemInfo:
+def deploy_module_item(course: Course, module_item_data: dict) -> tuple[ModuleItemInfo, None]:
     canvas_module = course.get_module(module_item_data['module_id'])
     if canvas_module is None:
         raise ValueError(f'Unable to find module {module_item_data["module_id"]}')
@@ -27,10 +27,10 @@ def deploy_module_item(course: Course, module_item_data: dict) -> ModuleItemInfo
         module_id=module_item.module_id,
         uri=f'/courses/{course.id}#module_{canvas_module.id}',
         url=f'{course.canvas._Canvas__requester.original_url}/courses/{course.id}#module_{canvas_module.id}'
-    )
+    ), None
 
 
-def deploy_module(course: Course, module_data: dict) -> ModuleInfo:
+def deploy_module(course: Course, module_data: dict) -> tuple[ModuleInfo, None]:
     module_id = module_data["canvas_id"]
 
     if module_id:
@@ -48,4 +48,4 @@ def deploy_module(course: Course, module_data: dict) -> ModuleInfo:
         'url': f'{course.canvas._Canvas__requester.original_url}/courses/{course.id}'
     }
 
-    return module_object_info
+    return module_object_info, None

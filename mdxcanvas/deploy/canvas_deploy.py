@@ -398,17 +398,20 @@ def _deploy_resources(course: Course, to_deploy: dict, md5s: MD5Sums, report: De
             logger.info(f'[{index:>{index_width}}/{total}] {shell_tag}{rtype:{max_len}}  {rid}')
 
             if is_shell:
-                canvas_obj_info = deploy_resource(SHELL_DEPLOYERS, course, rtype, resource_data, resource)
+                canvas_obj_info, info = deploy_resource(SHELL_DEPLOYERS, course, rtype, resource_data, resource)
                 resource['data']['canvas_id'] = canvas_obj_info.get('id') if canvas_obj_info else None
             else:
                 resource_data = update_links(md5s, resource_data, resource_objs, resource)
                 resource_data = post_process_resource(resource_data)
-                canvas_obj_info = deploy_resource(DEPLOYERS, course, rtype, resource_data, resource)
+                canvas_obj_info, info = deploy_resource(DEPLOYERS, course, rtype, resource_data, resource)
 
             if canvas_obj_info:
                 resource_objs[resource_key] = canvas_obj_info
                 if url := canvas_obj_info.get('url'):
                     report.add_deployed_content(rtype, rid, url)
+
+            if info:
+                report.add_content_to_review(*info)
 
             md5s[resource_key] = {"checksum": current_md5, "canvas_info": canvas_obj_info}
 

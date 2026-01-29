@@ -1,10 +1,9 @@
 from canvasapi.course import Course
 
-from mdxcanvas.resources import SyllabusInfo
 from ..resources import SyllabusData, SyllabusInfo
 
 
-def deploy_syllabus(course: Course, data: SyllabusData) -> SyllabusInfo:
+def deploy_syllabus(course: Course, data: SyllabusData) -> tuple[SyllabusInfo, None]:
     course.update(course={'syllabus_body': data['content']})
 
     syllabus_object_info: SyllabusInfo = {
@@ -14,4 +13,4 @@ def deploy_syllabus(course: Course, data: SyllabusData) -> SyllabusInfo:
         'url': f'{course.canvas._Canvas__requester.original_url}/courses/{course.id}/assignments/syllabus'
     }
 
-    return syllabus_object_info
+    return syllabus_object_info, None

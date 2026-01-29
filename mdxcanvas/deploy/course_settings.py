@@ -1,6 +1,5 @@
 from canvasapi.course import Course
 
-from mdxcanvas.resources import CourseSettingsInfo
 from ..resources import CourseSettings, CourseSettingsInfo
 
 
@@ -10,7 +9,7 @@ class CourseObj:
         self.uri = f'/courses/{course_id}'
 
 
-def deploy_settings(course: Course, data: CourseSettings) -> CourseSettingsInfo:
+def deploy_settings(course: Course, data: CourseSettings) -> tuple[CourseSettingsInfo, None]:
     course.update(course={
         'name': data['name'],
         'course_code': data['code'],
@@ -22,4 +21,4 @@ def deploy_settings(course: Course, data: CourseSettings) -> CourseSettingsInfo:
         'id': str(course.id)
     }
 
-    return settings_object_info
+    return settings_object_info, None

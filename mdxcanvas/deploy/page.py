@@ -1,10 +1,9 @@
 from canvasapi.course import Course
 
-from mdxcanvas.resources import PageInfo
 from ..resources import PageInfo
 
 
-def deploy_page(course: Course, page_info: dict) -> PageInfo:
+def deploy_page(course: Course, page_info: dict) -> tuple[PageInfo, None]:
     page_id = page_info["canvas_id"]
 
     if page_id:
@@ -23,10 +22,10 @@ def deploy_page(course: Course, page_info: dict) -> PageInfo:
         'url': canvas_page.html_url if hasattr(canvas_page, 'html_url') else None
     }
 
-    return page_object_info
+    return page_object_info, None
 
 
-def deploy_shell_page(course: Course, page_info: dict) -> PageInfo:
+def deploy_shell_page(course: Course, page_info: dict) -> tuple[PageInfo, None]:
     shell_page_info = page_info.copy()
     shell_page_info[
         'body'] = "<p>This is a shell page created to break a dependency cycle. The full content will be deployed later.</p>"

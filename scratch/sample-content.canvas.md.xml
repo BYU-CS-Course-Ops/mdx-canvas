@@ -19,18 +19,12 @@
           assignment_group="Quizzes">
 
         <description>
-            First Quiz Description
+            First Quiz Description 
         </description>
 
         <questions>
-r
-            <question id="q1" type="multiple-choice">
-                What is 1 + 2?
-                <correct_answer>4</correct_answer>
-                <incorrect_answer>3</incorrect_answer>
-            </question>
             <question id="q3" type="multiple-tf">
-                Which of the following statements are true?
+                Which of the fbbollowing statements are true?
 
                 <correct>Python is a programming language.</correct>
                 <incorrect>HTML is a programming language.</incorrect>
@@ -39,7 +33,12 @@ r
             </question>
 
             <question id="q4" type="multiple-choice">
-                What is 2 + 2? BYE
+                What is 2 + 2?  9 BYE
+                <correct_answer>4</correct_answer>
+                <incorrect_answer>3</incorrect_answer>
+            </question>
+            <question id="q1" type="multiple-choice">
+                What is 1 + 2?
                 <correct_answer>4</correct_answer>
                 <incorrect_answer>3</incorrect_answer>
             </question>

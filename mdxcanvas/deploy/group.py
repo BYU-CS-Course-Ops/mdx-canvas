@@ -1,10 +1,9 @@
 from canvasapi.course import Course
 
-from mdxcanvas.resources import AssignmentGroupInfo
 from ..resources import AssignmentGroupInfo
 
 
-def deploy_group(course: Course, group_data: dict) -> AssignmentGroupInfo:
+def deploy_group(course: Course, group_data: dict) -> tuple[AssignmentGroupInfo, None]:
     group_id = group_data["canvas_id"]
 
     if group_id:
@@ -21,4 +20,4 @@ def deploy_group(course: Course, group_data: dict) -> AssignmentGroupInfo:
         'id': group.id
     }
 
-    return group_object_info
+    return group_object_info, None
