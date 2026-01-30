@@ -13,14 +13,12 @@ def get_quiz_question(course: Course, quiz_id: int, question_id: int) -> QuizQue
 
 
 def get_quiz_review_info(canvas_quiz) -> tuple[str, str] | None:
-    """Return (title, url) if quiz has submissions requiring manual review, else None."""
     if any(canvas_quiz.get_submissions()):
         return canvas_quiz.title, canvas_quiz.html_url
     return None
 
 
 def unpublish_quiz_for_edit(canvas_quiz) -> bool:
-    """Unpublish quiz if published. Returns True if quiz was published."""
     was_published = canvas_quiz.published
     if was_published:
         canvas_quiz.edit(quiz={'published': False})
@@ -28,7 +26,6 @@ def unpublish_quiz_for_edit(canvas_quiz) -> bool:
 
 
 def republish_quiz_after_edit(canvas_quiz, was_published: bool):
-    """Republish quiz if it was published before editing."""
     if was_published:
         canvas_quiz.edit(quiz={'published': True})
 
