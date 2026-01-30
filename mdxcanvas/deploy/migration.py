@@ -66,36 +66,36 @@ def migrate(course, md5s: MD5Sums):
 
     # Quiz Question -> Quiz ID (0.6.10)
     # Non-trivial task as we are not updating existing resources but adding new ones
-
+    #
     # TODO: This may be unnecessary the point in migrating is to prevent re-deployment issues
     #  however since we are introducing new resources even if we add them to the md5s cache
     #  they will still be deployed since they have no checksum yet.
-
-    for key, quiz_id in quiz_id_map.items():
-        question_id, pos = key.split('|', 1)
-
-        if quiz_rid:=md5s._md5s.get_rid(quiz_id):
-
-            # TODO: Need a better way to check if we already have this resource
-            if not ('quiz_question', f'{quiz_rid}|') in md5s._md5s.items():
-
-                logger.debug(f'Migrating quiz_id for quiz_question {question_id}')
-                
-                quiz_data = md5s._md5s.get_cavas_info(('quiz', quiz_rid))
-
-                # TODO: Edge case: How to handle multiple-tf questions? Since we view them as
-                #  one question but they are multiple questions in Canvas and we need to assign
-                #  its parts sub positions (i.e. q1_1, q1_2, etc)
-                md5s._md5s['quiz_question', f'{quiz_rid}|q{pos}']['canvas_info'] = {
-                    'id': question_id,
-                    'quiz_id': quiz_id,
-                    'uri': quiz_data['uri'],
-                    'url': quiz_data['url']
-                }
-
-                md5s._md5s['quiz_question_order', f'{quiz_rid}|order']['md5'] = {
-                    'quiz_id': quiz_id,
-                    'uri': quiz_data['uri'],
-                    'url': quiz_data['url']
-                }
-
+    #
+    # for key, quiz_id in quiz_id_map.items():
+    #     question_id, pos = key.split('|', 1)
+    #
+    #     if quiz_rid:=md5s._md5s.get_rid(quiz_id):
+    #
+    #         # TODO: Need a better way to check if we already have this resource
+    #         if not ('quiz_question', f'{quiz_rid}|') in md5s._md5s.items():
+    #
+    #             logger.debug(f'Migrating quiz_id for quiz_question {question_id}')
+    #
+    #             quiz_data = md5s._md5s.get_canvas_info(('quiz', quiz_rid))
+    #
+    #             # TODO: Edge case: How to handle multiple-tf questions? Since we view them as
+    #             #  one question but they are multiple questions in Canvas and we need to assign
+    #             #  its parts sub positions (i.e. q1_1, q1_2, etc)
+    #             md5s._md5s['quiz_question', f'{quiz_rid}|q{pos}']['canvas_info'] = {
+    #                 'id': question_id,
+    #                 'quiz_id': quiz_id,
+    #                 'uri': quiz_data['uri'],
+    #                 'url': quiz_data['url']
+    #             }
+    #
+    #             md5s._md5s['quiz_question_order', f'{quiz_rid}|order']['md5'] = {
+    #                 'quiz_id': quiz_id,
+    #                 'uri': quiz_data['uri'],
+    #                 'url': quiz_data['url']
+    #             }
+    #
