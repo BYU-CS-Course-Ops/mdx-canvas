@@ -90,7 +90,7 @@ class QuizTagProcessor:
         return parse_settings(settings_tag, fields)
 
     def _iter_questions(self, questions_tag: Tag):
-        for i, tag in enumerate(questions_tag.findAll('question', recursive=False), start=1):
+        for i, tag in enumerate(questions_tag.findAll('question', recursive=False)):
             question_type = tag.get("type")
 
             if not question_type:
@@ -103,7 +103,7 @@ class QuizTagProcessor:
             question_data = self.question_types[question_type](tag)
             name = tag.get('id', f'q{i}')
 
-            yield from ((name, j, len(question_data), q) for j, q in enumerate(question_data, start=1))
+            yield from ((name, j, len(question_data), q) for j, q in enumerate(question_data))
 
     def _parse_questions(self, quiz_rid: str, questions_tag: Tag):
         order_items = []
