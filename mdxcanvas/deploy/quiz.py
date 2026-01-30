@@ -142,7 +142,6 @@ def deploy_quiz_question_order(course: Course, order_data: dict) -> tuple[QuizQu
         republish_quiz_after_edit(canvas_quiz, was_published)
 
     return QuizQuestionOrderInfo(
-        id=f'{quiz_id}_order',
         quiz_id=quiz_id,
         uri=f'/courses/{course.id}/quizzes/{quiz_id}',
         url=canvas_quiz.html_url if hasattr(canvas_quiz, 'html_url') else None

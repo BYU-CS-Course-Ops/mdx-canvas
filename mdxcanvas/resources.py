@@ -83,7 +83,6 @@ class QuizQuestionInfo(ResourceInfo):
 
 
 class QuizQuestionOrderInfo(ResourceInfo):
-    id: str
     quiz_id: int
     uri: str
     url: str

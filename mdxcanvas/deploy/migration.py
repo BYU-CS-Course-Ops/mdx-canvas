@@ -22,10 +22,12 @@ def migrate(course, md5s: MD5Sums):
         for override in assignment.get_overrides()
     }
 
-    # TODO: QuizQuestionResources
-    #  going to need to iter though all quizzes and their questions to build a map here
-    #  init exploration shows quiz.get_questions() returns list of QuizQuestion objects
-    #  in order top down of how they appear in the quiz while `position` field is null
+    # Quiz Question -> Quiz ID map (0.6.10)
+    quiz_id_map = {
+        f"{question.id}|{i}": question.quiz_id
+        for quiz in course.get_quizzes()
+        for i, question in enumerate(quiz.get_questions())
+    }
 
     for (rtype, rid), data in md5s._md5s.items():
         # Titles (0.6.2)
@@ -61,3 +63,39 @@ def migrate(course, md5s: MD5Sums):
             override_id = data['canvas_info'].get('id')
             if override_id in assignment_id_map:
                 md5s._md5s[rtype, rid]['canvas_info']['assignment_id'] = assignment_id_map[override_id]
+
+    # Quiz Question -> Quiz ID (0.6.10)
+    # Non-trivial task as we are not updating existing resources but adding new ones
+
+    # TODO: This may be unnecessary the point in migrating is to prevent re-deployment issues
+    #  however since we are introducing new resources even if we add them to the md5s cache
+    #  they will still be deployed since they have no checksum yet.
+
+    for key, quiz_id in quiz_id_map.items():
+        question_id, pos = key.split('|', 1)
+
+        if quiz_rid:=md5s._md5s.get_rid(quiz_id):
+
+            # TODO: Need a better way to check if we already have this resource
+            if not ('quiz_question', f'{quiz_rid}|') in md5s._md5s.items():
+
+                logger.debug(f'Migrating quiz_id for quiz_question {question_id}')
+                
+                quiz_data = md5s._md5s.get_cavas_info(('quiz', quiz_rid))
+
+                # TODO: Edge case: How to handle multiple-tf questions? Since we view them as
+                #  one question but they are multiple questions in Canvas and we need to assign
+                #  its parts sub positions (i.e. q1_1, q1_2, etc)
+                md5s._md5s['quiz_question', f'{quiz_rid}|q{pos}']['canvas_info'] = {
+                    'id': question_id,
+                    'quiz_id': quiz_id,
+                    'uri': quiz_data['uri'],
+                    'url': quiz_data['url']
+                }
+
+                md5s._md5s['quiz_question_order', f'{quiz_rid}|order']['md5'] = {
+                    'quiz_id': quiz_id,
+                    'uri': quiz_data['uri'],
+                    'url': quiz_data['url']
+                }
+
