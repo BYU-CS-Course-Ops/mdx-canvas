@@ -86,7 +86,7 @@ class MD5Sums:
     def get_rid(self, canvas_id):
         for (rtype, rid), data in self._md5s.items():
             if data.get('canvas_info', {}).get('id') == canvas_id:
-                return rtype, rid
+                return rid
         return None
 
     def remove(self, item):
