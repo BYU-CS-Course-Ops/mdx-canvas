@@ -26,7 +26,7 @@ from .syllabus import deploy_syllabus
 from .zip import deploy_zip, predeploy_zip
 from ..deployment_report import DeploymentReport
 from ..our_logging import get_logger
-from ..resources import CanvasResource, iter_keys
+from ..resources import CanvasResource, iter_keys, ResourceInfo
 
 from .migration import migrate
 
@@ -36,14 +36,14 @@ PREDEPLOYERS: dict[str, Callable[[dict, Path], dict]] = {
     'zip': predeploy_zip
 }
 
-SHELL_DEPLOYERS = {
+SHELL_DEPLOYERS: dict[str, Callable[[Course, dict], tuple[ResourceInfo, tuple[str, str] | None]]] = {
     # Current known resources that need shell deployments
     'assignment': deploy_shell_assignment,
     'page': deploy_shell_page,
     'quiz': deploy_shell_quiz
 }
 
-DEPLOYERS = {
+DEPLOYERS: dict[str, Callable[[Course, dict], tuple[ResourceInfo, tuple[str, str] | None]]] = {
     'announcement': deploy_announcement,
     'assignment': deploy_assignment,
     'assignment_group': deploy_group,
@@ -163,12 +163,12 @@ def post_process_resource(resource_data) -> dict:
     return json.loads(text)
 
 
-def deploy_resource(deployers: dict, course: Course, rtype: str, data: dict, resource: CanvasResource):
+def deploy_resource(deployers: dict, course: Course, rtype: str, data: dict, resource: CanvasResource) -> tuple[ResourceInfo, tuple[str, str] | None]:
     if not (deploy := deployers.get(rtype)):
         raise Exception(f"Unsupported resource type {rtype} {resource['id']}\n  in {resource['content_path']}")
 
     try:
-        canvas_obj_info = deploy(course, data)
+        canvas_obj_info, info = deploy(course, data)
     except Exception as e:
         raise Exception(
             f"Error deploying {rtype} {resource['id']}\n  {type(e).__name__}: {e}\n  in {resource['content_path']}") from e
@@ -176,7 +176,7 @@ def deploy_resource(deployers: dict, course: Course, rtype: str, data: dict, res
     if not canvas_obj_info:
         raise Exception(f"Deployment returned None for {rtype} {resource['id']}\n  in {resource['content_path']}")
 
-    return canvas_obj_info
+    return canvas_obj_info, info
 
 
 # =============================================================================
