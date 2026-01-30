@@ -256,6 +256,7 @@ def identify_modified_or_outdated(
 
         if stored_md5 != current_md5:
             # Changed data, need to deploy
+            logger.debug(f'MD5 {resource_key}: {current_md5} vs {stored_md5}')
             modified[resource_key, is_shell] = current_md5, resource
             continue
 
