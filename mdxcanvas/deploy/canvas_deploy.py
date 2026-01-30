@@ -168,15 +168,15 @@ def deploy_resource(deployers: dict, course: Course, rtype: str, data: dict, res
         raise Exception(f"Unsupported resource type {rtype} {resource['id']}\n  in {resource['content_path']}")
 
     try:
-        canvas_obj_info, info = deploy(course, data)
+        resource_info, info = deploy(course, data)
     except Exception as e:
         raise Exception(
             f"Error deploying {rtype} {resource['id']}\n  {type(e).__name__}: {e}\n  in {resource['content_path']}") from e
 
-    if not canvas_obj_info:
+    if not resource_info:
         raise Exception(f"Deployment returned None for {rtype} {resource['id']}\n  in {resource['content_path']}")
 
-    return canvas_obj_info, info
+    return resource_info, info
 
 
 # =============================================================================
