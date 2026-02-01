@@ -106,7 +106,7 @@ class QuizTagProcessor:
             question_data = self.question_types[question_type](tag)
             question_id = tag.get('id', f'q{i}')
 
-            yield from ((question_id, i, len(question_data), question) for i, question in enumerate(question_data))
+            yield from ((question_id, idx, len(question_data), question) for idx, question in enumerate(question_data))
 
     def _parse_questions(self, quiz_rid: str, questions_tag: Tag):
         order_items = []
@@ -117,7 +117,7 @@ class QuizTagProcessor:
                 # Multiple true-false detected
                 # Sub-questions need to unique IDs
                 question_id = f"{question_id}_{idx}"
-                
+
             question_rid = f"{quiz_rid}|{question_id}"
 
             question['quiz_id'] = get_key('quiz', quiz_rid, 'id')
