@@ -1,5 +1,5 @@
 from canvasapi.course import Course
-from canvasapi.quiz import QuizQuestion
+from canvasapi.quiz import QuizQuestion, Quiz
 
 from .util import update_group_name_to_id
 from ..resources import QuizInfo, QuizQuestionInfo, QuizQuestionOrderInfo
@@ -113,7 +113,7 @@ def deploy_quiz_question_order(course: Course, order_data: dict) -> tuple[QuizQu
     quiz_id = order_data['quiz_id']
     order_items = order_data['order']
 
-    canvas_quiz = course.get_quiz(quiz_id)
+    canvas_quiz: Quiz = course.get_quiz(quiz_id)
 
     info = get_quiz_review_info(canvas_quiz)
 
@@ -125,7 +125,7 @@ def deploy_quiz_question_order(course: Course, order_data: dict) -> tuple[QuizQu
     # else: has submissions - reorder anyway, user must manually save in browser
 
     # Canvas API expects order as repeated form fields: order[][id]=1&order[][type]=question
-    # Build the _kwargs format that canvasapi's request method accepts
+    # Reorder API Docs: https://developerdocs.instructure.com/services/canvas/resources/quizzes#method.quizzes-quizzes_api.reorder
     order_params = []
     for item in order_items:
         order_params.append(('order[][id]', item['id']))

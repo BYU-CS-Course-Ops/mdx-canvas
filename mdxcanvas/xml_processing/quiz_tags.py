@@ -9,7 +9,9 @@ from bs4 import Tag
 from .override_parsing import parse_overrides_container
 from ..error_helpers import format_tag, get_file_path
 from ..processing_context import get_current_file
+from ..our_logging import get_logger
 
+logger = get_logger()
 
 class QuizTagProcessor:
     def __init__(self, resources: ResourceManager):
@@ -126,13 +128,15 @@ class QuizTagProcessor:
                 'type': 'question'
             })
 
-        if order_items:
-            self._resources.add_resource(CanvasResource(
-                type='quiz_question_order',
-                id=f'{quiz_rid}|order',
-                data={
-                    'quiz_id': get_key('quiz', quiz_rid, 'id'),
-                    'order': order_items
-                },
-                content_path=str(get_current_file().resolve())
-            ))
+        if not order_items:
+            logger.warning(f"No questions found for quiz {quiz_rid} @ {get_file_path(questions_tag)}")
+
+        self._resources.add_resource(CanvasResource(
+            type='quiz_question_order',
+            id=f'{quiz_rid}|order',
+            data={
+                'quiz_id': get_key('quiz', quiz_rid, 'id'),
+                'order': order_items
+            },
+            content_path=str(get_current_file().resolve())
+        ))

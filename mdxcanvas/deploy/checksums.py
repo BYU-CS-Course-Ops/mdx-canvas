@@ -83,12 +83,6 @@ class MD5Sums:
     def has_checksum(self, item):
         return item in self._md5s and 'checksum' in self._md5s[item]
 
-    def get_rid(self, canvas_id):
-        for (rtype, rid), data in self._md5s.items():
-            if data.get('canvas_info', {}).get('id') == canvas_id:
-                return rid
-        return None
-
     def remove(self, item):
         if item in self._md5s:
             del self._md5s[item]
