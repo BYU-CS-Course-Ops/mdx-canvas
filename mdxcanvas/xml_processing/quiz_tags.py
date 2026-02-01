@@ -13,6 +13,7 @@ from ..our_logging import get_logger
 
 logger = get_logger()
 
+
 class QuizTagProcessor:
     def __init__(self, resources: ResourceManager):
         self._resources = resources
@@ -103,28 +104,33 @@ class QuizTagProcessor:
                     f"Question type '{question_type}' not supported @ {format_tag(tag)}\n  Supported types: {', '.join(self.question_types.keys())}\n  in {get_file_path(tag)}")
 
             question_data = self.question_types[question_type](tag)
-            name = tag.get('id', f'q{i}')
+            question_id = tag.get('id', f'q{i}')
 
-            yield from ((name, j, len(question_data), q) for j, q in enumerate(question_data))
+            yield from ((question_id, i, len(question_data), question) for i, question in enumerate(question_data))
 
     def _parse_questions(self, quiz_rid: str, questions_tag: Tag):
         order_items = []
 
-        for name, idx, count, q in self._iter_questions(questions_tag):
-            # Multipart questions (e.g. multiple-tf) need unique names
-            q['question_name'] = f"{name}_{idx}" if count > 1 else name
-            q['id'] = f"{quiz_rid}|{q['question_name']}"
-            q['quiz_id'] = get_key('quiz', quiz_rid, 'id')
+        for question_id, idx, count, question in self._iter_questions(questions_tag):
+
+            if count > 1:
+                # Multiple true-false detected
+                # Sub-questions need to unique IDs
+                question_id = f"{question_id}_{idx}"
+                
+            question_rid = f"{quiz_rid}|{question_id}"
+
+            question['quiz_id'] = get_key('quiz', quiz_rid, 'id')
 
             self._resources.add_resource(CanvasResource(
                 type='quiz_question',
-                id=q['id'],
-                data=q,
+                id=question_rid,
+                data=question,
                 content_path=str(get_current_file().resolve())
             ))
 
             order_items.append({
-                'id': get_key('quiz_question', q['id'], 'id'),
+                'id': get_key('quiz_question', question['id'], 'id'),
                 'type': 'question'
             })
 
