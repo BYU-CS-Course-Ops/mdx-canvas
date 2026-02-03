@@ -41,7 +41,7 @@ You may use these assignment-style attributes on quizzes:
 - `available_to`
 - `assignment_group`
 
-See the [`<assignment>` tag documentation](assignment_tag.md) for details on how these attributes work.
+See the [`<assignment>` tag documentation](../../../documents/supported_tags/tags/assignment_tag.md) for details on how these attributes work.
 
 ### `shuffle_answers`
 

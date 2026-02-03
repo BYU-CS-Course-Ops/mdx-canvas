@@ -1,0 +1,62 @@
+<!-- Quiz Skeleton Template -->
+<!-- Use this structure as the base for all generated quizzes -->
+
+<quiz
+    title="[QUIZ TITLE]"
+    shuffle_answers="true"
+    allowed_attempts="2"
+    scoring_policy="keep_highest">
+
+    <description>
+        [QUIZ DESCRIPTION - Provide context or instructions for the quiz]
+    </description>
+
+    <questions>
+        <!-- Question types: multiple-choice, true-false, multiple-answers,
+             matching, fill-in-the-blank, fill-in-multiple-blanks,
+             numerical, essay, file-upload, text -->
+
+        <!-- Example: Multiple Choice -->
+        <question type="multiple-choice">
+            [Question prompt]
+
+            <correct>[Correct answer]</correct>
+            <incorrect>[Wrong answer 1]</incorrect>
+            <incorrect>[Wrong answer 2]</incorrect>
+            <incorrect>[Wrong answer 3]</incorrect>
+        </question>
+
+        <!-- Example: True/False -->
+        <question type="true-false" answer="true">
+            [Statement that is true or false]
+        </question>
+
+        <!-- Example: Matching -->
+        <question type="matching">
+            [Matching prompt]
+
+            <pair left="[Item 1]" right="[Match 1]" />
+            <pair left="[Item 2]" right="[Match 2]" />
+
+            <distractors>
+                [Distractor 1]
+                [Distractor 2]
+            </distractors>
+        </question>
+
+        <!-- Example: Fill-in-the-Blank -->
+        <question type="fill-in-the-blank">
+            The answer is [blank].
+
+            <correct text="[answer]" />
+        </question>
+
+        <!-- Example: Numerical -->
+        <question type="numerical" numerical_answer_type="exact">
+            [Numerical question]
+
+            <correct answer_exact="[number]" answer_error_margin="0" />
+        </question>
+
+    </questions>
+</quiz>
