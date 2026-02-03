@@ -1,5 +1,6 @@
 import re
 import textwrap
+from pathlib import Path
 from xml.etree.ElementTree import Element
 
 import markdown as md
@@ -10,6 +11,11 @@ from markdown.inlinepatterns import BACKTICK_RE, BacktickInlineProcessor
 
 from .inline_math import InlineMathExtension
 from ..util import parse_soup_from_xml
+
+# Load CSS from file
+_CSS_FILE = Path(__file__).parent / 'one_dark.css'
+# _CSS_FILE = Path(__file__).parent / 'github-dark.css'
+CODE_BLOCK_CSS = f'<style>\n{_CSS_FILE.read_text()}\n</style>'
 
 
 class BlackInlineCodeProcessor(BacktickInlineProcessor):
@@ -71,9 +77,8 @@ def process_markdown_text(text: str) -> str:
         'attr_list',
         'pymdownx.superfences',
 
-        # This embeds the highlight style directly into the HTML
-        # instead of using CSS classes
-        makeCodehiliteExtension(noclasses=True),
+        # Use CSS classes for syntax highlighting (styled by CODE_BLOCK_CSS)
+        makeCodehiliteExtension(noclasses=False),
 
         # This preserves \(...\) inline math expressions
         #  so Canvas will render them with MathJax
@@ -87,6 +92,10 @@ def process_markdown_text(text: str) -> str:
         # TODO - add support for tilde => <del> (strikethrough) (look for extension)
         #  or maybe look for a github-flavored-markdown extension
     ])
+
+    # Include CSS to override Canvas's pre block styling
+    if '<div class="highlight">' in html:
+        html = CODE_BLOCK_CSS + html
 
     return html
 
