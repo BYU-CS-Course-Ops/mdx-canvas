@@ -92,47 +92,40 @@ class QuizTagProcessor:
 
         return parse_settings(settings_tag, fields)
 
-    def _iter_questions(self, questions_tag: Tag):
-        for i, tag in enumerate(questions_tag.findAll('question', recursive=False)):
-            question_type = tag.get("type")
-
-            if not question_type:
-                raise ValueError(f"Question type not specified @ {format_tag(tag)}\n  in {get_file_path(tag)}")
-
-            if question_type not in self.question_types:
-                raise ValueError(
-                    f"Question type '{question_type}' not supported @ {format_tag(tag)}\n  Supported types: {', '.join(self.question_types.keys())}\n  in {get_file_path(tag)}")
-
-            question_data = self.question_types[question_type](tag)
-            question_id = tag.get('id', f'q{i}')
-
-            yield from ((question_id, idx, len(question_data), question) for idx, question in enumerate(question_data))
-
     def _parse_questions(self, quiz_rid: str, questions_tag: Tag):
         order_items = []
 
-        for question_id, idx, count, question in self._iter_questions(questions_tag):
+        for pos, tag in enumerate(questions_tag.findAll('question', recursive=False)):
+            q_type = tag.get("type")
 
-            if count > 1:
-                # Multiple true-false detected
-                # Sub-questions need to unique IDs
-                question_id = f"{question_id}_{idx}"
+            if not q_type:
+                raise ValueError(
+                    f"Question type not specified @ {format_tag(tag)}\n  in {get_file_path(tag)}")
 
-            question_rid = f"{quiz_rid}|{question_id}"
+            if not (parse_question := self.question_types.get(q_type, None)):
+                raise ValueError(
+                    f"Question type '{q_type}' not supported @ {format_tag(tag)}\n  "
+                    f"Supported types: {', '.join(self.question_types.keys())}\n  "
+                    f"in {get_file_path(tag)}")
 
-            question['quiz_id'] = get_key('quiz', quiz_rid, 'id')
+            qid = tag.get('id', f"q{pos}")
 
-            self._resources.add_resource(CanvasResource(
-                type='quiz_question',
-                id=question_rid,
-                data=question,
-                content_path=str(get_current_file().resolve())
-            ))
+            for question in parse_question(tag, qid):
+                question_id = question['question_id']
+                question_rid = f"{quiz_rid}|{question_id}"
+                question['quiz_id'] = get_key('quiz', quiz_rid, 'id')
 
-            order_items.append({
-                'id': get_key('quiz_question', question['id'], 'id'),
-                'type': 'question'
-            })
+                self._resources.add_resource(CanvasResource(
+                    type='quiz_question',
+                    id=question_rid,
+                    data=question,
+                    content_path=str(get_current_file().resolve())
+                ))
+
+                order_items.append({
+                    'id': get_key('quiz_question', question_rid, 'id'),
+                    'type': 'question'
+                })
 
         if not order_items:
             logger.warning(f"No questions found for quiz {quiz_rid} @ {get_file_path(questions_tag)}")
