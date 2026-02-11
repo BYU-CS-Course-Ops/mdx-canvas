@@ -24,6 +24,7 @@ pymdown-extensions = "^10.16.1"
 [tool.poetry.group.dev.dependencies]
 python-dotenv = "^1.0.1"
 pytest = "^8.2.2"
+poetry-version-from-file = "^1.1.0"
 
 [tool.poetry.plugins.version-from-file]
 enabled = "true"

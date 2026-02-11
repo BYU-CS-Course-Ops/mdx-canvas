@@ -72,9 +72,6 @@ def migrate(course, md5s: MD5Sums):
     current_version = __version__
     stored_version = md5s.get_mdxcanvas_version()
 
-    # Set version upfront
-    md5s.add_mdxcanvas_version(current_version)
-
     if stored_version == current_version:
         logger.info('MDXCanvas version is up to date, no migration needed')
         return
@@ -95,3 +92,7 @@ def migrate(course, md5s: MD5Sums):
     # Module Item → Module ID, Override → Assignment ID (0.6.6)
     if stored_ver < (0, 6, 6):
         _migrate_module_and_override_ids(course, md5s)
+
+    # Now that migration is finished, set the version we are using
+    md5s.add_mdxcanvas_version(current_version)
+
