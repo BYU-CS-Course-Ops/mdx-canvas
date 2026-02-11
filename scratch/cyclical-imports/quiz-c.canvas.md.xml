@@ -3,14 +3,14 @@
 <description>
     This is the description for **Quiz C**.
 
-    You should check out <course-link type="quiz" title="Quiz A" />
+    You should check out <course-link type="quiz" id="Quiz A" />
 
 </description>
 
 <questions>
 
     <question type="true-false" answer="false">
-        You should check out <course-link type="quiz" title="Quiz A" />
+        You should check out <course-link type="quiz" id="Quiz A" />
         Zebras have **5** legs.
     </question>
 

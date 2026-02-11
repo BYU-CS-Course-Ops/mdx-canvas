@@ -3,7 +3,7 @@
 <description>
     Here is the description for Assignment B.
 
-    Check out <course-link type="assignment" title="Assignment C" />
+    Check out <course-link type="assignment" id="Assignment C" />
 
 </description>
 </assignment>
