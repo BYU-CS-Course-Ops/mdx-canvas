@@ -13,8 +13,7 @@ from .inline_math import InlineMathExtension
 from ..util import parse_soup_from_xml
 
 # Load CSS from file
-_CSS_FILE = Path(__file__).parent / 'one_dark.css'
-# _CSS_FILE = Path(__file__).parent / 'github-dark.css'
+_CSS_FILE = Path(__file__).parent / 'github-light.css'
 CODE_BLOCK_CSS = f'<style>\n{_CSS_FILE.read_text()}\n</style>'
 
 
