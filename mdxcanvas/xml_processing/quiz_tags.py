@@ -4,11 +4,14 @@ from .quiz_questions import parse_text_question, parse_true_false_question, pars
     parse_multiple_answers_question, parse_matching_question, parse_multiple_true_false_question, \
     parse_fill_in_the_blank_question, parse_essay_question, parse_file_upload_question, parse_numerical_question, \
     parse_fill_in_multiple_blanks_question, parse_fill_in_multiple_blanks_filled_answers
-from ..resources import ResourceManager, CanvasResource
+from ..resources import ResourceManager, CanvasResource, get_key
 from bs4 import Tag
 from .override_parsing import parse_overrides_container
 from ..error_helpers import format_tag, get_file_path
 from ..processing_context import get_current_file
+from ..our_logging import get_logger
+
+logger = get_logger()
 
 
 class QuizTagProcessor:
@@ -32,22 +35,21 @@ class QuizTagProcessor:
     def __call__(self, quiz_tag: Tag):
         quiz = {
             "type": "quiz",
-            "questions": []
         }
         quiz.update(self._parse_quiz_settings(quiz_tag))
+
+        rid = quiz_tag.get('id', quiz['title'])
 
         for tag in quiz_tag.children:
             if not isinstance(tag, Tag):
                 continue  # Top-level content is not supported in a quiz tag
 
             if tag.name == "questions":
-                questions = self._parse_questions(tag)
-                quiz["questions"].extend(questions)
+                self._parse_questions(rid, tag)
 
             elif tag.name == "description":
                 quiz["description"] = retrieve_contents(tag)
 
-        rid = quiz_tag.get('id', quiz['title'])
         info = CanvasResource(
             type='quiz',
             id=rid,
@@ -90,15 +92,50 @@ class QuizTagProcessor:
 
         return parse_settings(settings_tag, fields)
 
-    def _parse_questions(self, questions_tag: Tag):
-        questions = []
-        for question in questions_tag.findAll('question', recursive=False):
-            if not (question_type := question.get("type")):
-                raise ValueError(f"Question type not specified @ {format_tag(question)}\n  in {get_file_path(question)}")
-            if question_type not in self.question_types:
-                raise ValueError(f"Question type '{question_type}' not supported @ {format_tag(question)}\n  Supported types: {', '.join(self.question_types.keys())}\n  in {get_file_path(question)}")
+    def _parse_questions(self, quiz_rid: str, questions_tag: Tag):
+        order_items = []
 
-            parse_tag = self.question_types[question_type]
-            result = parse_tag(question)
-            questions.extend(result)
-        return questions
+        for pos, tag in enumerate(questions_tag.findAll('question', recursive=False)):
+            q_type = tag.get("type")
+
+            if not q_type:
+                raise ValueError(
+                    f"Question type not specified @ {format_tag(tag)}\n  in {get_file_path(tag)}")
+
+            if not (parse_question := self.question_types.get(q_type, None)):
+                raise ValueError(
+                    f"Question type '{q_type}' not supported @ {format_tag(tag)}\n  "
+                    f"Supported types: {', '.join(self.question_types.keys())}\n  "
+                    f"in {get_file_path(tag)}")
+
+            qid = tag.get('id', f"q{pos}")
+
+            for question in parse_question(tag, qid):
+                question_id = question['question_id']
+                question_rid = f"{quiz_rid}|{question_id}"
+                question['quiz_id'] = get_key('quiz', quiz_rid, 'id')
+
+                self._resources.add_resource(CanvasResource(
+                    type='quiz_question',
+                    id=question_rid,
+                    data=question,
+                    content_path=str(get_current_file().resolve())
+                ))
+
+                order_items.append({
+                    'id': get_key('quiz_question', question_rid, 'id'),
+                    'type': 'question'
+                })
+
+        if not order_items:
+            logger.warning(f"No questions found for quiz {quiz_rid} @ {get_file_path(questions_tag)}")
+
+        self._resources.add_resource(CanvasResource(
+            type='quiz_question_order',
+            id=f'{quiz_rid}|order',
+            data={
+                'quiz_id': get_key('quiz', quiz_rid, 'id'),
+                'order': order_items
+            },
+            content_path=str(get_current_file().resolve())
+        ))
