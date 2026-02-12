@@ -295,7 +295,7 @@ def _lookup_stale_canvas_resource(course: Course, item_type: str, item_id: str,
     canvas_id = canvas_info.get('id')
 
     # Handle special case resources (i.e. those that require a parent object to look up the specific object
-    
+
     if item_type in ['module_item', 'override', 'quiz_question']:
         if item_type == 'module_item':
             canvas_resource = get_module_item(course, canvas_info.get('module_id'), canvas_id)
@@ -340,8 +340,12 @@ def remove_stale_resources(course: Course, stale: list[tuple[str, str, dict]], m
     for index, (rtype, rid, canvas_info) in enumerate(stale, start=1):
         logger.info(f'[{index:>{index_width}}/{total}] {rtype:{max_len}}  {rid}')
 
-        if canvas_resource := _lookup_stale_canvas_resource(course, rtype, rid, canvas_info):
-            canvas_resource.delete()
+        try:
+            if canvas_resource := _lookup_stale_canvas_resource(course, rtype, rid, canvas_info):
+                canvas_resource.delete()
+                md5s.remove((rtype, rid))
+        except Exception:
+            # Remove failed - assume it was already removed or can't be removed and just remove from md5s to avoid trying again next time
             md5s.remove((rtype, rid))
 
 
