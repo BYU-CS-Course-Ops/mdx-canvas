@@ -53,8 +53,11 @@ def remove(items: PaginatedList, item_type=None):
                 continue
             remove(sub_folders, 'Folder')
         if hasattr(item, 'get_files'):
-            files = item.get_files()
-            remove(files, 'File')
+            # Recursively remove files in the folder before removing the folder itself
+            # needed multiple times because somtimes we don't get them all the first time
+            # (seems to be a Canvas bug) and we need to keep trying until they're all gone
+            while (files := item.get_files()) and len(list(files)) > 0:
+                remove(files, 'File')
 
         if item_type is None:
             item_type = get_item_type(item)
