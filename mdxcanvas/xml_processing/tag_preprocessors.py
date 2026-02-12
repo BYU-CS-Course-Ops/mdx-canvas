@@ -91,7 +91,6 @@ def make_file_anchor_tag(resource_key: str, filename: str, **kwargs):
         **kwargs,
         'href': f'{resource_key}?wrap=1',
         'class': 'instructure_file_link inline_disabled',
-        'title': filename,
         'target': '_blank',
         'rel': 'noopener noreferrer'
     }
