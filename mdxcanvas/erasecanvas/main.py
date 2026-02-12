@@ -90,6 +90,9 @@ def main(
     course.update(course={'syllabus_body': ''})
     logger.info('Deleting Syllabus')
 
+    quizzes = course.get_quizzes()
+    remove(quizzes, 'Quiz') if len(list(quizzes)) > 0 else None
+
     assignments = course.get_assignments()
     remove(assignments) if len(list(assignments)) > 0 else None
 
@@ -105,7 +108,7 @@ def main(
     files = course.get_folders()
     remove(files, 'Folder') if len(list(files)) > 0 else None
 
-    announcements = course.canvas.get_announcements(context_codes=[f'course_{course.id}'])
+    announcements = course.get_discussion_topics(course_id=course.id, only_announcements=True)
     remove(announcements, 'Announcement') if len(list(announcements)) > 0 else None
 
 
