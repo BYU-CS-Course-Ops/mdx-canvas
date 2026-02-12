@@ -295,6 +295,7 @@ def _lookup_stale_canvas_resource(course: Course, item_type: str, item_id: str,
     canvas_id = canvas_info.get('id')
 
     # Handle special case resources (i.e. those that require a parent object to look up the specific object
+    
     if item_type in ['module_item', 'override', 'quiz_question']:
         if item_type == 'module_item':
             canvas_resource = get_module_item(course, canvas_info.get('module_id'), canvas_id)
