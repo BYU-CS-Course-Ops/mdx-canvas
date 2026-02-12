@@ -1,6 +1,7 @@
 /* GitHub Light syntax highlighting CSS with !important to override Canvas styles */
 pre { line-height: 125% !important; margin: 0 !important; }
 .highlight + .highlight { margin-top: 1rem !important; } /* Optional: Add spacing between consecutive code blocks */
+div[data-lines][data-source] + div[data-lines][data-source] { margin-top: 1rem !important; } /* Optional: Add spacing between consecutive code blocks from include tags */
 .highlight .filename { display: block !important; background: #e0e0e0 !important; padding: 4px 8px !important; border-radius: 6px 6px 0 0 !important; font-family: monospace !important; font-size: .85rem !important; } /* Optional: Add a filename header above code blocks if needed */
 .highlight .filename + pre { border-radius: 0 0 6px 6px !important; } /* Optional: Add a filename header above code blocks if needed */
 .highlight pre { background: #ffffff !important; color: #1F2328 !important; padding: 1em !important; border-radius: 6px !important; overflow-x: auto !important; margin: 0 !important; border: 1px solid #d0d7de !important; }
