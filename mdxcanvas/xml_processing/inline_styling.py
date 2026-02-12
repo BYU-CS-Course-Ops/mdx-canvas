@@ -16,7 +16,7 @@ def get_style(soup):
 
 
 def parse_css(css):
-    css_parser = cssutils.CSSParser()
+    css_parser = cssutils.CSSParser(validate=False)
     stylesheet = css_parser.parseString(css)
     styles = {}
     for rule in stylesheet:
