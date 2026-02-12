@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "mdxcanvas"
-version = "0.6.11"
+version = "0.0.0"
 description = "A Canvas LMS API wrapper for maintaining content in markdown"
 authors = ["Gordon Bean <gbean@cs.byu.edu>", "Preston Raab <phr23@byu.edu>", "Robert Greathouse <robbykap@byu.edu>"]
 license = "MIT"
@@ -24,11 +24,16 @@ pymdown-extensions = "^10.16.1"
 [tool.poetry.group.dev.dependencies]
 python-dotenv = "^1.0.1"
 pytest = "^8.2.2"
+poetry-version-from-file = "^1.1.0"
+
+[tool.poetry.plugins.version-from-file]
+enabled = "true"
+file="mdxcanvas/VERSION"
 
 [tool.poetry.scripts]
 mdxcanvas = "mdxcanvas.main:entry"
 erasecanvas = "mdxcanvas.erasecanvas.main:entry"
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
+requires = ["poetry-core>=1.0.0", "poetry-version-from-file"]
 build-backend = "poetry.core.masonry.api"
