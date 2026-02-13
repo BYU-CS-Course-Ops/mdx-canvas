@@ -280,7 +280,8 @@ def make_link_preprocessor():
         link_rid = validate_required_attribute(tag, 'id', 'course-link')
 
         new_tag = Tag(name='a')
-        new_tag['href'] = get_key(link_type, link_rid, 'uri')
+        frag = tag.get('fragment', None)
+        new_tag['href'] = get_key(link_type, link_rid, 'uri') + (f'#{frag}' if frag else '')
         link_text = tag.string.strip() if tag.string is not None else ''
         if not link_text:
             link_text = get_key(link_type, link_rid, 'title')
