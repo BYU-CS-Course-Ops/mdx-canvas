@@ -346,6 +346,7 @@ def remove_stale_resources(course: Course, stale: list[tuple[str, str, dict]], m
                 md5s.remove((rtype, rid))
         except Exception:
             # Remove failed - assume it was already removed or can't be removed and just remove from md5s to avoid trying again next time
+            logger.warning(f'Failed to remove {rtype:{max_len}}  {rid} - assuming already removed, removing from MD5 tracking')
             md5s.remove((rtype, rid))
 
 

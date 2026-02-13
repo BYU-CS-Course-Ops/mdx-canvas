@@ -242,7 +242,9 @@ def make_include_preprocessor(
                 imported_raw_content = '\n'.join(imported_raw_content.splitlines()[grab])
 
             if parse_bool(tag.get('fenced', 'false')):
-                imported_raw_content = f'```{imported_file.suffix.lstrip(".")}{ f' {{: title="{basename(imported_file)}" }}' if parse_bool(tag.get('include_filename', 'false')) else ""}\n{imported_raw_content}\n```\n'
+                imported_raw_content = f'```{imported_file.suffix.lstrip(".")}'
+                imported_raw_content += f'{ f' {{: title="{basename(imported_file)}" }}' if parse_bool(tag.get('include_filename', 'false')) else ""}'
+                imported_raw_content += f'\n{imported_raw_content}\n```\n'
                 suffixes = suffixes + ['.md']
 
             imported_html = process_file(
