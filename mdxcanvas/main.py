@@ -111,6 +111,11 @@ def process_file(
 
     # Post-process the XML
     global_css = css_file.read_text() if css_file is not None else ''
+
+    # Contrast-optimized default link color, canvas's default is very low-contrast and
+    # fails accessibility requirements, which is pretty funny considering they are
+    # the ones who set the accessibility requirements :P
+    global_css += 'a { color: oklch(62.3% 0.214 259.815); }\n'
     return _post_process_content(xml_content, global_css)
 
 
