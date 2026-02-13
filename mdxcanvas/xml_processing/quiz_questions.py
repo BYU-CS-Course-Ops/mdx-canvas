@@ -19,7 +19,8 @@ common_fields = [
     Attribute('incorrect-comments', new_name='incorrect_comments'),
     Attribute('text-after-answers', new_name='text_after_answers'),
     Attribute('type', ignore=True),
-    Attribute('name', ignore=True)
+    Attribute('name', ignore=True),
+    Attribute('id', ignore=True)
 ]
 
 mostly_common_fields = [

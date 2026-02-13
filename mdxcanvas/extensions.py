@@ -2,7 +2,6 @@ from markdown.extensions import Extension
 
 from markdown.postprocessors import Postprocessor
 from markdown.preprocessors import Preprocessor, HtmlBlockPreprocessor
-from bs4 import BeautifulSoup
 from bs4.element import Tag
 
 from typing import Protocol

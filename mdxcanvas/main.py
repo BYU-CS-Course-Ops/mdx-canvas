@@ -111,6 +111,10 @@ def process_file(
 
     # Post-process the XML
     global_css = css_file.read_text() if css_file is not None else ''
+
+    # TODO - after April 2026, the default style in BYU Canvas will
+    #  probably address this issue and this line can be removed.
+    global_css += 'a { color: oklch(62.3% 0.214 259.815); }\n'
     return _post_process_content(xml_content, global_css)
 
 

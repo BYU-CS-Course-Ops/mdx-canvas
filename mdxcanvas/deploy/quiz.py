@@ -71,6 +71,10 @@ def deploy_quiz_question(course: Course, quiz_question_data: dict) -> tuple[Quiz
     if not (canvas_quiz := course.get_quiz(quiz_question_data['quiz_id'])):
         raise ValueError(f'Unable to find quiz {quiz_question_data["quiz_id"]}')
 
+    if len(quiz_question_data['question_text']) > 16_161:
+        # https://community.instructure.com/en/kb/articles/529365-canvas-character-limits
+        raise ValueError(f'Quiz question text exceeds Canvas limit of 16,161 characters (got {len(quiz_question_data["question_text"])} characters)')
+
     info = None
     if quiz_question_data['canvas_id'] is not None and (
             quiz_question := canvas_quiz.get_question(quiz_question_data['canvas_id'])):
