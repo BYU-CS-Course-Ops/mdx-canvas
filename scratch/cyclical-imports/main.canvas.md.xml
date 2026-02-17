@@ -16,27 +16,27 @@
     <include path="complex-page-c.canvas.md.xml" />
 
     <module title="Page Cycles">
-        <item type="page" title="Page A" />
-        <item type="page" title="Page B" />
-        <item type="page" title="Page C" />
+        <item type="page" content_id="Page A" />
+        <item type="page" content_id="Page B" />
+        <item type="page" content_id="Page C" />
     </module>
 
     <module title="Quiz Cycles">
-        <item type="quiz" title="Quiz A" />
-        <item type="quiz" title="Quiz B" />
-        <item type="quiz" title="Quiz C" />
+        <item type="quiz" content_id="Quiz A" />
+        <item type="quiz" content_id="Quiz B" />
+        <item type="quiz" content_id="Quiz C" />
     </module>
 
     <module title="Assignment Cycles">
-        <item type="assignment" title="Assignment A" />
-        <item type="assignment" title="Assignment B" />
-        <item type="assignment" title="Assignment C" />
+        <item type="assignment" content_id="Assignment A" />
+        <item type="assignment" content_id="Assignment B" />
+        <item type="assignment" content_id="Assignment C" />
     </module>
 
     <module title="Complex Cycles">
-        <item type="quiz" title="Complex Quiz A" />
-        <item type="assignment" title="Complex Assignment B" />
-        <item type="page" title="Complex Page C" />
+        <item type="quiz" content_id="Complex Quiz A" />
+        <item type="assignment" content_id="Complex Assignment B" />
+        <item type="page" content_id="Complex Page C" />
     </module>
 
 </div>

@@ -1,5 +1,6 @@
 from pathlib import Path
 from typing import Callable
+from os.path import basename
 
 from bs4 import Tag
 
@@ -91,7 +92,6 @@ def make_file_anchor_tag(resource_key: str, filename: str, **kwargs):
         **kwargs,
         'href': f'{resource_key}?wrap=1',
         'class': 'instructure_file_link inline_disabled',
-        'title': filename,
         'target': '_blank',
         'rel': 'noopener noreferrer'
     }
@@ -242,7 +242,9 @@ def make_include_preprocessor(
                 imported_raw_content = '\n'.join(imported_raw_content.splitlines()[grab])
 
             if parse_bool(tag.get('fenced', 'false')):
-                imported_raw_content = f'```{imported_file.suffix.lstrip(".")}\n{imported_raw_content}\n```\n'
+                suffix = imported_file.suffix.lstrip('.')
+                filename_attr = f' {{: title="{basename(imported_file)}" }}' if parse_bool(tag.get('include_filename', 'false')) else ''
+                imported_raw_content = f'```{suffix}{filename_attr}\n{imported_raw_content}\n```\n'
                 suffixes = suffixes + ['.md']
 
             imported_html = process_file(
@@ -280,7 +282,8 @@ def make_link_preprocessor():
         link_rid = validate_required_attribute(tag, 'id', 'course-link')
 
         new_tag = Tag(name='a')
-        new_tag['href'] = get_key(link_type, link_rid, 'uri')
+        frag = tag.get('fragment', None)
+        new_tag['href'] = get_key(link_type, link_rid, 'uri') + (f'#{frag}' if frag else '')
         link_text = tag.string.strip() if tag.string is not None else ''
         if not link_text:
             link_text = get_key(link_type, link_rid, 'title')

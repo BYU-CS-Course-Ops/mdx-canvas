@@ -75,6 +75,18 @@ class QuizInfo(ResourceInfo):
     title: str  # for course-link text
 
 
+class QuizQuestionInfo(ResourceInfo):
+    id: str
+    quiz_id: str
+    uri: str
+    url: str
+
+
+class QuizQuestionOrderInfo(ResourceInfo):
+    quiz_id: int
+    uri: str
+    url: str
+
 class SyllabusInfo(ResourceInfo):
     id: str
     uri: str
@@ -109,7 +121,7 @@ class SyllabusData(TypedDict):
 
 
 def iter_keys(text: str) -> Iterator[tuple[str, str, str, str]]:
-    for match in re.finditer(fr'__@@([^|]+)\|\|([^|]+)\|\|([^@]+)@@__', text):
+    for match in re.finditer(r'__@@([^|]+)\|\|(.+?)\|\|([^@]+)@@__', text):
         yield match.group(0), *match.groups()
 
 
