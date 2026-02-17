@@ -8,6 +8,7 @@ from collections import defaultdict
 from typing import Callable
 
 import pytz
+from canvasapi.exceptions import ResourceDoesNotExist
 from canvasapi.canvas_object import CanvasObject
 from canvasapi.course import Course
 
@@ -21,12 +22,12 @@ from .group import deploy_group
 from .module import deploy_module, deploy_module_item, get_module_item
 from .override import deploy_override, get_override
 from .page import deploy_page, deploy_shell_page
-from .quiz import deploy_quiz, deploy_shell_quiz
+from .quiz import deploy_quiz, deploy_quiz_question, deploy_quiz_question_order, deploy_shell_quiz, get_quiz_question
 from .syllabus import deploy_syllabus
 from .zip import deploy_zip, predeploy_zip
 from ..deployment_report import DeploymentReport
 from ..our_logging import get_logger
-from ..resources import CanvasResource, iter_keys
+from ..resources import CanvasResource, iter_keys, ResourceInfo
 
 from .migration import migrate
 
@@ -36,14 +37,14 @@ PREDEPLOYERS: dict[str, Callable[[dict, Path], dict]] = {
     'zip': predeploy_zip
 }
 
-SHELL_DEPLOYERS = {
+SHELL_DEPLOYERS: dict[str, Callable[[Course, dict], tuple[ResourceInfo, tuple[str, str] | None]]] = {
     # Current known resources that need shell deployments
     'assignment': deploy_shell_assignment,
     'page': deploy_shell_page,
     'quiz': deploy_shell_quiz
 }
 
-DEPLOYERS = {
+DEPLOYERS: dict[str, Callable[[Course, dict], tuple[ResourceInfo, tuple[str, str] | None]]] = {
     'announcement': deploy_announcement,
     'assignment': deploy_assignment,
     'assignment_group': deploy_group,
@@ -54,6 +55,8 @@ DEPLOYERS = {
     'override': deploy_override,
     'page': deploy_page,
     'quiz': deploy_quiz,
+    'quiz_question': deploy_quiz_question,
+    'quiz_question_order': deploy_quiz_question_order,
     'syllabus': deploy_syllabus,
     'zip': deploy_zip
 }
@@ -161,20 +164,20 @@ def post_process_resource(resource_data) -> dict:
     return json.loads(text)
 
 
-def deploy_resource(deployers: dict, course: Course, rtype: str, data: dict, resource: CanvasResource):
+def deploy_resource(deployers: dict, course: Course, rtype: str, data: dict, resource: CanvasResource) -> tuple[ResourceInfo, tuple[str, str] | None]:
     if not (deploy := deployers.get(rtype)):
         raise Exception(f"Unsupported resource type {rtype} {resource['id']}\n  in {resource['content_path']}")
 
     try:
-        deployed, info = deploy(course, data)
+        resource_info, info = deploy(course, data)
     except Exception as e:
         raise Exception(
             f"Error deploying {rtype} {resource['id']}\n  {type(e).__name__}: {e}\n  in {resource['content_path']}") from e
 
-    if not deployed:
+    if not resource_info:
         raise Exception(f"Deployment returned None for {rtype} {resource['id']}\n  in {resource['content_path']}")
 
-    return deployed, info
+    return resource_info, info
 
 
 # =============================================================================
@@ -234,6 +237,7 @@ def identify_modified_or_outdated(
         item = (resource['type'], resource['id'])
 
         stored_md5 = md5s.get_checksum(item)
+
         current_md5 = compute_md5(resource_data)
 
         # Attach the Canvas object id (stored as `canvas_id`) to the resource data
@@ -273,14 +277,15 @@ def get_stale_resources(resources: dict[tuple[str, str], CanvasResource], md5s: 
     stale = [
         (rtype, rid, canvas_info)
         for (rtype, rid), info in md5s.items()
-        if (rtype, rid) not in resources and rtype not in ['syllabus', 'course_settings']
+        if (rtype, rid) not in resources and rtype not in ['syllabus', 'course_settings', 'quiz_question_order']
         if (canvas_info := md5s.get_canvas_info((rtype, rid)))
     ]
 
     priority = (lambda item:
                 0 if item[0] == 'module_item' else
-                1 if item[0] == 'override' else
-                2
+                1 if item[0] == 'quiz_question' else
+                2 if item[0] == 'override' else
+                3
                 )
 
     return sorted(stale, key=priority)
@@ -291,11 +296,14 @@ def _lookup_stale_canvas_resource(course: Course, item_type: str, item_id: str,
     canvas_id = canvas_info.get('id')
 
     # Handle special case resources (i.e. those that require a parent object to look up the specific object
-    if item_type in ['module_item', 'override']:
+
+    if item_type in ['module_item', 'override', 'quiz_question']:
         if item_type == 'module_item':
             canvas_resource = get_module_item(course, canvas_info.get('module_id'), canvas_id)
         elif item_type == 'override':
             canvas_resource = get_override(course, canvas_info.get('assignment_id'), canvas_id)
+        elif item_type == 'quiz_question':
+            canvas_resource = get_quiz_question(course, canvas_info.get('quiz_id'), canvas_id)
         else:
             raise NotImplementedError(f"Unsupported stale resource type {item_type} {item_id}")
 
@@ -333,8 +341,12 @@ def remove_stale_resources(course: Course, stale: list[tuple[str, str, dict]], m
     for index, (rtype, rid, canvas_info) in enumerate(stale, start=1):
         logger.info(f'[{index:>{index_width}}/{total}] {rtype:{max_len}}  {rid}')
 
-        if canvas_resource := _lookup_stale_canvas_resource(course, rtype, rid, canvas_info):
-            canvas_resource.delete()
+        try:
+            if canvas_resource := _lookup_stale_canvas_resource(course, rtype, rid, canvas_info):
+                canvas_resource.delete()
+                md5s.remove((rtype, rid))
+        except ResourceDoesNotExist:
+            logger.warning(f'{rtype} {rid} not found on Canvas - already removed')
             md5s.remove((rtype, rid))
 
 
@@ -434,6 +446,8 @@ def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, s
     resource_dependencies, resource_order = _prepare_deployment_order(resources)
 
     logger.info('Preparing resources for deployment to Canvas')
+
+    actions = []
     start_time = time.perf_counter()
 
     with MD5Sums(course) as md5s, TemporaryDirectory() as tmpdir:
@@ -443,11 +457,7 @@ def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, s
 
         predeploy_resources(resources, timezone, tmpdir)
 
-        to_deploy = identify_modified_or_outdated(resources, resource_order, resource_dependencies, md5s)
-
-        actions = []
-
-        if to_deploy:
+        if to_deploy := identify_modified_or_outdated(resources, resource_order, resource_dependencies, md5s):
             _deploy_resources(course, to_deploy, md5s, report, dryrun=dryrun)
             actions.append(f'{len(to_deploy)} resources deployed')
 

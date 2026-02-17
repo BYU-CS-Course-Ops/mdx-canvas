@@ -3,7 +3,7 @@
 <description>
     This is the description for **Quiz A**.
 
-    You should check out <course-link type="quiz" title="Quiz B" />
+    You should check out <course-link type="quiz" id="Quiz B" />
 
 </description>
 
@@ -14,7 +14,7 @@
     </question>
 
     <question type="multiple-choice">
-        You should check out <course-link type="quiz" title="Quiz B" />
+        You should check out <course-link type="quiz" id="Quiz B" />
         What is the capital of France?
 
         <correct>Paris</correct>

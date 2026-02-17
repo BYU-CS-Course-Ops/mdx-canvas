@@ -30,35 +30,55 @@ class MD5Sums:
     """
     Format:
     {
-        "{rtype}|{rid}": {
-            "canvas_info": {
-                "id": <str>,
-                "uri": <str | None>,
-                "url": <str | None>
-            },
-            "checksum": <str>
+        "mdxcanvas_version": <str>,
+        "resources": {
+            "{rtype}|{rid}": {
+                "canvas_info": {
+                    "id":  <str>,
+                    "uri": <str | None>,
+                    "url": <str | None>
+                },
+                "checksum": <str>
+            }
         }
     }
     """
 
     def __init__(self, course: Course):
+        self._version = None
         self._course = course
 
     def _download_md5s(self):
         md5_file = get_file(self._course, MD5_FILE_NAME)
         if md5_file is None:
+            self._version = None
             self._md5s = {}
         else:
-            self._md5s = {
-                tuple(k.split('|', maxsplit=1)): v
-                for k, v in json.loads(requests.get(md5_file.url).text).items()
-            }
+            data = json.loads(requests.get(md5_file.url).text)
+            if 'resources' in data:
+                # New nested format
+                self._version = data.get('mdxcanvas_version')
+                self._md5s = {
+                    tuple(k.split('|', maxsplit=1)): v
+                    for k, v in data['resources'].items()
+                }
+            else:
+                # Old flat format — no version existed in this format
+                self._version = None
+                self._md5s = {
+                    tuple(k.split('|', maxsplit=1)): v
+                    for k, v in data.items()
+                }
         self._save_md5s()
 
     def _save_md5s(self):
+        data = {
+            'mdxcanvas_version': self._version,
+            'resources': {'|'.join(k): v for k, v in self._md5s.items()}
+        }
         with TemporaryDirectory() as tmpdir:
             tmpfile = Path(tmpdir) / MD5_FILE_NAME
-            tmpfile.write_text(json.dumps({'|'.join(k): v for k, v in self._md5s.items()}))
+            tmpfile.write_text(json.dumps(data))
             deploy_file(self._course, FileData(
                 path=str(tmpfile.absolute()),
                 canvas_folder="_md5s"
@@ -70,18 +90,27 @@ class MD5Sums:
     def get(self, item, *args, **kwargs):
         return self._md5s.get(item, *args, **kwargs)
 
+    def add_mdxcanvas_version(self, version):
+        self._version = version
+
+    def get_mdxcanvas_version(self):
+        return self._version
+
+    def has_mdxcanvas_version(self):
+        return self._version is not None
+
     def get_canvas_info(self, item):
         return self.get(item, {}).get('canvas_info', None)
 
     def has_canvas_info(self, item):
-        return item in self._md5s and 'canvas_info' in self._md5s[item]
+        return self.get_canvas_info(item) is not None
 
     def get_checksum(self, item):
         entry = self.get(item)
         return entry.get('checksum', None) if entry else None
 
     def has_checksum(self, item):
-        return item in self._md5s and 'checksum' in self._md5s[item]
+        return self.get_checksum(item) is not None
 
     def remove(self, item):
         if item in self._md5s:

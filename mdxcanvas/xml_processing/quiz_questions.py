@@ -19,7 +19,8 @@ common_fields = [
     Attribute('incorrect-comments', new_name='incorrect_comments'),
     Attribute('text-after-answers', new_name='text_after_answers'),
     Attribute('type', ignore=True),
-    Attribute('name', ignore=True)
+    Attribute('name', ignore=True),
+    Attribute('id', ignore=True)
 ]
 
 mostly_common_fields = [
@@ -28,16 +29,17 @@ mostly_common_fields = [
 ]
 
 
-def parse_text_question(tag: Tag):
+def parse_text_question(tag: Tag, qid: str):
     question_text = retrieve_contents(tag)
     question = {
         "question_text": question_text,
         "question_type": 'text_only_question',
+        "question_id": qid
     }
     return [question]
 
 
-def parse_true_false_question(tag: Tag):
+def parse_true_false_question(tag: Tag, qid: str):
     """
     <question type='true-false' answer='true' points_possible='2'>
     The earth orbits the sun
@@ -65,6 +67,7 @@ def parse_true_false_question(tag: Tag):
     question.update({
         "question_text": retrieve_contents(tag, question_children_names),
         "question_type": 'true_false_question',
+        "question_id": qid,
         "answers": [
             {
                 "answer_text": "True",
@@ -80,7 +83,7 @@ def parse_true_false_question(tag: Tag):
     return [question]
 
 
-def parse_multiple_choice_question(tag: Tag):
+def parse_multiple_choice_question(tag: Tag, qid: str):
     """
     <question type='multiple-choice'>
     5 + 5 =
@@ -90,10 +93,10 @@ def parse_multiple_choice_question(tag: Tag):
     <incorrect> 8 </incorrect>
     </question>
     """
-    return _parse_multiple_option_question('multiple_choice_question', tag)
+    return _parse_multiple_option_question('multiple_choice_question', tag, qid)
 
 
-def parse_multiple_answers_question(tag: Tag):
+def parse_multiple_answers_question(tag: Tag, qid: str):
     """
     <question type='multiple-answers'>
     Which of the following are prime numbers?
@@ -104,15 +107,16 @@ def parse_multiple_answers_question(tag: Tag):
     <incorrect> 6 </incorrect>
     </question>
     """
-    return _parse_multiple_option_question('multiple_answers_question', tag)
+    return _parse_multiple_option_question('multiple_answers_question', tag, qid)
 
 
-def _parse_multiple_option_question(question_type, tag):
+def _parse_multiple_option_question(question_type, tag, qid):
     corrects = parse_children_tag_contents(tag, 'correct')
     answers = parse_children_tag_contents(tag, re.compile(r'correct|incorrect'))
     question = {
         "question_text": retrieve_contents(tag, question_children_names),
         "question_type": question_type,
+        "question_id": qid,
         "answers": [
             {
                 "answer_html": answer,
@@ -124,7 +128,7 @@ def _parse_multiple_option_question(question_type, tag):
     return [question]
 
 
-def parse_matching_question(tag: Tag):
+def parse_matching_question(tag: Tag, qid: str):
     """
     <question type='matching'>
     Match the following:
@@ -151,6 +155,7 @@ def parse_matching_question(tag: Tag):
     question.update({
         "question_text": retrieve_contents(tag, question_children_names + ['pair', 'distractors']),
         "question_type": 'matching_question',
+        "question_id": qid,
         "points_possible": parse_int(tag.get('points') or len(pairs)),
         "answers": [
             {
@@ -165,7 +170,7 @@ def parse_matching_question(tag: Tag):
     return [question]
 
 
-def parse_multiple_true_false_question(tag: Tag):
+def parse_multiple_true_false_question(tag: Tag, qid: str):
     """
     <question type='multiple-tf'>
     Which of the following matrices are invertible?
@@ -186,6 +191,7 @@ def parse_multiple_true_false_question(tag: Tag):
     resulting_questions.append({
         "question_text": header,
         "question_type": 'text_only_question',
+        "question_id": qid
     })
 
     answers = tag.find_all(re.compile(r'correct|incorrect'))
@@ -206,6 +212,7 @@ def parse_multiple_true_false_question(tag: Tag):
         resulting_questions.append({
             "question_text": retrieve_contents(child),
             "question_type": 'true_false_question',
+            "question_id": f'{qid}_{index}',
             "points_possible": points_per_question + amount if index < num_to_change else points_per_question,
             "answers": [
                 {
@@ -242,7 +249,7 @@ def _add_answers_to_multiple_blanks_question(text):
     return updated_text, answers
 
 
-def parse_fill_in_multiple_blanks_filled_answers(tag: Tag):
+def parse_fill_in_multiple_blanks_filled_answers(tag: Tag, qid: str):
     """
     Anything within a set of brackets will be turned into a fill in the blank question.
     Whatever is in the brackets will be the correct answer
@@ -277,6 +284,7 @@ def parse_fill_in_multiple_blanks_filled_answers(tag: Tag):
     question = {
         "question_text": question_text,
         "question_type": 'fill_in_multiple_blanks_question',
+        "question_id": qid,
         "answers": answers,
     }
 
@@ -288,7 +296,7 @@ def parse_fill_in_multiple_blanks_filled_answers(tag: Tag):
     return [question]
 
 
-def parse_fill_in_the_blank_question(tag: Tag):
+def parse_fill_in_the_blank_question(tag: Tag, qid: str):
     """
     <question type='fill-in-the-blank'>
     The capital of France is [blank].
@@ -309,6 +317,7 @@ def parse_fill_in_the_blank_question(tag: Tag):
     question = {
         "question_text": retrieve_contents(tag, question_children_names),
         "question_type": 'fill_in_multiple_blanks_question',
+        "question_id": qid,
         "answers": [
             parse_settings(answer, answer_attributes) for answer in tag.find_all('correct')
         ]
@@ -318,7 +327,7 @@ def parse_fill_in_the_blank_question(tag: Tag):
     return [question]
 
 
-def parse_fill_in_multiple_blanks_question(tag: Tag):
+def parse_fill_in_multiple_blanks_question(tag: Tag, qid: str):
     """
     <question type='fill-in-multiple-blanks'>
     The U.S. flag has [stripes] stripes and [stars] stars.
@@ -338,6 +347,7 @@ def parse_fill_in_multiple_blanks_question(tag: Tag):
     question = {
         "question_text": retrieve_contents(tag, question_children_names),
         "question_type": 'fill_in_multiple_blanks_question',
+        "question_id": qid,
         "answers": [
             parse_settings(answer, answer_attributes) for answer in answers
         ]
@@ -351,21 +361,23 @@ def parse_fill_in_multiple_blanks_question(tag: Tag):
     return [question]
 
 
-def parse_essay_question(tag: Tag):
+def parse_essay_question(tag: Tag, qid: str):
     question_text = retrieve_contents(tag)
     question = {
         "question_text": question_text,
         "question_type": 'essay_question',
+        "question_id": qid
     }
     question.update(parse_settings(tag, mostly_common_fields))
     return [question]
 
 
-def parse_file_upload_question(tag: Tag):
+def parse_file_upload_question(tag: Tag, qid: str):
     question_text = retrieve_contents(tag)
     question = {
         "question_text": question_text,
         "question_type": 'file_upload_question',
+        "question_id": qid
     }
     return [question]
 
@@ -438,7 +450,7 @@ def parse_precision_answer_question(tag: Tag):
     return question_text, answer_attributes
 
 
-def parse_numerical_question(tag: Tag):
+def parse_numerical_question(tag: Tag, qid: str):
     numerical_answer_types = {
         'exact': (parse_exact_answer_question, 'exact_answer'),
         'range': (parse_range_answer_question, 'range_answer'),
@@ -455,6 +467,7 @@ def parse_numerical_question(tag: Tag):
     question = {
         "question_text": question_text,
         "question_type": 'numerical_question',
+        "question_id": qid,
         "answers": [
             parse_settings(answer, answer_attributes) for answer in tag.find_all('correct')
         ]

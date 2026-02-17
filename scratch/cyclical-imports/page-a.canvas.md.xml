@@ -1,5 +1,5 @@
 <page title="Page A">
     Here is some content for Page A.
 
-    Go to <course-link type="page" title="Page B" />
+    Go to <course-link type="page" id="Page B" />
 </page>

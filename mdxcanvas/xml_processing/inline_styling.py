@@ -16,7 +16,7 @@ def get_style(soup):
 
 
 def parse_css(css):
-    css_parser = cssutils.CSSParser()
+    css_parser = cssutils.CSSParser(validate=False)
     stylesheet = css_parser.parseString(css)
     styles = {}
     for rule in stylesheet:
@@ -31,9 +31,22 @@ def apply_inline_styles(html, styles):
     soup = parse_soup_from_xml(html)
     for selector, properties in styles.items():
         for tag in soup.select(selector):
-            style_string = "; ".join([f"{prop}: {value}" for prop, value in properties.items()])
+            # Parse existing styles into a dictionary
             existing_style = tag.get('style', '')
-            tag['style'] = style_string + ((existing_style and '; ') or '') + existing_style
+            existing_props = {}
+            if existing_style:
+                for prop in existing_style.split(';'):
+                    prop = prop.strip()
+                    if ':' in prop:
+                        key, value = prop.split(':', 1)
+                        existing_props[key.strip()] = value.strip()
+
+            # Merge properties: new CSS properties override existing inline styles
+            merged_props = { **properties, **existing_props }
+
+            # Reconstruct style string
+            style_string = ";".join([f"{prop}:{value}" for prop, value in merged_props.items()])
+            tag['style'] = style_string
     return str(soup)
 
 
