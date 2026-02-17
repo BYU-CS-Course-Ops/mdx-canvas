@@ -73,8 +73,7 @@ def process_file(
         global_args: dict = None,
         args_file: Path = None,
         templates: list[Path] = None,
-        css_file: Path = None,
-        timezone: str = None
+        css_file: Path = None
 ) -> str:
     """
     Read a file and fully process the text content
@@ -88,8 +87,7 @@ def process_file(
             parent_folder=parent_folder,
             args_path=args_file,
             global_args=global_args,
-            templates=templates,
-            timezone=timezone
+            templates=templates
         )
 
     if '.md' in content_type:
@@ -176,8 +174,7 @@ def main(
                 global_args,
                 args_file,
                 templates,
-                css_file,
-                course_info.get('LOCAL_TIME_ZONE', 'American/Denver')
+                css_file
             )
 
             # Parse file into XML

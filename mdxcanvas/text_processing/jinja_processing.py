@@ -3,7 +3,6 @@ from datetime import datetime
 import json
 import re
 from pathlib import Path
-from zoneinfo import ZoneInfo
 
 import markdowndata
 import yaml
@@ -44,8 +43,7 @@ def _render_template(
         args_path: Path = None,
         args: dict | list = None,
         global_args: dict = None,
-        templates: list[Path] = None,
-        timezone: str = None
+        templates: list[Path] = None
 ) -> str:
     loader_paths = [parent_folder, args_path, *(templates or [])]
     loader_paths = [p for p in loader_paths if p is not None]
@@ -67,9 +65,7 @@ def _render_template(
         "debug": lambda msg: logger.debug(msg),
         "get_arg": lambda *args: global_args.get(*args),
         # "grep": lambda pattern, string, *args: m.groups() if (m := re.search(pattern, string, *args)) else None
-        "search": re.search,
-        "timestamp": lambda fmt="%B %d, %Y at %I:%M %p": (datetime.now(ZoneInfo(timezone)).strftime(fmt)
-        )
+        "search": re.search
     }
 
     if global_args:
@@ -90,8 +86,7 @@ def process_jinja(
         parent_folder: Path = None,
         args_path: Path = None,
         global_args: dict = None,
-        templates: list[Path] = None,
-        timezone: str = None
+        templates: list[Path] = None
 ) -> str:
     if args_path:
         args = _get_args(args_path, global_args)
@@ -104,6 +99,5 @@ def process_jinja(
         args_path=args_path,
         args=args,
         global_args=global_args,
-        templates=templates,
-        timezone=timezone
+        templates=templates
     )
