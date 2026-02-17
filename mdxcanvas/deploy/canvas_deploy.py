@@ -346,7 +346,7 @@ def remove_stale_resources(course: Course, stale: list[tuple[str, str, dict]], m
                 canvas_resource.delete()
                 md5s.remove((rtype, rid))
         except ResourceDoesNotExist:
-            logger.debug(f'{rtype} {rid} not found on Canvas - already removed')
+            logger.warning(f'{rtype} {rid} not found on Canvas - already removed')
             md5s.remove((rtype, rid))
 
 
