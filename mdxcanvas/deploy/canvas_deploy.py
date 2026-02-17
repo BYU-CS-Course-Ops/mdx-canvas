@@ -8,6 +8,7 @@ from collections import defaultdict
 from typing import Callable
 
 import pytz
+from canvasapi.exceptions import ResourceDoesNotExist
 from canvasapi.canvas_object import CanvasObject
 from canvasapi.course import Course
 
@@ -276,7 +277,7 @@ def get_stale_resources(resources: dict[tuple[str, str], CanvasResource], md5s: 
     stale = [
         (rtype, rid, canvas_info)
         for (rtype, rid), info in md5s.items()
-        if (rtype, rid) not in resources and rtype not in ['syllabus', 'course_settings']
+        if (rtype, rid) not in resources and rtype not in ['syllabus', 'course_settings', 'quiz_question_order']
         if (canvas_info := md5s.get_canvas_info((rtype, rid)))
     ]
 
@@ -295,6 +296,7 @@ def _lookup_stale_canvas_resource(course: Course, item_type: str, item_id: str,
     canvas_id = canvas_info.get('id')
 
     # Handle special case resources (i.e. those that require a parent object to look up the specific object
+
     if item_type in ['module_item', 'override', 'quiz_question']:
         if item_type == 'module_item':
             canvas_resource = get_module_item(course, canvas_info.get('module_id'), canvas_id)
@@ -339,8 +341,12 @@ def remove_stale_resources(course: Course, stale: list[tuple[str, str, dict]], m
     for index, (rtype, rid, canvas_info) in enumerate(stale, start=1):
         logger.info(f'[{index:>{index_width}}/{total}] {rtype:{max_len}}  {rid}')
 
-        if canvas_resource := _lookup_stale_canvas_resource(course, rtype, rid, canvas_info):
-            canvas_resource.delete()
+        try:
+            if canvas_resource := _lookup_stale_canvas_resource(course, rtype, rid, canvas_info):
+                canvas_resource.delete()
+                md5s.remove((rtype, rid))
+        except ResourceDoesNotExist:
+            logger.warning(f'{rtype} {rid} not found on Canvas - already removed')
             md5s.remove((rtype, rid))
 
 

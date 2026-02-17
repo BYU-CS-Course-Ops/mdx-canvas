@@ -22,6 +22,14 @@ Wraps the included content in triple backticks for code formatting.
 <include path="hello_world.py" fenced="True" />
 ```
 
+### `include_filename` (optional)
+
+Adds a filename header to fenced code blocks.
+
+```xml
+<include path="hello_world.py" fenced="True" include_filename="True" />
+```
+
 ### `lines` (optional)
 
 Includes only specific lines from the source file. Use the format `"start:end"` (1-based, inclusive).
