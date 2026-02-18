@@ -1,3 +1,7 @@
+from collections import defaultdict
+
+from canvasapi.quiz import Quiz, QuizQuestion
+
 from .. import __version__
 from .checksums import MD5Sums
 from ..our_logging import get_logger
@@ -65,6 +69,37 @@ def _migrate_module_and_override_ids(course, md5s: MD5Sums):
                 md5s[rtype, rid]['canvas_info']['assignment_id'] = assignment_id_map[override_id]
 
 
+def _migrate_prune_stale_questions(course, md5s: MD5Sums):
+    # Map each tracked quiz to its live questions on Canvas
+    tracked_quizzes = {
+        (quiz_id := data['canvas_info']['id']): [q.id for q in course.get_quiz(quiz_id).get_questions()]
+        for key, data in md5s.items()
+        if key[0] == 'quiz' and 'id' in data.get('canvas_info', {})
+    }
+
+    # Collect question IDs that should be kept (present in md5s)
+    questions_to_keep = defaultdict(set)
+    for (rtype, _), data in md5s.items():
+        if rtype == 'quiz_question':
+            quiz_id = data['canvas_info'].get('quiz_id')
+            question_id = data['canvas_info'].get('id')
+            if quiz_id in tracked_quizzes and question_id in tracked_quizzes[quiz_id]:
+                questions_to_keep[quiz_id].add(question_id)
+
+    # Delete questions on Canvas that are no longer in md5s
+    for quiz_id, question_ids in tracked_quizzes.items():
+        stale_ids = [q_id for q_id in question_ids if q_id not in questions_to_keep[quiz_id]]
+        if not stale_ids:
+            continue
+        quiz: Quiz = course.get_quiz(quiz_id)
+        for question_id in stale_ids:
+            logger.debug(f'Pruning stale question {question_id} from quiz {quiz_id}')
+            try:
+                quiz.get_question(question_id).delete()
+            except Exception:
+                logger.debug(f'Failed to delete question {question_id} from quiz {quiz_id}')
+
+
 def migrate(course, md5s: MD5Sums):
     """Update the md5 data to match the latest schema"""
     logger.info('Checking MDXCanvas version')
@@ -87,12 +122,18 @@ def migrate(course, md5s: MD5Sums):
 
     # Titles (0.6.2)
     if stored_ver < (0, 6, 2):
+        logger.info('Adding titles to cached data')
         _migrate_titles(course, md5s)
 
     # Module Item → Module ID, Override → Assignment ID (0.6.6)
     if stored_ver < (0, 6, 6):
+        logger.info('Migrating module and override IDs')
         _migrate_module_and_override_ids(course, md5s)
+
+    # Prune stale quiz questions (0.6.15)
+    if stored_ver < (0, 6, 15):
+        logger.info('Pruning stale quiz questions')
+        _migrate_prune_stale_questions(course, md5s)
 
     # Now that migration is finished, set the version we are using
     md5s.add_mdxcanvas_version(current_version)
-
