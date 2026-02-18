@@ -149,7 +149,7 @@ def update_links(md5s: MD5Sums, data: dict, resource_objs: dict, current_resourc
     return json.loads(text)
 
 
-def post_process_resource(resource_data, timezone="UTC") -> dict:
+def post_process_resource(resource_data, timezone) -> dict:
     """
     Post-processing involves changes that shouldn't be included
     when considering whether a resource has changed and should be redeployed.
@@ -459,7 +459,7 @@ def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, s
         predeploy_resources(resources, timezone, tmpdir)
 
         if to_deploy := identify_modified_or_outdated(resources, resource_order, resource_dependencies, md5s):
-            _deploy_resources(course, to_deploy, md5s, report, dryrun=dryrun)
+            _deploy_resources(course, to_deploy, md5s, report, timezone, dryrun=dryrun)
             actions.append(f'{len(to_deploy)} resources deployed')
 
         if cleanup:
