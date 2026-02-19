@@ -60,7 +60,7 @@ def _post_process_content(xml_content: str, global_css: str) -> str:
         lambda s: bake_css(s, global_css)
     ]
     for xml_post in xml_postprocessors:
-        soup = xml_post(soup)
+        xml_post(soup)
 
     return soup.decode(formatter='minimal')
 
