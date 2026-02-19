@@ -1,6 +1,9 @@
 import logging
+import os
 import re
+import stat
 from pathlib import Path
+from zipfile import ZipFile, ZipInfo, ZIP_STORED
 from typing import Optional
 
 from .file import deploy_file
@@ -49,7 +52,8 @@ def get_files(folder_path: Path, exclude: Optional[re.Pattern], prefix) -> dict[
         raise FileNotFoundError(folder_path)
 
     files = {}
-    for file in folder_path.glob('*'):
+    # Sort files for consistent ordering across platforms
+    for file in sorted(folder_path.glob('*'), key=lambda p: p.name):
         if exclude and exclude.search(file.name):
             logger.debug(f'Excluding {file} from zip')
             continue
@@ -74,25 +78,49 @@ def get_additional_files(additional_files: list[Path]) -> dict[str, Path]:
 
 
 def write_files(files: dict[str, Path], path_to_zip: Path):
-    with ZipFile(path_to_zip, "w") as zipf:
-        for zip_name, file in files.items():
+    # Store only and sort to ensure idempotent zip creation across platforms and runs
+    with ZipFile(path_to_zip, "w", ZIP_STORED) as zipf:
+        # Sort files by name for consistent ordering across platforms
+        for zip_name in sorted(files.keys()):
+            file = files[zip_name]
             write_file(file, zip_name.lstrip('/'), zipf)
 
 
-def make_zip_info(zip_name):
+def make_zip_info(zip_name, file_path: Path):
     """
-    Ensures that the zip file stays consistent between runs.
+    Ensures that the zip file stays consistent between runs and across platforms.
+    Preserves original file permissions, detecting executability cross-platform.
     """
     zinfo = ZipInfo(
         zip_name,
         # For consistency, set the time to 1980
         date_time=(1980, 1, 1, 0, 0, 0)
     )
+    # Set compression type explicitly
+    zinfo.compress_type = ZIP_STORED
+
+    # Set file permissions in external_attr (Unix format in high 16 bits)
+    file_stat = file_path.stat()
+
+    if os.name == 'nt':  # Windows
+        # On Windows, st_mode doesn't contain Unix permission bits
+        # Check if the file is executable and set appropriate Unix permissions
+        is_executable = os.access(file_path, os.X_OK)
+        if is_executable:
+            # Executable file: rwxr-xr-x
+            zinfo.external_attr = (stat.S_IFREG | 0o755) << 16
+        else:
+            # Regular file: rw-r--r--
+            zinfo.external_attr = (stat.S_IFREG | 0o644) << 16
+    else:  # Unix-like systems (Linux, macOS, etc.)
+        # Preserve original file permissions
+        zinfo.external_attr = file_stat.st_mode << 16
+
     return zinfo
 
 
 def write_file(file: Path, zip_name: str, zipf: ZipFile):
-    zinfo = make_zip_info(zip_name)
+    zinfo = make_zip_info(zip_name, file)
     try:
         with open(file) as f:
             zipf.writestr(zinfo, f.read())
