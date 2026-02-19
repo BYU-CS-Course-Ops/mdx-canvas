@@ -81,7 +81,9 @@ class MD5Sums:
             tmpfile.write_text(json.dumps(data))
             deploy_file(self._course, FileData(
                 path=str(tmpfile.absolute()),
-                canvas_folder="_md5s"
+                canvas_folder="_md5s",
+                lock_at=None,
+                unlock_at=None
             ))
 
     def items(self):

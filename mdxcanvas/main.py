@@ -3,7 +3,7 @@ import json
 import logging
 import os
 from pathlib import Path
-from typing import TypedDict
+from typing import TypedDict, Optional
 
 import markdowndata
 import yaml
@@ -70,10 +70,10 @@ def process_file(
         parent_folder: Path,
         content: str,
         content_type: list[str],
-        global_args: dict = None,
-        args_file: Path = None,
-        templates: list[Path] = None,
-        css_file: Path = None
+        global_args: Optional[dict] = None,
+        args_file: Optional[Path] = None,
+        templates: Optional[list[Path]] = None,
+        css_file: Optional[Path] = None
 ) -> str:
     """
     Read a file and fully process the text content
@@ -140,13 +140,13 @@ def main(
         canvas_api_token: str,
         course_info_file: Path,
         input_file: Path,
-        args_file: Path = None,
-        global_args_file: Path = None,
-        templates: list[Path] = None,
-        css_file: Path = None,
+        args_file: Optional[Path] = None,
+        global_args_file: Optional[Path] = None,
+        templates: Optional[list[Path]] = None,
+        css_file: Optional[Path] = None,
         dryrun: bool = False,
         cleanup: bool = False,
-        output_file: str = None
+        output_file: Optional[str] = None
 ):
     # Initialize deployment report
     report = DeploymentReport(output_file)

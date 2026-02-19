@@ -1,7 +1,7 @@
 import logging
 import re
 from pathlib import Path
-from zipfile import ZipFile, ZipInfo
+from typing import Optional
 
 from .file import deploy_file
 from ..our_logging import get_logger
@@ -13,9 +13,9 @@ logger = get_logger()
 def zip_folder(
         folder_path: Path,
         path_to_zip: Path,
-        additional_files: list[Path] | None,
-        exclude: re.Pattern = None,
-        priority_folder: Path = None
+        additional_files: Optional[list[Path]],
+        exclude: Optional[re.Pattern[str]] = None,
+        priority_folder: Optional[Path] = None
 ):
     """
     Zips a folder, excluding files that match the exclude pattern.
@@ -44,7 +44,7 @@ def zip_folder(
     write_files(priority_files, path_to_zip)
 
 
-def get_files(folder_path: Path, exclude: re.Pattern | None, prefix) -> dict[str, Path]:
+def get_files(folder_path: Path, exclude: Optional[re.Pattern], prefix) -> dict[str, Path]:
     if not folder_path.exists():
         raise FileNotFoundError(folder_path)
 
@@ -119,7 +119,9 @@ def predeploy_zip(zipdata: ZipFileData, tmpdir: Path) -> FileData:
 
     file = FileData(
         path=str(path_to_zip),
-        canvas_folder=zipdata['canvas_folder']
+        canvas_folder=zipdata['canvas_folder'],
+        lock_at=None,
+        unlock_at=None
     )
 
     return file

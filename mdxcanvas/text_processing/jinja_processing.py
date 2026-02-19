@@ -1,8 +1,8 @@
 import csv
-from datetime import datetime
 import json
 import re
 from pathlib import Path
+from typing import Optional
 
 import markdowndata
 import yaml
@@ -14,7 +14,7 @@ from ..processing_context import get_current_file
 logger = get_logger()
 
 
-def _get_args(args_path: Path, global_args: dict) -> dict | list:
+def _get_args(args_path: Path, global_args: Optional[dict]) -> dict | list:
     if args_path.suffix == '.jinja':
         content = _render_template(args_path.read_text(), global_args=global_args)
         args_path = Path(args_path.stem)
@@ -39,11 +39,11 @@ def _get_args(args_path: Path, global_args: dict) -> dict | list:
 
 def _render_template(
         template: str,
-        parent_folder: Path = None,
-        args_path: Path = None,
-        args: dict | list = None,
-        global_args: dict = None,
-        templates: list[Path] = None
+        parent_folder: Optional[Path] = None,
+        args_path: Optional[Path] = None,
+        args: Optional[dict | list] = None,
+        global_args: Optional[dict] = None,
+        templates: Optional[list[Path]] = None
 ) -> str:
     loader_paths = [parent_folder, args_path, *(templates or [])]
     loader_paths = [p for p in loader_paths if p is not None]
@@ -83,10 +83,10 @@ def _render_template(
 
 def process_jinja(
         template: str,
-        parent_folder: Path = None,
-        args_path: Path = None,
-        global_args: dict = None,
-        templates: list[Path] = None
+        parent_folder: Optional[Path] = None,
+        args_path: Optional[Path] = None,
+        global_args: Optional[dict] = None,
+        templates: Optional[list[Path]] = None
 ) -> str:
     if args_path:
         args = _get_args(args_path, global_args)
