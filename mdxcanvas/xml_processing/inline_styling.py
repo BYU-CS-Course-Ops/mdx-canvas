@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup
 from ..util import parse_soup_from_xml
 
 
-def get_style(soup) -> str:
+def get_style(soup: BeautifulSoup) -> str:
     style = ''
 
     for tag in soup.find_all("style"):
@@ -15,7 +15,7 @@ def get_style(soup) -> str:
     return style
 
 
-def parse_css(css) -> dict[str, dict[str, str]]:
+def parse_css(css: str) -> dict[str, dict[str, str]]:
     css_parser = cssutils.CSSParser(validate=False)
     stylesheet = css_parser.parseString(css)
     styles = {}
@@ -27,13 +27,13 @@ def parse_css(css) -> dict[str, dict[str, str]]:
     return styles
 
 
-def apply_inline_styles(soup, styles) -> BeautifulSoup:
+def apply_inline_styles(soup: BeautifulSoup, styles: dict[str, dict[str, str]]) -> BeautifulSoup:
     for selector, properties in styles.items():
         for tag in soup.select(selector):
             # Parse existing styles into a dictionary
             existing_style = tag.get('style', '')
             existing_props = {}
-            if existing_style:
+            if existing_style and (existing_style := str(existing_style)):
                 for prop in existing_style.split(';'):
                     prop = prop.strip()
                     if ':' in prop:
