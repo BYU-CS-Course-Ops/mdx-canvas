@@ -9,7 +9,7 @@ from ..our_logging import get_logger
 from ..processing_context import FileContext, get_current_file
 from ..resources import ResourceManager, FileData, ZipFileData, CanvasResource, get_key
 from ..util import parse_soup_from_xml
-from ..xml_processing.attributes import parse_bool, get_tag_path
+from ..xml_processing.attributes import parse_bool
 
 logger = get_logger()
 
@@ -207,7 +207,7 @@ def make_include_preprocessor(
         process_file: Callable
 ):
     def process_include(tag: Tag):
-        imported_filename = tag.get('path')
+        imported_filename = str(tag.get('path'))
         imported_file = (parent_folder / imported_filename).resolve()
         args_file_path = tag.get('args', None)
 
@@ -221,7 +221,7 @@ def make_include_preprocessor(
 
         args_file = None
         if args_file_path is not None:
-            args_file = (parent_folder / args_file_path).resolve().absolute()
+            args_file = (parent_folder / str(args_file_path)).resolve().absolute()
 
             # Check if args file exists
             if not args_file.exists():
@@ -236,7 +236,7 @@ def make_include_preprocessor(
             imported_raw_content = imported_file.read_text(encoding='utf-8')
             suffixes = imported_file.suffixes
 
-            lines = tag.get('lines', '')
+            lines = str(tag.get('lines', ''))
             if lines:
                 grab = _parse_slice(lines)
                 imported_raw_content = '\n'.join(imported_raw_content.splitlines()[grab])
@@ -263,7 +263,7 @@ def make_include_preprocessor(
 
             else:
                 new_tag = Tag(name='div')
-                new_tag['data-source'] = str(imported_file)
+                new_tag['data-source'] = basename(imported_file)
                 if lines:
                     new_tag['data-lines'] = lines
                 new_tag.extend(include_result)
