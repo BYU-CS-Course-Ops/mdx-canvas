@@ -3,7 +3,7 @@ import os
 import re
 import stat
 from pathlib import Path
-from zipfile import ZipFile, ZipInfo, ZIP_STORED
+from zipfile import ZipFile, ZipInfo, ZIP_DEFLATED
 from typing import Optional
 
 from .file import deploy_file
@@ -78,8 +78,13 @@ def get_additional_files(additional_files: list[Path]) -> dict[str, Path]:
 
 
 def write_files(files: dict[str, Path], path_to_zip: Path):
-    # Store only and sort to ensure idempotent zip creation across platforms and runs
-    with ZipFile(path_to_zip, "w", ZIP_STORED) as zipf:
+    # Sort to ensure idempotent zip creation across platforms and runs
+    # ocasionally compression may cause the output zip to differ slightly
+    # on different platforms with different versions of zlib, even with the
+    # same input and compression level.
+    # If this becomes an issue, we can consider just storing the files in
+    # uncompressed format (ZIP_STORED) to ensure consistent output across platforms.
+    with ZipFile(path_to_zip, "w", ZIP_DEFLATED, compresslevel=9) as zipf:
         # Sort files by name for consistent ordering across platforms
         for zip_name in sorted(files.keys()):
             file = files[zip_name]
@@ -97,7 +102,7 @@ def make_zip_info(zip_name, file_path: Path):
         date_time=(1980, 1, 1, 0, 0, 0)
     )
     # Set compression type explicitly
-    zinfo.compress_type = ZIP_STORED
+    zinfo.compress_type = ZIP_DEFLATED
 
     # Set file permissions in external_attr (Unix format in high 16 bits)
     file_stat = file_path.stat()
