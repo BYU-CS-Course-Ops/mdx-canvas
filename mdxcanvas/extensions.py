@@ -77,9 +77,9 @@ class BakedCSSPostProcessor(Postprocessor):
 
     def run(self, text):
         soup = parse_soup_from_xml(text)
-        css, soup = get_style(soup)
+        css = get_style(soup)
         css = parse_css(self.global_css + css)
-        soup = apply_inline_styles(str(soup), css)
+        soup = apply_inline_styles(soup, css)
         return str(soup)
 
 

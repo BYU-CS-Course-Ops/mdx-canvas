@@ -51,7 +51,7 @@ def preprocess_xml(
     soup = parse_soup_from_xml(text)
     _walk_xml(soup, tag_preprocessors)
 
-    return str(soup)
+    return soup.decode(formatter='minimal')
 
 
 def process_canvas_xml(resources: ResourceManager, text: str):

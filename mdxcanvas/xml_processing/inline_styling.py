@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup
 from ..util import parse_soup_from_xml
 
 
-def get_style(soup):
+def get_style(soup) -> str:
     style = ''
 
     for tag in soup.find_all("style"):
@@ -12,10 +12,10 @@ def get_style(soup):
             style += content + ' '
         tag.decompose()
 
-    return style, soup
+    return style
 
 
-def parse_css(css):
+def parse_css(css) -> dict[str, dict[str, str]]:
     css_parser = cssutils.CSSParser(validate=False)
     stylesheet = css_parser.parseString(css)
     styles = {}
@@ -27,8 +27,7 @@ def parse_css(css):
     return styles
 
 
-def apply_inline_styles(html, styles):
-    soup = parse_soup_from_xml(html)
+def apply_inline_styles(soup, styles) -> BeautifulSoup:
     for selector, properties in styles.items():
         for tag in soup.select(selector):
             # Parse existing styles into a dictionary
@@ -47,13 +46,13 @@ def apply_inline_styles(html, styles):
             # Reconstruct style string
             style_string = ";".join([f"{prop}:{value}" for prop, value in merged_props.items()])
             tag['style'] = style_string
-    return str(soup)
+    return soup
 
 
-def bake_css(soup: BeautifulSoup, global_css: str):
-    css, soup = get_style(soup)
+def bake_css(soup: BeautifulSoup, global_css: str) -> BeautifulSoup:
+    css = get_style(soup)
     css = parse_css(global_css + css)
-    soup = apply_inline_styles(str(soup), css)
+    soup = apply_inline_styles(soup, css)
     return soup
 
 
@@ -64,5 +63,6 @@ if __name__ == '__main__':
 
     # Parse the CSS and HTML
     parsed_styles = parse_css(css_content)
-    styled_html = apply_inline_styles(html_content, parsed_styles)
+    soup = parse_soup_from_xml(html_content)
+    styled_html = apply_inline_styles(soup, parsed_styles)
     print(styled_html)
