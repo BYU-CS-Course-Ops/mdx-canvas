@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from bs4 import Tag
+from bs4.element import Tag
 
 from .attributes import parse_settings, Attribute, parse_date, parse_bool
 from ..resources import ResourceManager, CanvasResource
