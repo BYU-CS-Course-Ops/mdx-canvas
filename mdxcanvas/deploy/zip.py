@@ -78,8 +78,8 @@ def get_additional_files(additional_files: list[Path]) -> dict[str, Path]:
 
 
 def write_files(files: dict[str, Path], path_to_zip: Path):
-    # Sort to ensure idempotent zip creation across platforms and runs
-    # ocasionally compression may cause the output zip to differ slightly
+    # Sort to ensure idempotent zip creation across platforms and runs.
+    # Occasionally compression may cause the output zip to differ slightly
     # on different platforms with different versions of zlib, even with the
     # same input and compression level.
     # If this becomes an issue, we can consider just storing the files in
