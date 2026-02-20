@@ -1,5 +1,6 @@
 import hashlib
 import json
+import unicodedata
 import requests
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -8,7 +9,6 @@ from canvasapi.course import Course
 
 from .file import get_file, deploy_file
 from ..resources import FileData
-
 from ..our_logging import get_logger
 
 logger = get_logger()
@@ -21,7 +21,13 @@ def compute_md5(obj: dict):
         path = Path(obj['path'])
         hashable = path.name.encode() + path.read_bytes()
     else:
-        hashable = json.dumps(obj, sort_keys=True).encode()
+        # Normalize JSON to ensure consistent checksums across platforms
+        json_str = json.dumps(obj, sort_keys=True, ensure_ascii=False)
+        # Normalize unicode to NFC (composed form)
+        normalized = unicodedata.normalize('NFC', json_str)
+        # Normalize line endings to LF
+        normalized = normalized.replace('\r\n', '\n').replace('\r', '\n')
+        hashable = normalized.encode('utf-8')
 
     return hashlib.md5(hashable).hexdigest()
 
@@ -81,7 +87,9 @@ class MD5Sums:
             tmpfile.write_text(json.dumps(data))
             deploy_file(self._course, FileData(
                 path=str(tmpfile.absolute()),
-                canvas_folder="_md5s"
+                canvas_folder="_md5s",
+                lock_at=None,
+                unlock_at=None
             ))
 
     def items(self):

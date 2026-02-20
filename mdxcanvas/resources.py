@@ -1,5 +1,5 @@
 import re
-from typing import TypedDict, Iterator
+from typing import TypedDict, Iterator, Optional, NotRequired, cast
 
 
 class CanvasResource(TypedDict):
@@ -15,8 +15,8 @@ class ResourceInfo(TypedDict):
 
 class AnnouncementInfo(ResourceInfo):
     id: str
-    url: str | None
-    uri: str | None  # for course-link
+    url: NotRequired[Optional[str]]
+    uri: NotRequired[Optional[str]]  # for course-link
     title: str  # for course-link
 
 
@@ -26,8 +26,8 @@ class CourseSettingsInfo(ResourceInfo):
 
 class AssignmentInfo(ResourceInfo):
     id: str
-    url: str | None
-    uri: str | None  # for course-link
+    url: NotRequired[Optional[str]]
+    uri: NotRequired[Optional[str]]  # for course-link
     title: str  # for course-link text
 
 
@@ -64,14 +64,14 @@ class PageInfo(ResourceInfo):
     id: str
     page_url: str  # for module item
     uri: str  # for course-link
-    url: str | None
+    url: NotRequired[Optional[str]]
     title: str  # for course-link text
 
 
 class QuizInfo(ResourceInfo):
     id: str
     uri: str  # for course-link
-    url: str | None
+    url: NotRequired[Optional[str]]
     title: str  # for course-link text
 
 
@@ -79,13 +79,13 @@ class QuizQuestionInfo(ResourceInfo):
     id: str
     quiz_id: str
     uri: str
-    url: str
+    url: Optional[str]
 
 
 class QuizQuestionOrderInfo(ResourceInfo):
-    quiz_id: int
+    quiz_id: str
     uri: str
-    url: str
+    url: Optional[str]
 
 class SyllabusInfo(ResourceInfo):
     id: str
@@ -102,18 +102,18 @@ class CourseSettings(TypedDict):
 
 class FileData(TypedDict):
     path: str
-    canvas_folder: str | None
-    lock_at: str | None
-    unlock_at: str | None
+    canvas_folder: NotRequired[Optional[str]]
+    lock_at: NotRequired[Optional[str]]
+    unlock_at: NotRequired[Optional[str]]
 
 
 class ZipFileData(TypedDict):
     zip_file_name: str
     content_folder: str
-    additional_files: list[str] | None
-    exclude_pattern: str | None
-    priority_folder: str | None
-    canvas_folder: str | None
+    additional_files: NotRequired[Optional[list[str]]]
+    exclude_pattern: NotRequired[Optional[str]]
+    priority_folder: NotRequired[Optional[str]]
+    canvas_folder: NotRequired[Optional[str]]
 
 
 class SyllabusData(TypedDict):
@@ -122,7 +122,7 @@ class SyllabusData(TypedDict):
 
 def iter_keys(text: str) -> Iterator[tuple[str, str, str, str]]:
     for match in re.finditer(r'__@@([^|]+)\|\|(.+?)\|\|([^@]+)@@__', text):
-        yield match.group(0), *match.groups()
+        yield (match.group(0), *cast(tuple[str, str, str], match.groups()))
 
 
 def get_key(rtype: str, rid: str, field: str):
@@ -131,7 +131,7 @@ def get_key(rtype: str, rid: str, field: str):
 
 class ResourceManager(dict[tuple[str, str], CanvasResource]):
 
-    def add_resource(self, resource: CanvasResource, field: str = None) -> str:
+    def add_resource(self, resource: CanvasResource, field: Optional[str] = None) -> Optional[str]:
         rtype = resource['type']
         rid = resource['id']
         self[rtype, rid] = resource

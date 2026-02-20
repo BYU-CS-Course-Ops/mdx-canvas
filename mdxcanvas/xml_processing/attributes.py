@@ -1,8 +1,8 @@
 import dataclasses
 from datetime import datetime
-from typing import Callable, Any
+from typing import Callable, Any, Optional, cast
 
-from bs4 import Tag
+from bs4.element import Tag
 
 from ..our_logging import get_logger
 from ..util import retrieve_contents
@@ -79,7 +79,7 @@ class Attribute:
     name: str
     default: Any = None
     parser: Callable[[str], Any] = lambda x: x
-    new_name: str = None
+    new_name: Optional[str] = None
     required: bool = False
     ignore: bool = False
     is_tag: bool = False
@@ -116,10 +116,10 @@ def parse_settings(tag: Tag, attributes: list[Attribute]):
 
         if (field := (
                 tag.get(attribute.name, None)
-                or tag.get(attribute.new_name, None)
-        )) is not None:
+                or (tag.get(attribute.new_name, None) if attribute.new_name else None)
+        )):
             try:
-                value = attribute.parser(field)
+                value = attribute.parser(cast(str, field))
             except (ValueError, TypeError) as e:
                 raise ValueError(
                     f"Invalid '{attribute.name}' value '{field}' for {tag.name} tag {format_tag(tag)}\n  in {get_file_path(tag)}"
@@ -127,16 +127,16 @@ def parse_settings(tag: Tag, attributes: list[Attribute]):
             settings[name] = value
 
         elif attribute.is_tag:
-            child = tag.find(attribute.name, recursive=False)
-            value = retrieve_contents(child)
-            try:
-                settings[name] = attribute.parser(value)
-            except (ValueError, TypeError) as e:
-                raise ValueError(
-                    f"Invalid '{attribute.name}' value for {tag.name} tag {format_tag(tag)}\n  in {get_file_path(tag)}"
-                ) from e
+            if child := tag.find(attribute.name, recursive=False):
+                value = retrieve_contents(child)
+                try:
+                    settings[name] = attribute.parser(value)
+                except (ValueError, TypeError) as e:
+                    raise ValueError(
+                        f"Invalid '{attribute.name}' value for {tag.name} tag {format_tag(tag)}\n  in {get_file_path(tag)}"
+                    ) from e
 
-        elif attribute.default is not None:
+        elif attribute.default:
             settings[name] = attribute.default
 
         elif attribute.required:

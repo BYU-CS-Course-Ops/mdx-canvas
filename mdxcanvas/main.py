@@ -3,7 +3,7 @@ import json
 import logging
 import os
 from pathlib import Path
-from typing import TypedDict
+from typing import TypedDict, Optional
 
 import markdowndata
 import yaml
@@ -60,9 +60,9 @@ def _post_process_content(xml_content: str, global_css: str) -> str:
         lambda s: bake_css(s, global_css)
     ]
     for xml_post in xml_postprocessors:
-        soup = xml_post(soup)
+        xml_post(soup)
 
-    return str(soup)
+    return soup.decode(formatter='minimal')
 
 
 def process_file(
@@ -70,10 +70,10 @@ def process_file(
         parent_folder: Path,
         content: str,
         content_type: list[str],
-        global_args: dict = None,
-        args_file: Path = None,
-        templates: list[Path] = None,
-        css_file: Path = None
+        global_args: Optional[dict] = None,
+        args_file: Optional[Path] = None,
+        templates: Optional[list[Path]] = None,
+        css_file: Optional[Path] = None
 ) -> str:
     """
     Read a file and fully process the text content
@@ -131,7 +131,7 @@ def get_course(api_token: str, api_url: str, canvas_course_id: int) -> Course:
     course: Course = canvas.get_course(canvas_course_id)
 
     # NB: this is a hack, but it makes things MUCH easier down the line when dealing with announcements
-    course.canvas = canvas
+    course.canvas = canvas  # type: ignore
 
     return course
 
@@ -140,13 +140,13 @@ def main(
         canvas_api_token: str,
         course_info_file: Path,
         input_file: Path,
-        args_file: Path = None,
-        global_args_file: Path = None,
-        templates: list[Path] = None,
-        css_file: Path = None,
+        args_file: Optional[Path] = None,
+        global_args_file: Optional[Path] = None,
+        templates: Optional[list[Path]] = None,
+        css_file: Optional[Path] = None,
         dryrun: bool = False,
         cleanup: bool = False,
-        output_file: str = None
+        output_file: Optional[str] = None
 ):
     # Initialize deployment report
     report = DeploymentReport(output_file)

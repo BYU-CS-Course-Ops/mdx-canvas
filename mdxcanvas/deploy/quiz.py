@@ -1,3 +1,5 @@
+from typing import Optional, cast
+
 from canvasapi.course import Course
 from canvasapi.quiz import QuizQuestion, Quiz
 
@@ -5,7 +7,7 @@ from .util import update_group_name_to_id
 from ..resources import QuizInfo, QuizQuestionInfo, QuizQuestionOrderInfo
 
 
-def get_quiz_question(course: Course, quiz_id: int, question_id: int) -> QuizQuestion | None:
+def get_quiz_question(course: Course, quiz_id: int, question_id: int) -> Optional[QuizQuestion]:
     """Lookup a quiz question for stale resource handling."""
     if canvas_quiz := course.get_quiz(quiz_id):
         return canvas_quiz.get_question(question_id)
@@ -14,7 +16,7 @@ def get_quiz_question(course: Course, quiz_id: int, question_id: int) -> QuizQue
 
 def get_quiz_review_info(canvas_quiz) -> tuple[str, str] | None:
     if any(canvas_quiz.get_submissions()):
-        return canvas_quiz.title, canvas_quiz.html_url
+        return canvas_quiz.title, getattr(canvas_quiz, 'html_url', '')
     return None
 
 
@@ -63,7 +65,7 @@ def deploy_quiz(course: Course, quiz_data: dict) -> tuple[QuizInfo, tuple[str, s
         id=canvas_quiz.id,
         title=canvas_quiz.title,
         uri=f'/courses/{course.id}/quizzes/{canvas_quiz.id}',
-        url=canvas_quiz.html_url if hasattr(canvas_quiz, 'html_url') else None
+        url=getattr(canvas_quiz, 'html_url', None)
     ), info
 
 
@@ -101,7 +103,7 @@ def deploy_quiz_question(course: Course, quiz_question_data: dict) -> tuple[Quiz
         id=quiz_question.id,
         quiz_id=canvas_quiz.id,
         uri=f'/courses/{course.id}/quizzes/{canvas_quiz.id}',
-        url=canvas_quiz.html_url if hasattr(canvas_quiz, 'html_url') else None
+        url=getattr(canvas_quiz, 'html_url', None)
     ), info
 
 
@@ -114,7 +116,7 @@ def deploy_quiz_question_order(course: Course, order_data: dict) -> tuple[QuizQu
         course: Canvas course object
         order_data: Dict with quiz_id and order list
     """
-    quiz_id = order_data['quiz_id']
+    quiz_id = cast(str, order_data['quiz_id'])
     order_items = order_data['order']
 
     canvas_quiz: Quiz = course.get_quiz(quiz_id)
@@ -146,9 +148,10 @@ def deploy_quiz_question_order(course: Course, order_data: dict) -> tuple[QuizQu
         republish_quiz_after_edit(canvas_quiz, was_published)
 
     return QuizQuestionOrderInfo(
+        id=quiz_id,
         quiz_id=quiz_id,
         uri=f'/courses/{course.id}/quizzes/{quiz_id}',
-        url=canvas_quiz.html_url if hasattr(canvas_quiz, 'html_url') else None
+        url=getattr(canvas_quiz, 'html_url', None)
     ), info
 
 

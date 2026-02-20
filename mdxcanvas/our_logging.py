@@ -1,6 +1,6 @@
 import logging
 
-logger: logging.Logger = None
+logger: logging.Logger = None  #type: ignore
 
 
 def get_logger():

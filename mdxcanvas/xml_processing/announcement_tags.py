@@ -1,11 +1,11 @@
 from datetime import datetime
 
-from bs4 import Tag
+from bs4.element import Tag
 
 from .attributes import parse_settings, Attribute, parse_date, parse_bool
 from ..resources import ResourceManager, CanvasResource
 from ..util import retrieve_contents
-from ..processing_context import get_current_file
+from ..processing_context import get_current_file_str
 
 
 class AnnouncementTagProcessor:
@@ -41,8 +41,8 @@ class AnnouncementTagProcessor:
 
         announcement = CanvasResource(
             type='announcement',
-            id=announcement_tag.get('id', settings['title']),
+            id=str(announcement_tag.get('id', settings['title'])),
             data=settings,
-            content_path=str(get_current_file().resolve())
+            content_path=get_current_file_str()
         )
         self._resources.add_resource(announcement)

@@ -1,7 +1,8 @@
 import re
 import string
+from typing import cast
 
-from bs4 import Tag
+from bs4.element import Tag
 
 from .attributes import parse_settings, Attribute, parse_bool, parse_int, parse_children_tag_contents
 from ..util import retrieve_contents
@@ -235,12 +236,12 @@ def _add_answers_to_multiple_blanks_question(text):
             for letter in string.ascii_uppercase:
                 yield letter * repeat
 
-    letter_generator = letter_generator()
+    letter_gen = letter_generator()
     answers = []
 
     def get_next_letter(match):
         answer = match.group()[2:-2]
-        associated_id = next(letter_generator)
+        associated_id = next(letter_gen)
         answers.append({'answer_text': answer, 'blank_id': associated_id, 'answer_weight': FULL_POINTS})
         return f'[{associated_id}]'
 
@@ -457,7 +458,7 @@ def parse_numerical_question(tag: Tag, qid: str):
         'precision': (parse_precision_answer_question, 'precision_answer')
     }
 
-    numerical_answer_type = tag.get('numerical_answer_type')
+    numerical_answer_type = cast(str, tag.get('numerical_answer_type'))
     if numerical_answer_type not in numerical_answer_types:
         raise ValueError(f"Invalid numerical answer type: {numerical_answer_type}")
 

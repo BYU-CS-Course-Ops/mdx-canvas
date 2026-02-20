@@ -114,6 +114,11 @@ def migrate(course, md5s: MD5Sums):
     if stored_version is None:
         logger.info('No version found — running all migrations')
         stored_ver = (0, 0, 0)
+    elif stored_version > current_version:
+        logger.warning(f'MDXCanvas version {stored_version} is newer than current version {current_version}. '
+                       f'No migrations will be run to avoid potential data loss, but unexpected behavior may occur. '
+                       f'Consider updating MDXCanvas to the latest version.')
+        return
     else:
         logger.info(f'Migrating from {stored_version} to {current_version}')
         stored_ver = _parse_version(stored_version)

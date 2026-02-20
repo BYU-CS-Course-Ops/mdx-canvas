@@ -6,7 +6,7 @@ from zoneinfo import ZoneInfo
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from collections import defaultdict
-from typing import Callable
+from typing import Callable, cast
 
 import pytz
 from canvasapi.exceptions import ResourceDoesNotExist
@@ -28,14 +28,14 @@ from .syllabus import deploy_syllabus
 from .zip import deploy_zip, predeploy_zip
 from ..deployment_report import DeploymentReport
 from ..our_logging import get_logger
-from ..resources import CanvasResource, iter_keys, ResourceInfo
+from ..resources import CanvasResource, CourseSettings, iter_keys, ResourceInfo, FileData, ZipFileData
 
 from .migration import migrate
 
 logger = get_logger()
 
 PREDEPLOYERS: dict[str, Callable[[dict, Path], dict]] = {
-    'zip': predeploy_zip
+    'zip': cast(Callable[[dict, Path], dict], predeploy_zip)
 }
 
 SHELL_DEPLOYERS: dict[str, Callable[[Course, dict], tuple[ResourceInfo, tuple[str, str] | None]]] = {
@@ -49,8 +49,8 @@ DEPLOYERS: dict[str, Callable[[Course, dict], tuple[ResourceInfo, tuple[str, str
     'announcement': deploy_announcement,
     'assignment': deploy_assignment,
     'assignment_group': deploy_group,
-    'course_settings': deploy_settings,
-    'file': deploy_file,
+    'course_settings': cast(Callable[[Course, dict], tuple[ResourceInfo, tuple[str, str] | None]], deploy_settings),
+    'file': cast(Callable[[Course, dict], tuple[ResourceInfo, tuple[str, str] | None]], deploy_file),
     'module': deploy_module,
     'module_item': deploy_module_item,
     'override': deploy_override,
@@ -58,8 +58,8 @@ DEPLOYERS: dict[str, Callable[[Course, dict], tuple[ResourceInfo, tuple[str, str
     'quiz': deploy_quiz,
     'quiz_question': deploy_quiz_question,
     'quiz_question_order': deploy_quiz_question_order,
-    'syllabus': deploy_syllabus,
-    'zip': deploy_zip
+    'syllabus': cast(Callable[[Course, dict], tuple[ResourceInfo, tuple[str, str] | None]], deploy_syllabus),
+    'zip': cast(Callable[[Course, dict], tuple[ResourceInfo, tuple[str, str] | None]], deploy_zip)
 }
 
 
@@ -300,11 +300,11 @@ def _lookup_stale_canvas_resource(course: Course, item_type: str, item_id: str,
 
     if item_type in ['module_item', 'override', 'quiz_question']:
         if item_type == 'module_item':
-            canvas_resource = get_module_item(course, canvas_info.get('module_id'), canvas_id)
+            canvas_resource = get_module_item(course, cast(int, canvas_info.get('module_id')), cast(int, canvas_id))
         elif item_type == 'override':
-            canvas_resource = get_override(course, canvas_info.get('assignment_id'), canvas_id)
+            canvas_resource = get_override(course, cast(int, canvas_info.get('assignment_id')), cast(int, canvas_id))
         elif item_type == 'quiz_question':
-            canvas_resource = get_quiz_question(course, canvas_info.get('quiz_id'), canvas_id)
+            canvas_resource = get_quiz_question(course, cast(int, canvas_info.get('quiz_id')), cast(int, canvas_id))
         else:
             raise NotImplementedError(f"Unsupported stale resource type {item_type} {item_id}")
 
@@ -393,7 +393,7 @@ def _deploy_resources(course: Course, to_deploy: dict, md5s: MD5Sums, report: De
 
     logger.info('Deploying resources to Canvas')
 
-    resource_objs: dict[tuple[str, str], CanvasObject] = {}
+    resource_objs: dict[tuple[str, str], ResourceInfo] = {}
     total = len(to_deploy)
     index_width = len(str(total))
     max_len = max(len(rtype) for (rtype, _), _ in to_deploy.keys())

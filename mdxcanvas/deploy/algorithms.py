@@ -132,12 +132,12 @@ def linearize_dependencies(
 
 if __name__ == '__main__':
     dependency_dict = {
-        'A': ['B'],
-        'B': ['C', 'D'],
-        'C': [],
-        'D': ['C']
+        ('page', 'A'): [('page', 'B')],
+        ('page', 'B'): [('page', 'C'), ('page', 'D')],
+        ('page', 'C'): [],
+        ('page', 'D'): [('page', 'C')]
     }
 
     # expect C, D, B, A
-    order = linearize_dependencies(dependency_dict)
+    order = linearize_dependencies(dependency_dict, shell_deployers=['page'])
     print(order)
