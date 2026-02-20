@@ -1,6 +1,7 @@
 import argparse
 import os
 from pathlib import Path
+from typing import cast
 
 from canvasapi import exceptions
 from canvasapi.paginated_list import PaginatedList
@@ -129,7 +130,7 @@ def entry():
 
     main(
         canvas_api_token=api_token,
-        course_info=course_settings,
+        course_info=cast(CourseInfo, course_settings),
         confirmed_delete=args.y
     )
 

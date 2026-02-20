@@ -2,14 +2,14 @@ import csv
 import json
 import re
 from pathlib import Path
-from typing import Optional
+from typing import Optional, cast
 
 import markdowndata
 import yaml
 from jinja2 import Environment, FileSystemLoader
 
 from ..our_logging import get_logger
-from ..processing_context import get_current_file
+from ..processing_context import get_current_file_str
 
 logger = get_logger()
 
@@ -56,14 +56,14 @@ def _render_template(
         "zip": zip,
         "enumerate": enumerate,
         "split_list": lambda x: x.split(";"),
-        "exists": lambda path: (parent_folder / path).exists(),
-        "read_file": lambda f: (parent_folder / f).absolute().read_text(),
-        "glob": lambda *args, **kwargs: list(sorted(str(f.relative_to(parent_folder)) for f in
-                                         parent_folder.glob(*args, **kwargs))),
+        "exists": lambda path: (cast(Path, parent_folder) / path).exists(),
+        "read_file": lambda f: (cast(Path, parent_folder) / f).absolute().read_text(),
+        "glob": lambda *args, **kwargs: list(sorted(str(f.relative_to(cast(Path, parent_folder))) for f in
+                                         cast(Path, parent_folder).glob(*args, **kwargs))),
         "parent": lambda path: str(Path(path).parent),
-        "load": lambda path: _get_args((parent_folder / path).absolute(), global_args),
+        "load": lambda path: _get_args((cast(Path, parent_folder) / path).absolute(), global_args),
         "debug": lambda msg: logger.debug(msg),
-        "get_arg": lambda *args: global_args.get(*args),
+        "get_arg": lambda *args: cast(dict, global_args).get(*args),
         # "grep": lambda pattern, string, *args: m.groups() if (m := re.search(pattern, string, *args)) else None
         "search": re.search
     }
@@ -78,7 +78,7 @@ def _render_template(
         jj_template = env.from_string(template)
         return jj_template.render(context)
     except Exception as ex:
-        raise Exception(f'Error processing {get_current_file()}', ex)
+        raise Exception(f'Error processing {get_current_file_str()}', ex)
 
 
 def process_jinja(

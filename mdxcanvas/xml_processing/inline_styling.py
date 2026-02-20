@@ -1,5 +1,6 @@
 import cssutils
 from bs4 import BeautifulSoup
+
 from ..util import parse_soup_from_xml
 
 

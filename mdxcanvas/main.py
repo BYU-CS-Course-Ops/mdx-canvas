@@ -131,7 +131,7 @@ def get_course(api_token: str, api_url: str, canvas_course_id: int) -> Course:
     course: Course = canvas.get_course(canvas_course_id)
 
     # NB: this is a hack, but it makes things MUCH easier down the line when dealing with announcements
-    course.canvas = canvas
+    course.canvas = canvas  # type: ignore
 
     return course
 

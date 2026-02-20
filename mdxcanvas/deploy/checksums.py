@@ -9,7 +9,6 @@ from canvasapi.course import Course
 
 from .file import get_file, deploy_file
 from ..resources import FileData
-
 from ..our_logging import get_logger
 
 logger = get_logger()

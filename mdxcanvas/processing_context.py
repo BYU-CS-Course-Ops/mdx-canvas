@@ -1,7 +1,8 @@
 from pathlib import Path
 from contextvars import ContextVar
+from typing import Optional
 
-_file_stack: ContextVar[list[Path] | None] = ContextVar('file_stack', default=None)
+_file_stack: ContextVar[Optional[list[Path]]] = ContextVar('file_stack', default=None)
 
 
 class FileContext:
@@ -17,13 +18,14 @@ class FileContext:
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        _file_stack.reset(self.reset_token)
+        if self.reset_token:
+            _file_stack.reset(self.reset_token)
 
 
-def get_current_file() -> Path | None:
+def get_current_file_str() -> str:
     """Returns the file currently being processed."""
     files = _file_stack.get(None)
-    return files[-1] if files else None
+    return str(files[-1].resolve()) if files else "unknown file"
 
 
 def get_file_stack() -> list[Path]:

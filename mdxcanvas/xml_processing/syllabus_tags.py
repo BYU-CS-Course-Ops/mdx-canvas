@@ -1,8 +1,10 @@
-from bs4 import Tag
+from typing import cast
+
+from bs4.element import Tag
 
 from mdxcanvas.resources import ResourceManager, CanvasResource, SyllabusData
 from mdxcanvas.util import retrieve_contents
-from mdxcanvas.processing_context import get_current_file
+from mdxcanvas.processing_context import get_current_file_str
 
 
 class SyllabusTagProcessor:
@@ -13,7 +15,7 @@ class SyllabusTagProcessor:
         syllabus = CanvasResource(
             type='syllabus',
             id='syllabus',
-            data=SyllabusData(content=retrieve_contents(tag)),
-            content_path=str(get_current_file().resolve())
+            data=cast(dict, SyllabusData(content=retrieve_contents(tag))),
+            content_path=get_current_file_str()
         )
         self._resources.add_resource(syllabus)

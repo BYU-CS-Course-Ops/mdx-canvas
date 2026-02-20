@@ -1,11 +1,11 @@
-from bs4 import Tag
+from bs4.element import Tag
 
 from .attributes import parse_settings, Attribute, parse_bool, parse_date, parse_list, parse_dict, \
     parse_int
 from ..util import retrieve_contents
 from ..resources import ResourceManager, CanvasResource
 from .override_parsing import parse_overrides_container
-from ..processing_context import get_current_file
+from ..processing_context import get_current_file_str
 
 
 class AssignmentTagProcessor:
@@ -60,12 +60,12 @@ class AssignmentTagProcessor:
 
         settings.update(parse_settings(assignment_tag, fields))
 
-        rid = assignment_tag.get('id', settings['name'])
+        rid = str(assignment_tag.get('id', settings['name']))
         assignment = CanvasResource(
             type='assignment',
             id=rid,
             data=settings,
-            content_path=str(get_current_file().resolve())
+            content_path=get_current_file_str()
         )
         self._resources.add_resource(assignment)
 

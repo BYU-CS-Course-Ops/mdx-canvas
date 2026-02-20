@@ -140,21 +140,19 @@ def predeploy_zip(zipdata: ZipFileData, tmpdir: Path) -> FileData:
 
     additional_files = [Path(file) for file in zipdata.get('additional_files') or []]
 
-    pf = zipdata['priority_folder']
+    pf = zipdata.get('priority_folder')
     priority_folder = Path(pf) if pf is not None else None
     if priority_folder is not None and not priority_folder.exists():
         raise FileNotFoundError(priority_folder)
 
-    exclude = re.compile(zipdata['exclude_pattern']) if zipdata['exclude_pattern'] is not None else None
+    exclude = re.compile(str(zipdata.get('exclude_pattern'))) if zipdata.get('exclude_pattern') else None
 
     path_to_zip = tmpdir / zipdata['zip_file_name']
     zip_folder(target_folder, path_to_zip, additional_files, exclude, priority_folder)
 
     file = FileData(
         path=str(path_to_zip),
-        canvas_folder=zipdata['canvas_folder'],
-        lock_at=None,
-        unlock_at=None
+        canvas_folder=zipdata.get('canvas_folder'),
     )
 
     return file
