@@ -12,6 +12,8 @@ import pytz
 from canvasapi.exceptions import ResourceDoesNotExist
 from canvasapi.canvas_object import CanvasObject
 from canvasapi.course import Course
+from concurrent.futures import ThreadPoolExecutor, as_completed
+import threading
 
 from .algorithms import linearize_dependencies
 from .announcement import deploy_announcement
@@ -62,8 +64,6 @@ DEPLOYERS: dict[str, Callable[[Course, dict], tuple[ResourceInfo, tuple[str, str
     'zip': cast(Callable[[Course, dict], tuple[ResourceInfo, tuple[str, str] | None]], deploy_zip)
 }
 
-
-# =============================================================================
 # Utility functions
 # =============================================================================
 
@@ -388,7 +388,8 @@ def _prepare_deployment_order(resources: dict) -> tuple[dict, list]:
     return resource_dependencies, resource_order
 
 
-def _deploy_resources(course: Course, to_deploy: dict, md5s: MD5Sums, report: DeploymentReport, timezone: str, dryrun=False):
+def _deploy_resources(course: Course, to_deploy: dict, md5s: MD5Sums, report: DeploymentReport,
+                      timezone: str, resource_dependencies: dict, resource_order: list, dryrun=False):
     log_to_deploy(to_deploy, dryrun=dryrun)
 
     logger.info('Deploying resources to Canvas')
@@ -398,30 +399,83 @@ def _deploy_resources(course: Course, to_deploy: dict, md5s: MD5Sums, report: De
     index_width = len(str(total))
     max_len = max(len(rtype) for (rtype, _), _ in to_deploy.keys())
 
-    for index, ((resource_key, is_shell), (current_md5, resource)) in enumerate(to_deploy.items(), start=1):
-        rtype, rid = resource_key
+    # Prepare helpers for threaded deployment
+    lock = threading.Lock()
 
-        if resource_data := resource.get('data'):
-            shell_tag = '(shell) ' if is_shell else ''
-            logger.info(f'[{index:>{index_width}}/{total}] {shell_tag}{rtype:{max_len}}  {rid}')
+    # Map resource_key -> list of futures for any shell/full deploys for that resource
+    resource_futures_by_key: dict[tuple[str, str], list] = defaultdict(list)
 
-            if is_shell:
-                canvas_obj_info, info = deploy_resource(SHELL_DEPLOYERS, course, rtype, resource_data, resource)
-                resource['data']['canvas_id'] = canvas_obj_info.get('id') if canvas_obj_info else None
-            else:
-                resource_data = update_links(md5s, resource_data, resource_objs, resource)
-                resource_data = post_process_resource(resource_data, timezone)
-                canvas_obj_info, info = deploy_resource(DEPLOYERS, course, rtype, resource_data, resource)
+    futures = []
 
-            if canvas_obj_info:
-                resource_objs[resource_key] = canvas_obj_info
-                if url := canvas_obj_info.get('url'):
-                    report.add_deployed_content(rtype, rid, url)
+    # Assign a stable scheduling order using the linearized resource_order
+    schedule_entries = [entry for entry in resource_order if entry in to_deploy]
 
-            if info:
-                report.add_content_to_review(*info)
+    with ThreadPoolExecutor() as executor:
+        assigned_index = 0
 
-            md5s[resource_key] = {"checksum": current_md5, "canvas_info": canvas_obj_info}
+        for entry in schedule_entries:
+            (resource_key, is_shell) = entry
+            if (entry) not in to_deploy:
+                continue
+
+            assigned_index += 1
+            index = assigned_index
+            ((_, _), (current_md5, resource)) = ((entry), to_deploy[entry])
+            rtype, rid = resource_key
+
+            # Before submitting, wait in the main thread for any dependency futures
+            deps = resource_dependencies.get(resource_key, [])
+            for dep in deps:
+                # Only wait for dependencies that are being deployed in this run
+                if dep in resource_futures_by_key:
+                    for fut in resource_futures_by_key.get(dep, []):
+                        fut.result()
+
+            # Build the task closure (no waiting inside worker)
+            def make_task(index, current_md5, resource, rtype, rid, is_shell, resource_key=resource_key):
+                def task():
+                    if resource_data := resource.get('data'):
+                        shell_tag = '(shell) ' if is_shell else ''
+                        logger.info(f'[{index:>{index_width}}/{total}] {shell_tag}{rtype:{max_len}}  {rid}')
+
+                        if is_shell:
+                            canvas_obj_info, info = deploy_resource(SHELL_DEPLOYERS, course, rtype, resource_data, resource)
+                            # attach canvas_id produced by shell deploy
+                            with lock:
+                                resource['data']['canvas_id'] = canvas_obj_info.get('id') if canvas_obj_info else None
+                        else:
+                            # Use a snapshot copy of resource_objs to avoid holding lock while updating links
+                            with lock:
+                                snapshot_objs = dict(resource_objs)
+                            resource_data_local = update_links(md5s, resource_data, snapshot_objs, resource)
+                            resource_data_local = post_process_resource(resource_data_local, timezone)
+                            canvas_obj_info, info = deploy_resource(DEPLOYERS, course, rtype, resource_data_local, resource)
+
+                        if canvas_obj_info:
+                            with lock:
+                                resource_objs[resource_key] = canvas_obj_info
+                                if url := canvas_obj_info.get('url'):
+                                    report.add_deployed_content(rtype, rid, url)
+
+                        if info:
+                            with lock:
+                                report.add_content_to_review(*info)
+
+                        # Persist checksum and canvas info
+                        with lock:
+                            md5s[resource_key] = {"checksum": current_md5, "canvas_info": canvas_obj_info}
+
+                return task
+
+            task_callable = make_task(index, current_md5, resource, rtype, rid, is_shell)
+            fut = executor.submit(task_callable)
+            resource_futures_by_key[resource_key].append(fut)
+            futures.append(fut)
+
+        # Wait for all futures and propagate exceptions
+        for fut in as_completed(futures):
+            # If a future raised, this will re-raise here
+            fut.result()
 
 
 def _remove_stale_resources(course: Course, resources: dict, md5s: MD5Sums) -> int:
@@ -459,7 +513,7 @@ def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, s
         predeploy_resources(resources, timezone, tmpdir)
 
         if to_deploy := identify_modified_or_outdated(resources, resource_order, resource_dependencies, md5s):
-            _deploy_resources(course, to_deploy, md5s, report, timezone, dryrun=dryrun)
+            _deploy_resources(course, to_deploy, md5s, report, timezone, resource_dependencies, resource_order, dryrun=dryrun)
             actions.append(f'{len(to_deploy)} resources deployed')
 
         if cleanup:
