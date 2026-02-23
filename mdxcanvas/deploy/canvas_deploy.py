@@ -28,7 +28,7 @@ from .syllabus import deploy_syllabus
 from .zip import deploy_zip, predeploy_zip
 from ..deployment_report import DeploymentReport
 from ..our_logging import get_logger
-from ..resources import CanvasResource, CourseSettings, iter_keys, ResourceInfo, FileData, ZipFileData
+from ..resources import CanvasResource, iter_keys, ResourceInfo
 
 from .migration import migrate
 

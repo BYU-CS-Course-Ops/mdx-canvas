@@ -1,6 +1,6 @@
 from collections import defaultdict
 
-from canvasapi.quiz import Quiz, QuizQuestion
+from canvasapi.quiz import Quiz
 
 from .. import __version__
 from .checksums import MD5Sums
