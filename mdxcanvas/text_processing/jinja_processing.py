@@ -46,7 +46,7 @@ def _render_template(
         templates: Optional[list[Path]] = None
 ) -> str:
     loader_paths = [parent_folder, args_path, *(templates or [])]
-    loader_paths = [p for p in loader_paths if p is not None]
+    loader_paths = [p for p in loader_paths if p]
 
     env = Environment(
         loader=FileSystemLoader(loader_paths),

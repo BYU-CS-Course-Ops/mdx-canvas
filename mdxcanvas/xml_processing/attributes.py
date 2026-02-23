@@ -91,7 +91,7 @@ def get_tag_info(tag: Tag):
     if hint is None:
         hint = tag.get('name', None)
     display = name
-    if hint is not None:
+    if hint:
         display += f'({hint})'
     return display
 

@@ -78,7 +78,7 @@ def deploy_quiz_question(course: Course, quiz_question_data: dict) -> tuple[Quiz
         raise ValueError(f'Quiz question text exceeds Canvas limit of 16,161 characters (got {len(quiz_question_data["question_text"])} characters)')
 
     info = None
-    if quiz_question_data['canvas_id'] is not None and (
+    if quiz_question_data['canvas_id'] and (
             quiz_question := canvas_quiz.get_question(quiz_question_data['canvas_id'])):
         # Updating existing question
         info = get_quiz_review_info(canvas_quiz)

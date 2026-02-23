@@ -141,8 +141,8 @@ def predeploy_zip(zipdata: ZipFileData, tmpdir: Path) -> FileData:
     additional_files = [Path(file) for file in zipdata.get('additional_files') or []]
 
     pf = zipdata.get('priority_folder')
-    priority_folder = Path(pf) if pf is not None else None
-    if priority_folder is not None and not priority_folder.exists():
+    priority_folder = Path(pf) if pf else None
+    if priority_folder and not priority_folder.exists():
         raise FileNotFoundError(priority_folder)
 
     exclude = re.compile(str(zipdata.get('exclude_pattern'))) if zipdata.get('exclude_pattern') else None

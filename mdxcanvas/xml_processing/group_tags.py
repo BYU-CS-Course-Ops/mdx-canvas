@@ -35,10 +35,10 @@ def _parse_never_drop_assignments(tag: Tag) -> List[int]:
 def _extract_rules_from_group_data(group_data: dict) -> dict:
     rules: AssignmentGroupRules = {}
 
-    if 'drop_lowest' in group_data and group_data['drop_lowest'] is not None:
+    if 'drop_lowest' in group_data and group_data['drop_lowest']:
         rules['drop_lowest'] = group_data.pop('drop_lowest')
 
-    if 'drop_highest' in group_data and group_data['drop_highest'] is not None:
+    if 'drop_highest' in group_data and group_data['drop_highest']:
         rules['drop_highest'] = group_data.pop('drop_highest')
 
     if 'never_drop' in group_data and group_data['never_drop']:

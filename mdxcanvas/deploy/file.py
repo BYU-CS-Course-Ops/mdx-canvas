@@ -24,7 +24,7 @@ def get_canvas_folder(course: Course, folder_name: str, parent_folder_path="") -
     If the folder does not exist, it is created.
     """
     folder = get_canvas_object(course.get_folders, 'name', folder_name)
-    if folder is not None:
+    if folder:
         return folder
 
     logger.debug(f"Creating folder: {folder_name}")

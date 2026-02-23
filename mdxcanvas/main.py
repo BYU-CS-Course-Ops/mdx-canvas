@@ -110,7 +110,7 @@ def process_file(
     xml_content = preprocess_xml(parent_folder, xml_content, resources, load_and_process_file_contents)
 
     # Post-process the XML
-    global_css = css_file.read_text() if css_file is not None else ''
+    global_css = css_file.read_text() if css_file else ''
 
     # TODO - after April 2026, the default style in BYU Canvas will
     #  probably address this issue and this line can be removed.

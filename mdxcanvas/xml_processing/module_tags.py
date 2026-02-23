@@ -48,7 +48,7 @@ class ModuleTagProcessor:
             'previous_module': ''
         }
 
-        if self._previous_module is not None:
+        if self._previous_module:
             # adding a reference to the previous module ensures this module
             #  is created after the previous one, thus preserving their
             #  relative ordering
@@ -158,7 +158,7 @@ class ModuleTagProcessor:
         item['_comments'] = {
             'previous_module_item':
                 get_key('module_item', self._previous_module_item, 'id')
-                if self._previous_module_item is not None
+                if self._previous_module_item
                 else ''
         }
         self._previous_module_item = item['id']

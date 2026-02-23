@@ -401,7 +401,7 @@ def _deploy_resources(course: Course, to_deploy: dict, md5s: MD5Sums, report: De
     for index, ((resource_key, is_shell), (current_md5, resource)) in enumerate(to_deploy.items(), start=1):
         rtype, rid = resource_key
 
-        if (resource_data := resource.get('data')) is not None:
+        if resource_data := resource.get('data'):
             shell_tag = '(shell) ' if is_shell else ''
             logger.info(f'[{index:>{index_width}}/{total}] {shell_tag}{rtype:{max_len}}  {rid}')
 

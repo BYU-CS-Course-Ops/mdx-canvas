@@ -222,7 +222,7 @@ def make_include_preprocessor(
             )
 
         args_file = None
-        if args_file_path is not None:
+        if args_file_path:
             args_file = (parent_folder / str(args_file_path)).resolve().absolute()
 
             # Check if args file exists
@@ -286,7 +286,7 @@ def make_link_preprocessor():
         new_tag = Tag(name='a')
         frag = tag.get('fragment', None)
         new_tag['href'] = get_key(link_type, link_rid, 'uri') + (f'#{frag}' if frag else '')
-        link_text = tag.string.strip() if tag.string is not None else ''
+        link_text = tag.string.strip() if tag.string else ''
         if not link_text:
             link_text = get_key(link_type, link_rid, 'title')
         new_tag.string = link_text
@@ -321,7 +321,7 @@ def make_markdown_page_preprocessor(
         page_tag = Tag(name='page', attrs={'title': page_title})
         page_tag.append(include_tag)
 
-        if (page_id := tag.get('id', None)) is not None:
+        if page_id := tag.get('id', None):
             page_tag['id'] = page_id
 
         include_processor = make_include_preprocessor(parent_folder, process_file)
