@@ -164,18 +164,15 @@ def make_mermaid_fence_format(resources: ResourceManager):
 
         extra_attrs = (' ' + ' '.join(attr_parts)) if attr_parts else ''
 
-        if resources is not None:
-            file = CanvasResource(
-                type='file',
-                id=output_path.name,
-                data=cast(dict, FileData(
-                    path=str(output_path),
-                )),
-                content_path=get_current_file_str()
-            )
-            resource_key = cast(str, resources.add_resource(file, 'uri'))
-            return f'<img src="{resource_key}/preview"{extra_attrs} />'
-
-        return f'<img src="{output_path}"{extra_attrs} />'
+        file = CanvasResource(
+            type='file',
+            id=output_path.name,
+            data=cast(dict, FileData(
+                path=str(output_path),
+            )),
+            content_path=get_current_file_str()
+        )
+        resource_key = cast(str, resources.add_resource(file, 'uri'))
+        return f'<img src="{resource_key}/preview"{extra_attrs} />'
 
     return mermaid_fence_format
