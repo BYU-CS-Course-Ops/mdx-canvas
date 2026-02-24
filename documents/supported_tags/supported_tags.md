@@ -1,6 +1,6 @@
 # Supported Tags
 
-The following tags are supported in MDXCanvas content files. These tags define course structure, assignments, quizzes, 
+The following tags are supported in MDXCanvas content files. These tags define course structure, assignments, quizzes,
 pages, and more.
 
 Click on a tag to view its full documentation and usage examples.
@@ -15,7 +15,7 @@ Click on a tag to view its full documentation and usage examples.
 - [`<page>`](tags/page_tag.md) - Creates a standalone content page using Markdown or HTML.
 - [`<assignment>`](tags/assignment_tag.md) - Creates a Canvas assignment with due dates, point values, and submission settings.
 - [`<quiz>`](tags/quiz_tag.md) - Defines a quiz, including availability settings and a `<questions>` block.
-  - [`<question>`](tags/quiz_question_types.md) types - Describes all supported quiz question types: multiple choice, true/false, 
+  - [`<question>`](tags/quiz_question_types.md) types - Describes all supported quiz question types: multiple choice, true/false,
     fill-in-the-blank, etc.
 
 ## Course-Wide Elements
@@ -23,3 +23,4 @@ Click on a tag to view its full documentation and usage examples.
 - [`<syllabus>`](tags/syllabus_tag.md) - Sets the content of the course syllabus page.
 - [`<override>`](tags/override_tag.md) - Apply section-specific dates to assignments or quizzes.
 - [`<announcement>`](tags/announcement_tag.md) - Post course-wide announcements with optional scheduled publishing.
+- [`<assignment-groups>`](tags/assignment_groups.md) - Define assignment groups for the course.

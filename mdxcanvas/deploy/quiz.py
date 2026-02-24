@@ -3,7 +3,6 @@ from typing import Optional, cast
 from canvasapi.course import Course
 from canvasapi.quiz import QuizQuestion, Quiz
 
-from .util import update_group_name_to_id
 from ..resources import QuizInfo, QuizQuestionInfo, QuizQuestionOrderInfo
 
 
@@ -35,8 +34,6 @@ def republish_quiz_after_edit(canvas_quiz, was_published: bool):
 def deploy_quiz(course: Course, quiz_data: dict) -> tuple[QuizInfo, tuple[str, str] | None]:
     """Deploy quiz settings/metadata only. Questions are deployed separately."""
     quiz_id = quiz_data["canvas_id"]
-
-    update_group_name_to_id(course, quiz_data)
 
     info = None
     if quiz_id:

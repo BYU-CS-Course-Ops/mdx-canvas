@@ -81,7 +81,8 @@ class AssignmentGroupTagProcessor:
             Attribute('name', required=True),
             Attribute('weight', new_name='group_weight', parser=parse_int),
             Attribute('drop_lowest', parser=parse_int),
-            Attribute('drop_highest', parser=parse_int)
+            Attribute('drop_highest', parser=parse_int),
+            Attribute('position', parser=parse_int),
             # TODO: Find additional attributes to support
         ]
 

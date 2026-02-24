@@ -39,7 +39,7 @@ You may use these assignment-style attributes on quizzes:
 - `due_at`
 - `available_from`
 - `available_to`
-- `assignment_group`
+- `assignment_group` - Specifies the group the quiz belongs to by referencing the `id` of an assignment group (not the name)
 
 See the [`<assignment>` tag documentation](assignment_tag.md) for details on how these attributes work.
 
@@ -48,8 +48,8 @@ See the [`<assignment>` tag documentation](assignment_tag.md) for details on how
 Set to `"true"` to randomize the order of answer choices for each student.
 
 ```xml
-<quiz 
-    title="Quiz 1" 
+<quiz
+    title="Quiz 1"
     shuffle_answers="true">
 ...
 </quiz>
@@ -70,8 +70,8 @@ Specifies the time limit in minutes. If omitted, the quiz has no time limit.
 Sets how many times a student may attempt the quiz. Use `-1` for unlimited attempts.
 
 ```xml
-<quiz 
-    title="Quiz 1" 
+<quiz
+    title="Quiz 1"
     allowed_attempts="3">
 ...
 </quiz>

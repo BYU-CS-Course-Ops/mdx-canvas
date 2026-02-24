@@ -36,8 +36,8 @@ Use an explicit `id` when you need to change the assignment's title later withou
 Specifies the due date and time.
 
 ```xml
-<assignment 
-    title="Example Assignment" 
+<assignment
+    title="Example Assignment"
     due_at="Jan 1, 2025, 11:59 PM">
 ...
 </assignment>
@@ -48,8 +48,8 @@ Specifies the due date and time.
 Sets when the assignment becomes available to students.
 
 ```xml
-<assignment 
-    title="Example Assignment" 
+<assignment
+    title="Example Assignment"
     available_from="Jan 1, 2025, 9:00 AM">
 ...
 </assignment>
@@ -60,8 +60,8 @@ Sets when the assignment becomes available to students.
 Sets when the assignment is no longer available.
 
 ```xml
-<assignment 
-    title="Example Assignment" 
+<assignment
+    title="Example Assignment"
     available_to="Jan 1, 2025, 11:59 PM">
 ...
 </assignment>
@@ -72,8 +72,8 @@ Sets when the assignment is no longer available.
 Maximum points possible for the assignment.
 
 ```xml
-<assignment 
-    title="Example Assignment" 
+<assignment
+    title="Example Assignment"
     points_possible="100">
 ...
 </assignment>
@@ -81,12 +81,12 @@ Maximum points possible for the assignment.
 
 ### `assignment_group`
 
-Specifies the group the assignment belongs to.
+Specifies the group the assignment belongs to by referencing the `id` of an assignment group (not the name).
 
 ```xml
 <assignment
     title="Example Assignment"
-    assignment_group="Example Group">
+    assignment_group="homework">
 ...
 </assignment>
 ```
@@ -109,8 +109,8 @@ Latest date and time to accept late submissions. Students can still submit after
 Specifies allowed submission types (e.g., `online_upload`, `external_tool`).
 
 ```xml
-<assignment 
-    title="Example Assignment" 
+<assignment
+    title="Example Assignment"
     submission_types="external_tool">
 ...
 </assignment>
@@ -176,7 +176,7 @@ See the [`<override>` tag documentation](override_tag.md) for more details on se
     available_from="Jan 1, 2025, 9:00 AM"
     available_to="Jan 1, 2025, 11:59 PM"
     points_possible="30"
-    assignment_group="Homework"
+    assignment_group="homework"
     submission_types="external_tool"
     external_tool_tag_attributes="url=https://lti.int.turnitin.com/launch/gs-proxy">
 

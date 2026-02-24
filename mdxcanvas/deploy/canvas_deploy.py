@@ -439,6 +439,9 @@ def _deploy_resources(course: Course, to_deploy: dict, md5s: MD5Sums, report: De
                         logger.info(f'[{index:>{index_width}}/{total}] {shell_tag}{rtype:{max_len}}  {rid}')
 
                         if is_shell:
+                            if hasattr(resource_data, 'assignment_group_id'):
+                                # Ignore group on shell, will be deployed as full with group later
+                                del resource_data['assignment_group_id']
                             canvas_obj_info, info = deploy_resource(SHELL_DEPLOYERS, course, rtype, resource_data, resource)
                             # attach canvas_id produced by shell deploy
                             with lock:

@@ -1,7 +1,7 @@
 from bs4.element import Tag
 
 from .attributes import parse_settings, Attribute, parse_bool, parse_date, parse_list, parse_dict, \
-    parse_int
+    parse_int, parse_id
 from ..util import retrieve_contents
 from ..resources import ResourceManager, CanvasResource
 from .override_parsing import parse_overrides_container
@@ -18,7 +18,7 @@ class AssignmentTagProcessor:
             Attribute('allowed_attempts', parser=lambda x: -1 if x == 'not_graded' else int(x)),
             Attribute('allowed_extensions', [], parse_list),
             Attribute('annotatable_attachment_id'),  # TODO keep?
-            Attribute('assignment_group'),
+            Attribute('assignment_group', parser=parse_id, new_name='assignment_group_id'),
             Attribute('assignment_overrides'),  # TODO keep?
             Attribute('automatic_peer_reviews', False, parse_bool),
             Attribute('available_from', parser=parse_date, new_name='unlock_at'),

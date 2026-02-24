@@ -4,6 +4,7 @@ from typing import Callable, Any, Optional, cast
 
 from bs4.element import Tag
 
+from ..resources import get_key
 from ..our_logging import get_logger
 from ..util import retrieve_contents
 from ..error_helpers import format_tag, get_file_path
@@ -72,6 +73,10 @@ def parse_dict(text):
     # Assumes the string is a comma-separated list of key-value pairs
     # Example: "key1=value1, key2=value2 "
     return dict(cell.strip().split('=') for cell in text.split(',') if cell.strip())
+
+
+def parse_id(text):
+    return get_key('assignment_group', text, 'id')
 
 
 @dataclasses.dataclass

@@ -2,7 +2,7 @@ from typing import cast
 
 from bs4.element import Tag
 
-from .attributes import Attribute, parse_int, parse_bool, parse_date, parse_settings
+from .attributes import Attribute, parse_id, parse_int, parse_bool, parse_date, parse_settings
 from ..util import retrieve_contents
 from .quiz_questions import parse_text_question, parse_true_false_question, parse_multiple_choice_question, \
     parse_multiple_answers_question, parse_matching_question, parse_multiple_true_false_question, \
@@ -71,7 +71,7 @@ class QuizTagProcessor:
             Attribute('id', ignore=True),
             Attribute('title', required=True),
             Attribute('quiz_type', 'assignment'),
-            Attribute('assignment_group'),
+            Attribute('assignment_group', parser=parse_id, new_name='assignment_group_id'),
             Attribute('time_limit', parser=parse_int),
             Attribute('shuffle_answers', False, parse_bool),
             Attribute('hide_results'),  # TODO - should be boolean?
