@@ -4,7 +4,7 @@ import shutil
 import subprocess
 import tempfile
 from pathlib import Path
-from typing import Optional, cast
+from typing import cast
 
 from PIL import Image
 
