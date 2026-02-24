@@ -20,6 +20,7 @@ markdowndata = "^0.1.0"
 pytest = "^8.4.0"
 pyyaml = "^6.0.2"
 pymdown-extensions = "^10.16.1"
+Pillow = "^12.1.1"
 
 [tool.poetry.group.dev.dependencies]
 python-dotenv = "^1.0.1"

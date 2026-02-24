@@ -7,9 +7,12 @@ import markdown as md
 from bs4.element import NavigableString, PageElement, Tag, Comment
 from pymdownx.highlight import makeExtension as makeCodehiliteExtension
 from pymdownx.inlinehilite import makeExtension as makeInlineHiliteExtension
+from pymdownx.superfences import makeExtension as makeSuperfencesExtension
 from pymdownx.tilde import makeExtension as makeTildeExtension
 
 from .inline_math import InlineMathExtension
+from .mermaid_rendering import make_mermaid_fence_format
+from ..resources import ResourceManager
 from ..util import parse_soup_from_xml
 
 # Load CSS from file
@@ -51,14 +54,21 @@ def replace_problematic_characters(text: str, replacements: dict[str, str]) -> s
     return '\n'.join(output_lines)
 
 
-def process_markdown_text(text: str) -> str:
+def process_markdown_text(text: str, resources: ResourceManager) -> str:
     dedented = textwrap.dedent(text)
 
     html = md.markdown(dedented, extensions=[
         'fenced_code',
         'tables',
         'attr_list',
-        'pymdownx.superfences',
+
+        makeSuperfencesExtension(custom_fences=[
+            {
+                'name': 'mermaid',
+                'class': 'mermaid',
+                'format': make_mermaid_fence_format(resources),
+            }
+        ]),
 
         # Use CSS classes for syntax highlighting (styled by CODE_BLOCK_CSS)
         makeCodehiliteExtension(noclasses=False),
@@ -102,22 +112,23 @@ def _form_blocks(tag: Tag, excluded: list[str], inline: list[str]) -> Generator[
         yield True, block_tags
 
 
-def _process_markdown(parent, excluded: list[str], inline: list[str]):
+def _process_markdown(parent, excluded: list[str], inline: list[str], resources: ResourceManager):
     for needs_markdown, block in _form_blocks(parent, excluded, inline):
         if needs_markdown:
             result = parse_soup_from_xml(
                 process_markdown_text(
-                    ''.join((str(b) for b in block))
+                    ''.join((str(b) for b in block)),
+                    resources=resources
                 )
             )
             for tag in block:
                 tag.replace_with(result)
         else:
             for tag in block:
-                _process_markdown(tag, excluded, inline)
+                _process_markdown(tag, excluded, inline, resources=resources)
 
 
-def process_markdown(text: str, excluded: list[str], inline: list[str]) -> str:
+def process_markdown(text: str, excluded: list[str], inline: list[str], resources: ResourceManager) -> str:
     """
     Process Markdown text and return XML text
 
@@ -134,5 +145,5 @@ def process_markdown(text: str, excluded: list[str], inline: list[str]) -> str:
     """
     content = replace_problematic_characters(text, {'<': '&lt;'})
     soup = parse_soup_from_xml(content)
-    _process_markdown(soup, excluded, inline)
+    _process_markdown(soup, excluded, inline, resources=resources)
     return str(soup)
