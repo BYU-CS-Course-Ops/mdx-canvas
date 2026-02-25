@@ -128,6 +128,7 @@ class ZipFileData(TypedDict):
 
 class QuartoSlidesData(TypedDict):
     path: str
+    root_path: str
     checksum_paths: list[str]
     slides_name: str
     canvas_folder: str | None

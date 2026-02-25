@@ -43,7 +43,7 @@ def make_quarto_slides_preprocessor(parent: Path, resources: ResourceManager):
 
         name = tag.get("name")
         if not name:
-            name = qmd_file.stem + '.slides.html'
+            name = qmd_file.name.replace('.qmd', '.slides.html')
 
         checksum_paths = [str(qmd_file)] + _find_quarto_dependencies(parent)
 
@@ -53,6 +53,7 @@ def make_quarto_slides_preprocessor(parent: Path, resources: ResourceManager):
             id=name,
             data=QuartoSlidesData(
                 path=str(qmd_file),
+                root_path=str(parent),
                 checksum_paths=checksum_paths,
                 slides_name=name,
                 canvas_folder=tag.get('canvas_folder'),

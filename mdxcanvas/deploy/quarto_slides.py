@@ -18,11 +18,15 @@ logger = get_logger()
 
 
 def _run_quarto_render(data: QuartoSlidesData, tmpdir: Path) -> Path:
-    output_file = (tmpdir / data['slides_name']).absolute()
+    path_parent_name = Path(data['path']).parent.name
+
+    output_file = (tmpdir / path_parent_name / data['slides_name']).absolute()
+    logger.warning(str(tmpdir))
     cmd = [
         'quarto', 'render', data['path'],
-        '--output-dir', str(output_file.parent),
-        '--output', str(output_file.name)
+        '--output-dir', str(tmpdir),
+        '--output', str(output_file.name),
+        '--log-level', 'info'
     ]
     result = subprocess.run(
         cmd,
@@ -31,7 +35,6 @@ def _run_quarto_render(data: QuartoSlidesData, tmpdir: Path) -> Path:
         text=True,  # decode to str instead of bytes
         cwd=Path(data['path']).parent
     )
-
     log = logger.debug
     if result.returncode != 0 or not output_file.exists():
         log = logger.warning
@@ -135,4 +138,5 @@ def _build_slides(data: QuartoSlidesData, tmpdir: Path) -> FileData:
 def deploy_quarto_slides(course: Course, data: QuartoSlidesData) -> tuple[FileInfo, None]:
     with TemporaryDirectory() as tmpdir:
         filedata = _build_slides(data, Path(tmpdir))
+
         return deploy_file(course, filedata)
