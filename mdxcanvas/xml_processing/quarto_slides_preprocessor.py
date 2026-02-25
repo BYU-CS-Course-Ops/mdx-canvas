@@ -7,25 +7,20 @@ from ..error_helpers import validate_required_attribute, format_tag, get_file_pa
 from ..processing_context import get_current_file
 from ..resources import QuartoSlidesData
 from ..resources import ResourceManager, CanvasResource
+from ..util import find_quarto_root
 
 
-def _find_quarto_dependencies(parent: Path) -> list[str]:
+def _find_quarto_dependencies(slide_file: Path) -> list[str]:
+    quarto_root = find_quarto_root(slide_file)
     deps = []
-    cur_dir = parent.absolute()
-    while True:
-        quarto_yaml = cur_dir / '_quarto.yaml'
 
-        if quarto_yaml.exists():
-            deps.append(str(quarto_yaml))
-            extensions = cur_dir / '_extensions'
-            if extensions.exists():
-                deps.append(str(extensions))
-            break
+    quarto_yaml = quarto_root / '_quarto.yaml'
+    if quarto_yaml.exists():
+        deps.append(str(quarto_yaml))
 
-        if cur_dir.parent == cur_dir.parent:  # i.e. we're at root now
-            break
-
-        cur_dir = cur_dir.parent
+    extensions = quarto_root / '_extensions'
+    if extensions.exists():
+        deps.append(str(extensions))
 
     return deps
 
@@ -45,7 +40,7 @@ def make_quarto_slides_preprocessor(parent: Path, resources: ResourceManager):
         if not name:
             name = qmd_file.name.replace('.qmd', '.slides.html')
 
-        checksum_paths = [str(qmd_file)] + _find_quarto_dependencies(parent)
+        checksum_paths = [str(qmd_file)] + _find_quarto_dependencies(qmd_file)
 
         # noinspection PyTypeChecker
         file = CanvasResource(

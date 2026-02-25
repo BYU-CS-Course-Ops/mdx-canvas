@@ -1,5 +1,6 @@
 import textwrap
 import warnings
+from pathlib import Path
 
 from bs4 import BeautifulSoup, Tag, NavigableString, MarkupResemblesLocatorWarning
 
@@ -26,3 +27,24 @@ def retrieve_contents(tag: Tag, ignored_child_tag_names: list[str] = ()) -> str:
             or (isinstance(c, Tag) and c.name not in ignored_child_tag_names)
         )
     )
+
+
+def find_quarto_root(slide_file: Path) -> Path:
+    """Returns the folder containing _quarto.yaml, or the slide_file.parent"""
+    cur_dir = slide_file.absolute().parent
+
+    while True:
+        print('cur_dir', cur_dir)
+        quarto_yaml = cur_dir / '_quarto.yaml'
+
+        if quarto_yaml.exists():
+            return quarto_yaml.parent
+
+        if cur_dir == cur_dir.parent:  # i.e. we're at root now
+            break
+
+        cur_dir = cur_dir.parent
+
+    return slide_file.parent.absolute()
+
+

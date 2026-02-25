@@ -13,14 +13,21 @@ from ..our_logging import get_logger
 from ..resources import FileData
 from ..resources import FileInfo
 from ..resources import QuartoSlidesData
+from ..util import find_quarto_root
 
 logger = get_logger()
 
 
 def _run_quarto_render(data: QuartoSlidesData, tmpdir: Path) -> Path:
-    path_parent_name = Path(data['path']).parent.name
+    # needs to be data['path'] relative to quarto project root
+    # which is where _quarto.yaml is (parent) or the current folder
+    slide_file = Path(data['path'])
+    quarto_root = find_quarto_root(slide_file)
+    logger.warning('QROOT: ' + str(quarto_root))
+    relative_to_quarto_root = slide_file.parent.absolute().relative_to(quarto_root)
+    logger.warning('Rel to QROOT: ' + str(relative_to_quarto_root))
 
-    output_file = (tmpdir / path_parent_name / data['slides_name']).absolute()
+    output_file = (tmpdir / relative_to_quarto_root / data['slides_name']).absolute()
     logger.warning(str(tmpdir))
     cmd = [
         'quarto', 'render', data['path'],
@@ -33,7 +40,7 @@ def _run_quarto_render(data: QuartoSlidesData, tmpdir: Path) -> Path:
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=True,  # decode to str instead of bytes
-        cwd=Path(data['path']).parent
+        cwd=slide_file.parent
     )
     log = logger.debug
     if result.returncode != 0 or not output_file.exists():
