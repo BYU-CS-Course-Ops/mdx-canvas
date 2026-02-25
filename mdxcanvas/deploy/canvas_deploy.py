@@ -1,17 +1,17 @@
-import time
 import json
 import re
+import time
+from collections import defaultdict
 from datetime import datetime
-from zoneinfo import ZoneInfo
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from collections import defaultdict
 from typing import Callable
+from zoneinfo import ZoneInfo
 
 import pytz
-from canvasapi.exceptions import ResourceDoesNotExist
 from canvasapi.canvas_object import CanvasObject
 from canvasapi.course import Course
+from canvasapi.exceptions import ResourceDoesNotExist
 
 from .algorithms import linearize_dependencies
 from .announcement import deploy_announcement
@@ -20,17 +20,17 @@ from .checksums import MD5Sums, compute_md5
 from .course_settings import deploy_settings
 from .file import deploy_file
 from .group import deploy_group
+from .migration import migrate
 from .module import deploy_module, deploy_module_item, get_module_item
 from .override import deploy_override, get_override
 from .page import deploy_page, deploy_shell_page
+from .quarto_slides import deploy_quarto_slides
 from .quiz import deploy_quiz, deploy_quiz_question, deploy_quiz_question_order, deploy_shell_quiz, get_quiz_question
 from .syllabus import deploy_syllabus
 from .zip import deploy_zip, predeploy_zip
 from ..deployment_report import DeploymentReport
 from ..our_logging import get_logger
 from ..resources import CanvasResource, iter_keys, ResourceInfo
-
-from .migration import migrate
 
 logger = get_logger()
 
@@ -55,6 +55,7 @@ DEPLOYERS: dict[str, Callable[[Course, dict], tuple[ResourceInfo, tuple[str, str
     'module_item': deploy_module_item,
     'override': deploy_override,
     'page': deploy_page,
+    'quarto-slides': deploy_quarto_slides,
     'quiz': deploy_quiz,
     'quiz_question': deploy_quiz_question,
     'quiz_question_order': deploy_quiz_question_order,
@@ -165,7 +166,8 @@ def post_process_resource(resource_data, timezone) -> dict:
     return json.loads(text)
 
 
-def deploy_resource(deployers: dict, course: Course, rtype: str, data: dict, resource: CanvasResource) -> tuple[ResourceInfo, tuple[str, str] | None]:
+def deploy_resource(deployers: dict, course: Course, rtype: str, data: dict, resource: CanvasResource) -> tuple[
+    ResourceInfo, tuple[str, str] | None]:
     if not (deploy := deployers.get(rtype)):
         raise Exception(f"Unsupported resource type {rtype} {resource['id']}\n  in {resource['content_path']}")
 
@@ -388,7 +390,8 @@ def _prepare_deployment_order(resources: dict) -> tuple[dict, list]:
     return resource_dependencies, resource_order
 
 
-def _deploy_resources(course: Course, to_deploy: dict, md5s: MD5Sums, report: DeploymentReport, timezone: str, dryrun=False):
+def _deploy_resources(course: Course, to_deploy: dict, md5s: MD5Sums, report: DeploymentReport, timezone: str,
+                      dryrun=False):
     log_to_deploy(to_deploy, dryrun=dryrun)
 
     logger.info('Deploying resources to Canvas')

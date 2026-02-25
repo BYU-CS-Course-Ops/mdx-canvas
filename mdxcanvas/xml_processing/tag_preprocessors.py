@@ -35,8 +35,11 @@ def make_course_settings_preprocessor(parent: Path, resources: ResourceManager):
                 type='file',
                 id=image_path.name,
                 data=FileData(
-                    path=str(image_path),
-                    canvas_folder=tag.get('canvas_folder', None)
+                    path=(p := str(image_path)),
+                    checksum_paths=[p],
+                    canvas_folder=tag.get('canvas_folder'),
+                    lock_at=None,
+                    unlock_at=None,
                 ),
                 content_path=str(get_current_file().resolve())
             )
@@ -77,8 +80,11 @@ def make_image_preprocessor(parent: Path, resources: ResourceManager):
             type='file',
             id=src.name,
             data=FileData(
-                path=str(src),
-                canvas_folder=tag.get('canvas_folder', None)
+                path=(p := str(src)),
+                checksum_paths=[p],
+                canvas_folder=tag.get('canvas_folder'),
+                lock_at=None,
+                unlock_at=None
             ),
             content_path=str(get_current_file().resolve())
         )
@@ -115,7 +121,8 @@ def make_file_preprocessor(parent: Path, resources: ResourceManager):
             type='file',
             id=path.name,
             data=FileData(
-                path=str(path),
+                path=(p := str(path)),
+                checksum_paths=[p],
                 canvas_folder=attrs.get('canvas_folder', None),
                 unlock_at=attrs.get('unlock_at', None),
                 lock_at=attrs.get('lock_at', None)

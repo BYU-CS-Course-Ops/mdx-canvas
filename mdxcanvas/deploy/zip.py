@@ -118,8 +118,11 @@ def predeploy_zip(zipdata: ZipFileData, tmpdir: Path) -> FileData:
     zip_folder(target_folder, path_to_zip, additional_files, exclude, priority_folder)
 
     file = FileData(
-        path=str(path_to_zip),
-        canvas_folder=zipdata['canvas_folder']
+        path=(p := str(path_to_zip)),
+        checksum_paths=[p],
+        canvas_folder=zipdata['canvas_folder'],
+        lock_at=None,
+        unlock_at=None,
     )
 
     return file

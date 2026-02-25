@@ -1,0 +1,30 @@
+---
+ title: "Example Quarto Slides"
+ format:
+   live-pyodide-revealjs:
+     slide-number: true
+     theme: default
+     center: true
+#     self-contained-math: true
+---
+
+## Example slides
+
+With text
+
+## And more slides!
+
+:)
+
+## With code!
+
+```{.python .live}
+x = 1 + 2
+x
+```
+
+## With Math!
+
+$$
+a^{N-1} \pmod N
+$$

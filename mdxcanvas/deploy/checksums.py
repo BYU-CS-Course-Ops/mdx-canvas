@@ -1,27 +1,46 @@
 import hashlib
 import json
-import requests
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
+import requests
 from canvasapi.course import Course
 
 from .file import get_file, deploy_file
-from ..resources import FileData
-
 from ..our_logging import get_logger
+from ..resources import FileData
 
 logger = get_logger()
 
 MD5_FILE_NAME = '_md5sums.json'
 
 
+def _compute_checksum_of_path(resource_path: Path) -> bytes:
+    """Compute checksum of file-tree identified by path"""
+
+    if resource_path.is_file():
+        return hashlib.md5(resource_path.read_bytes()).hexdigest().encode()
+
+    if resource_path.is_dir():
+        file_digests = []
+        for file_path in sorted(p for p in resource_path.rglob('*') if p.is_file()):
+            relative_path = file_path.relative_to(resource_path).as_posix()
+            file_digest = hashlib.md5(file_path.read_bytes()).hexdigest()
+            file_digests.append(f"{relative_path}:{file_digest}")
+
+        return hashlib.md5('\n'.join(file_digests).encode()).hexdigest().encode()
+
+    raise FileNotFoundError(f'Path does not exist or is not a file/directory: {resource_path}')
+
+
 def compute_md5(obj: dict):
-    if 'path' in obj:  # e.g. FileData
-        path = Path(obj['path'])
-        hashable = path.name.encode() + path.read_bytes()
-    else:
-        hashable = json.dumps(obj, sort_keys=True).encode()
+    hashable = b''
+
+    paths = obj.get('checksum_paths', [])
+    for path in paths:
+        hashable += _compute_checksum_of_path(Path(path))
+
+    hashable += json.dumps(obj, sort_keys=True).encode()
 
     return hashlib.md5(hashable).hexdigest()
 
@@ -80,8 +99,10 @@ class MD5Sums:
             tmpfile = Path(tmpdir) / MD5_FILE_NAME
             tmpfile.write_text(json.dumps(data))
             deploy_file(self._course, FileData(
-                path=str(tmpfile.absolute()),
-                canvas_folder="_md5s"
+                path=(p := str(tmpfile.absolute())),
+                checksum_paths=[p],
+                canvas_folder="_md5s",
+                lock_at=None, unlock_at=None
             ))
 
     def items(self):

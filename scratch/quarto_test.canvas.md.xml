@@ -1,0 +1,8 @@
+<canvas>
+    <page id="quarto-test" title="Quarto Test">
+        These are slides:
+
+        <quarto-slides path="example-slides.qmd"/>
+    </page>
+
+</canvas>

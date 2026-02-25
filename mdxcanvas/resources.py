@@ -2,12 +2,9 @@ import re
 from typing import TypedDict, Iterator
 
 
-class CanvasResource(TypedDict):
-    type: str
-    id: str
-    data: dict
-    content_path: str
-
+#
+# Information about deployed resources
+#
 
 class ResourceInfo(TypedDict):
     id: str
@@ -87,11 +84,23 @@ class QuizQuestionOrderInfo(ResourceInfo):
     uri: str
     url: str
 
+
 class SyllabusInfo(ResourceInfo):
     id: str
     uri: str
     url: str
     title: str  # for course-link title
+
+
+#
+# Information needed to deploy a resource
+#
+
+class CanvasResource(TypedDict):
+    type: str
+    id: str
+    data: dict
+    content_path: str
 
 
 class CourseSettings(TypedDict):
@@ -102,6 +111,7 @@ class CourseSettings(TypedDict):
 
 class FileData(TypedDict):
     path: str
+    checksum_paths: list[str]
     canvas_folder: str | None
     lock_at: str | None
     unlock_at: str | None
@@ -114,6 +124,15 @@ class ZipFileData(TypedDict):
     exclude_pattern: str | None
     priority_folder: str | None
     canvas_folder: str | None
+
+
+class QuartoSlidesData(TypedDict):
+    path: str
+    checksum_paths: list[str]
+    slides_name: str
+    canvas_folder: str | None
+    lock_at: str | None
+    unlock_at: str | None
 
 
 class SyllabusData(TypedDict):
