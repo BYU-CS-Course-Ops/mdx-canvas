@@ -166,6 +166,7 @@ def make_zip_preprocessor(parent: Path, resources: ResourceManager):
 
         exclude_pattern = tag.get("exclude")
 
+        checksum_files = _determine_zip_contents(content_folder_path, priority_folder, exclude_pattern, additional_files)
         file = CanvasResource(
             type='zip',
             id=name,

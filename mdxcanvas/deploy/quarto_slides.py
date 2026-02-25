@@ -23,12 +23,9 @@ def _run_quarto_render(data: QuartoSlidesData, tmpdir: Path) -> Path:
     # which is where _quarto.yaml is (parent) or the current folder
     slide_file = Path(data['path'])
     quarto_root = find_quarto_root(slide_file)
-    logger.warning('QROOT: ' + str(quarto_root))
     relative_to_quarto_root = slide_file.parent.absolute().relative_to(quarto_root)
-    logger.warning('Rel to QROOT: ' + str(relative_to_quarto_root))
 
     output_file = (tmpdir / relative_to_quarto_root / data['slides_name']).absolute()
-    logger.warning(str(tmpdir))
     cmd = [
         'quarto', 'render', data['path'],
         '--output-dir', str(tmpdir),

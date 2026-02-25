@@ -124,6 +124,7 @@ def predeploy_zip(zipdata: ZipFileData, tmpdir: Path) -> FileData:
         lock_at=None,
         unlock_at=None,
     )
+    print('FILE: ', file)
 
     return file
 

@@ -23,10 +23,8 @@ def _compute_checksum_of_path(resource_path: Path) -> bytes:
 
     if resource_path.is_dir():
         file_digests = []
-        for file_path in sorted(p for p in resource_path.rglob('*') if p.is_file()):
-            relative_path = file_path.relative_to(resource_path).as_posix()
-            file_digest = hashlib.md5(file_path.read_bytes()).hexdigest()
-            file_digests.append(f"{relative_path}:{file_digest}")
+        for file_path in sorted(p for p in resource_path.glob('*')):
+            file_digests.append(_compute_checksum_of_path(file_path))
 
         return hashlib.md5('\n'.join(file_digests).encode()).hexdigest().encode()
 
