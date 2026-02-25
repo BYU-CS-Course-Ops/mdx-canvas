@@ -1,0 +1,28 @@
+<!-- Page Skeleton Template -->
+<!-- Use this structure as the base for all generated Canvas pages -->
+
+<page title="[PAGE TITLE]">
+    # [PAGE TITLE]
+
+    [Page introduction or overview here. Supports full Markdown and HTML.]
+
+    ## Section 1
+
+    [Section content here.]
+
+    ## Section 2
+
+    [Section content here.]
+
+    ---
+
+    ## Resources
+
+    - [Resource 1](link)
+    - [Resource 2](link)
+
+</page>
+
+        <!-- Optional: Create a page directly from a Markdown file
+        <md-page path="content/pages/[filename].md" />
+        -->

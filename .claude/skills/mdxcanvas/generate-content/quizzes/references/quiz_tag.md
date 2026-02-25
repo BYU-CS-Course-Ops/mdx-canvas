@@ -1,10 +1,13 @@
 # `<quiz>` Tag
 
-The `<quiz>` tag defines a quiz in the course. It supports various attributes for settings like availability, time limits, attempts, and access codes. Quizzes include a `<description>` and a `<questions>` block that defines individual quiz questions.
+The `<quiz>` tag defines a quiz in the course. It supports various attributes for settings like availability, time
+limits, attempts, and access codes. Quizzes include a `<description>` and a `<questions>` block that defines individual
+quiz questions.
 
 ## Attributes
 
-The following attributes are supported on the `<quiz>` tag. Several of them are shared with `<assignment>` and behave the same way.
+The following attributes are supported on the `<quiz>` tag. Several of them are shared with `<assignment>` and behave
+the same way.
 
 ### `title`
 
@@ -20,7 +23,8 @@ Sets the quiz title (required).
 
 Optional unique identifier for the quiz. If not specified, defaults to the `title` value.
 
-Use an explicit `id` when you need to change the quiz's title later without creating a new resource, or when you want a more stable identifier for referencing.
+Use an explicit `id` when you need to change the quiz's title later without creating a new resource, or when you want a
+more stable identifier for referencing.
 
 ```xml
 <quiz
@@ -30,7 +34,8 @@ Use an explicit `id` when you need to change the quiz's title later without crea
 </quiz>
 ```
 
-**Legacy scenario:** If you have an existing quiz without an `id` and want to rename it, add an `id` attribute with the value of the old title before changing the title.
+**Legacy scenario:** If you have an existing quiz without an `id` and want to rename it, add an `id` attribute with the
+value of the old title before changing the title.
 
 ### Shared Assignment Attributes
 
@@ -41,15 +46,16 @@ You may use these assignment-style attributes on quizzes:
 - `available_to`
 - `assignment_group`
 
-See the [`<assignment>` tag documentation](../../../documents/supported_tags/tags/assignment_tag.md) for details on how these attributes work.
+See the [`<assignment>` tag documentation](../../../documents/supported_tags/tags/assignment_tag.md) for details on how
+these attributes work.
 
 ### `shuffle_answers`
 
 Set to `"true"` to randomize the order of answer choices for each student.
 
 ```xml
-<quiz 
-    title="Quiz 1" 
+<quiz
+    title="Quiz 1"
     shuffle_answers="true">
 ...
 </quiz>
@@ -70,8 +76,8 @@ Specifies the time limit in minutes. If omitted, the quiz has no time limit.
 Sets how many times a student may attempt the quiz. Use `-1` for unlimited attempts.
 
 ```xml
-<quiz 
-    title="Quiz 1" 
+<quiz
+    title="Quiz 1"
     allowed_attempts="3">
 ...
 </quiz>
@@ -156,13 +162,15 @@ Describes the quiz. Supports Markdown or HTML formatting.
 
 Required. Contains one or more `<question>` tags.
 
-Each question must define a `type` and may include `<correct>`, `<incorrect>`, `<pair>`, and other tags based on the question type.
+Each question must define a `type` and may include `<correct>`, `<incorrect>`, `<pair>`, and other tags based on the
+question type.
 
 See [quiz question types](quiz_question_types.md) for full documentation of supported types and examples.
 
 ## Section-Specific Dates
 
-You can specify different due dates for different course sections using the `<overrides>` container with `<override>` tags.
+You can specify different due dates for different course sections using the `<overrides>` container with `<override>`
+tags.
 
 ```xml
 <quiz title="Midterm Exam" due_at="Feb 15, 2025, 11:59 PM">

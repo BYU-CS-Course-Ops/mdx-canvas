@@ -1,0 +1,20 @@
+# course_info.json
+# Canvas API credentials and course identifier.
+# NEVER commit this file — add it to .gitignore.
+#
+# Copy this skeleton, fill in your values, and save as course_info.json
+# (JSON format required by mdxcanvas).
+
+{
+  "CANVAS_API_URL": "https://YOUR_INSTITUTION.instructure.com/",
+  "CANVAS_COURSE_ID": 12345,
+  "LOCAL_TIME_ZONE": "America/Denver"
+}
+
+# Fields:
+#   CANVAS_API_URL   — URL of your Canvas instance (include trailing slash)
+#   CANVAS_COURSE_ID — Numeric ID from the Canvas course URL:
+#                      https://canvas.edu/courses/[COURSE_ID]
+#   LOCAL_TIME_ZONE  — IANA timezone name for date parsing
+#                      Common values: America/Denver, America/Chicago,
+#                      America/New_York, America/Los_Angeles

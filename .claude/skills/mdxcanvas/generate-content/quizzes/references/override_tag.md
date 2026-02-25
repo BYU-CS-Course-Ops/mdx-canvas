@@ -1,6 +1,7 @@
 # `<override>` Tag
 
-The `<override>` tag specifies section-specific dates for assignments or quizzes. Use this when different course sections need different due dates or availability windows.
+The `<override>` tag specifies section-specific dates for assignments or quizzes. Use this when different course
+sections need different due dates or availability windows.
 
 ## Usage
 

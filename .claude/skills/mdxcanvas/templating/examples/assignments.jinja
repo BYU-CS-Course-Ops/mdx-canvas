@@ -1,0 +1,21 @@
+{# Example Jinja template for generating Canvas assignments from a MarkdownData args table.
+   Paired with: assignments_table.md
+   Run with: mdxcanvas --course-info course_info.json --args assignments_table.md assignments.jinja
+#}
+
+{% for hw in args %}
+    <assignment
+            title="{{ hw['Title'] }}"
+            due_at="{{ hw['Due_At'] }}"
+            points_possible="{{ hw['Points_Possible'] }}"
+            assignment_group="{{ hw.get('Assignment_Group', 'Homework') }}">
+
+        # {{ hw['Title'] }}
+
+        Complete the assignment and submit by the due date.
+
+        **Due:** {{ hw['Due_At'] }}
+        **Points:** {{ hw['Points_Possible'] }}
+    </assignment>
+
+{% endfor %}

@@ -2,7 +2,8 @@
 
 The `<question>` tag is used within the `<questions>` section of a `<quiz>` to define individual quiz questions.
 
-Each question has a `type` attribute and may include one or more child tags (e.g., `<correct>`, `<incorrect>`, `<pair>`). The content body is treated as the question prompt.
+Each question has a `type` attribute and may include one or more child tags (e.g., `<correct>`, `<incorrect>`,
+`<pair>`). The content body is treated as the question prompt.
 
 ## Question Types
 
@@ -28,7 +29,8 @@ Presents a True/False question. Requires the `answer` attribute (`true` or `fals
 
 ### `multiple-choice`
 
-Creates a single-answer multiple-choice question. Requires at least one `<correct>` and one or more `<incorrect>` options.
+Creates a single-answer multiple-choice question. Requires at least one `<correct>` and one or more `<incorrect>`
+options.
 
 ```xml
 <question type="multiple-choice">
@@ -93,7 +95,8 @@ Presents multiple True/False statements. Students select which are true.
 
 ### `fill-in-the-blank`
 
-Creates a single blank the student must fill in. Use `[blank]` in the sentence and `<correct text="..." />` to define valid answers.
+Creates a single blank the student must fill in. Use `[blank]` in the sentence and `<correct text="..." />` to define
+valid answers.
 
 ```xml
 <question type="fill-in-the-blank">

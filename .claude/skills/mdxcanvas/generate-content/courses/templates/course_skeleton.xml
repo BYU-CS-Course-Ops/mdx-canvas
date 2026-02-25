@@ -1,0 +1,48 @@
+<!-- Course Skeleton Template (course.canvas.md.xml.jinja) -->
+<!-- Main entry point for an MDXCanvas course.
+     This file ties together all course content and structure.
+     Jinja variables ({{ var }}) come from global_args.yaml. -->
+
+<div>
+    <!-- Course metadata -->
+    <course-settings
+            name="[COURSE NAME]"
+            code="[COURSE CODE]"
+    />
+
+    <!-- Syllabus -->
+    <syllabus>
+        <include path="content/syllabus.md"/>
+    </syllabus>
+
+    <!-- Assignment groups and grade weights -->
+    <assignment-groups>
+        <group name="Homework" weight="40"/>
+        <group name="Quizzes" weight="20"/>
+        <group name="Projects" weight="30"/>
+        <group name="Final Exam" weight="10"/>
+    </assignment-groups>
+
+    <!-- Include content files -->
+    <!-- Assignments -->
+    <include path="content/assignments/homework.canvas.md.xml.jinja"/>
+
+    <!-- Quizzes -->
+    <include path="content/quizzes/quiz1.canvas.md.xml"/>
+
+    <!-- Pages -->
+    <include path="content/pages/week1-intro.canvas.md.xml"/>
+
+    <!-- Modules (define course navigation structure) -->
+    <module id="week-1" title="Week 1: Introduction">
+        <item type="page" content_id="[Page Title]" indent="1"/>
+        <item type="assignment" content_id="[Assignment Title]" indent="1"/>
+        <item type="quiz" content_id="[Quiz Title]" indent="1"/>
+    </module>
+
+    <module id="week-2" title="Week 2: [Topic]">
+        <item type="page" content_id="[Page Title]" indent="1"/>
+        <item type="assignment" content_id="[Assignment Title]" indent="1"/>
+    </module>
+
+</div>

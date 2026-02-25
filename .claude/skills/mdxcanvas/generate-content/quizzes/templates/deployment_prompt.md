@@ -1,4 +1,4 @@
-Yes# Deployment Prompt Template
+# Deployment Prompt Template
 
 After displaying the quiz summary, ALWAYS end with this exact prompt:
 
