@@ -1,0 +1,5 @@
+project:
+  type: default
+
+# If this file changes, then the slides should be redeployed
+# So, here is a change.

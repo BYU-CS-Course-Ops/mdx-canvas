@@ -1,18 +1,19 @@
 from pathlib import Path
 from typing import Callable
 
-from .assignment_tags import AssignmentTagProcessor
-from .syllabus_tags import SyllabusTagProcessor
 from .announcement_tags import AnnouncementTagProcessor
+from .assignment_tags import AssignmentTagProcessor
+from .quarto_slides_preprocessor import make_quarto_slides_preprocessor
+from .syllabus_tags import SyllabusTagProcessor
 from ..resources import ResourceManager
 from ..util import parse_soup_from_xml
+from ..xml_processing.group_tags import AssignmentGroupTagProcessor
+from ..xml_processing.module_tags import ModuleTagProcessor
+from ..xml_processing.page_tags import PageTagProcessor
+from ..xml_processing.quiz_tags import QuizTagProcessor
 from ..xml_processing.tag_preprocessors import make_image_preprocessor, make_file_preprocessor, \
     make_zip_preprocessor, make_include_preprocessor, make_link_preprocessor, make_markdown_page_preprocessor, \
     make_course_settings_preprocessor
-from ..xml_processing.quiz_tags import QuizTagProcessor
-from ..xml_processing.page_tags import PageTagProcessor
-from ..xml_processing.module_tags import ModuleTagProcessor
-from ..xml_processing.group_tags import AssignmentGroupTagProcessor
 
 
 def _walk_xml(tag, tag_processors):
@@ -45,7 +46,8 @@ def preprocess_xml(
         'zip': make_zip_preprocessor(parent, resources),
         'include': make_include_preprocessor(parent, process_file),
         'course-link': make_link_preprocessor(),
-        'md-page': make_markdown_page_preprocessor(parent, process_file)
+        'md-page': make_markdown_page_preprocessor(parent, process_file),
+        'quarto-slides': make_quarto_slides_preprocessor(parent, resources)
     }
 
     soup = parse_soup_from_xml(text)

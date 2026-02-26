@@ -1,6 +1,7 @@
+import re
+from os.path import basename
 from pathlib import Path
 from typing import Callable
-from os.path import basename
 
 from bs4 import Tag
 
@@ -9,7 +10,7 @@ from ..our_logging import get_logger
 from ..processing_context import FileContext, get_current_file
 from ..resources import ResourceManager, FileData, ZipFileData, CanvasResource, get_key
 from ..util import parse_soup_from_xml
-from ..xml_processing.attributes import parse_bool, get_tag_path
+from ..xml_processing.attributes import parse_bool
 
 logger = get_logger()
 
@@ -31,12 +32,16 @@ def make_course_settings_preprocessor(parent: Path, resources: ResourceManager):
                 raise ValueError(
                     f"Course image file not found @ {format_tag(tag)}\n  Image path: {image_path}\n  in {get_file_path(tag)}")
 
+            # noinspection PyTypeChecker
             file = CanvasResource(
                 type='file',
                 id=image_path.name,
                 data=FileData(
-                    path=str(image_path),
-                    canvas_folder=tag.get('canvas_folder', None)
+                    path=(p := str(image_path)),
+                    checksum_paths=[p],
+                    canvas_folder=tag.get('canvas_folder'),
+                    lock_at=None,
+                    unlock_at=None,
                 ),
                 content_path=str(get_current_file().resolve())
             )
@@ -73,12 +78,16 @@ def make_image_preprocessor(parent: Path, resources: ResourceManager):
                 f"Image file not found @ {format_tag(tag)}\n  File path: {src_path}\n  in {get_file_path(tag)}")
         src = src_path
 
+        # noinspection PyTypeChecker
         file = CanvasResource(
             type='file',
             id=src.name,
             data=FileData(
-                path=str(src),
-                canvas_folder=tag.get('canvas_folder', None)
+                path=(p := str(src)),
+                checksum_paths=[p],
+                canvas_folder=tag.get('canvas_folder'),
+                lock_at=None,
+                unlock_at=None
             ),
             content_path=str(get_current_file().resolve())
         )
@@ -111,11 +120,13 @@ def make_file_preprocessor(parent: Path, resources: ResourceManager):
             raise ValueError(f"File not found @ {format_tag(tag)}\n  File path: {path}\n  in {get_file_path(tag)}")
         # Only pop the path after validation succeeds
         attrs.pop('path')
+        # noinspection PyTypeChecker
         file = CanvasResource(
             type='file',
             id=path.name,
             data=FileData(
-                path=str(path),
+                path=(p := str(path)),
+                checksum_paths=[p],
                 canvas_folder=attrs.get('canvas_folder', None),
                 unlock_at=attrs.get('unlock_at', None),
                 lock_at=attrs.get('lock_at', None)
@@ -128,6 +139,56 @@ def make_file_preprocessor(parent: Path, resources: ResourceManager):
         tag.replace_with(new_tag)
 
     return process_file
+
+
+def _determine_zip_contents(
+        content_folder_path: Path,
+        priority_folder: Path | None,
+        exclude_pattern: str | None,
+        additional_files: list[Path] | None) -> dict[str, Path]:
+    exclude = re.compile(exclude_pattern) if exclude_pattern else None
+
+    priority_files = _get_files(priority_folder, exclude, '') if priority_folder else {}
+    files = _get_files(content_folder_path, exclude, '')
+    if additional_files:
+        files.update(_get_additional_files(additional_files))
+
+    for zip_name, file in files.items():
+        if zip_name not in priority_files:
+            priority_files[zip_name] = file
+        else:
+            logger.debug(f'Preferring {priority_files[zip_name]} over {file}')
+
+    return priority_files
+
+
+def _get_files(folder_path: Path, exclude: re.Pattern | None, prefix) -> dict[str, Path]:
+    if not folder_path.exists():
+        raise FileNotFoundError(folder_path)
+
+    files = {}
+    for file in sorted(folder_path.glob('*')):
+        if exclude and exclude.search(file.name):
+            logger.debug(f'Excluding {file} from zip')
+            continue
+
+        if file.is_dir():
+            files.update(_get_files(file, exclude, prefix + '/' + file.name))
+        else:
+            files[prefix + '/' + file.name] = file.absolute()
+
+    return files
+
+
+def _get_additional_files(additional_files: list[Path]) -> dict[str, Path]:
+    files = {}
+    for file in additional_files:
+        if file.is_dir():
+            files.update(_get_files(file, None, f'/{file.name}'))
+        else:
+            files[f'/{file.name}'] = file
+
+    return files
 
 
 def make_zip_preprocessor(parent: Path, resources: ResourceManager):
@@ -147,27 +208,30 @@ def make_zip_preprocessor(parent: Path, resources: ResourceManager):
         if not content_folder_path.exists():
             raise ValueError(
                 f"Folder not found @ {format_tag(tag)}\n  Folder path: {content_folder_path}\n  in {get_file_path(tag)}")
-        content_folder = str(content_folder_path)
 
-        additional_files = tag.get("additional_files")
+        additional_files = tag.get("additional_files", None)
         if additional_files:
-            additional_files = [str((parent / file).resolve().absolute()) for file in additional_files.split(',')]
+            additional_files = [(parent / file).resolve().absolute() for file in additional_files.split(',')]
 
         priority_folder = tag.get("priority_path")
         if priority_folder:
-            priority_folder = str((parent / priority_folder).resolve().absolute())
+            priority_folder = (parent / priority_folder).resolve().absolute()
 
         exclude_pattern = tag.get("exclude")
 
+        zip_contents = _determine_zip_contents(
+            content_folder_path, priority_folder, exclude_pattern,
+            additional_files
+        )
+
+        # noinspection PyTypeChecker
         file = CanvasResource(
             type='zip',
             id=name,
             data=ZipFileData(
                 zip_file_name=name,
-                content_folder=content_folder,
-                additional_files=additional_files,
-                exclude_pattern=exclude_pattern,
-                priority_folder=priority_folder,
+                zip_contents={p: str(fpath) for p, fpath in zip_contents.items()},
+                checksum_paths=[str(fpath) for fpath in zip_contents.values()],
                 canvas_folder=tag.get('canvas_folder')
             ),
             content_path=str(get_current_file().resolve())
@@ -243,7 +307,8 @@ def make_include_preprocessor(
 
             if parse_bool(tag.get('fenced', 'false')):
                 suffix = imported_file.suffix.lstrip('.')
-                filename_attr = f' {{: title="{basename(imported_file)}" }}' if parse_bool(tag.get('include_filename', 'false')) else ''
+                filename_attr = f' {{: title="{basename(imported_file)}" }}' if parse_bool(
+                    tag.get('include_filename', 'false')) else ''
                 imported_raw_content = f'```{suffix}{filename_attr}\n{imported_raw_content}\n```\n'
                 suffixes = suffixes + ['.md']
 

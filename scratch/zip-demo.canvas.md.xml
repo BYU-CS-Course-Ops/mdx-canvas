@@ -1,0 +1,3 @@
+<page id="zip-demo" title="Zip Demo">
+    <zip path="zip_target" />
+</page>

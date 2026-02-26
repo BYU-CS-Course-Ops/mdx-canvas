@@ -1,17 +1,17 @@
-import time
 import json
 import re
+import time
+from collections import defaultdict
 from datetime import datetime
-from zoneinfo import ZoneInfo
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from collections import defaultdict
 from typing import Callable
+from zoneinfo import ZoneInfo
 
 import pytz
-from canvasapi.exceptions import ResourceDoesNotExist
 from canvasapi.canvas_object import CanvasObject
 from canvasapi.course import Course
+from canvasapi.exceptions import ResourceDoesNotExist
 
 from .algorithms import linearize_dependencies
 from .announcement import deploy_announcement
@@ -20,23 +20,19 @@ from .checksums import MD5Sums, compute_md5
 from .course_settings import deploy_settings
 from .file import deploy_file
 from .group import deploy_group
+from .migration import migrate
 from .module import deploy_module, deploy_module_item, get_module_item
 from .override import deploy_override, get_override
 from .page import deploy_page, deploy_shell_page
+from .quarto_slides import deploy_quarto_slides
 from .quiz import deploy_quiz, deploy_quiz_question, deploy_quiz_question_order, deploy_shell_quiz, get_quiz_question
 from .syllabus import deploy_syllabus
-from .zip import deploy_zip, predeploy_zip
+from .zip import deploy_zip
 from ..deployment_report import DeploymentReport
 from ..our_logging import get_logger
 from ..resources import CanvasResource, iter_keys, ResourceInfo
 
-from .migration import migrate
-
 logger = get_logger()
-
-PREDEPLOYERS: dict[str, Callable[[dict, Path], dict]] = {
-    'zip': predeploy_zip
-}
 
 SHELL_DEPLOYERS: dict[str, Callable[[Course, dict], tuple[ResourceInfo, tuple[str, str] | None]]] = {
     # Current known resources that need shell deployments
@@ -55,6 +51,7 @@ DEPLOYERS: dict[str, Callable[[Course, dict], tuple[ResourceInfo, tuple[str, str
     'module_item': deploy_module_item,
     'override': deploy_override,
     'page': deploy_page,
+    'quarto-slides': deploy_quarto_slides,
     'quiz': deploy_quiz,
     'quiz_question': deploy_quiz_question,
     'quiz_question_order': deploy_quiz_question_order,
@@ -165,7 +162,8 @@ def post_process_resource(resource_data, timezone) -> dict:
     return json.loads(text)
 
 
-def deploy_resource(deployers: dict, course: Course, rtype: str, data: dict, resource: CanvasResource) -> tuple[ResourceInfo, tuple[str, str] | None]:
+def deploy_resource(deployers: dict, course: Course, rtype: str, data: dict, resource: CanvasResource) -> tuple[
+    ResourceInfo, tuple[str, str] | None]:
     if not (deploy := deployers.get(rtype)):
         raise Exception(f"Unsupported resource type {rtype} {resource['id']}\n  in {resource['content_path']}")
 
@@ -179,23 +177,6 @@ def deploy_resource(deployers: dict, course: Course, rtype: str, data: dict, res
         raise Exception(f"Deployment returned None for {rtype} {resource['id']}\n  in {resource['content_path']}")
 
     return resource_info, info
-
-
-# =============================================================================
-# Predeploy
-# =============================================================================
-
-def predeploy_resources(resources: dict, timezone: str, tmpdir: Path):
-    for resource in resources.values():
-        if (data := resource.get('data')) is None:
-            continue
-
-        fix_dates(data, timezone, resource)
-
-        rtype = resource['type']
-        if predeploy := PREDEPLOYERS.get(rtype):
-            logger.debug(f'Predeploying {rtype} {data}')
-            resource['data'] = predeploy(data, tmpdir)
 
 
 # =============================================================================
@@ -360,14 +341,14 @@ def log_to_deploy(to_deploy: dict, dryrun=False):
     for (rtype, _), _ in to_deploy.keys():
         grouped[rtype] += 1
 
-    logger.info('=' * 80)
+    logger.info('=' * 40)
 
     logger.info(f'Resources to deploy: {len(to_deploy)}')
     max_len = max(len(rtype) for rtype in grouped)
     for rtype, count in sorted(grouped.items()):
         logger.info(f'  {rtype:{max_len}}  {count:>3}')
 
-    logger.info('=' * 80)
+    logger.info('=' * 40)
 
     if dryrun:
         logger.info('Dry run - no resources deployed')
@@ -388,7 +369,8 @@ def _prepare_deployment_order(resources: dict) -> tuple[dict, list]:
     return resource_dependencies, resource_order
 
 
-def _deploy_resources(course: Course, to_deploy: dict, md5s: MD5Sums, report: DeploymentReport, timezone: str, dryrun=False):
+def _deploy_resources(course: Course, to_deploy: dict, md5s: MD5Sums, report: DeploymentReport, timezone: str,
+                      dryrun=False):
     log_to_deploy(to_deploy, dryrun=dryrun)
 
     logger.info('Deploying resources to Canvas')
@@ -453,10 +435,6 @@ def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, s
 
     with MD5Sums(course) as md5s, TemporaryDirectory() as tmpdir:
         migrate(course, md5s)
-
-        tmpdir = Path(tmpdir)
-
-        predeploy_resources(resources, timezone, tmpdir)
 
         if to_deploy := identify_modified_or_outdated(resources, resource_order, resource_dependencies, md5s):
             _deploy_resources(course, to_deploy, md5s, report, timezone, dryrun=dryrun)

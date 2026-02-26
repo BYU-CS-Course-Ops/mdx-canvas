@@ -48,7 +48,8 @@ def deploy_file(course: Course, data: FileData) -> tuple[FileInfo, None]:
     file_object_info: FileInfo = {
         'id': file.id,
         'title': file.display_name,
-        'uri': f'/files/{file.id}'
+        'uri': f'/files/{file.id}',
+        'url': f'{course.canvas._Canvas__requester.original_url}/courses/{course.id}/files/{file.id}/download'
     }
 
     return file_object_info, None
