@@ -26,7 +26,7 @@ def _compute_checksum_of_path(resource_path: Path) -> bytes:
         for file_path in sorted(p for p in resource_path.glob('*')):
             file_digests.append(_compute_checksum_of_path(file_path))
 
-        return hashlib.md5('\n'.join(file_digests).encode()).hexdigest().encode()
+        return hashlib.md5(b''.join(file_digests)).hexdigest().encode()
 
     raise FileNotFoundError(f'Path does not exist or is not a file/directory: {resource_path}')
 

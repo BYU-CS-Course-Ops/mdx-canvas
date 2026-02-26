@@ -18,6 +18,10 @@ def _find_quarto_dependencies(slide_file: Path) -> list[str]:
     if quarto_yaml.exists():
         deps.append(str(quarto_yaml))
 
+    quarto_yaml = quarto_root / '_quarto.yml'
+    if quarto_yaml.exists():
+        deps.append(str(quarto_yaml))
+
     extensions = quarto_root / '_extensions'
     if extensions.exists():
         deps.append(str(extensions))

@@ -32,6 +32,7 @@ def make_course_settings_preprocessor(parent: Path, resources: ResourceManager):
                 raise ValueError(
                     f"Course image file not found @ {format_tag(tag)}\n  Image path: {image_path}\n  in {get_file_path(tag)}")
 
+            # noinspection PyTypeChecker
             file = CanvasResource(
                 type='file',
                 id=image_path.name,
@@ -77,6 +78,7 @@ def make_image_preprocessor(parent: Path, resources: ResourceManager):
                 f"Image file not found @ {format_tag(tag)}\n  File path: {src_path}\n  in {get_file_path(tag)}")
         src = src_path
 
+        # noinspection PyTypeChecker
         file = CanvasResource(
             type='file',
             id=src.name,
@@ -118,6 +120,7 @@ def make_file_preprocessor(parent: Path, resources: ResourceManager):
             raise ValueError(f"File not found @ {format_tag(tag)}\n  File path: {path}\n  in {get_file_path(tag)}")
         # Only pop the path after validation succeeds
         attrs.pop('path')
+        # noinspection PyTypeChecker
         file = CanvasResource(
             type='file',
             id=path.name,

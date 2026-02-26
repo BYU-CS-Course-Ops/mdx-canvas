@@ -35,7 +35,10 @@ def find_quarto_root(slide_file: Path) -> Path:
 
     while True:
         quarto_yaml = cur_dir / '_quarto.yaml'
+        if quarto_yaml.exists():
+            return quarto_yaml.parent
 
+        quarto_yaml = cur_dir / '_quarto.yml'
         if quarto_yaml.exists():
             return quarto_yaml.parent
 

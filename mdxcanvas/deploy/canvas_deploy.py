@@ -341,14 +341,14 @@ def log_to_deploy(to_deploy: dict, dryrun=False):
     for (rtype, _), _ in to_deploy.keys():
         grouped[rtype] += 1
 
-    logger.info('=' * 80)
+    logger.info('=' * 40)
 
     logger.info(f'Resources to deploy: {len(to_deploy)}')
     max_len = max(len(rtype) for rtype in grouped)
     for rtype, count in sorted(grouped.items()):
         logger.info(f'  {rtype:{max_len}}  {count:>3}')
 
-    logger.info('=' * 80)
+    logger.info('=' * 40)
 
     if dryrun:
         logger.info('Dry run - no resources deployed')
