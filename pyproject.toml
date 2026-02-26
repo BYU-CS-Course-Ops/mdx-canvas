@@ -21,6 +21,7 @@ pytest = "^8.4.0"
 pyyaml = "^6.0.2"
 pymdown-extensions = "^10.16.1"
 quarto = "^0.1.0"
+quarto-cli = "^1.8.27"
 
 [tool.poetry.group.dev.dependencies]
 python-dotenv = "^1.0.1"
