@@ -164,7 +164,7 @@ def _get_files(folder_path: Path, exclude: re.Pattern | None, prefix) -> dict[st
         raise FileNotFoundError(folder_path)
 
     files = {}
-    for file in folder_path.glob('*'):
+    for file in sorted(folder_path.glob('*')):
         if exclude and exclude.search(file.name):
             logger.debug(f'Excluding {file} from zip')
             continue
@@ -205,15 +205,14 @@ def make_zip_preprocessor(parent: Path, resources: ResourceManager):
         if not content_folder_path.exists():
             raise ValueError(
                 f"Folder not found @ {format_tag(tag)}\n  Folder path: {content_folder_path}\n  in {get_file_path(tag)}")
-        content_folder = str(content_folder_path)
 
         additional_files = tag.get("additional_files", None)
         if additional_files:
-            additional_files = [str((parent / file).resolve().absolute()) for file in additional_files.split(',')]
+            additional_files = [(parent / file).resolve().absolute() for file in additional_files.split(',')]
 
         priority_folder = tag.get("priority_path")
         if priority_folder:
-            priority_folder = str((parent / priority_folder).resolve().absolute())
+            priority_folder = (parent / priority_folder).resolve().absolute()
 
         exclude_pattern = tag.get("exclude")
 
