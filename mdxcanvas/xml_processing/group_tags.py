@@ -1,9 +1,10 @@
-from bs4 import Tag
-from typing import TypedDict, List
+from typing import TypedDict, List, cast
+
+from bs4.element import Tag
 
 from .attributes import Attribute, parse_settings, parse_int
 from ..resources import ResourceManager, CanvasResource, get_key
-from ..processing_context import get_current_file
+from ..processing_context import get_current_file_str
 
 
 class AssignmentGroupRules(TypedDict, total=False):
@@ -13,7 +14,7 @@ class AssignmentGroupRules(TypedDict, total=False):
 
 
 def _parse_never_drop_assignments(tag: Tag) -> List[int]:
-    never_drop_attr = tag.get('never_drop')
+    never_drop_attr = cast(str, tag.get('never_drop'))
     if not never_drop_attr:
         return []
 
@@ -34,10 +35,10 @@ def _parse_never_drop_assignments(tag: Tag) -> List[int]:
 def _extract_rules_from_group_data(group_data: dict) -> dict:
     rules: AssignmentGroupRules = {}
 
-    if 'drop_lowest' in group_data and group_data['drop_lowest'] is not None:
+    if 'drop_lowest' in group_data and group_data['drop_lowest']:
         rules['drop_lowest'] = group_data.pop('drop_lowest')
 
-    if 'drop_highest' in group_data and group_data['drop_highest'] is not None:
+    if 'drop_highest' in group_data and group_data['drop_highest']:
         rules['drop_highest'] = group_data.pop('drop_highest')
 
     if 'never_drop' in group_data and group_data['never_drop']:
@@ -90,9 +91,9 @@ class AssignmentGroupTagProcessor:
 
         assignment_group = CanvasResource(
             type='assignment_group',
-            id=tag.get('id', group_data['name']),
+            id=cast(str, tag.get('id', group_data['name'])),
             data=group_data,
-            content_path=str(get_current_file().resolve())
+            content_path=get_current_file_str()
         )
 
         self._resources.add_resource(assignment_group)

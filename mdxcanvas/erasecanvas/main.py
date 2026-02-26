@@ -1,12 +1,14 @@
 import argparse
 import os
 from pathlib import Path
+from typing import cast
 
 from canvasapi import exceptions
-from canvasapi.paginated_list import PaginatedList
+from canvasapi.exceptions import ResourceDoesNotExist
 
 from ..main import CourseInfo, get_course, load_config
 from ..our_logging import get_logger
+from ..parallel import threaded_execute
 
 
 def get_item_name(item):
@@ -35,6 +37,8 @@ def delete_item(item, item_type, item_name):
 
     try:
         item.delete()
+    except ResourceDoesNotExist:
+        logger.info(f'{item_type} already deleted: {item_name}')
     except exceptions.BadRequest as e:
         if "Can't delete the root folder" in str(e):
             logger.info(f'Skipping root folder: {item_name}')
@@ -42,32 +46,66 @@ def delete_item(item, item_type, item_name):
             logger.warning(f'Failed to delete {item_type}: {item_name}')
 
 
-def remove(items: PaginatedList, item_type=None):
+def parallel_delete(items, item_type=None):
+    """Delete a list of Canvas items in parallel."""
     logger = get_logger()
+    items = list(items)
+    if not items:
+        return
 
-    for item in items:
-        # Conditions to help with the removal of files and folders
-        if hasattr(item, 'get_folders'):
-            sub_folders = item.get_folders()
-            if item.parent_folder_id is None:
-                continue
-            remove(sub_folders, 'Folder')
-        if hasattr(item, 'get_files'):
-            # Recursively remove files in the folder before removing the folder itself
-            # needed multiple times because somtimes we don't get them all the first time
-            # (seems to be a Canvas bug) and we need to keep trying until they're all gone
-            while (files := item.get_files()) and len(list(files)) > 0:
-                remove(files, 'File')
+    def execute(task):
+        item, itype, name = task
+        logger.info(f'Deleting {itype}: {name}')
+        delete_item(item, itype, name)
 
-        if item_type is None:
-            item_type = get_item_type(item)
-            item_name = get_item_name(item)
-            logger.info(f'Deleting {item_type}: {item_name}')
-            item_type = None
-        else:
-            item_name = get_item_name(item)
-            logger.info(f'Deleting {item_type}: {item_name}')
-        delete_item(item, item_type, item_name)
+    threaded_execute(
+        items=[(i, (item, item_type or get_item_type(item), get_item_name(item)))
+               for i, item in enumerate(items)],
+        execute=execute,
+    )
+
+
+def delete_all_files(course):
+    """
+    Delete all files and non-root folders from the course.
+    Collects everything first, then deletes files in parallel,
+    then folders in parallel (leaf-first by depth).
+    """
+    logger = get_logger()
+    folders = list(course.get_folders())
+
+    # Collect all files across all folders in parallel
+    all_files = []
+
+    def collect_files(folder):
+        return list(folder.get_files())
+
+    threaded_execute(
+        items=[(i, folder) for i, folder in enumerate(folders)],
+        execute=lambda folder: all_files.extend(collect_files(folder)),
+    )
+
+    # Delete all files in parallel
+    if all_files:
+        logger.info(f'Deleting {len(all_files)} files in parallel')
+        parallel_delete(all_files, 'File')
+
+    # Retry stragglers - Canvas sometimes doesn't return all files on first query
+    remaining_files = []
+    threaded_execute(
+        items=[(i, folder) for i, folder in enumerate(folders)],
+        execute=lambda folder: remaining_files.extend(collect_files(folder)),
+    )
+
+    if remaining_files:
+        logger.info(f'Deleting {len(remaining_files)} remaining files')
+        parallel_delete(remaining_files, 'File')
+
+    # Delete non-root folders deepest-first so children are removed before parents
+    non_root = [f for f in folders if f.parent_folder_id is not None]
+    # Sort by full_name length descending (deeper folders have longer paths)
+    non_root.sort(key=lambda f: len(getattr(f, 'full_name', '')), reverse=True)
+    parallel_delete(non_root, 'Folder')
 
 
 def main(
@@ -93,26 +131,47 @@ def main(
     course.update(course={'syllabus_body': ''})
     logger.info('Deleting Syllabus')
 
-    quizzes = course.get_quizzes()
-    remove(quizzes, 'Quiz') if len(list(quizzes)) > 0 else None
+    def delete_quizzes():
+        parallel_delete(course.get_quizzes(), 'Quiz')
 
-    assignments = course.get_assignments()
-    remove(assignments) if len(list(assignments)) > 0 else None
+    def delete_assignments():
+        parallel_delete(course.get_assignments())
 
-    assignment_groups = course.get_assignment_groups()
-    remove(assignment_groups, 'Assignment Group') if len(list(assignment_groups)) > 0 else None
+    def delete_assignment_groups():
+        parallel_delete(course.get_assignment_groups(), 'Assignment Group')
 
-    pages = course.get_pages()
-    remove(pages, 'Page') if len(list(pages)) > 0 else None
+    def delete_pages():
+        parallel_delete(course.get_pages(), 'Page')
 
-    modules = course.get_modules()
-    remove(modules, 'Module') if len(list(modules)) > 0 else None
+    def delete_modules():
+        parallel_delete(course.get_modules(), 'Module')
 
-    files = course.get_folders()
-    remove(files, 'Folder') if len(list(files)) > 0 else None
+    def delete_folders():
+        delete_all_files(course)
 
-    announcements = course.get_discussion_topics(course_id=course.id, only_announcements=True)
-    remove(announcements, 'Announcement') if len(list(announcements)) > 0 else None
+    def delete_announcements():
+        parallel_delete(course.get_discussion_topics(course_id=course.id, only_announcements=True), 'Announcement')
+
+    dependencies = {
+        'assignments': ['quizzes'],
+        'assignment_groups': ['assignments'],
+    }
+
+    tasks = [
+        ('quizzes', delete_quizzes),
+        ('assignments', delete_assignments),
+        ('assignment_groups', delete_assignment_groups),
+        ('pages', delete_pages),
+        ('modules', delete_modules),
+        ('folders', delete_folders),
+        ('announcements', delete_announcements),
+    ]
+
+    threaded_execute(
+        items=tasks,
+        execute=lambda fn: fn(),
+        get_dependencies=lambda key: dependencies.get(key, []),
+    )
 
 
 def entry():
@@ -129,7 +188,7 @@ def entry():
 
     main(
         canvas_api_token=api_token,
-        course_info=course_settings,
+        course_info=cast(CourseInfo, course_settings),
         confirmed_delete=args.y
     )
 

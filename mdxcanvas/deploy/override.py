@@ -1,10 +1,12 @@
+from typing import Optional, cast
+
 from canvasapi.assignment import Assignment, AssignmentOverride
 from canvasapi.course import Course
 
 from ..resources import OverrideInfo
 
 
-def get_override(course: Course, assignment_id: int, override_id: int) -> AssignmentOverride | None:
+def get_override(course: Course, assignment_id: int, override_id: int) -> Optional[AssignmentOverride]:
     if assignment := course.get_assignment(assignment_id):
         return assignment.get_override(override_id)
 
@@ -19,7 +21,7 @@ def _get_assignment(course: Course, override_info: dict) -> Assignment:
     if rtype not in ['assignment', 'quiz']:
         raise ValueError(f"Invalid override rtype: {rtype}. Must be 'assignment' or 'quiz'.")
 
-    assignment_id = int(override_info.get('assignment_id'))
+    assignment_id = int(cast(str, override_info.get('assignment_id')))
 
     if rtype == 'quiz':
         # Quizzes are unique in that they have two IDs: the quiz ID and the assignment ID.

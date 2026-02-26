@@ -1,13 +1,13 @@
 import re
 from os.path import basename
 from pathlib import Path
-from typing import Callable
+from typing import Callable, cast
 
-from bs4 import Tag
+from bs4.element import Tag
 
 from ..error_helpers import format_tag, get_file_path, validate_required_attribute
 from ..our_logging import get_logger
-from ..processing_context import FileContext, get_current_file
+from ..processing_context import FileContext, get_current_file_str
 from ..resources import ResourceManager, FileData, ZipFileData, CanvasResource, get_key
 from ..util import parse_soup_from_xml
 from ..xml_processing.attributes import parse_bool
@@ -19,7 +19,7 @@ def make_course_settings_preprocessor(parent: Path, resources: ResourceManager):
     def process_course_settings(tag: Tag):
         name = tag.get('name')
         course_code = tag.get('code')
-        image_path = tag.get('image')
+        image_path = cast(str, tag.get('image'))
 
         if not (any([name, course_code, image_path])):
             raise ValueError(
@@ -39,11 +39,11 @@ def make_course_settings_preprocessor(parent: Path, resources: ResourceManager):
                 data=FileData(
                     path=(p := str(image_path)),
                     checksum_paths=[p],
-                    canvas_folder=tag.get('canvas_folder'),
+                    canvas_folder=cast(str, tag.get('canvas_folder')),
                     lock_at=None,
                     unlock_at=None,
                 ),
-                content_path=str(get_current_file().resolve())
+                content_path=get_current_file_str()
             )
             image_resource_key = resources.add_resource(file, 'id')
 
@@ -55,7 +55,7 @@ def make_course_settings_preprocessor(parent: Path, resources: ResourceManager):
                 'code': course_code,
                 'image': image_resource_key
             },
-            content_path=str(get_current_file().resolve())
+            content_path=get_current_file_str()
         )
         resources.add_resource(course_settings, 'name')
 
@@ -85,13 +85,13 @@ def make_image_preprocessor(parent: Path, resources: ResourceManager):
             data=FileData(
                 path=(p := str(src)),
                 checksum_paths=[p],
-                canvas_folder=tag.get('canvas_folder'),
+                canvas_folder=cast(str, tag.get('canvas_folder')),
                 lock_at=None,
                 unlock_at=None
             ),
-            content_path=str(get_current_file().resolve())
+            content_path=get_current_file_str()
         )
-        tag['src'] = resources.add_resource(file, 'uri') + '/preview'
+        tag['src'] = cast(str, resources.add_resource(file, 'uri')) + '/preview'
 
     return process_image
 
@@ -127,13 +127,13 @@ def make_file_preprocessor(parent: Path, resources: ResourceManager):
             data=FileData(
                 path=(p := str(path)),
                 checksum_paths=[p],
-                canvas_folder=attrs.get('canvas_folder', None),
-                unlock_at=attrs.get('unlock_at', None),
-                lock_at=attrs.get('lock_at', None)
+                canvas_folder=cast(str, attrs.get('canvas_folder', None)),
+                unlock_at=cast(str, attrs.get('unlock_at', None)),
+                lock_at=cast(str, attrs.get('lock_at', None))
             ),
-            content_path=str(get_current_file().resolve())
+            content_path=get_current_file_str()
         )
-        resource_key = resources.add_resource(file, 'uri')
+        resource_key = cast(str, resources.add_resource(file, 'uri'))
         new_tag = make_file_anchor_tag(resource_key, path.name, **tag.attrs)
 
         tag.replace_with(new_tag)
@@ -195,7 +195,7 @@ def make_zip_preprocessor(parent: Path, resources: ResourceManager):
     def process_zip(tag: Tag):
         content_folder = validate_required_attribute(tag, 'path', 'zip')
 
-        name = tag.get("name")
+        name = cast(str, tag.get("name"))
         if not name:
             name = (
                        content_folder
@@ -209,15 +209,15 @@ def make_zip_preprocessor(parent: Path, resources: ResourceManager):
             raise ValueError(
                 f"Folder not found @ {format_tag(tag)}\n  Folder path: {content_folder_path}\n  in {get_file_path(tag)}")
 
-        additional_files = tag.get("additional_files", None)
-        if additional_files:
-            additional_files = [(parent / file).resolve().absolute() for file in additional_files.split(',')]
+        additional_files = None
+        if additional_files_str := cast(str, tag.get("additional_files")):
+            additional_files = [(parent / file).resolve().absolute() for file in additional_files_str.split(',')]
 
-        priority_folder = tag.get("priority_path")
-        if priority_folder:
-            priority_folder = (parent / priority_folder).resolve().absolute()
+        priority_folder = None
+        if priority_folder_str := cast(str, tag.get("priority_path")) :
+            priority_folder = (parent / priority_folder_str).resolve().absolute()
 
-        exclude_pattern = tag.get("exclude")
+        exclude_pattern = cast(str, tag.get("exclude"))
 
         zip_contents = _determine_zip_contents(
             content_folder_path, priority_folder, exclude_pattern,
@@ -232,12 +232,12 @@ def make_zip_preprocessor(parent: Path, resources: ResourceManager):
                 zip_file_name=name,
                 zip_contents={p: str(fpath) for p, fpath in zip_contents.items()},
                 checksum_paths=[str(fpath) for fpath in zip_contents.values()],
-                canvas_folder=tag.get('canvas_folder')
+                canvas_folder=cast(str, tag.get('canvas_folder'))
             ),
-            content_path=str(get_current_file().resolve())
+            content_path=get_current_file_str()
         )
 
-        resource_key = resources.add_resource(file, 'uri')
+        resource_key = cast(str, resources.add_resource(file, 'uri'))
 
         new_tag = make_file_anchor_tag(resource_key, name)
         tag.replace_with(new_tag)
@@ -256,6 +256,9 @@ def _parse_slice(field: str) -> slice:
         for token in tokens
     ]
 
+    if not tokens[0]:
+        raise ValueError(f"Invalid slice: {field} - first token must be a number")
+
     tokens[0] -= 1  # make it 1-based
 
     if len(tokens) == 1:  # e.g. "3"
@@ -271,25 +274,25 @@ def make_include_preprocessor(
         process_file: Callable
 ):
     def process_include(tag: Tag):
-        imported_filename = tag.get('path')
+        imported_filename = cast(str, tag.get('path'))
         imported_file = (parent_folder / imported_filename).resolve()
-        args_file_path = tag.get('args', None)
+        args_file_path = cast(str, tag.get('args'))
 
         # Check if the included file exists first
         if not imported_file.exists():
-            containing_file = get_current_file() or "unknown file"
+            containing_file = get_current_file_str() or "unknown file"
             raise FileNotFoundError(
                 f"Include file not found @ {format_tag(tag)}\n"
                 f"  in {containing_file}"
             )
 
         args_file = None
-        if args_file_path is not None:
+        if args_file_path:
             args_file = (parent_folder / args_file_path).resolve().absolute()
 
             # Check if args file exists
             if not args_file.exists():
-                containing_file = get_current_file() or "unknown file"
+                containing_file = get_current_file_str() or "unknown file"
                 raise FileNotFoundError(
                     f"Args file not found @ {format_tag(tag)}\n"
                     f"  in {containing_file}"
@@ -300,8 +303,7 @@ def make_include_preprocessor(
             imported_raw_content = imported_file.read_text(encoding='utf-8')
             suffixes = imported_file.suffixes
 
-            lines = tag.get('lines', '')
-            if lines:
+            if lines := cast(str, tag.get('lines')):
                 grab = _parse_slice(lines)
                 imported_raw_content = '\n'.join(imported_raw_content.splitlines()[grab])
 
@@ -328,7 +330,7 @@ def make_include_preprocessor(
 
             else:
                 new_tag = Tag(name='div')
-                new_tag['data-source'] = str(imported_file)
+                new_tag['data-source'] = basename(imported_file)
                 if lines:
                     new_tag['data-lines'] = lines
                 new_tag.extend(include_result)

@@ -1,3 +1,7 @@
+from typing import cast
+
+from bs4.element import Tag
+
 from .attributes import Attribute, parse_int, parse_bool, parse_date, parse_settings
 from ..util import retrieve_contents
 from .quiz_questions import parse_text_question, parse_true_false_question, parse_multiple_choice_question, \
@@ -5,10 +9,9 @@ from .quiz_questions import parse_text_question, parse_true_false_question, pars
     parse_fill_in_the_blank_question, parse_essay_question, parse_file_upload_question, parse_numerical_question, \
     parse_fill_in_multiple_blanks_question, parse_fill_in_multiple_blanks_filled_answers
 from ..resources import ResourceManager, CanvasResource, get_key
-from bs4 import Tag
 from .override_parsing import parse_overrides_container
 from ..error_helpers import format_tag, get_file_path
-from ..processing_context import get_current_file
+from ..processing_context import get_current_file_str
 from ..our_logging import get_logger
 
 logger = get_logger()
@@ -38,7 +41,7 @@ class QuizTagProcessor:
         }
         quiz.update(self._parse_quiz_settings(quiz_tag))
 
-        rid = quiz_tag.get('id', quiz['title'])
+        rid = cast(str, quiz_tag.get('id', quiz['title']))
 
         for tag in quiz_tag.children:
             if not isinstance(tag, Tag):
@@ -54,7 +57,7 @@ class QuizTagProcessor:
             type='quiz',
             id=rid,
             data=quiz,
-            content_path=str(get_current_file().resolve())
+            content_path=get_current_file_str()
         )
         self._resources.add_resource(info)
 
@@ -95,8 +98,8 @@ class QuizTagProcessor:
     def _parse_questions(self, quiz_rid: str, questions_tag: Tag):
         order_items = []
 
-        for pos, tag in enumerate(questions_tag.findAll('question', recursive=False)):
-            q_type = tag.get("type")
+        for pos, tag in enumerate(questions_tag.find_all('question', recursive=False)):
+            q_type = cast(str, tag.get("type"))
 
             if not q_type:
                 raise ValueError(
@@ -108,7 +111,7 @@ class QuizTagProcessor:
                     f"Supported types: {', '.join(self.question_types.keys())}\n  "
                     f"in {get_file_path(tag)}")
 
-            qid = tag.get('id', f"q{pos}")
+            qid = cast(str, tag.get('id', f"q{pos}"))
 
             for question in parse_question(tag, qid):
                 question_id = question['question_id']
@@ -119,7 +122,7 @@ class QuizTagProcessor:
                     type='quiz_question',
                     id=question_rid,
                     data=question,
-                    content_path=str(get_current_file().resolve())
+                    content_path=get_current_file_str()
                 ))
 
                 order_items.append({
@@ -137,5 +140,5 @@ class QuizTagProcessor:
                 'quiz_id': get_key('quiz', quiz_rid, 'id'),
                 'order': order_items
             },
-            content_path=str(get_current_file().resolve())
+            content_path=get_current_file_str()
         ))

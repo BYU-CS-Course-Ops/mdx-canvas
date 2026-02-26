@@ -2,13 +2,14 @@ import hashlib
 import json
 from pathlib import Path
 from tempfile import TemporaryDirectory
+import unicodedata
 
 import requests
 from canvasapi.course import Course
 
 from .file import get_file, deploy_file
 from ..our_logging import get_logger
-from ..resources import FileData
+from ..resources import FileData, QuartoSlidesData, SyllabusData, ZipFileData
 
 logger = get_logger()
 
@@ -19,26 +20,36 @@ def _compute_checksum_of_path(resource_path: Path) -> bytes:
     """Compute checksum of file-tree identified by path"""
 
     if resource_path.is_file():
-        return hashlib.md5(resource_path.read_bytes()).hexdigest().encode()
+        return hashlib.md5(resource_path.read_bytes()).hexdigest().encode('utf-8')
 
     if resource_path.is_dir():
         file_digests = []
         for file_path in sorted(p for p in resource_path.glob('*')):
             file_digests.append(_compute_checksum_of_path(file_path))
 
-        return hashlib.md5(b''.join(file_digests)).hexdigest().encode()
+        return hashlib.md5(b''.join(file_digests)).hexdigest().encode('utf-8')
 
     raise FileNotFoundError(f'Path does not exist or is not a file/directory: {resource_path}')
 
 
-def compute_md5(obj: dict):
+def compute_md5(obj: dict | FileData | ZipFileData | QuartoSlidesData | SyllabusData) -> str:
+    # Keys that should not affect change detection:
+    # - canvas_id: injected by the deployment system at runtime
+    # - checksum_paths: already consumed above via _compute_checksum_of_path
+    # - path, root_path, zip_contents: absolute paths that vary across machines;
+    #   their file contents are already captured by checksum_paths
+    FILTERED_KEYS = {'canvas_id', 'checksum_paths', 'path', 'root_path', 'zip_contents'}
     hashable = b''
 
     paths = obj.get('checksum_paths', [])
     for path in paths:
         hashable += _compute_checksum_of_path(Path(path))
 
-    hashable += json.dumps(obj, sort_keys=True).encode()
+    # Normalize the JSON string to ensure consistent encoding and line endings across platforms
+    filtered = {k: v for k, v in obj.items() if k not in FILTERED_KEYS}
+    json_str = json.dumps(filtered, sort_keys=True, ensure_ascii=False)
+    normalized = unicodedata.normalize('NFC', json_str).replace('\r\n', '\n').replace('\r', '\n')
+    hashable += normalized.encode('utf-8')
 
     return hashlib.md5(hashable).hexdigest()
 
@@ -95,7 +106,7 @@ class MD5Sums:
         }
         with TemporaryDirectory() as tmpdir:
             tmpfile = Path(tmpdir) / MD5_FILE_NAME
-            tmpfile.write_text(json.dumps(data))
+            tmpfile.write_text(json.dumps(data), encoding='utf-8')
             deploy_file(self._course, FileData(
                 path=(p := str(tmpfile.absolute())),
                 checksum_paths=[p],

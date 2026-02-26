@@ -1,8 +1,8 @@
-from bs4 import Tag
+from bs4.element import Tag
 
 from .attributes import parse_settings, Attribute, parse_date, parse_int
 from ..resources import ResourceManager, CanvasResource, get_key
-from ..processing_context import get_current_file
+from ..processing_context import get_current_file_str
 
 
 def parse_override_tag(override_tag: Tag, parent_type: str, parent_rid: str, resources: ResourceManager):
@@ -39,7 +39,7 @@ def parse_override_tag(override_tag: Tag, parent_type: str, parent_rid: str, res
         type='override',
         id=override_rid,
         data=settings,
-        content_path=str(get_current_file().resolve())
+        content_path=get_current_file_str()
     )
     resources.add_resource(override_resource)
 
@@ -54,5 +54,5 @@ def parse_overrides_container(overrides_tag: Tag, parent_type: str, parent_rid: 
         parent_rid: The resource ID (name/title) of the parent assignment or quiz
         resources: The ResourceManager to add override resources to
     """
-    for override_tag in overrides_tag.findAll('override', recursive=False):
+    for override_tag in overrides_tag.find_all('override', recursive=False):
         parse_override_tag(override_tag, parent_type, parent_rid, resources)

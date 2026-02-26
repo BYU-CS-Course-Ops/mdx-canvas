@@ -1,10 +1,11 @@
 from pathlib import Path
+from typing import cast
 
-from bs4 import Tag
+from bs4.element import Tag
 
 from .tag_preprocessors import make_file_anchor_tag
 from ..error_helpers import validate_required_attribute, format_tag, get_file_path
-from ..processing_context import get_current_file
+from ..processing_context import get_current_file_str
 from ..resources import QuartoSlidesData
 from ..resources import ResourceManager, CanvasResource
 from ..util import find_quarto_root
@@ -40,7 +41,7 @@ def make_quarto_slides_preprocessor(parent: Path, resources: ResourceManager):
             raise ValueError(
                 f"File not found @ {format_tag(tag)}\n  File path: {qmd_file}\n  in {get_file_path(tag)}")
 
-        name = tag.get("name")
+        name = cast(str, tag.get("name"))
         if not name:
             name = qmd_file.name.replace('.qmd', '.slides.html')
 
@@ -55,14 +56,14 @@ def make_quarto_slides_preprocessor(parent: Path, resources: ResourceManager):
                 root_path=str(parent),
                 checksum_paths=checksum_paths,
                 slides_name=name,
-                canvas_folder=tag.get('canvas_folder'),
-                lock_at=tag.get("lock_at"),
-                unlock_at=tag.get("unlock_at")
+                canvas_folder=cast(str, tag.get('canvas_folder')),
+                lock_at=cast(str, tag.get("lock_at")),
+                unlock_at=cast(str, tag.get("unlock_at"))
             ),
-            content_path=str(get_current_file().resolve())
+            content_path=get_current_file_str()
         )
 
-        resource_key = resources.add_resource(file, 'uri')
+        resource_key = cast(str, resources.add_resource(file, 'uri'))
 
         new_tag = make_file_anchor_tag(resource_key, name)
         tag.replace_with(new_tag)

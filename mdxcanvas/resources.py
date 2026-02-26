@@ -1,5 +1,5 @@
 import re
-from typing import TypedDict, Iterator
+from typing import NotRequired, Optional, TypedDict, Iterator, cast
 
 
 #
@@ -31,6 +31,7 @@ class AssignmentInfo(ResourceInfo):
 class FileInfo(ResourceInfo):
     id: str
     uri: str
+    url: str
     title: str  # for course-link
 
 
@@ -76,13 +77,13 @@ class QuizQuestionInfo(ResourceInfo):
     id: str
     quiz_id: str
     uri: str
-    url: str
+    url: Optional[str]
 
 
 class QuizQuestionOrderInfo(ResourceInfo):
-    quiz_id: int
+    quiz_id: str
     uri: str
-    url: str
+    url: Optional[str]
 
 
 class SyllabusInfo(ResourceInfo):
@@ -99,7 +100,7 @@ class SyllabusInfo(ResourceInfo):
 class CanvasResource(TypedDict):
     type: str
     id: str
-    data: dict
+    data: dict | FileData | ZipFileData | QuartoSlidesData | SyllabusData
     content_path: str
 
 
@@ -111,36 +112,40 @@ class CourseSettings(TypedDict):
 
 class FileData(TypedDict):
     path: str
-    checksum_paths: list[str]
+    checksum_paths: NotRequired[list[str]]
     canvas_folder: str | None
     lock_at: str | None
     unlock_at: str | None
+    canvas_id: NotRequired[Optional[str]]
 
 
 class ZipFileData(TypedDict):
     zip_file_name: str
     zip_contents: dict[str, str]
-    checksum_paths: list[str]
+    checksum_paths: NotRequired[list[str]]
     canvas_folder: str | None
+    canvas_id: NotRequired[Optional[str]]
 
 
 class QuartoSlidesData(TypedDict):
     path: str
     root_path: str
-    checksum_paths: list[str]
+    checksum_paths: NotRequired[list[str]]
     slides_name: str
     canvas_folder: str | None
     lock_at: str | None
     unlock_at: str | None
+    canvas_id: NotRequired[Optional[str]]
 
 
 class SyllabusData(TypedDict):
     content: str
+    canvas_id: NotRequired[Optional[str]]
 
 
 def iter_keys(text: str) -> Iterator[tuple[str, str, str, str]]:
     for match in re.finditer(r'__@@([^|]+)\|\|(.+?)\|\|([^@]+)@@__', text):
-        yield match.group(0), *match.groups()
+        yield (match.group(0), *cast(tuple[str, str, str], match.groups()))
 
 
 def get_key(rtype: str, rid: str, field: str):
@@ -149,7 +154,7 @@ def get_key(rtype: str, rid: str, field: str):
 
 class ResourceManager(dict[tuple[str, str], CanvasResource]):
 
-    def add_resource(self, resource: CanvasResource, field: str = None) -> str:
+    def add_resource(self, resource: CanvasResource, field: Optional[str] = None) -> Optional[str]:
         rtype = resource['type']
         rid = resource['id']
         self[rtype, rid] = resource

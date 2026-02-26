@@ -24,7 +24,7 @@ def deploy_assignment(course: Course, assignment_info: dict) -> tuple[Assignment
         'uri': f'/courses/{course.id}/assignments/{canvas_assignment.id}',
 
         # Following fields have been observed to be missing in some cases
-        'url': canvas_assignment.html_url if hasattr(canvas_assignment, 'html_url') else None
+        'url': getattr(canvas_assignment, 'html_url', None)
     }
 
     return assignment_object_info, None
