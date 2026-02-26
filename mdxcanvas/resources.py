@@ -119,10 +119,8 @@ class FileData(TypedDict):
 
 class ZipFileData(TypedDict):
     zip_file_name: str
-    content_folder: str
-    additional_files: list[str] | None
-    exclude_pattern: str | None
-    priority_folder: str | None
+    zip_contents: dict[str, str]
+    checksum_paths: list[str]
     canvas_folder: str | None
 
 
