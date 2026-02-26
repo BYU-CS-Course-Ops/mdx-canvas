@@ -18,7 +18,7 @@ from .announcement import deploy_announcement
 from .assignment import deploy_assignment, deploy_shell_assignment
 from .checksums import MD5Sums, compute_md5
 from .course_settings import deploy_settings
-from .file import deploy_file
+from .file import deploy_file, get_file
 from .group import deploy_group
 from .migration import migrate
 from .module import deploy_module, deploy_module_item, get_module_item
@@ -294,7 +294,7 @@ def _lookup_stale_canvas_resource(course: Course, item_type: str, item_id: str,
         # Standard Canvas API getters (course.get_assignment, course.get_page, etc.)
         if item_type == 'announcement':
             lookup = course.get_discussion_topic
-        elif item_type == 'zip':
+        elif item_type in ['zip', 'quarto-slides']:
             lookup = course.get_file
         else:
             lookup = getattr(course, f'get_{item_type}', None)
