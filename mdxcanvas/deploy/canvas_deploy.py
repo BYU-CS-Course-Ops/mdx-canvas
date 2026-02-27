@@ -4,6 +4,7 @@ import threading
 import time
 from collections import defaultdict
 from datetime import datetime
+from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Callable, Optional, cast
 from zoneinfo import ZoneInfo
@@ -188,7 +189,8 @@ def identify_modified_or_outdated(
         resources: dict[tuple[str, str], CanvasResource],
         linearized_resources: list[tuple[tuple[str, str], bool]],
         resource_dependencies: dict[tuple[str, str], list[tuple[str, str]]],
-        md5s: MD5Sums
+        md5s: MD5Sums,
+        deploy_root: Path
 ) -> dict[tuple[str, str], tuple[str, CanvasResource]]:
     """
     A resource is modified or outdated if:
@@ -221,7 +223,7 @@ def identify_modified_or_outdated(
 
         stored_md5 = md5s.get_checksum(item)
 
-        current_md5 = compute_md5(resource_data)
+        current_md5 = compute_md5(resource_data, deploy_root=deploy_root)
 
         # Attach the Canvas object id (stored as `canvas_id`) to the resource data
         # so deployment can detect whether to create a new item or update an existing one.
@@ -465,7 +467,7 @@ def _log_completion(actions: list[str], elapsed: float):
 # =============================================================================
 
 def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, str], CanvasResource],
-                     report: DeploymentReport, dryrun=False, cleanup=False):
+                     report: DeploymentReport, deploy_root: Path, dryrun=False, cleanup=False):
     resource_dependencies, resource_order = _prepare_deployment_order(resources)
 
     logger.info('Preparing resources for deployment to Canvas')
@@ -476,7 +478,7 @@ def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, s
     with MD5Sums(course) as md5s, TemporaryDirectory() as tmpdir:
         migrate(course, md5s)
 
-        if to_deploy := identify_modified_or_outdated(resources, resource_order, resource_dependencies, md5s):
+        if to_deploy := identify_modified_or_outdated(resources, resource_order, resource_dependencies, md5s, deploy_root=deploy_root):
             _deploy_resources(course, to_deploy, md5s, report, timezone,
                               resource_dependencies, resource_order, dryrun=dryrun)
             actions.append(f'{len(to_deploy)} resources deployed')

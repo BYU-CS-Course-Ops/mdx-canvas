@@ -4,12 +4,15 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 import unicodedata
 
+from typing import cast
+
 import requests
 from canvasapi.course import Course
 
 from .file import get_file, deploy_file
 from ..our_logging import get_logger
 from ..resources import FileData, QuartoSlidesData, SyllabusData, ZipFileData
+from ..util import to_relative_posix
 
 logger = get_logger()
 
@@ -32,21 +35,47 @@ def _compute_checksum_of_path(resource_path: Path) -> bytes:
     raise FileNotFoundError(f'Path does not exist or is not a file/directory: {resource_path}')
 
 
-def compute_md5(obj: dict | FileData | ZipFileData | QuartoSlidesData | SyllabusData) -> str:
+def compute_md5(obj: dict | FileData | ZipFileData | QuartoSlidesData | SyllabusData,
+                deploy_root: Path) -> str:
     # Keys that should not affect change detection:
     # - canvas_id: injected by the deployment system at runtime
-    # - checksum_paths: already consumed above via _compute_checksum_of_path
-    # - path, root_path, zip_contents: absolute paths that vary across machines;
-    #   their file contents are already captured by checksum_paths
-    FILTERED_KEYS = {'canvas_id', 'checksum_paths', 'path', 'root_path', 'zip_contents'}
+    FILTERED_KEYS = {'canvas_id'}
+
+    # Keys whose values are paths and should be normalised to
+    # deploy-root-relative POSIX representations so that the
+    # checksum is platform-independent and detects renames.
+    PATH_KEYS = {'checksum_paths', 'path', 'root_path', 'zip_contents'}
+
     hashable = b''
 
+    # Hash file *contents* from checksum_paths
     paths = obj.get('checksum_paths', [])
     for path in paths:
         hashable += _compute_checksum_of_path(Path(path))
 
+    # Build a dict for JSON hashing, normalising path values
+    filtered: dict = {}
+    for k, v in obj.items():
+        if k in FILTERED_KEYS:
+            continue
+        if deploy_root is not None and k in PATH_KEYS:
+            if k == 'checksum_paths':
+                filtered[k] = [to_relative_posix(Path(p), deploy_root) for p in cast(list[str], v)]
+            elif k in ('path', 'root_path'):
+                filtered[k] = to_relative_posix(Path(cast(str, v)), deploy_root)
+            elif k == 'zip_contents':
+                filtered[k] = {
+                    zip_name: to_relative_posix(Path(fpath), deploy_root)
+                    for zip_name, fpath in cast(dict[str, str], v).items()
+                }
+        else:
+            # Non-path key, or no deploy_root provided – include as-is
+            # (when deploy_root is None, path keys are still excluded for
+            #  backward compatibility)
+            if k not in PATH_KEYS:
+                filtered[k] = v
+
     # Normalize the JSON string to ensure consistent encoding and line endings across platforms
-    filtered = {k: v for k, v in obj.items() if k not in FILTERED_KEYS}
     json_str = json.dumps(filtered, sort_keys=True, ensure_ascii=False)
     normalized = unicodedata.normalize('NFC', json_str).replace('\r\n', '\n').replace('\r', '\n')
     hashable += normalized.encode('utf-8')

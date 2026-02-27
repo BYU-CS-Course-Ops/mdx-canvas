@@ -1,3 +1,4 @@
+import os
 import textwrap
 import warnings
 from pathlib import Path
@@ -28,6 +29,18 @@ def retrieve_contents(tag: Tag, ignored_child_tag_names: list[str] = []) -> str:
             or (isinstance(c, Tag) and c.name not in ignored_child_tag_names)
         )
     )
+
+
+def to_relative_posix(path: Path, root: Path) -> str:
+    """Convert a path to a POSIX-style string relative to root.
+
+    Returns a forward-slash separated path relative to *root* so that
+    the same logical file always produces the same string regardless of
+    the operating system.  Uses ``..`` navigation when *path* is not
+    inside *root*.
+    """
+    rel_str = os.path.relpath(path.resolve(), root.resolve())
+    return Path(rel_str).as_posix()
 
 
 def find_quarto_root(slide_file: Path) -> Path:

@@ -14,8 +14,6 @@ from ..resources import ResourceManager, CanvasResource, FileData
 
 logger = get_logger()
 
-_MERMAID_OUTPUT_DIR = Path(tempfile.gettempdir()) / 'mdxcanvas-mermaid'
-
 
 def _content_hash(source: str) -> str:
     """Generate a short hash of the mermaid source."""
@@ -44,7 +42,11 @@ def _trim_whitespace(image_path: Path, padding: int = 10) -> None:
         bottom = min(img.height, bbox[3] + padding)
 
         cropped = img.crop((left, top, right, bottom))
-        cropped.save(image_path)
+        # Use explicit parameters for cross-platform deterministic output:
+        # - compress_level=9: fixed compression level (default varies by platform)
+        # - pnginfo with empty PngInfo: strips metadata (timestamps, software, etc.)
+        from PIL.PngImagePlugin import PngInfo
+        cropped.save(image_path, compress_level=9, pnginfo=PngInfo())
 
 
 def _find_mmdc() -> str:
@@ -58,7 +60,7 @@ def _find_mmdc() -> str:
     )
 
 
-def render_mermaid_to_png(source: str) -> Path:
+def render_mermaid_to_png(source: str, output_dir: Path) -> Path:
     """
     Render mermaid source code to a trimmed PNG file.
 
@@ -69,12 +71,13 @@ def render_mermaid_to_png(source: str) -> Path:
     are only rendered once.
 
     :param source: The mermaid diagram source code
+    :param output_dir: Directory to store rendered PNG files
     :returns: Path to the generated PNG file
     """
-    _MERMAID_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    output_dir.mkdir(parents=True, exist_ok=True)
 
     content_hash = _content_hash(source)
-    output_path = _MERMAID_OUTPUT_DIR / f'mermaid-{content_hash}.png'
+    output_path = output_dir / f'mermaid-{content_hash}.png'
 
     # Write mermaid source to a temp file
     _, temp_path = tempfile.mkstemp(suffix='.mmd')
@@ -121,7 +124,7 @@ def render_mermaid_to_png(source: str) -> Path:
         input_file.unlink(missing_ok=True)
 
 
-def make_mermaid_fence_format(resources: ResourceManager):
+def make_mermaid_fence_format(resources: ResourceManager, deploy_root: Path):
     """
     Create a custom fence formatter for pymdownx.superfences.
 
@@ -130,14 +133,18 @@ def make_mermaid_fence_format(resources: ResourceManager):
     Canvas file resource so it will be uploaded and referenced correctly.
 
     :param resources: ResourceManager to register the image for upload
+    :param deploy_root: Project root directory; mermaid PNGs are cached
+        under ``<deploy_root>/.mdxcanvas/mermaid/``
     :returns: A fence formatter function for use with pymdownx.superfences
     """
+    mermaid_dir = deploy_root / '.mdxcanvas' / 'mermaid'
+
     def mermaid_fence_format(source, language, css_class, options, md, **kwargs):
         # Unescape HTML entities that may have been introduced
         # by the markdown preprocessing step (e.g. < -> &lt;)
         clean_source = html.unescape(source)
 
-        output_path = render_mermaid_to_png(clean_source)
+        output_path = render_mermaid_to_png(clean_source, mermaid_dir)
 
         # Build extra attributes from {: .class #id key="value" } syntax
         classes = kwargs.get('classes', [])
@@ -162,13 +169,13 @@ def make_mermaid_fence_format(resources: ResourceManager):
         file = CanvasResource(
             type='file',
             id=output_path.name,
-            data=cast(dict, FileData(
-                path=(p := str(output_path)),
-                checksum_paths=[p],
+            data=FileData(
+                path=str(output_path),
+                checksum_paths=[],     # Don't checksum the mermaid PNG itself; it's derived from the source
                 canvas_folder=cast(str, attrs.get('canvas_folder', None)),
                 lock_at=cast(str, attrs.get('lock_at', None)),
                 unlock_at=cast(str, attrs.get('unlock_at', None)),
-            )),
+            ),
             content_path=get_current_file_str()
         )
         resource_key = cast(str, resources.add_resource(file, 'uri'))

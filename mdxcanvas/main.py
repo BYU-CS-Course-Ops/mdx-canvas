@@ -73,7 +73,8 @@ def process_file(
         global_args: Optional[dict] = None,
         args_file: Optional[Path] = None,
         templates: Optional[list[Path]] = None,
-        css_file: Optional[Path] = None
+        css_file: Optional[Path] = None,
+        deploy_root: Optional[Path] = None
 ) -> str:
     """
     Read a file and fully process the text content
@@ -81,6 +82,9 @@ def process_file(
     Process content-modifying XML tags (e.g. img, or file, or zip, or include)
     Post-process the content (whole XML in, whole XML out, e.g. bake CSS)
     """
+    # Default deploy_root to parent_folder if not explicitly provided
+    if deploy_root is None:
+        deploy_root = parent_folder.resolve()
     if is_jinja(content_type):
         content = process_jinja(
             content,
@@ -97,7 +101,8 @@ def process_file(
             'br', 'a', 'strong', 'em', 'span', 'file',
             'link', 'zip', 'course-link', 'timestamp'
         ]
-        xml_content = process_markdown(content, excluded=excluded, inline=inline, resources=resources)
+        xml_content = process_markdown(content, excluded=excluded, inline=inline, resources=resources,
+                                         deploy_root=deploy_root)
 
     else:
         xml_content = content
@@ -105,7 +110,8 @@ def process_file(
     # Preprocess XML
     def load_and_process_file_contents(parent: Path, content: str, content_type: list[str], **kwargs) -> str:
         return process_file(resources, parent, content, content_type,
-                            global_args=global_args, templates=templates, **kwargs)
+                            global_args=global_args, templates=templates,
+                            deploy_root=deploy_root, **kwargs)
 
     xml_content = preprocess_xml(parent_folder, xml_content, resources, load_and_process_file_contents)
 
@@ -170,6 +176,7 @@ def main(
             # Load file
             logger.info('Reading file: ' + str(input_file))
             content_type, content = read_content(input_file)
+            deploy_root = input_file.parent.resolve()
             processed_content = process_file(
                 resources,
                 input_file.parent,
@@ -178,7 +185,8 @@ def main(
                 global_args,
                 args_file,
                 templates,
-                css_file
+                css_file,
+                deploy_root=deploy_root
             )
 
             # Parse file into XML
@@ -186,7 +194,8 @@ def main(
 
             # Deploy XML
             logger.info('Deploying to Canvas')
-            deploy_to_canvas(course, course_info['LOCAL_TIME_ZONE'], resources, report, dryrun=dryrun, cleanup=cleanup)
+            deploy_to_canvas(course, course_info['LOCAL_TIME_ZONE'], resources, report, dryrun=dryrun, cleanup=cleanup,
+                            deploy_root=input_file.parent.resolve())
 
     except Exception as e:
         logger.exception(f"{type(e).__name__}: {e}")

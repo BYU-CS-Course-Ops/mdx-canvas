@@ -9,7 +9,7 @@ from ..error_helpers import format_tag, get_file_path, validate_required_attribu
 from ..our_logging import get_logger
 from ..processing_context import FileContext, get_current_file_str
 from ..resources import ResourceManager, FileData, ZipFileData, CanvasResource, get_key
-from ..util import parse_soup_from_xml
+from ..util import parse_soup_from_xml, to_relative_posix
 from ..xml_processing.attributes import parse_bool
 
 logger = get_logger()
@@ -330,7 +330,7 @@ def make_include_preprocessor(
 
             else:
                 new_tag = Tag(name='div')
-                new_tag['data-source'] = basename(imported_file)
+                new_tag['data-source'] = to_relative_posix(imported_file, parent_folder)
                 if lines:
                     new_tag['data-lines'] = lines
                 new_tag.extend(include_result)
