@@ -62,7 +62,13 @@ def compute_md5(obj: dict | FileData | ZipFileData | QuartoSlidesData | Syllabus
             if k == 'checksum_paths':
                 filtered[k] = [to_relative_posix(Path(p), deploy_root) for p in cast(list[str], v)]
             elif k in ('path', 'root_path'):
-                filtered[k] = to_relative_posix(Path(cast(str, v)), deploy_root)
+                if 'mermaid-' in cast(str, v):
+                    # For mermaid files, use just the filename as a stable identifier.
+                    # The full path is a temp dir that changes every run,
+                    # but the filename contains the content hash and is deterministic.
+                    filtered[k] = Path(cast(str, v)).name
+                else:
+                    filtered[k] = to_relative_posix(Path(cast(str, v)), deploy_root)
             elif k == 'zip_contents':
                 filtered[k] = {
                     zip_name: to_relative_posix(Path(fpath), deploy_root)

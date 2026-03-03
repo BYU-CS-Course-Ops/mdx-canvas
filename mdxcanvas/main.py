@@ -101,8 +101,7 @@ def process_file(
             'br', 'a', 'strong', 'em', 'span', 'file',
             'link', 'zip', 'course-link', 'timestamp'
         ]
-        xml_content = process_markdown(content, excluded=excluded, inline=inline, resources=resources,
-                                         deploy_root=deploy_root)
+        xml_content = process_markdown(content, excluded=excluded, inline=inline, resources=resources)
 
     else:
         xml_content = content

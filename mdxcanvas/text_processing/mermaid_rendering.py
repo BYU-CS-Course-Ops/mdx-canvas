@@ -1,18 +1,24 @@
+import base64
 import hashlib
 import html
-import shutil
-import subprocess
+import io
 import tempfile
+import time
+import os
 from pathlib import Path
 from typing import cast
 
+import requests
 from PIL import Image
+from PIL.PngImagePlugin import PngInfo
 
 from ..our_logging import get_logger
 from ..processing_context import get_current_file_str
 from ..resources import ResourceManager, CanvasResource, FileData
 
 logger = get_logger()
+
+MERMAID_INK_URL = 'https://mermaid.ink/img/'
 
 
 def _content_hash(source: str) -> str:
@@ -45,26 +51,14 @@ def _trim_whitespace(image_path: Path, padding: int = 10) -> None:
         # Use explicit parameters for cross-platform deterministic output:
         # - compress_level=9: fixed compression level (default varies by platform)
         # - pnginfo with empty PngInfo: strips metadata (timestamps, software, etc.)
-        from PIL.PngImagePlugin import PngInfo
         cropped.save(image_path, compress_level=9, pnginfo=PngInfo())
-
-
-def _find_mmdc() -> str:
-    """Find the mmdc executable."""
-    if shutil.which('mmdc'):
-        return 'mmdc'
-
-    raise FileNotFoundError(
-        'Mermaid CLI (mmdc) not found. Install it with:\n'
-        '  npm install -g @mermaid-js/mermaid-cli'
-    )
 
 
 def render_mermaid_to_png(source: str, output_dir: Path) -> Path:
     """
-    Render mermaid source code to a trimmed PNG file.
+    Render mermaid source code to a trimmed, high-resolution PNG file.
 
-    Uses mmdc (mermaid CLI) to render the diagram, then trims
+    Uses the mermaid.ink web service to render the diagram, then trims
     extraneous whitespace from the resulting image.
 
     Results are cached by content hash so identical diagrams
@@ -79,52 +73,37 @@ def render_mermaid_to_png(source: str, output_dir: Path) -> Path:
     content_hash = _content_hash(source)
     output_path = output_dir / f'mermaid-{content_hash}.png'
 
-    # Write mermaid source to a temp file
-    _, temp_path = tempfile.mkstemp(suffix='.mmd')
-    input_file = Path(temp_path)
-    input_file.write_text(source)
+    # if output_path.exists():
+    #     return output_path
 
-    try:
-        mmdc = _find_mmdc()
+    # Encode the mermaid source as URL-safe base64
+    base64_string = base64.urlsafe_b64encode(source.encode('utf-8')).decode('ascii')
 
-        result = subprocess.run(
-            [
-                mmdc,
-                '-i', str(input_file),
-                '-o', str(output_path),
-                '-b', 'transparent',
-                '-s', '4',  # 4x scale for high DPI
-            ],
-            capture_output=True,
-            text=True,
-            timeout=60
+    # Fetch the rendered image from mermaid.ink at 3x scale for high DPI
+    url = f'{MERMAID_INK_URL}{base64_string}?type=png&width=1920&scale=3'
+    response = requests.get(url, timeout=60, headers={'User-Agent': f'mdxcanvas-mermaid-renderer/1.0'})
+
+    if response.status_code != 200:
+        raise RuntimeError(
+            f'mermaid.ink returned status {response.status_code} '
+            f'for diagram (hash {content_hash})'
         )
 
-        if result.returncode != 0:
-            raise RuntimeError(
-                f'Mermaid CLI (mmdc) failed:\n{result.stderr.strip()}'
-            )
+    # Load the image from the response bytes and save as PNG
+    img = Image.open(io.BytesIO(response.content))
+    img.save(output_path, compress_level=9, pnginfo=PngInfo())
 
-        if not output_path.exists():
-            raise RuntimeError(
-                f'Mermaid CLI did not produce output file. '
-                f'stderr: {result.stderr.strip()}'
-            )
+    # Trim extraneous whitespace from the rendered image
+    _trim_whitespace(output_path)
+    # Reset file modification time to 1980-01-01 for deterministic output
+    mtime = time.mktime((1980, 1, 1, 0, 0, 0, 0, 1, -1))
+    os.utime(output_path, (mtime, mtime))
 
-        # Trim extraneous whitespace from the rendered image
-        _trim_whitespace(output_path)
-
-        logger.debug(f'Generated mermaid diagram: {output_path.name}')
-        return output_path
-
-    except subprocess.TimeoutExpired:
-        raise RuntimeError('Mermaid CLI (mmdc) timed out after 60 seconds')
-
-    finally:
-        input_file.unlink(missing_ok=True)
+    logger.debug(f'Generated mermaid diagram: {output_path.name}')
+    return output_path
 
 
-def make_mermaid_fence_format(resources: ResourceManager, deploy_root: Path):
+def make_mermaid_fence_format(resources: ResourceManager):
     """
     Create a custom fence formatter for pymdownx.superfences.
 
@@ -133,18 +112,21 @@ def make_mermaid_fence_format(resources: ResourceManager, deploy_root: Path):
     Canvas file resource so it will be uploaded and referenced correctly.
 
     :param resources: ResourceManager to register the image for upload
-    :param deploy_root: Project root directory; mermaid PNGs are cached
-        under ``<deploy_root>/.mdxcanvas/mermaid/``
     :returns: A fence formatter function for use with pymdownx.superfences
     """
-    mermaid_dir = deploy_root / '.mdxcanvas' / 'mermaid'
+
+    mermaid_dir = Path(tempfile.mkdtemp(prefix='mdxcanvas-mermaid-'))
 
     def mermaid_fence_format(source, language, css_class, options, md, **kwargs):
         # Unescape HTML entities that may have been introduced
         # by the markdown preprocessing step (e.g. < -> &lt;)
         clean_source = html.unescape(source)
 
-        output_path = render_mermaid_to_png(clean_source, mermaid_dir)
+        try:
+            output_path = render_mermaid_to_png(clean_source, mermaid_dir)
+        except Exception as e:
+            logger.exception(f'Failed to render mermaid diagram: {e}')
+            raise e
 
         # Build extra attributes from {: .class #id key="value" } syntax
         classes = kwargs.get('classes', [])
@@ -171,7 +153,7 @@ def make_mermaid_fence_format(resources: ResourceManager, deploy_root: Path):
             id=output_path.name,
             data=FileData(
                 path=str(output_path),
-                checksum_paths=[],     # Don't checksum the mermaid PNG itself; it's derived from the source
+                checksum_paths=[],
                 canvas_folder=cast(str, attrs.get('canvas_folder', None)),
                 lock_at=cast(str, attrs.get('lock_at', None)),
                 unlock_at=cast(str, attrs.get('unlock_at', None)),

@@ -6,9 +6,6 @@ __pycache__/
 # Secrets
 *.env
 
-# mdxcanvas cache
-.mdxcanvas/
-
 # C extensions
 *.so
 

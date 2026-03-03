@@ -54,7 +54,7 @@ def replace_problematic_characters(text: str, replacements: dict[str, str]) -> s
     return '\n'.join(output_lines)
 
 
-def process_markdown_text(text: str, resources: ResourceManager, deploy_root: Path) -> str:
+def process_markdown_text(text: str, resources: ResourceManager) -> str:
     dedented = textwrap.dedent(text)
 
     html = md.markdown(dedented, extensions=[
@@ -66,7 +66,7 @@ def process_markdown_text(text: str, resources: ResourceManager, deploy_root: Pa
             {
                 'name': 'mermaid',
                 'class': 'mermaid',
-                'format': make_mermaid_fence_format(resources, deploy_root),
+                'format': make_mermaid_fence_format(resources),
             }
         ]),
 
@@ -112,27 +112,24 @@ def _form_blocks(tag: Tag, excluded: list[str], inline: list[str]) -> Generator[
         yield True, block_tags
 
 
-def _process_markdown(parent, excluded: list[str], inline: list[str], resources: ResourceManager,
-                      deploy_root: Path):
+def _process_markdown(parent, excluded: list[str], inline: list[str], resources: ResourceManager):
     for needs_markdown, block in _form_blocks(parent, excluded, inline):
         if needs_markdown:
             result = parse_soup_from_xml(
                 process_markdown_text(
                     ''.join((str(b) for b in block)),
                     resources=resources,
-                    deploy_root=deploy_root
                 )
             )
             for tag in block:
                 tag.replace_with(result)
         else:
             for tag in block:
-                _process_markdown(tag, excluded, inline, resources=resources,
-                                  deploy_root=deploy_root)
+                _process_markdown(tag, excluded, inline, resources=resources)
 
 
-def process_markdown(text: str, excluded: list[str], inline: list[str], resources: ResourceManager,
-                     deploy_root: Path) -> str:
+
+def process_markdown(text: str, excluded: list[str], inline: list[str], resources: ResourceManager) -> str:
     """
     Process Markdown text and return XML text
 
@@ -150,5 +147,5 @@ def process_markdown(text: str, excluded: list[str], inline: list[str], resource
     """
     content = replace_problematic_characters(text, {'<': '&lt;'})
     soup = parse_soup_from_xml(content)
-    _process_markdown(soup, excluded, inline, resources=resources, deploy_root=deploy_root)
+    _process_markdown(soup, excluded, inline, resources=resources)
     return str(soup)
