@@ -73,9 +73,6 @@ def render_mermaid_to_png(source: str, output_dir: Path) -> Path:
     content_hash = _content_hash(source)
     output_path = output_dir / f'mermaid-{content_hash}.png'
 
-    # if output_path.exists():
-    #     return output_path
-
     # Encode the mermaid source as URL-safe base64
     base64_string = base64.urlsafe_b64encode(source.encode('utf-8')).decode('ascii')
 
