@@ -54,7 +54,7 @@ def compute_md5(obj: CanvasResource | FileData | ZipFileData | QuartoSlidesData 
         hashable += _compute_checksum_of_path(Path(path))
 
     # Build a dict for JSON hashing, normalizing path values
-    filtered: dict = {}
+    filtered = {}
     for k, v in obj.items():
         if k in FILTERED_KEYS:
             continue
@@ -75,9 +75,7 @@ def compute_md5(obj: CanvasResource | FileData | ZipFileData | QuartoSlidesData 
                     for zip_name, fpath in v.items()
                 }
         else:
-            # Non-path key, or no deploy_root provided – include as-is
-            # (when deploy_root is None, path keys are still excluded for
-            #  backward compatibility)
+            # Non-path key – include as-is
             if k not in PATH_KEYS:
                 filtered[k] = v
 

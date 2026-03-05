@@ -1,8 +1,8 @@
 from bs4.element import Tag
 
-from mdxcanvas.resources import ResourceManager, CanvasResource, SyllabusData
-from mdxcanvas.util import retrieve_contents
-from mdxcanvas.processing_context import get_current_file_str
+from ..resources import ResourceManager, CanvasResource, SyllabusData
+from ..util import retrieve_contents
+from ..processing_context import get_current_file_str
 
 
 class SyllabusTagProcessor:
