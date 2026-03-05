@@ -150,9 +150,9 @@ def make_mermaid_fence_format(resources: ResourceManager):
             data=FileData(
                 path=str(output_path),
                 checksum_paths=[],
-                canvas_folder=attrs.get('canvas_folder', None),
-                lock_at=attrs.get('lock_at', None),
-                unlock_at=attrs.get('unlock_at', None),
+                canvas_folder=attrs.get('canvas_folder'),
+                lock_at=attrs.get('lock_at'),
+                unlock_at=attrs.get('unlock_at'),
             ),
             content_path=get_current_file_str()
         )

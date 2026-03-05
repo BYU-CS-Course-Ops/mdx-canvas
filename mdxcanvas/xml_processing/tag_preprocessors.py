@@ -348,7 +348,7 @@ def make_link_preprocessor():
         link_rid = validate_required_attribute(tag, 'id', 'course-link')
 
         new_tag = Tag(name='a')
-        frag = tag.get('fragment', None)
+        frag = tag.get('fragment')
         new_tag['href'] = get_key(link_type, link_rid, 'uri') + (f'#{frag}' if frag else '')
         link_text = tag.string.strip() if tag.string is not None else ''
         if not link_text:
@@ -385,7 +385,7 @@ def make_markdown_page_preprocessor(
         page_tag = Tag(name='page', attrs={'title': page_title})
         page_tag.append(include_tag)
 
-        if (page_id := tag.get('id', None)) is not None:
+        if page_id := tag.get('id'):
             page_tag['id'] = page_id
 
         include_processor = make_include_preprocessor(parent_folder, process_file)

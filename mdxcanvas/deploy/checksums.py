@@ -165,14 +165,14 @@ class MD5Sums:
         return self._version is not None
 
     def get_canvas_info(self, item):
-        return self.get(item, {}).get('canvas_info', None)
+        return self.get(item, {}).get('canvas_info')
 
     def has_canvas_info(self, item):
         return self.get_canvas_info(item) is not None
 
     def get_checksum(self, item):
         entry = self.get(item)
-        return entry.get('checksum', None) if entry else None
+        return entry.get('checksum') if entry else None
 
     def has_checksum(self, item):
         return self.get_checksum(item) is not None

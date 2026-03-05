@@ -87,9 +87,9 @@ class Attribute:
 
 def get_tag_info(tag: Tag):
     name = tag.name
-    hint = tag.get('title', None)
+    hint = tag.get('title')
     if hint is None:
-        hint = tag.get('name', None)
+        hint = tag.get('name')
     display = name
     if hint:
         display += f'({hint})'
@@ -115,8 +115,8 @@ def parse_settings(tag: Tag, attributes: list[Attribute]):
             continue
 
         if (field := (
-                tag.get(attribute.name, None)
-                or (tag.get(attribute.new_name, None) if attribute.new_name else None)
+                tag.get(attribute.name)
+                or (tag.get(attribute.new_name) if attribute.new_name else None)
         )):
             try:
                 value = attribute.parser(field)
