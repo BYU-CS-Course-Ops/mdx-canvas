@@ -3,7 +3,7 @@ from typing import Any
 from bs4.element import Tag
 
 from .attributes import Attribute, parse_bool, parse_dict, parse_list, parse_settings, parse_int
-from ..resources import ResourceManager, get_key, CanvasResource
+from ..resources import ResourceManager, StrLike, get_key, CanvasResource
 from ..error_helpers import format_tag, get_file_path
 from ..processing_context import get_current_file_str
 
@@ -57,7 +57,7 @@ class ModuleTagProcessor:
         if prev_mod := module_data.get('previous-module'):
             module_data['_comments']['previous_module'] = get_key('module', prev_mod, 'id')
 
-        module_id = module_tag.get('id', module_data['name'])
+        module_id: str = module_tag.get('id', module_data['name']) # pyright: ignore[reportAssignmentType]
         self._previous_module = module_id
 
         self._resources.add_resource(CanvasResource(
@@ -72,7 +72,7 @@ class ModuleTagProcessor:
         for item_tag in module_tag.find_all('item'):
             self._parse_module_item(module_id, item_tag)
 
-    def _parse_module_item(self, module_rid: str | Any, tag: Tag):
+    def _parse_module_item(self, module_rid: StrLike, tag: Tag):
         fields = [
             Attribute('type', ignore=True),
             Attribute('position', parser=parse_int),

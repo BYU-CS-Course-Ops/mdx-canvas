@@ -1,7 +1,7 @@
 import re
 from os.path import basename
 from pathlib import Path
-from typing import  Callable
+from typing import Callable
 
 from bs4.element import Tag
 
@@ -120,7 +120,7 @@ def make_file_preprocessor(parent: Path, resources: ResourceManager):
             raise ValueError(f"File not found @ {format_tag(tag)}\n  File path: {path}\n  in {get_file_path(tag)}")
         # Only pop the path after validation succeeds
         attrs.pop('path')
-        # noinspection PyTypeChecker
+
         file = CanvasResource(
             type='file',
             id=path.name,
@@ -279,7 +279,7 @@ def make_include_preprocessor(
 
         # Check if the included file exists first
         if not imported_file.exists():
-            containing_file = get_current_file_str() or "unknown file"
+            containing_file = get_current_file_str()
             raise FileNotFoundError(
                 f"Include file not found @ {format_tag(tag)}\n"
                 f"  in {containing_file}"
@@ -291,7 +291,7 @@ def make_include_preprocessor(
 
             # Check if args file exists
             if not args_file.exists():
-                containing_file = get_current_file_str() or "unknown file"
+                containing_file = get_current_file_str()
                 raise FileNotFoundError(
                     f"Args file not found @ {format_tag(tag)}\n"
                     f"  in {containing_file}"

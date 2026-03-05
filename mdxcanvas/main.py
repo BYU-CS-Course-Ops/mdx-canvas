@@ -82,9 +82,6 @@ def process_file(
     Process content-modifying XML tags (e.g. img, or file, or zip, or include)
     Post-process the content (whole XML in, whole XML out, e.g. bake CSS)
     """
-    # Default deploy_root to parent_folder if not explicitly provided
-    if deploy_root is None:
-        deploy_root = parent_folder.resolve()
     if is_jinja(content_type):
         content = process_jinja(
             content,
@@ -184,7 +181,7 @@ def main(
                 global_args,
                 args_file,
                 templates,
-                css_file,
+                css_file
             )
 
             # Parse file into XML
@@ -193,7 +190,7 @@ def main(
             # Deploy XML
             logger.info('Deploying to Canvas')
             deploy_to_canvas(course, course_info['LOCAL_TIME_ZONE'], resources, report, dryrun=dryrun, cleanup=cleanup,
-                            deploy_root=input_file.parent.resolve())
+                            deploy_root=deploy_root)
 
     except Exception as e:
         logger.exception(f"{type(e).__name__}: {e}")

@@ -60,7 +60,7 @@ class AssignmentTagProcessor:
 
         settings.update(parse_settings(assignment_tag, fields))
 
-        rid = str(assignment_tag.get('id', settings['name']))
+        rid: str = assignment_tag.get('id', settings['name']) # pyright: ignore[reportAssignmentType]
         assignment = CanvasResource(
             type='assignment',
             id=rid,
