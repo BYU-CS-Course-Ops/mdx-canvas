@@ -25,10 +25,12 @@ def _execute_with_rate_limit_retry(
         try:
             execute(data)
             return
-        except RateLimitExceeded | CanvasException as e:
+        except (RateLimitExceeded, CanvasException) as e:
             if not isinstance(e, RateLimitExceeded) and not (
                 isinstance(e, CanvasException) and 'status code 429' in e.message
             ):
+                raise
+            if attempt == max_rate_limit_retries:
                 raise
             retry_number = attempt + 1
             logger.warning(
