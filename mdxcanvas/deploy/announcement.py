@@ -1,9 +1,11 @@
+from pathlib import Path
+
 from canvasapi.course import Course
 
 from ..resources import AnnouncementInfo
 
 
-def deploy_announcement(course: Course, announcement_info: dict) -> tuple[AnnouncementInfo, None]:
+def deploy_announcement(course: Course, announcement_info: dict, _: Path) -> tuple[AnnouncementInfo, None]:
     announcement_id = announcement_info["canvas_id"]
 
     if announcement_id:

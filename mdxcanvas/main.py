@@ -28,6 +28,7 @@ class CourseInfo(TypedDict):
     CANVAS_API_URL: str
     CANVAS_COURSE_ID: int
     LOCAL_TIME_ZONE: str
+    DEPLOY_ROOT: str
 
 
 def load_config(config_path: Path):
@@ -108,7 +109,7 @@ def process_file(
         return process_file(resources, deploy_root, parent, content, content_type,
                             global_args, templates=templates, **kwargs)
 
-    xml_content = preprocess_xml(parent_folder, xml_content, resources, load_and_process_file_contents)
+    xml_content = preprocess_xml(deploy_root, parent_folder, xml_content, resources, load_and_process_file_contents)
 
     # Post-process the XML
     global_css = css_file.read_text() if css_file else ''
@@ -156,6 +157,8 @@ def main(
     try:
         # Make sure the course actually exists before doing any real effort
         course_info = load_config(course_info_file)
+        course_info_dir = course_info_file.parent.resolve().absolute()
+        deploy_root = (course_info_dir / Path(course_info['DEPLOY_ROOT'])).resolve().absolute()
         global_args = course_info.get('GLOBAL_ARGS', {})
 
         course = get_course(canvas_api_token, course_info['CANVAS_API_URL'], course_info['CANVAS_COURSE_ID'])
@@ -171,7 +174,6 @@ def main(
             # Load file
             logger.info('Reading file: ' + str(input_file))
             content_type, content = read_content(input_file)
-            deploy_root = input_file.parent.resolve()
             processed_content = process_file(
                 resources,
                 deploy_root,

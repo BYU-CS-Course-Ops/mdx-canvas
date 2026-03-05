@@ -27,6 +27,7 @@ def _walk_xml(tag, tag_processors):
 
 
 def preprocess_xml(
+        deploy_root: Path,
         parent: Path,
         text: str,
         resources: ResourceManager,
@@ -40,14 +41,14 @@ def preprocess_xml(
     These IDs will be replaced with real Canvas IDs during deployment.
     """
     tag_preprocessors = {
-        'course-settings': make_course_settings_preprocessor(parent, resources),
-        'img': make_image_preprocessor(parent, resources),
-        'file': make_file_preprocessor(parent, resources),
-        'zip': make_zip_preprocessor(parent, resources),
-        'include': make_include_preprocessor(parent, process_file),
+        'course-settings': make_course_settings_preprocessor(deploy_root, parent, resources),
+        'img': make_image_preprocessor(deploy_root, parent, resources),
+        'file': make_file_preprocessor(deploy_root, parent, resources),
+        'zip': make_zip_preprocessor(deploy_root, parent, resources),
+        'include': make_include_preprocessor(deploy_root, parent, process_file),
         'course-link': make_link_preprocessor(),
-        'md-page': make_markdown_page_preprocessor(parent, process_file),
-        'quarto-slides': make_quarto_slides_preprocessor(parent, resources)
+        'md-page': make_markdown_page_preprocessor(deploy_root, parent, process_file),
+        'quarto-slides': make_quarto_slides_preprocessor(deploy_root, parent, resources)
     }
 
     soup = parse_soup_from_xml(text)

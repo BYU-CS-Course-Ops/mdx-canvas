@@ -11,7 +11,7 @@ from canvasapi.course import Course
 from .file import get_file, deploy_file
 from ..our_logging import get_logger
 from ..resources import CanvasResource, FileData, QuartoSlidesData, SyllabusData, ZipFileData
-from ..util import to_relative_posix
+from ..util import to_relative_posix, relative_to_abs
 
 logger = get_logger()
 
@@ -41,43 +41,15 @@ def compute_md5(obj: CanvasResource | FileData | ZipFileData | QuartoSlidesData 
     # - canvas_id: injected by the deployment system at runtime
     FILTERED_KEYS = {'canvas_id'}
 
-    # Keys whose values are paths and should be normalized to
-    # deploy-root-relative POSIX representations so that the
-    # checksum is platform-independent and detects renames.
-    PATH_KEYS = {'checksum_paths', 'path', 'root_path', 'zip_contents'}
-
     hashable = b''
 
     # Hash file *contents* from checksum_paths
     paths = obj.get('checksum_paths', [])
     for path in paths:
-        hashable += _compute_checksum_of_path(Path(path))
+        hashable += _compute_checksum_of_path(relative_to_abs(Path(path), deploy_root))
 
     # Build a dict for JSON hashing, normalizing path values
-    filtered = {}
-    for k, v in obj.items():
-        if k in FILTERED_KEYS:
-            continue
-        if k in PATH_KEYS:
-            if k == 'checksum_paths':
-                filtered[k] = [to_relative_posix(Path(p), deploy_root) for p in v]
-            elif k in ('path', 'root_path'):
-                if 'mermaid-' in v:
-                    # For mermaid files, use just the filename as a stable identifier.
-                    # The full path is a temp dir that changes every run,
-                    # but the filename contains the content hash and is deterministic.
-                    filtered[k] = Path(v).name
-                else:
-                    filtered[k] = to_relative_posix(Path(v), deploy_root)
-            elif k == 'zip_contents':
-                filtered[k] = {
-                    zip_name: to_relative_posix(Path(fpath), deploy_root)
-                    for zip_name, fpath in v.items()
-                }
-        else:
-            # Non-path key – include as-is
-            if k not in PATH_KEYS:
-                filtered[k] = v
+    filtered = {k: v for k, v in obj.items() if not (k == 'path' and 'mermaid-' in v) or k not in FILTERED_KEYS}
 
     # Normalize the JSON string to ensure consistent encoding and line endings across platforms
     json_str = json.dumps(filtered, sort_keys=True, ensure_ascii=False)
@@ -105,9 +77,10 @@ class MD5Sums:
     }
     """
 
-    def __init__(self, course: Course):
+    def __init__(self, course: Course, deploy_root: Path):
         self._version = None
         self._course = course
+        self._deploy_root = deploy_root
 
     def _download_md5s(self):
         md5_file = get_file(self._course, MD5_FILE_NAME)
@@ -141,11 +114,11 @@ class MD5Sums:
             tmpfile = Path(tmpdir) / MD5_FILE_NAME
             tmpfile.write_text(json.dumps(data), encoding='utf-8')
             deploy_file(self._course, FileData(
-                path=(p := str(tmpfile.absolute())),
+                path=(p := to_relative_posix(tmpfile.absolute(), self._deploy_root)),
                 checksum_paths=[p],
                 canvas_folder="_md5s",
                 lock_at=None, unlock_at=None
-            ))
+            ), self._deploy_root)
 
     def items(self):
         return self._md5s.items()

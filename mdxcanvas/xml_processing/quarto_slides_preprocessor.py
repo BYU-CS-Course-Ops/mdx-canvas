@@ -7,29 +7,29 @@ from ..error_helpers import validate_required_attribute, format_tag, get_file_pa
 from ..processing_context import get_current_file_str
 from ..resources import QuartoSlidesData
 from ..resources import ResourceManager, CanvasResource
-from ..util import find_quarto_root
+from ..util import find_quarto_root, to_relative_posix
 
 
-def _find_quarto_dependencies(slide_file: Path) -> list[str]:
+def _find_quarto_dependencies(slide_file: Path, deploy_root: Path) -> list[str]:
     quarto_root = find_quarto_root(slide_file)
     deps = []
 
     quarto_yaml = quarto_root / '_quarto.yaml'
     if quarto_yaml.exists():
-        deps.append(str(quarto_yaml))
+        deps.append(to_relative_posix(quarto_yaml, deploy_root))
 
     quarto_yaml = quarto_root / '_quarto.yml'
     if quarto_yaml.exists():
-        deps.append(str(quarto_yaml))
+        deps.append(to_relative_posix(quarto_yaml, deploy_root))
 
     extensions = quarto_root / '_extensions'
     if extensions.exists():
-        deps.append(str(extensions))
+        deps.append(to_relative_posix(extensions, deploy_root))
 
     return deps
 
 
-def make_quarto_slides_preprocessor(parent: Path, resources: ResourceManager):
+def make_quarto_slides_preprocessor(deploy_root: Path, parent: Path, resources: ResourceManager):
     def process_quarto_slides(tag: Tag):
         qmd_file = (
                 parent
@@ -44,15 +44,14 @@ def make_quarto_slides_preprocessor(parent: Path, resources: ResourceManager):
         if not name:
             name = qmd_file.name.replace('.qmd', '.slides.html')
 
-        checksum_paths = [str(qmd_file)] + _find_quarto_dependencies(qmd_file)
+        checksum_paths = [to_relative_posix(qmd_file, deploy_root)] + _find_quarto_dependencies(qmd_file, deploy_root)
 
-        # noinspection PyTypeChecker
         file = CanvasResource(
             type='quarto-slides',
             id=name,
             data=QuartoSlidesData(
-                path=str(qmd_file),
-                root_path=str(parent),
+                path=to_relative_posix(qmd_file, deploy_root),
+                root_path=to_relative_posix(parent, deploy_root),
                 checksum_paths=checksum_paths,
                 slides_name=name,
                 canvas_folder=tag.get('canvas_folder'),

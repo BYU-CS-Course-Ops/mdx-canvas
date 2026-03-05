@@ -7,6 +7,8 @@ from zipfile import ZipFile, ZipInfo, ZIP_DEFLATED
 
 from canvasapi.course import Course
 
+from mdxcanvas.util import to_relative_posix
+
 from .file import deploy_file
 from ..our_logging import get_logger
 from ..resources import ZipFileData, FileData, FileInfo
@@ -94,17 +96,17 @@ def write_file(file: str, zip_name: str, zipf: ZipFile):
             zipf.writestr(zinfo, f.read())
 
 
-def deploy_zip(course: Course, zipdata: ZipFileData) -> tuple[FileInfo, None]:
+def deploy_zip(course: Course, zipdata: ZipFileData, deploy_root: Path) -> tuple[FileInfo, None]:
     with TemporaryDirectory() as tmpdir:
         path_to_zip = str(Path(tmpdir) / zipdata['zip_file_name']) # pyright: ignore[reportOperatorIssue]
         zip_folder(path_to_zip, zipdata['zip_contents'])
 
         file = FileData(
-            path=str(path_to_zip),
+            path=to_relative_posix(Path(path_to_zip), deploy_root),
             checksum_paths=[],
             canvas_folder=zipdata['canvas_folder'],
             lock_at=None,  # TODO - wire this up
             unlock_at=None,
         )
 
-        return deploy_file(course, file)
+        return deploy_file(course, file, deploy_root)

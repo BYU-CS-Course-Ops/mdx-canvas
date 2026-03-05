@@ -1,9 +1,11 @@
+from pathlib import Path
+
 from canvasapi.course import Course
 
 from ..resources import PageInfo
 
 
-def deploy_page(course: Course, page_info: dict) -> tuple[PageInfo, None]:
+def deploy_page(course: Course, page_info: dict, _: Path) -> tuple[PageInfo, None]:
     page_id = page_info["canvas_id"]
 
     if page_id:
@@ -30,4 +32,4 @@ def deploy_shell_page(course: Course, page_info: dict) -> tuple[PageInfo, None]:
     shell_page_info[
         'body'] = "<p>This is a shell page created to break a dependency cycle. The full content will be deployed later.</p>"
 
-    return deploy_page(course, shell_page_info)
+    return deploy_page(course, shell_page_info, Path("."))

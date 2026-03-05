@@ -57,7 +57,7 @@ class ModuleTagProcessor:
         if prev_mod := module_data.get('previous-module'):
             module_data['_comments']['previous_module'] = get_key('module', prev_mod, 'id')
 
-        module_id: str = module_tag.get('id', module_data['name']) # pyright: ignore[reportAssignmentType]
+        module_id: str = module_tag.get('id', module_data['name'])  # pyright: ignore[reportAssignmentType]
         self._previous_module = module_id
 
         self._resources.add_resource(CanvasResource(
@@ -83,7 +83,7 @@ class ModuleTagProcessor:
             Attribute('published', parser=parse_bool),
         ]
 
-        rtype = self._module_item_type_casing[tag['type'].lower()] # pyright: ignore[reportAttributeAccessIssue]
+        rtype = self._module_item_type_casing[tag['type'].lower()]  # pyright: ignore[reportAttributeAccessIssue]
         item: dict[str, Any] = {
             'type': rtype
         }

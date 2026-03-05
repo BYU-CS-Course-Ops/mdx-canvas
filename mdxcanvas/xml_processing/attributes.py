@@ -122,7 +122,11 @@ def parse_settings(tag: Tag, attributes: list[Attribute]):
                 value = attribute.parser(field)
             except (ValueError, TypeError) as e:
                 raise ValueError(
-                    f"Invalid '{attribute.name}' value '{field}' for {tag.name} tag {format_tag(tag)}\n  in {get_file_path(tag)}"
+                    f"Invalid '{
+                        attribute.name}' value '{field}' for {
+                        tag.name} tag {
+                        format_tag(tag)}\n  in {
+                        get_file_path(tag)}"
                 ) from e
             settings[name] = value
 
@@ -133,7 +137,11 @@ def parse_settings(tag: Tag, attributes: list[Attribute]):
                     settings[name] = attribute.parser(value)
                 except (ValueError, TypeError) as e:
                     raise ValueError(
-                        f"Invalid '{attribute.name}' value for {tag.name} tag {format_tag(tag)}\n  in {get_file_path(tag)}"
+                        f"Invalid '{
+                            attribute.name}' value for {
+                            tag.name} tag {
+                            format_tag(tag)}\n  in {
+                            get_file_path(tag)}"
                     ) from e
 
         elif attribute.default:

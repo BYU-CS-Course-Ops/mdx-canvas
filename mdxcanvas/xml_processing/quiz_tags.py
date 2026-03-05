@@ -105,10 +105,10 @@ class QuizTagProcessor:
                 raise ValueError(
                     f"Question type not specified @ {format_tag(tag)}\n  in {get_file_path(tag)}")
 
-            if not (parse_question := self.question_types.get(q_type)): # pyright: ignore[reportArgumentType]
+            if not (parse_question := self.question_types.get(q_type)):  # pyright: ignore[reportArgumentType]
                 raise ValueError(
                     f"Question type '{q_type}' not supported @ {format_tag(tag)}\n  "
-                    f"Supported types: {', '.join(self.question_types.keys())}\n  " # type: ignore
+                    f"Supported types: {', '.join(self.question_types.keys())}\n  "  # type: ignore
                     f"in {get_file_path(tag)}")
 
             qid = tag.get('id', f"q{pos}")

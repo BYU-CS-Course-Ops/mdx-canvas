@@ -5,7 +5,6 @@ import time
 from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
-from tempfile import TemporaryDirectory
 from typing import Any, Callable
 from zoneinfo import ZoneInfo
 
@@ -43,7 +42,7 @@ SHELL_DEPLOYERS: dict[str, Callable[[Course, dict], tuple[ResourceInfo, tuple[st
     'quiz': deploy_shell_quiz
 }
 
-DEPLOYERS: dict[str, Callable[[Course, Any], tuple[ResourceInfo, tuple[str, str] | None]]] = {
+DEPLOYERS: dict[str, Callable[[Course, Any, Path], tuple[ResourceInfo, tuple[str, str] | None]]] = {
     'announcement': deploy_announcement,
     'assignment': deploy_assignment,
     'assignment_group': deploy_group,
@@ -164,13 +163,13 @@ def post_process_resource(resource_data, timezone) -> dict:
     return json.loads(text)
 
 
-def deploy_resource(deployers: dict, course: Course, rtype: str, data: dict, resource: CanvasResource) -> tuple[
+def deploy_resource(deployers: dict, course: Course, rtype: str, data: dict, resource: CanvasResource, deploy_root: Path) -> tuple[
     ResourceInfo, tuple[str, str] | None]:
     if not (deploy := deployers.get(rtype)):
         raise Exception(f"Unsupported resource type {rtype} {resource['id']}\n  in {resource['content_path']}")
 
     try:
-        resource_info, info = deploy(course, data)
+        resource_info, info = deploy(course, data, deploy_root)
     except Exception as e:
         raise Exception(
             f"Error deploying {rtype} {resource['id']}\n  {type(e).__name__}: {e}\n  in {resource['content_path']}") from e
@@ -223,7 +222,7 @@ def identify_modified_or_outdated(
 
         stored_md5 = md5s.get_checksum(item)
 
-        current_md5 = compute_md5(resource_data, deploy_root=deploy_root)
+        current_md5 = compute_md5(resource_data, deploy_root)
 
         # Attach the Canvas object id (stored as `canvas_id`) to the resource data
         # so deployment can detect whether to create a new item or update an existing one.
@@ -384,7 +383,8 @@ def _prepare_deployment_order(resources: dict) -> tuple[dict, list]:
 
 
 def _deploy_resources(course: Course, to_deploy: dict, md5s: MD5Sums, report: DeploymentReport,
-                      timezone: str, resource_dependencies: dict, resource_order: list, dryrun=False):
+                      timezone: str, resource_dependencies: dict, resource_order: list, deploy_root: Path,
+                      dryrun=False):
     log_to_deploy(to_deploy, dryrun=dryrun)
 
     logger.info('Deploying resources to Canvas')
@@ -417,7 +417,8 @@ def _deploy_resources(course: Course, to_deploy: dict, md5s: MD5Sums, report: De
             logger.info(f'[{index:>{index_width}}/{total}] {shell_tag}{rtype:{max_len}}  {rid}')
 
             if is_shell:
-                canvas_obj_info, info = deploy_resource(SHELL_DEPLOYERS, course, rtype, resource_data, resource)
+                canvas_obj_info, info = deploy_resource(
+                    SHELL_DEPLOYERS, course, rtype, resource_data, resource, deploy_root)
                 with lock:
                     resource['data']['canvas_id'] = canvas_obj_info.get('id') if canvas_obj_info else None
             else:
@@ -425,7 +426,7 @@ def _deploy_resources(course: Course, to_deploy: dict, md5s: MD5Sums, report: De
                     snapshot_objs = dict(resource_objs)
                 resource_data = update_links(md5s, resource_data, snapshot_objs, resource)
                 resource_data = post_process_resource(resource_data, timezone)
-                canvas_obj_info, info = deploy_resource(DEPLOYERS, course, rtype, resource_data, resource)
+                canvas_obj_info, info = deploy_resource(DEPLOYERS, course, rtype, resource_data, resource, deploy_root)
 
             if canvas_obj_info:
                 with lock:
@@ -475,12 +476,13 @@ def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, s
     actions = []
     start_time = time.perf_counter()
 
-    with MD5Sums(course) as md5s, TemporaryDirectory() as tmpdir:
+    with MD5Sums(course, deploy_root) as md5s:
         migrate(course, md5s)
 
-        if to_deploy := identify_modified_or_outdated(resources, resource_order, resource_dependencies, md5s, deploy_root=deploy_root):
+        if to_deploy := identify_modified_or_outdated(
+            resources, resource_order, resource_dependencies, md5s, deploy_root=deploy_root):
             _deploy_resources(course, to_deploy, md5s, report, timezone,
-                              resource_dependencies, resource_order, dryrun=dryrun)
+                              resource_dependencies, resource_order, deploy_root=deploy_root, dryrun=dryrun)
             actions.append(f'{len(to_deploy)} resources deployed')
 
         if cleanup:

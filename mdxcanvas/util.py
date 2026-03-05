@@ -31,7 +31,7 @@ def retrieve_contents(tag: Tag, ignored_child_tag_names: list[str] = []) -> str:
     )
 
 
-def to_relative_posix(path: Path, root: Path) -> str:
+def to_relative_posix(path: Path, deploy_root: Path) -> str:
     """Convert a path to a POSIX-style string relative to root.
 
     Returns a forward-slash separated path relative to *root* so that
@@ -39,8 +39,13 @@ def to_relative_posix(path: Path, root: Path) -> str:
     the operating system.  Uses ``..`` navigation when *path* is not
     inside *root*.
     """
-    rel_str = os.path.relpath(path.resolve(), root.resolve())
-    return Path(rel_str).as_posix()
+    path = Path(os.path.relpath(path.resolve(), deploy_root.resolve()))
+    return path.as_posix()
+
+
+def relative_to_abs(path: Path, deploy_root: Path) -> Path:
+    """Convert a path relative to the deploy root to an absolute path."""
+    return (deploy_root / path).resolve().absolute()
 
 
 def find_quarto_root(slide_file: Path) -> Path:

@@ -15,11 +15,11 @@ from ..xml_processing.attributes import parse_bool
 logger = get_logger()
 
 
-def make_course_settings_preprocessor(parent: Path, resources: ResourceManager):
+def make_course_settings_preprocessor(deploy_root: Path, parent: Path, resources: ResourceManager):
     def process_course_settings(tag: Tag):
         name = tag.get('name')
         course_code = tag.get('code')
-        image_path: Path | None = tag.get('image') # type: ignore
+        image_path: Path | None = tag.get('image')  # type: ignore
 
         if not (any([name, course_code, image_path])):
             raise ValueError(
@@ -37,7 +37,7 @@ def make_course_settings_preprocessor(parent: Path, resources: ResourceManager):
                 type='file',
                 id=image_path.name,
                 data=FileData(
-                    path=(p := str(image_path)),
+                    path=(p := to_relative_posix(image_path, deploy_root)),
                     checksum_paths=[p],
                     canvas_folder=tag.get('canvas_folder'),
                     lock_at=None,
@@ -62,7 +62,7 @@ def make_course_settings_preprocessor(parent: Path, resources: ResourceManager):
     return process_course_settings
 
 
-def make_image_preprocessor(parent: Path, resources: ResourceManager):
+def make_image_preprocessor(deploy_root: Path, parent: Path, resources: ResourceManager):
     def process_image(tag: Tag):
         # TODO - handle b64-encoded images
 
@@ -83,7 +83,7 @@ def make_image_preprocessor(parent: Path, resources: ResourceManager):
             type='file',
             id=src.name,
             data=FileData(
-                path=(p := str(src)),
+                path=(p := to_relative_posix(src, deploy_root)),
                 checksum_paths=[p],
                 canvas_folder=tag.get('canvas_folder'),
                 lock_at=None,
@@ -106,12 +106,12 @@ def make_file_anchor_tag(resource_key: StrLike, filename: StrLike, **kwargs):
     }
 
     new_tag = Tag(name='a', attrs=attrs)
-    new_tag.string = filename # pyright: ignore[reportAttributeAccessIssue]
+    new_tag.string = filename  # pyright: ignore[reportAttributeAccessIssue]
 
     return new_tag
 
 
-def make_file_preprocessor(parent: Path, resources: ResourceManager):
+def make_file_preprocessor(deploy_root: Path, parent: Path, resources: ResourceManager):
     def process_file(tag: Tag):
         path_value = validate_required_attribute(tag, 'path', 'file')
         attrs = tag.attrs
@@ -125,7 +125,7 @@ def make_file_preprocessor(parent: Path, resources: ResourceManager):
             type='file',
             id=path.name,
             data=FileData(
-                path=(p := str(path)),
+                path=(p := to_relative_posix(path, deploy_root)),
                 checksum_paths=[p],
                 canvas_folder=attrs.get('canvas_folder'),
                 unlock_at=attrs.get('unlock_at'),
@@ -191,7 +191,7 @@ def _get_additional_files(additional_files: list[Path]) -> dict[str, Path]:
     return files
 
 
-def make_zip_preprocessor(parent: Path, resources: ResourceManager):
+def make_zip_preprocessor(deploy_root: Path, parent: Path, resources: ResourceManager):
     def process_zip(tag: Tag):
         content_folder = validate_required_attribute(tag, 'path', 'zip')
 
@@ -211,26 +211,33 @@ def make_zip_preprocessor(parent: Path, resources: ResourceManager):
 
         additional_files = None
         if additional_files_str := tag.get("additional_files"):
-            additional_files = [(parent / file).resolve().absolute() for file in additional_files_str.split(',')] # pyright: ignore[reportAttributeAccessIssue]
+            additional_files = [
+                (parent / file).resolve().absolute()
+                for file in additional_files_str.split(',')  # pyright: ignore[reportAttributeAccessIssue]
+            ]
 
         priority_folder = None
-        if priority_folder_str := tag.get("priority_path") :
-            priority_folder = (parent / priority_folder_str).resolve().absolute() # pyright: ignore[reportOperatorIssue]
+        if priority_folder_str := tag.get("priority_path"):
 
-        exclude_pattern: str = tag.get("exclude") # pyright: ignore[reportAssignmentType]
+            priority_folder = (
+                parent / priority_folder_str   # pyright: ignore[reportOperatorIssue]
+            ).resolve().absolute()
+
+        exclude_pattern: str = tag.get("exclude")  # pyright: ignore[reportAssignmentType]
 
         zip_contents = _determine_zip_contents(
             content_folder_path, priority_folder, exclude_pattern,
             additional_files
         )
+        zip_contents = {p: to_relative_posix(fpath, deploy_root) for p, fpath in zip_contents.items()}
 
         file = CanvasResource(
             type='zip',
             id=name,
             data=ZipFileData(
                 zip_file_name=name,
-                zip_contents={p: str(fpath) for p, fpath in zip_contents.items()},
-                checksum_paths=[str(fpath) for fpath in zip_contents.values()],
+                zip_contents=zip_contents,
+                checksum_paths=[fpath for fpath in zip_contents.values()],
                 canvas_folder=tag.get('canvas_folder')
             ),
             content_path=get_current_file_str()
@@ -249,7 +256,7 @@ def _parse_slice(field: StrLike) -> slice:
     Parse a 1-based, inclusive slice
     So, the slice should match the line numbers shown in your IDE
     """
-    tokens = field.split(':') # pyright: ignore[reportAttributeAccessIssue]
+    tokens = field.split(':')  # pyright: ignore[reportAttributeAccessIssue]
     tokens = [
         int(token) if token else None
         for token in tokens
@@ -269,13 +276,14 @@ def _parse_slice(field: StrLike) -> slice:
 
 
 def make_include_preprocessor(
+        deploy_root: Path,
         parent_folder: Path,
         process_file: Callable
 ):
     def process_include(tag: Tag):
-        imported_filename: str = tag.get('path') # pyright: ignore[reportAssignmentType]
+        imported_filename: str = tag.get('path')  # pyright: ignore[reportAssignmentType]
         imported_file = (parent_folder / imported_filename).resolve()
-        args_file_path: str | None = tag.get('args') # pyright: ignore[reportAssignmentType]
+        args_file_path: str | None = tag.get('args')  # pyright: ignore[reportAssignmentType]
 
         # Check if the included file exists first
         if not imported_file.exists():
@@ -329,7 +337,7 @@ def make_include_preprocessor(
 
             else:
                 new_tag = Tag(name='div')
-                new_tag['data-source'] = to_relative_posix(imported_file, parent_folder)
+                new_tag['data-source'] = str(to_relative_posix(imported_file, deploy_root))
                 if lines:
                     new_tag['data-lines'] = lines
                 new_tag.extend(include_result)
@@ -360,6 +368,7 @@ def make_link_preprocessor():
 
 
 def make_markdown_page_preprocessor(
+        deploy_root: Path,
         parent_folder: Path,
         process_file: Callable
 ):
@@ -388,7 +397,7 @@ def make_markdown_page_preprocessor(
         if page_id := tag.get('id'):
             page_tag['id'] = page_id
 
-        include_processor = make_include_preprocessor(parent_folder, process_file)
+        include_processor = make_include_preprocessor(deploy_root, parent_folder, process_file)
 
         try:
             include_processor(include_tag)  # Replaces include_tag with new content

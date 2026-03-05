@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from canvasapi.course import Course
 from canvasapi.quiz import QuizQuestion, Quiz
 
@@ -30,7 +32,7 @@ def republish_quiz_after_edit(canvas_quiz, was_published: bool):
         canvas_quiz.edit(quiz={'published': True})
 
 
-def deploy_quiz(course: Course, quiz_data: dict) -> tuple[QuizInfo, tuple[str, str] | None]:
+def deploy_quiz(course: Course, quiz_data: dict, _: Path) -> tuple[QuizInfo, tuple[str, str] | None]:
     """Deploy quiz settings/metadata only. Questions are deployed separately."""
     quiz_id = quiz_data["canvas_id"]
 
@@ -67,7 +69,7 @@ def deploy_quiz(course: Course, quiz_data: dict) -> tuple[QuizInfo, tuple[str, s
     ), info
 
 
-def deploy_quiz_question(course: Course, quiz_question_data: dict) -> tuple[QuizQuestionInfo, tuple[str, str] | None]:
+def deploy_quiz_question(course: Course, quiz_question_data: dict, _: Path) -> tuple[QuizQuestionInfo, tuple[str, str] | None]:
     if not (canvas_quiz := course.get_quiz(quiz_question_data['quiz_id'])):
         raise ValueError(f'Unable to find quiz {quiz_question_data["quiz_id"]}')
 
@@ -105,7 +107,7 @@ def deploy_quiz_question(course: Course, quiz_question_data: dict) -> tuple[Quiz
     ), info
 
 
-def deploy_quiz_question_order(course: Course, order_data: QuizQuestionOrderData) -> tuple[QuizQuestionOrderInfo, tuple[str, str] | None]:
+def deploy_quiz_question_order(course: Course, order_data: QuizQuestionOrderData, _: Path) -> tuple[QuizQuestionOrderInfo, tuple[str, str] | None]:
     """
     Reorder quiz questions using Canvas API.
     NOTE: No CanvasAPI wrapper method exists for this endpoint.
@@ -156,4 +158,4 @@ def deploy_quiz_question_order(course: Course, order_data: QuizQuestionOrderData
 def deploy_shell_quiz(course: Course, quiz_data: dict) -> tuple[QuizInfo, tuple[str, str] | None]:
     shell_quiz_data = quiz_data.copy()
     shell_quiz_data['description'] = "<p>Shell quiz for dependency cycle.</p>"
-    return deploy_quiz(course, shell_quiz_data)
+    return deploy_quiz(course, shell_quiz_data, Path("."))

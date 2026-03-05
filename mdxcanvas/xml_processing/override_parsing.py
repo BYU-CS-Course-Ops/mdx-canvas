@@ -44,7 +44,8 @@ def parse_override_tag(override_tag: Tag, parent_type: StrLike, parent_rid: StrL
     resources.add_resource(override_resource)
 
 
-def parse_overrides_container(overrides_tag: Tag, parent_type: StrLike, parent_rid: StrLike, resources: ResourceManager):
+def parse_overrides_container(overrides_tag: Tag, parent_type: StrLike,
+                              parent_rid: StrLike, resources: ResourceManager):
     """
     Parse an <overrides> container tag that contains multiple <override> child tags.
 

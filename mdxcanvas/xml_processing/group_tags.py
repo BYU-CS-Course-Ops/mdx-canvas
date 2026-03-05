@@ -19,7 +19,10 @@ def _parse_never_drop_assignments(tag: Tag) -> List[int]:
         return []
 
     never_drop_ids = []
-    assignment_names = [name.strip() for name in never_drop_attr.split('|')] # pyright: ignore[reportAttributeAccessIssue]
+
+    assignment_names = [
+        name.strip() for name in never_drop_attr.split('|')  # pyright: ignore[reportAttributeAccessIssue]
+    ]
 
     for assignment_name in assignment_names:
         if assignment_name:
@@ -91,7 +94,7 @@ class AssignmentGroupTagProcessor:
 
         assignment_group = CanvasResource(
             type='assignment_group',
-            id = tag.get('id', group_data['name']),
+            id=tag.get('id', group_data['name']),
             data=group_data,
             content_path=get_current_file_str()
         )

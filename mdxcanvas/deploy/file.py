@@ -1,6 +1,9 @@
 from canvasapi.course import Course
 from canvasapi.file import File
 from canvasapi.folder import Folder
+from pathlib import Path
+
+from mdxcanvas.util import relative_to_abs
 
 from .util import get_canvas_object
 from ..resources import FileData, FileInfo, StrLike
@@ -28,13 +31,14 @@ def get_canvas_folder(course: Course, folder_name: StrLike, parent_folder_path="
     return course.create_folder(name=folder_name, parent_folder_path=parent_folder_path, hidden=True)
 
 
-def deploy_file(course: Course, data: FileData) -> tuple[FileInfo, None]:
+def deploy_file(course: Course, data: FileData, deploy_root: Path) -> tuple[FileInfo, None]:
     lock_at = data.get('lock_at')
     unlock_at = data.get('unlock_at')
 
     canvas_folder = data.get('canvas_folder') or DEFAULT_CANVAS_FOLDER
     folder = get_canvas_folder(course, canvas_folder)
-    file_id = folder.upload(data['path'])[1]['id']
+    file_path = relative_to_abs(Path(data['path']), deploy_root)
+    file_id = folder.upload(file_path)[1]['id']
     file = course.get_file(file_id)
 
     # Update the file with lock_at and unlock_at if provided

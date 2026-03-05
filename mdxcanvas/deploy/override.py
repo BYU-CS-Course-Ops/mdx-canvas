@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from canvasapi.assignment import Assignment, AssignmentOverride
 from canvasapi.course import Course
 
@@ -32,7 +34,7 @@ def _get_assignment(course: Course, override_info: dict) -> Assignment:
     return course.get_assignment(assignment_id)
 
 
-def deploy_override(course: Course, override_info: dict) -> tuple[OverrideInfo, None]:
+def deploy_override(course: Course, override_info: dict, _: Path) -> tuple[OverrideInfo, None]:
     assignment: Assignment = _get_assignment(course, override_info)
 
     if cid := override_info.get('canvas_id'):

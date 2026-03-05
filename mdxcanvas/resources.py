@@ -169,11 +169,9 @@ class ResourceManager(dict[tuple[str, str], CanvasResource]):
         self[rtype, rid] = resource
         return rtype, rid
 
-
     def add_resource_get_field(self, resource: CanvasResource, field: str) -> str:
         rtype, rid = self._add_resource(resource)
         return get_key(rtype, rid, field)
-
 
     def add_resource(self, resource: CanvasResource) -> None:
         self._add_resource(resource)

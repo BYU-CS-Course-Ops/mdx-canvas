@@ -1,9 +1,11 @@
+from pathlib import Path
+
 from canvasapi.course import Course
 
 from ..resources import AssignmentGroupInfo
 
 
-def deploy_group(course: Course, group_data: dict) -> tuple[AssignmentGroupInfo, None]:
+def deploy_group(course: Course, group_data: dict, _: Path) -> tuple[AssignmentGroupInfo, None]:
     group_id = group_data["canvas_id"]
 
     if group_id:

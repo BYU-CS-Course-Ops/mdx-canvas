@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from canvasapi.course import Course
 from canvasapi.module import ModuleItem
 
@@ -11,7 +13,7 @@ def get_module_item(course: Course, module_id: int | str | None, module_item_id:
     return None
 
 
-def deploy_module_item(course: Course, module_item_data: dict) -> tuple[ModuleItemInfo, None]:
+def deploy_module_item(course: Course, module_item_data: dict, _: Path) -> tuple[ModuleItemInfo, None]:
     canvas_module = course.get_module(module_item_data['module_id'])
     if canvas_module is None:
         raise ValueError(f'Unable to find module {module_item_data["module_id"]}')
@@ -30,7 +32,7 @@ def deploy_module_item(course: Course, module_item_data: dict) -> tuple[ModuleIt
     ), None
 
 
-def deploy_module(course: Course, module_data: dict) -> tuple[ModuleInfo, None]:
+def deploy_module(course: Course, module_data: dict, _: Path) -> tuple[ModuleInfo, None]:
     module_id = module_data["canvas_id"]
 
     if module_id:

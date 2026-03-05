@@ -11,6 +11,8 @@ import requests
 from PIL import Image
 from PIL.PngImagePlugin import PngInfo
 
+from mdxcanvas.util import to_relative_posix
+
 from ..our_logging import get_logger
 from ..processing_context import get_current_file_str
 from ..resources import ResourceManager, CanvasResource, FileData

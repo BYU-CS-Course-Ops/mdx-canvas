@@ -42,7 +42,7 @@ def apply_inline_styles(soup: BeautifulSoup, styles: dict[str, dict[str, str]]) 
                         existing_props[key.strip()] = value.strip()
 
             # Merge properties: new CSS properties override existing inline styles
-            merged_props = { **properties, **existing_props }
+            merged_props = {**properties, **existing_props}
 
             # Reconstruct style string
             style_string = ";".join([f"{prop}:{value}" for prop, value in merged_props.items()])
