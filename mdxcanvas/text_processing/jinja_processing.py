@@ -60,7 +60,7 @@ def _render_template(
         "glob": lambda *args, **kwargs: list(sorted(str(f.relative_to(parent_folder)) for f in
                                          parent_folder.glob(*args, **kwargs))),
         "parent": lambda path: str(Path(path).parent),
-        "load": lambda path: _get_args((parent_folder / path).absolute(),  global_args),
+        "load": lambda path: _get_args((parent_folder / path).absolute(), global_args),
         "debug": lambda msg: logger.debug(msg),
         "get_arg": lambda *args: global_args.get(*args),
         # "grep": lambda pattern, string, *args: m.groups() if (m := re.search(pattern, string, *args)) else None
