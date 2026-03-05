@@ -37,7 +37,7 @@ class AnnouncementTagProcessor:
 
         announcement = CanvasResource(
             type='announcement',
-            id=str(announcement_tag.get('id', settings['title'])),
+            id=announcement_tag.get('id', settings['title']),
             data=settings,
             content_path=get_current_file_str()
         )
