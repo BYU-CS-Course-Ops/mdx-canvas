@@ -3,15 +3,14 @@ import json
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import unicodedata
-
-from typing import cast
+from typing import no_type_check
 
 import requests
 from canvasapi.course import Course
 
 from .file import get_file, deploy_file
 from ..our_logging import get_logger
-from ..resources import FileData, QuartoSlidesData, SyllabusData, ZipFileData
+from ..resources import CanvasResource, FileData, QuartoSlidesData, SyllabusData, ZipFileData
 from ..util import to_relative_posix
 
 logger = get_logger()
@@ -35,13 +34,14 @@ def _compute_checksum_of_path(resource_path: Path) -> bytes:
     raise FileNotFoundError(f'Path does not exist or is not a file/directory: {resource_path}')
 
 
-def compute_md5(obj: dict | FileData | ZipFileData | QuartoSlidesData | SyllabusData,
+@no_type_check
+def compute_md5(obj: CanvasResource | FileData | ZipFileData | QuartoSlidesData | SyllabusData,
                 deploy_root: Path) -> str:
     # Keys that should not affect change detection:
     # - canvas_id: injected by the deployment system at runtime
     FILTERED_KEYS = {'canvas_id'}
 
-    # Keys whose values are paths and should be normalised to
+    # Keys whose values are paths and should be normalized to
     # deploy-root-relative POSIX representations so that the
     # checksum is platform-independent and detects renames.
     PATH_KEYS = {'checksum_paths', 'path', 'root_path', 'zip_contents'}
@@ -53,26 +53,26 @@ def compute_md5(obj: dict | FileData | ZipFileData | QuartoSlidesData | Syllabus
     for path in paths:
         hashable += _compute_checksum_of_path(Path(path))
 
-    # Build a dict for JSON hashing, normalising path values
+    # Build a dict for JSON hashing, normalizing path values
     filtered: dict = {}
     for k, v in obj.items():
         if k in FILTERED_KEYS:
             continue
-        if deploy_root is not None and k in PATH_KEYS:
+        if k in PATH_KEYS:
             if k == 'checksum_paths':
-                filtered[k] = [to_relative_posix(Path(p), deploy_root) for p in cast(list[str], v)]
+                filtered[k] = [to_relative_posix(Path(p), deploy_root) for p in v]
             elif k in ('path', 'root_path'):
-                if 'mermaid-' in cast(str, v):
+                if 'mermaid-' in v:
                     # For mermaid files, use just the filename as a stable identifier.
                     # The full path is a temp dir that changes every run,
                     # but the filename contains the content hash and is deterministic.
-                    filtered[k] = Path(cast(str, v)).name
+                    filtered[k] = Path(v).name
                 else:
-                    filtered[k] = to_relative_posix(Path(cast(str, v)), deploy_root)
+                    filtered[k] = to_relative_posix(Path(v), deploy_root)
             elif k == 'zip_contents':
                 filtered[k] = {
                     zip_name: to_relative_posix(Path(fpath), deploy_root)
-                    for zip_name, fpath in cast(dict[str, str], v).items()
+                    for zip_name, fpath in v.items()
                 }
         else:
             # Non-path key, or no deploy_root provided – include as-is

@@ -1,17 +1,17 @@
 from pathlib import Path
-from typing import cast
+from typing import Any, no_type_check
 
 from bs4.element import Tag
 
 from .processing_context import get_current_file_str
 
-
+@no_type_check
 def get_tag_source_file(tag: Tag) -> Path | None:
-    if tag and (source := cast(str, tag.get('data-source'))):
+    if tag and (source := tag.get('data-source')):
         return Path(source)
 
     for parent in tag.parents:
-        if source := cast(str, parent.get('data-source')):
+        if source := parent.get('data-source'):
             return Path(source)
 
     return None
@@ -62,8 +62,8 @@ def format_tag(tag: Tag, max_length: int = 80) -> str:
     return f"<{tag_name}> ({len(attr_strs)} attributes)"
 
 
-def validate_required_attribute(tag: Tag, attr_name: str, tag_display_name: str | None = None) -> str:
-    if not (value := cast(str, tag.get(attr_name))):
+def validate_required_attribute(tag: Tag, attr_name: str, tag_display_name: str | None = None) -> str | Any:
+    if not (value := tag.get(attr_name)):
         display_name = tag_display_name if tag_display_name else tag.name
         raise ValueError(f'Required field "{attr_name}" missing from {display_name} tag {format_tag(tag)}\n  in {get_file_path(tag)}')
     return value

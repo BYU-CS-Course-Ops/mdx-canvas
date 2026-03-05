@@ -1,11 +1,12 @@
 import re
 import string
-from typing import cast
 
 from bs4.element import Tag
 
 from .attributes import parse_settings, Attribute, parse_bool, parse_int, parse_children_tag_contents
 from ..util import retrieve_contents
+from ..resources import StrLike
+
 
 NO_POINTS = 0
 FULL_POINTS = 100
@@ -452,13 +453,13 @@ def parse_precision_answer_question(tag: Tag):
 
 
 def parse_numerical_question(tag: Tag, qid: str):
-    numerical_answer_types = {
+    numerical_answer_types: dict[StrLike, tuple] = {
         'exact': (parse_exact_answer_question, 'exact_answer'),
         'range': (parse_range_answer_question, 'range_answer'),
         'precision': (parse_precision_answer_question, 'precision_answer')
     }
 
-    numerical_answer_type = cast(str, tag.get('numerical_answer_type'))
+    numerical_answer_type = tag['numerical_answer_type']
     if numerical_answer_type not in numerical_answer_types:
         raise ValueError(f"Invalid numerical answer type: {numerical_answer_type}")
 

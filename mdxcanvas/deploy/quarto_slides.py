@@ -24,7 +24,7 @@ def _run_quarto_render(data: QuartoSlidesData, tmpdir: Path) -> Path:
     slide_file = Path(data['path'])
     quarto_root = find_quarto_root(slide_file)
     relative_to_quarto_root = slide_file.parent.absolute().relative_to(quarto_root)
-    output_file = (tmpdir / relative_to_quarto_root / data['slides_name']).absolute()
+    output_file = (tmpdir / relative_to_quarto_root / data['slides_name']).absolute() # pyright: ignore[reportOperatorIssue]
 
     cmd = [
         'quarto', 'render', data['path'],

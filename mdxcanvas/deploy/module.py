@@ -4,7 +4,7 @@ from canvasapi.module import ModuleItem
 from ..resources import ModuleInfo, ModuleItemInfo
 
 
-def get_module_item(course: Course, module_id: int, module_item_id: int) -> ModuleItem | None:
+def get_module_item(course: Course, module_id: int | str | None, module_item_id: int | str) -> ModuleItem | None:
     if canvas_module := course.get_module(module_id):
         return canvas_module.get_module_item(module_item_id)
 

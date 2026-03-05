@@ -1,14 +1,14 @@
 import re
 from os.path import basename
 from pathlib import Path
-from typing import Callable, cast
+from typing import  Callable
 
 from bs4.element import Tag
 
 from ..error_helpers import format_tag, get_file_path, validate_required_attribute
 from ..our_logging import get_logger
 from ..processing_context import FileContext, get_current_file_str
-from ..resources import ResourceManager, FileData, ZipFileData, CanvasResource, get_key
+from ..resources import ResourceManager, FileData, StrLike, ZipFileData, CanvasResource, get_key
 from ..util import parse_soup_from_xml, to_relative_posix
 from ..xml_processing.attributes import parse_bool
 
@@ -19,7 +19,7 @@ def make_course_settings_preprocessor(parent: Path, resources: ResourceManager):
     def process_course_settings(tag: Tag):
         name = tag.get('name')
         course_code = tag.get('code')
-        image_path = cast(str, tag.get('image'))
+        image_path: Path | None = tag.get('image') # type: ignore
 
         if not (any([name, course_code, image_path])):
             raise ValueError(
@@ -39,13 +39,13 @@ def make_course_settings_preprocessor(parent: Path, resources: ResourceManager):
                 data=FileData(
                     path=(p := str(image_path)),
                     checksum_paths=[p],
-                    canvas_folder=cast(str, tag.get('canvas_folder')),
+                    canvas_folder=tag.get('canvas_folder'),
                     lock_at=None,
                     unlock_at=None,
                 ),
                 content_path=get_current_file_str()
             )
-            image_resource_key = resources.add_resource(file, 'id')
+            image_resource_key = resources.add_resource_get_field(file, 'id')
 
         course_settings = CanvasResource(
             type='course_settings',
@@ -57,7 +57,7 @@ def make_course_settings_preprocessor(parent: Path, resources: ResourceManager):
             },
             content_path=get_current_file_str()
         )
-        resources.add_resource(course_settings, 'name')
+        resources.add_resource_get_field(course_settings, 'name')
 
     return process_course_settings
 
@@ -85,18 +85,18 @@ def make_image_preprocessor(parent: Path, resources: ResourceManager):
             data=FileData(
                 path=(p := str(src)),
                 checksum_paths=[p],
-                canvas_folder=cast(str, tag.get('canvas_folder')),
+                canvas_folder=tag.get('canvas_folder'),
                 lock_at=None,
                 unlock_at=None
             ),
             content_path=get_current_file_str()
         )
-        tag['src'] = cast(str, resources.add_resource(file, 'uri')) + '/preview'
+        tag['src'] = resources.add_resource_get_field(file, 'uri') + '/preview'
 
     return process_image
 
 
-def make_file_anchor_tag(resource_key: str, filename: str, **kwargs):
+def make_file_anchor_tag(resource_key: StrLike, filename: StrLike, **kwargs):
     attrs = {
         **kwargs,
         'href': f'{resource_key}?wrap=1',
@@ -106,7 +106,7 @@ def make_file_anchor_tag(resource_key: str, filename: str, **kwargs):
     }
 
     new_tag = Tag(name='a', attrs=attrs)
-    new_tag.string = filename
+    new_tag.string = filename # pyright: ignore[reportAttributeAccessIssue]
 
     return new_tag
 
@@ -127,13 +127,13 @@ def make_file_preprocessor(parent: Path, resources: ResourceManager):
             data=FileData(
                 path=(p := str(path)),
                 checksum_paths=[p],
-                canvas_folder=cast(str, attrs.get('canvas_folder', None)),
-                unlock_at=cast(str, attrs.get('unlock_at', None)),
-                lock_at=cast(str, attrs.get('lock_at', None))
+                canvas_folder=attrs.get('canvas_folder'),
+                unlock_at=attrs.get('unlock_at'),
+                lock_at=attrs.get('lock_at')
             ),
             content_path=get_current_file_str()
         )
-        resource_key = cast(str, resources.add_resource(file, 'uri'))
+        resource_key = resources.add_resource_get_field(file, 'uri')
         new_tag = make_file_anchor_tag(resource_key, path.name, **tag.attrs)
 
         tag.replace_with(new_tag)
@@ -195,7 +195,7 @@ def make_zip_preprocessor(parent: Path, resources: ResourceManager):
     def process_zip(tag: Tag):
         content_folder = validate_required_attribute(tag, 'path', 'zip')
 
-        name = cast(str, tag.get("name"))
+        name = tag.get("name")
         if not name:
             name = (
                        content_folder
@@ -210,21 +210,20 @@ def make_zip_preprocessor(parent: Path, resources: ResourceManager):
                 f"Folder not found @ {format_tag(tag)}\n  Folder path: {content_folder_path}\n  in {get_file_path(tag)}")
 
         additional_files = None
-        if additional_files_str := cast(str, tag.get("additional_files")):
-            additional_files = [(parent / file).resolve().absolute() for file in additional_files_str.split(',')]
+        if additional_files_str := tag.get("additional_files"):
+            additional_files = [(parent / file).resolve().absolute() for file in additional_files_str.split(',')] # pyright: ignore[reportAttributeAccessIssue]
 
         priority_folder = None
-        if priority_folder_str := cast(str, tag.get("priority_path")) :
-            priority_folder = (parent / priority_folder_str).resolve().absolute()
+        if priority_folder_str := tag.get("priority_path") :
+            priority_folder = (parent / priority_folder_str).resolve().absolute() # pyright: ignore[reportOperatorIssue]
 
-        exclude_pattern = cast(str, tag.get("exclude"))
+        exclude_pattern: str = tag.get("exclude") # pyright: ignore[reportAssignmentType]
 
         zip_contents = _determine_zip_contents(
             content_folder_path, priority_folder, exclude_pattern,
             additional_files
         )
 
-        # noinspection PyTypeChecker
         file = CanvasResource(
             type='zip',
             id=name,
@@ -232,12 +231,12 @@ def make_zip_preprocessor(parent: Path, resources: ResourceManager):
                 zip_file_name=name,
                 zip_contents={p: str(fpath) for p, fpath in zip_contents.items()},
                 checksum_paths=[str(fpath) for fpath in zip_contents.values()],
-                canvas_folder=cast(str, tag.get('canvas_folder'))
+                canvas_folder=tag.get('canvas_folder')
             ),
             content_path=get_current_file_str()
         )
 
-        resource_key = cast(str, resources.add_resource(file, 'uri'))
+        resource_key = resources.add_resource_get_field(file, 'uri')
 
         new_tag = make_file_anchor_tag(resource_key, name)
         tag.replace_with(new_tag)
@@ -245,12 +244,12 @@ def make_zip_preprocessor(parent: Path, resources: ResourceManager):
     return process_zip
 
 
-def _parse_slice(field: str) -> slice:
+def _parse_slice(field: StrLike) -> slice:
     """
     Parse a 1-based, inclusive slice
     So, the slice should match the line numbers shown in your IDE
     """
-    tokens = field.split(':')
+    tokens = field.split(':') # pyright: ignore[reportAttributeAccessIssue]
     tokens = [
         int(token) if token else None
         for token in tokens
@@ -274,9 +273,9 @@ def make_include_preprocessor(
         process_file: Callable
 ):
     def process_include(tag: Tag):
-        imported_filename = cast(str, tag.get('path'))
+        imported_filename: str = tag.get('path') # pyright: ignore[reportAssignmentType]
         imported_file = (parent_folder / imported_filename).resolve()
-        args_file_path = cast(str, tag.get('args'))
+        args_file_path: str | None = tag.get('args') # pyright: ignore[reportAssignmentType]
 
         # Check if the included file exists first
         if not imported_file.exists():
@@ -303,7 +302,7 @@ def make_include_preprocessor(
             imported_raw_content = imported_file.read_text(encoding='utf-8')
             suffixes = imported_file.suffixes
 
-            if lines := cast(str, tag.get('lines')):
+            if lines := tag.get('lines'):
                 grab = _parse_slice(lines)
                 imported_raw_content = '\n'.join(imported_raw_content.splitlines()[grab])
 

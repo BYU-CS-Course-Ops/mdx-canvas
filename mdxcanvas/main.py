@@ -3,7 +3,7 @@ import json
 import logging
 import os
 from pathlib import Path
-from typing import TypedDict, Optional
+from typing import TypedDict
 
 import markdowndata
 import yaml
@@ -67,14 +67,14 @@ def _post_process_content(xml_content: str, global_css: str) -> str:
 
 def process_file(
         resources: ResourceManager,
+        deploy_root: Path,
         parent_folder: Path,
         content: str,
         content_type: list[str],
-        global_args: Optional[dict] = None,
-        args_file: Optional[Path] = None,
-        templates: Optional[list[Path]] = None,
-        css_file: Optional[Path] = None,
-        deploy_root: Optional[Path] = None
+        global_args: dict,
+        args_file: Path | None = None,
+        templates: list[Path] | None = None,
+        css_file: Path | None = None,
 ) -> str:
     """
     Read a file and fully process the text content
@@ -88,9 +88,9 @@ def process_file(
     if is_jinja(content_type):
         content = process_jinja(
             content,
-            parent_folder=parent_folder,
+            global_args,
+            parent_folder,
             args_path=args_file,
-            global_args=global_args,
             templates=templates
         )
 
@@ -108,9 +108,8 @@ def process_file(
 
     # Preprocess XML
     def load_and_process_file_contents(parent: Path, content: str, content_type: list[str], **kwargs) -> str:
-        return process_file(resources, parent, content, content_type,
-                            global_args=global_args, templates=templates,
-                            deploy_root=deploy_root, **kwargs)
+        return process_file(resources, deploy_root, parent, content, content_type,
+                            global_args, templates=templates, **kwargs)
 
     xml_content = preprocess_xml(parent_folder, xml_content, resources, load_and_process_file_contents)
 
@@ -145,13 +144,13 @@ def main(
         canvas_api_token: str,
         course_info_file: Path,
         input_file: Path,
-        args_file: Optional[Path] = None,
-        global_args_file: Optional[Path] = None,
-        templates: Optional[list[Path]] = None,
-        css_file: Optional[Path] = None,
+        args_file: Path | None = None,
+        global_args_file: Path | None = None,
+        templates: list[Path] | None = None,
+        css_file: Path | None = None,
         dryrun: bool = False,
         cleanup: bool = False,
-        output_file: Optional[str] = None
+        output_file: str | None = None
 ):
     # Initialize deployment report
     report = DeploymentReport(output_file)
@@ -178,6 +177,7 @@ def main(
             deploy_root = input_file.parent.resolve()
             processed_content = process_file(
                 resources,
+                deploy_root,
                 input_file.parent,
                 content,
                 content_type,
@@ -185,7 +185,6 @@ def main(
                 args_file,
                 templates,
                 css_file,
-                deploy_root=deploy_root
             )
 
             # Parse file into XML

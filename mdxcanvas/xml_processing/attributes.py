@@ -1,6 +1,6 @@
 import dataclasses
 from datetime import datetime
-from typing import Callable, Any, Optional, cast
+from typing import Callable, Any
 
 from bs4.element import Tag
 
@@ -78,8 +78,8 @@ def parse_dict(text):
 class Attribute:
     name: str
     default: Any = None
-    parser: Callable[[str], Any] = lambda x: x
-    new_name: Optional[str] = None
+    parser: Callable[[str | Any], Any] = lambda x: x
+    new_name: str | None = None
     required: bool = False
     ignore: bool = False
     is_tag: bool = False
@@ -119,7 +119,7 @@ def parse_settings(tag: Tag, attributes: list[Attribute]):
                 or (tag.get(attribute.new_name, None) if attribute.new_name else None)
         )):
             try:
-                value = attribute.parser(cast(str, field))
+                value = attribute.parser(field)
             except (ValueError, TypeError) as e:
                 raise ValueError(
                     f"Invalid '{attribute.name}' value '{field}' for {tag.name} tag {format_tag(tag)}\n  in {get_file_path(tag)}"

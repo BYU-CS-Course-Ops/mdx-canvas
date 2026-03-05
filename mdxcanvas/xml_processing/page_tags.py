@@ -1,5 +1,3 @@
-from typing import cast
-
 from bs4.element import Tag
 
 from .attributes import parse_settings, Attribute, parse_bool, parse_date
@@ -33,7 +31,7 @@ class PageTagProcessor:
 
         page = CanvasResource(
             type='page',
-            id=cast(str, page_tag.get('id', page_tag['title'])),
+            id=page_tag.get('id', page_tag['title']),
             data=settings,
             content_path=get_current_file_str()
         )

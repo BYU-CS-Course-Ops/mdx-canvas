@@ -2,7 +2,7 @@
 
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from typing import Optional, TypeVar, Callable, Sequence, Hashable
+from typing import TypeVar, Callable, Sequence, Hashable
 
 K = TypeVar('K', bound=Hashable)
 T = TypeVar('T')
@@ -11,7 +11,7 @@ T = TypeVar('T')
 def threaded_execute(
         items: Sequence[tuple[K, T]],
         execute: Callable[[T], None],
-        get_dependencies: Optional[Callable[[K], Sequence[K]]] = None,
+        get_dependencies: Callable[[K], Sequence[K]] | None = None,
 ):
     """
     Execute tasks in parallel using a thread pool, respecting dependency ordering.

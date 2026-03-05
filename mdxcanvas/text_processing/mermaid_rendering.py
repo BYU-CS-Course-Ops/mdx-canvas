@@ -6,7 +6,6 @@ import tempfile
 import time
 import os
 from pathlib import Path
-from typing import cast
 
 import requests
 from PIL import Image
@@ -151,13 +150,13 @@ def make_mermaid_fence_format(resources: ResourceManager):
             data=FileData(
                 path=str(output_path),
                 checksum_paths=[],
-                canvas_folder=cast(str, attrs.get('canvas_folder', None)),
-                lock_at=cast(str, attrs.get('lock_at', None)),
-                unlock_at=cast(str, attrs.get('unlock_at', None)),
+                canvas_folder=attrs.get('canvas_folder', None),
+                lock_at=attrs.get('lock_at', None),
+                unlock_at=attrs.get('unlock_at', None),
             ),
             content_path=get_current_file_str()
         )
-        resource_key = cast(str, resources.add_resource(file, 'uri'))
+        resource_key = resources.add_resource_get_field(file, 'uri')
         return f'<img src="{resource_key}/preview"{extra_attrs} />'
 
     return mermaid_fence_format

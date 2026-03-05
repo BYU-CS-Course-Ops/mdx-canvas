@@ -1,13 +1,11 @@
-from typing import Optional, cast
-
 from canvasapi.course import Course
 from canvasapi.quiz import QuizQuestion, Quiz
 
 from .util import update_group_name_to_id
-from ..resources import QuizInfo, QuizQuestionInfo, QuizQuestionOrderInfo
+from ..resources import QuizInfo, QuizQuestionInfo, QuizQuestionOrderInfo, QuizQuestionOrderData
 
 
-def get_quiz_question(course: Course, quiz_id: int, question_id: int) -> Optional[QuizQuestion]:
+def get_quiz_question(course: Course, quiz_id: int | str | None, question_id: int | str) -> QuizQuestion | None:
     """Lookup a quiz question for stale resource handling."""
     if canvas_quiz := course.get_quiz(quiz_id):
         return canvas_quiz.get_question(question_id)
@@ -107,7 +105,7 @@ def deploy_quiz_question(course: Course, quiz_question_data: dict) -> tuple[Quiz
     ), info
 
 
-def deploy_quiz_question_order(course: Course, order_data: dict) -> tuple[QuizQuestionOrderInfo, tuple[str, str] | None]:
+def deploy_quiz_question_order(course: Course, order_data: QuizQuestionOrderData) -> tuple[QuizQuestionOrderInfo, tuple[str, str] | None]:
     """
     Reorder quiz questions using Canvas API.
     NOTE: No CanvasAPI wrapper method exists for this endpoint.
@@ -116,7 +114,7 @@ def deploy_quiz_question_order(course: Course, order_data: dict) -> tuple[QuizQu
         course: Canvas course object
         order_data: Dict with quiz_id and order list
     """
-    quiz_id = cast(str, order_data['quiz_id'])
+    quiz_id = order_data['quiz_id']
     order_items = order_data['order']
 
     canvas_quiz: Quiz = course.get_quiz(quiz_id)

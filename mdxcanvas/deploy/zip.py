@@ -96,7 +96,7 @@ def write_file(file: str, zip_name: str, zipf: ZipFile):
 
 def deploy_zip(course: Course, zipdata: ZipFileData) -> tuple[FileInfo, None]:
     with TemporaryDirectory() as tmpdir:
-        path_to_zip = str(Path(tmpdir) / zipdata['zip_file_name'])
+        path_to_zip = str(Path(tmpdir) / zipdata['zip_file_name']) # pyright: ignore[reportOperatorIssue]
         zip_folder(path_to_zip, zipdata['zip_contents'])
 
         file = FileData(

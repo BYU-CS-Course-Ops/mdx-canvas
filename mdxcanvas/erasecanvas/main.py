@@ -1,12 +1,11 @@
 import argparse
 import os
 from pathlib import Path
-from typing import cast
 
 from canvasapi import exceptions
 from canvasapi.exceptions import ResourceDoesNotExist
 
-from ..main import CourseInfo, get_course, load_config
+from ..main import get_course, load_config
 from ..our_logging import get_logger
 from ..parallel import threaded_execute
 
@@ -110,7 +109,7 @@ def delete_all_files(course):
 
 def main(
         canvas_api_token: str,
-        course_info: CourseInfo,
+        course_info: dict,
         confirmed_delete: bool
 ):
     logger = get_logger()
@@ -188,7 +187,7 @@ def entry():
 
     main(
         canvas_api_token=api_token,
-        course_info=cast(CourseInfo, course_settings),
+        course_info=course_settings,
         confirmed_delete=args.y
     )
 

@@ -2,7 +2,6 @@ import csv
 import json
 import re
 from pathlib import Path
-from typing import Optional, cast
 
 import markdowndata
 import yaml
@@ -14,9 +13,9 @@ from ..processing_context import get_current_file_str
 logger = get_logger()
 
 
-def _get_args(args_path: Path, global_args: Optional[dict]) -> dict | list:
+def _get_args(args_path: Path, global_args: dict) -> dict | list:
     if args_path.suffix == '.jinja':
-        content = _render_template(args_path.read_text(), global_args=global_args)
+        content = _render_template(args_path.read_text(), global_args, args_path.parent)
         args_path = Path(args_path.stem)
     else:
         content = args_path.read_text()
@@ -39,11 +38,11 @@ def _get_args(args_path: Path, global_args: Optional[dict]) -> dict | list:
 
 def _render_template(
         template: str,
-        parent_folder: Optional[Path] = None,
-        args_path: Optional[Path] = None,
-        args: Optional[dict | list] = None,
-        global_args: Optional[dict] = None,
-        templates: Optional[list[Path]] = None
+        global_args: dict,
+        parent_folder: Path,
+        args_path: Path | None = None,
+        args: dict | list | None = None,
+        templates: list[Path] | None = None
 ) -> str:
     loader_paths = [parent_folder, args_path, *(templates or [])]
     loader_paths = [p for p in loader_paths if p]
@@ -56,14 +55,14 @@ def _render_template(
         "zip": zip,
         "enumerate": enumerate,
         "split_list": lambda x: x.split(";"),
-        "exists": lambda path: (cast(Path, parent_folder) / path).exists(),
-        "read_file": lambda f: (cast(Path, parent_folder) / f).absolute().read_text(),
-        "glob": lambda *args, **kwargs: list(sorted(str(f.relative_to(cast(Path, parent_folder))) for f in
-                                         cast(Path, parent_folder).glob(*args, **kwargs))),
+        "exists": lambda path: (parent_folder / path).exists(),
+        "read_file": lambda f: (parent_folder / f).absolute().read_text(),
+        "glob": lambda *args, **kwargs: list(sorted(str(f.relative_to(parent_folder)) for f in
+                                         parent_folder.glob(*args, **kwargs))),
         "parent": lambda path: str(Path(path).parent),
-        "load": lambda path: _get_args((cast(Path, parent_folder) / path).absolute(), global_args),
+        "load": lambda path: _get_args((parent_folder / path).absolute(),  global_args),
         "debug": lambda msg: logger.debug(msg),
-        "get_arg": lambda *args: cast(dict, global_args).get(*args),
+        "get_arg": lambda *args: global_args.get(*args) if global_args else None,
         # "grep": lambda pattern, string, *args: m.groups() if (m := re.search(pattern, string, *args)) else None
         "search": re.search
     }
@@ -83,10 +82,10 @@ def _render_template(
 
 def process_jinja(
         template: str,
-        parent_folder: Optional[Path] = None,
-        args_path: Optional[Path] = None,
-        global_args: Optional[dict] = None,
-        templates: Optional[list[Path]] = None
+        global_args: dict,
+        parent_folder: Path,
+        args_path: Path | None = None,
+        templates: list[Path] | None = None
 ) -> str:
     if args_path:
         args = _get_args(args_path, global_args)
@@ -95,9 +94,9 @@ def process_jinja(
 
     return _render_template(
         template,
-        parent_folder=parent_folder,
+        global_args,
+        parent_folder,
         args_path=args_path,
         args=args,
-        global_args=global_args,
         templates=templates
     )

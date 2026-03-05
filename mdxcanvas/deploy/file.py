@@ -1,11 +1,9 @@
-from typing import Optional
-
 from canvasapi.course import Course
 from canvasapi.file import File
 from canvasapi.folder import Folder
 
 from .util import get_canvas_object
-from ..resources import FileData, FileInfo
+from ..resources import FileData, FileInfo, StrLike
 from ..our_logging import get_logger
 
 logger = get_logger()
@@ -14,11 +12,11 @@ DEFAULT_CANVAS_FOLDER = 'deployed_files'
 
 
 # Keeping for Checksums retrieval
-def get_file(course: Course, name: str) -> Optional[File]:
+def get_file(course: Course, name: str) -> File | None:
     return get_canvas_object(course.get_files, 'display_name', name)
 
 
-def get_canvas_folder(course: Course, folder_name: str, parent_folder_path="") -> Folder:
+def get_canvas_folder(course: Course, folder_name: StrLike, parent_folder_path="") -> Folder:
     """
     Retrieves an object representing a digital folder in Canvas.
     If the folder does not exist, it is created.

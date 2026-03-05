@@ -1,4 +1,4 @@
-from typing import Any, cast
+from typing import Any
 
 from bs4.element import Tag
 
@@ -57,7 +57,7 @@ class ModuleTagProcessor:
         if prev_mod := module_data.get('previous-module'):
             module_data['_comments']['previous_module'] = get_key('module', prev_mod, 'id')
 
-        module_id = cast(str, module_tag.get('id', module_data['name']))
+        module_id = module_tag.get('id', module_data['name'])
         self._previous_module = module_id
 
         self._resources.add_resource(CanvasResource(
@@ -72,7 +72,7 @@ class ModuleTagProcessor:
         for item_tag in module_tag.find_all('item'):
             self._parse_module_item(module_id, item_tag)
 
-    def _parse_module_item(self, module_rid: str, tag: Tag):
+    def _parse_module_item(self, module_rid: str | Any, tag: Tag):
         fields = [
             Attribute('type', ignore=True),
             Attribute('position', parser=parse_int),
@@ -83,7 +83,7 @@ class ModuleTagProcessor:
             Attribute('published', parser=parse_bool),
         ]
 
-        rtype = self._module_item_type_casing[cast(str, tag['type']).lower()]
+        rtype = self._module_item_type_casing[tag['type'].lower()] # pyright: ignore[reportAttributeAccessIssue]
         item: dict[str, Any] = {
             'type': rtype
         }
@@ -129,7 +129,7 @@ class ModuleTagProcessor:
                 Attribute('title')
             ])
 
-            if not (rid := cast(str, tag.get('content_id'))):
+            if not (rid := tag.get('content_id')):
                 raise ValueError(
                     f'Module "{rtype}" item must have "content_id" @ {format_tag(tag)}\n  in {get_file_path(tag)}')
 

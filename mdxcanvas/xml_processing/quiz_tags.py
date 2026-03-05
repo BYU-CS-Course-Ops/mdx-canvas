@@ -1,4 +1,4 @@
-from typing import cast
+from typing import Callable
 
 from bs4.element import Tag
 
@@ -8,7 +8,7 @@ from .quiz_questions import parse_text_question, parse_true_false_question, pars
     parse_multiple_answers_question, parse_matching_question, parse_multiple_true_false_question, \
     parse_fill_in_the_blank_question, parse_essay_question, parse_file_upload_question, parse_numerical_question, \
     parse_fill_in_multiple_blanks_question, parse_fill_in_multiple_blanks_filled_answers
-from ..resources import ResourceManager, CanvasResource, get_key
+from ..resources import ResourceManager, CanvasResource, StrLike, get_key
 from .override_parsing import parse_overrides_container
 from ..error_helpers import format_tag, get_file_path
 from ..processing_context import get_current_file_str
@@ -20,7 +20,7 @@ logger = get_logger()
 class QuizTagProcessor:
     def __init__(self, resources: ResourceManager):
         self._resources = resources
-        self.question_types = {
+        self.question_types: dict[StrLike, Callable] = {
             'text': parse_text_question,
             'true-false': parse_true_false_question,
             'multiple-choice': parse_multiple_choice_question,
@@ -41,7 +41,7 @@ class QuizTagProcessor:
         }
         quiz.update(self._parse_quiz_settings(quiz_tag))
 
-        rid = cast(str, quiz_tag.get('id', quiz['title']))
+        rid: str = quiz_tag.get('id', quiz['title'])  # pyright: ignore[reportAssignmentType]
 
         for tag in quiz_tag.children:
             if not isinstance(tag, Tag):
@@ -95,23 +95,23 @@ class QuizTagProcessor:
 
         return parse_settings(settings_tag, fields)
 
-    def _parse_questions(self, quiz_rid: str, questions_tag: Tag):
+    def _parse_questions(self, quiz_rid: StrLike, questions_tag: Tag):
         order_items = []
 
         for pos, tag in enumerate(questions_tag.find_all('question', recursive=False)):
-            q_type = cast(str, tag.get("type"))
+            q_type = tag.get("type")
 
             if not q_type:
                 raise ValueError(
                     f"Question type not specified @ {format_tag(tag)}\n  in {get_file_path(tag)}")
 
-            if not (parse_question := self.question_types.get(q_type, None)):
+            if not (parse_question := self.question_types.get(q_type)): # pyright: ignore[reportArgumentType]
                 raise ValueError(
                     f"Question type '{q_type}' not supported @ {format_tag(tag)}\n  "
-                    f"Supported types: {', '.join(self.question_types.keys())}\n  "
+                    f"Supported types: {', '.join(self.question_types.keys())}\n  " # type: ignore
                     f"in {get_file_path(tag)}")
 
-            qid = cast(str, tag.get('id', f"q{pos}"))
+            qid = tag.get('id', f"q{pos}")
 
             for question in parse_question(tag, qid):
                 question_id = question['question_id']

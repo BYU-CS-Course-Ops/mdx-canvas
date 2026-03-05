@@ -1,4 +1,4 @@
-from typing import TypedDict, List, cast
+from typing import TypedDict, List
 
 from bs4.element import Tag
 
@@ -14,12 +14,12 @@ class AssignmentGroupRules(TypedDict, total=False):
 
 
 def _parse_never_drop_assignments(tag: Tag) -> List[int]:
-    never_drop_attr = cast(str, tag.get('never_drop'))
+    never_drop_attr = tag.get('never_drop')
     if not never_drop_attr:
         return []
 
     never_drop_ids = []
-    assignment_names = [name.strip() for name in never_drop_attr.split('|')]
+    assignment_names = [name.strip() for name in never_drop_attr.split('|')] # pyright: ignore[reportAttributeAccessIssue]
 
     for assignment_name in assignment_names:
         if assignment_name:
@@ -91,7 +91,7 @@ class AssignmentGroupTagProcessor:
 
         assignment_group = CanvasResource(
             type='assignment_group',
-            id=cast(str, tag.get('id', group_data['name'])),
+            id = tag.get('id', group_data['name']),
             data=group_data,
             content_path=get_current_file_str()
         )

@@ -1,8 +1,7 @@
 from pathlib import Path
 from contextvars import ContextVar
-from typing import Optional
 
-_file_stack: ContextVar[Optional[list[Path]]] = ContextVar('file_stack', default=None)
+_file_stack: ContextVar[list[Path] | None] = ContextVar('file_stack', default=None)
 
 
 class FileContext:

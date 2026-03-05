@@ -1,11 +1,11 @@
 from bs4.element import Tag
 
 from .attributes import parse_settings, Attribute, parse_date, parse_int
-from ..resources import ResourceManager, CanvasResource, get_key
+from ..resources import ResourceManager, CanvasResource, StrLike, get_key
 from ..processing_context import get_current_file_str
 
 
-def parse_override_tag(override_tag: Tag, parent_type: str, parent_rid: str, resources: ResourceManager):
+def parse_override_tag(override_tag: Tag, parent_type: StrLike, parent_rid: StrLike, resources: ResourceManager):
     """
     Parse an <override> tag that is a child of an assignment or quiz tag.
 
@@ -44,7 +44,7 @@ def parse_override_tag(override_tag: Tag, parent_type: str, parent_rid: str, res
     resources.add_resource(override_resource)
 
 
-def parse_overrides_container(overrides_tag: Tag, parent_type: str, parent_rid: str, resources: ResourceManager):
+def parse_overrides_container(overrides_tag: Tag, parent_type: StrLike, parent_rid: StrLike, resources: ResourceManager):
     """
     Parse an <overrides> container tag that contains multiple <override> child tags.
 

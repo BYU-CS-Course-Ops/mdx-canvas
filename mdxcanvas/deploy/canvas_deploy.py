@@ -6,7 +6,7 @@ from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Callable, Optional, cast
+from typing import Any, Callable
 from zoneinfo import ZoneInfo
 
 import pytz
@@ -19,7 +19,7 @@ from .announcement import deploy_announcement
 from .assignment import deploy_assignment, deploy_shell_assignment
 from .checksums import MD5Sums, compute_md5
 from .course_settings import deploy_settings
-from .file import deploy_file, get_file
+from .file import deploy_file
 from .group import deploy_group
 from .migration import migrate
 from .module import deploy_module, deploy_module_item, get_module_item
@@ -43,22 +43,22 @@ SHELL_DEPLOYERS: dict[str, Callable[[Course, dict], tuple[ResourceInfo, tuple[st
     'quiz': deploy_shell_quiz
 }
 
-DEPLOYERS: dict[str, Callable[[Course, dict], tuple[ResourceInfo, Optional[tuple[str, str]]]]] = {
+DEPLOYERS: dict[str, Callable[[Course, Any], tuple[ResourceInfo, tuple[str, str] | None]]] = {
     'announcement': deploy_announcement,
     'assignment': deploy_assignment,
     'assignment_group': deploy_group,
-    'course_settings': cast(Callable[[Course, dict], tuple[ResourceInfo, Optional[tuple[str, str]]]], deploy_settings),
-    'file': cast(Callable[[Course, dict], tuple[ResourceInfo, Optional[tuple[str, str]]]], deploy_file),
+    'course_settings': deploy_settings,
+    'file': deploy_file,
     'module': deploy_module,
     'module_item': deploy_module_item,
     'override': deploy_override,
     'page': deploy_page,
-    'quarto-slides': cast(Callable[[Course, dict], tuple[ResourceInfo, Optional[tuple[str, str]]]], deploy_quarto_slides),
+    'quarto-slides': deploy_quarto_slides,
     'quiz': deploy_quiz,
     'quiz_question': deploy_quiz_question,
     'quiz_question_order': deploy_quiz_question_order,
-    'syllabus': cast(Callable[[Course, dict], tuple[ResourceInfo, Optional[tuple[str, str]]]], deploy_syllabus),
-    'zip': cast(Callable[[Course, dict], tuple[ResourceInfo, Optional[tuple[str, str]]]], deploy_zip)
+    'syllabus': deploy_syllabus,
+    'zip': deploy_zip
 }
 
 
@@ -277,18 +277,18 @@ def get_stale_resources(resources: dict[tuple[str, str], CanvasResource], md5s: 
 
 
 def _lookup_stale_canvas_resource(course: Course, item_type: str, item_id: str,
-                                  canvas_info: dict) -> CanvasObject | None:
-    canvas_id = canvas_info.get('id')
+                                  canvas_info: ResourceInfo) -> CanvasObject | None:
+    canvas_id = canvas_info['id']
 
     # Handle special case resources (i.e. those that require a parent object to look up the specific object
 
     if item_type in ['module_item', 'override', 'quiz_question']:
         if item_type == 'module_item':
-            canvas_resource = get_module_item(course, cast(int, canvas_info.get('module_id')), cast(int, canvas_id))
+            canvas_resource = get_module_item(course, canvas_info.get('module_id'), canvas_id)
         elif item_type == 'override':
-            canvas_resource = get_override(course, cast(int, canvas_info.get('assignment_id')), cast(int, canvas_id))
+            canvas_resource = get_override(course, canvas_info.get('assignment_id'), canvas_id)
         elif item_type == 'quiz_question':
-            canvas_resource = get_quiz_question(course, cast(int, canvas_info.get('quiz_id')), cast(int, canvas_id))
+            canvas_resource = get_quiz_question(course, canvas_info.get('quiz_id'), canvas_id)
         else:
             raise NotImplementedError(f"Unsupported stale resource type {item_type} {item_id}")
 
