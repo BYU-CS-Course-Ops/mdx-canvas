@@ -140,7 +140,7 @@ def process_markdown(text: str, excluded: list[str], inline: list[str]) -> str:
 
     :param text: the Markdown text to process
     :param excluded: a list of tag names to exclude; their contents are left untouched
-    :param deploy_root: project root directory, used for mermaid output caching
+    :param inline: a list of tag names to treat as inline tags; their contents are processed as Markdown but not wrapped in <p> tags
     :returns: The XML/HTML text
     """
     content = replace_problematic_characters(text, {'<': '&lt;'})
