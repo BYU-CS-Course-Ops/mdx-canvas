@@ -1,11 +1,11 @@
 from typing import Any
 
-from bs4 import Tag
+from bs4.element import Tag
 
 from .attributes import Attribute, parse_bool, parse_dict, parse_list, parse_settings, parse_int
-from ..resources import ResourceManager, get_key, CanvasResource
+from ..resources import ResourceManager, StrLike, get_key, CanvasResource
 from ..error_helpers import format_tag, get_file_path
-from ..processing_context import get_current_file
+from ..processing_context import get_current_file_str
 
 
 def _parse_module_list(text: str) -> list[str]:
@@ -48,7 +48,7 @@ class ModuleTagProcessor:
             'previous_module': ''
         }
 
-        if self._previous_module is not None:
+        if self._previous_module:
             # adding a reference to the previous module ensures this module
             #  is created after the previous one, thus preserving their
             #  relative ordering
@@ -57,14 +57,14 @@ class ModuleTagProcessor:
         if prev_mod := module_data.get('previous-module'):
             module_data['_comments']['previous_module'] = get_key('module', prev_mod, 'id')
 
-        module_id = module_tag.get('id', module_data['name'])
+        module_id: str = module_tag.get('id', module_data['name'])  # pyright: ignore[reportAssignmentType]
         self._previous_module = module_id
 
         self._resources.add_resource(CanvasResource(
             type='module',
             id=module_id,
             data=module_data,
-            content_path=str(get_current_file().resolve())
+            content_path=get_current_file_str()
         ))
 
         self._previous_module_item = None
@@ -72,7 +72,7 @@ class ModuleTagProcessor:
         for item_tag in module_tag.find_all('item'):
             self._parse_module_item(module_id, item_tag)
 
-    def _parse_module_item(self, module_rid: str, tag: Tag):
+    def _parse_module_item(self, module_rid: StrLike, tag: Tag):
         fields = [
             Attribute('type', ignore=True),
             Attribute('position', parser=parse_int),
@@ -83,7 +83,7 @@ class ModuleTagProcessor:
             Attribute('published', parser=parse_bool),
         ]
 
-        rtype = self._module_item_type_casing[tag['type'].lower()]
+        rtype = self._module_item_type_casing[tag['type'].lower()]  # pyright: ignore[reportAttributeAccessIssue]
         item: dict[str, Any] = {
             'type': rtype
         }
@@ -158,7 +158,7 @@ class ModuleTagProcessor:
         item['_comments'] = {
             'previous_module_item':
                 get_key('module_item', self._previous_module_item, 'id')
-                if self._previous_module_item is not None
+                if self._previous_module_item
                 else ''
         }
         self._previous_module_item = item['id']
@@ -167,5 +167,5 @@ class ModuleTagProcessor:
             type='module_item',
             id=item['id'],
             data=item,
-            content_path=str(get_current_file().resolve())
+            content_path=get_current_file_str()
         ))

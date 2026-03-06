@@ -1,6 +1,6 @@
 # Course Info
 
-The `course_info` file is a configuration file used to define key settings for your Canvas course deployment via 
+The `course_info` file is a configuration file used to define key settings for your Canvas course deployment via
 **MDXCanvas**.
 
 ## Supported Formats
@@ -9,34 +9,44 @@ The `course_info` file is a configuration file used to define key settings for y
 - **JSON** (`.json`) - Standard JSON format
 - **MarkdownData** (`.md`, `.mdd`) - See [MarkdownData documentation](https://github.com/BYU-CS-Course-Ops/markdowndata) for details.
 
-In addition to required values (such as `CANVAS_API_URL` and `CANVAS_COURSE_ID`), you can include optional fields to 
+In addition to required values (such as `CANVAS_API_URL` and `CANVAS_COURSE_ID`), you can include optional fields to
 further customize your course setup.
 
-## Available Fields
+## Required Fields
 
-### `COURSE_NAME`
+### `CANVAS_API_URL`
 
-Defines the full display name of the course as it will appear in Canvas.
-
-```yaml
-COURSE_NAME: Example Course
-```
-
-### `COURSE_CODE`
-
-A concise identifier for the course.
+The base URL of your Canvas instance. This is used to connect to the Canvas API for deploying course content.
 
 ```yaml
-COURSE_CODE: EXAMPLE 101
+CANVAS_API_URL: https://byu.instructure.com/
 ```
 
-### `COURSE_IMAGE`
+### `CANVAS_COURSE_ID`
 
-Specifies the filename of the course thumbnail image shown on the Canvas dashboard.
+The numeric ID of the Canvas course where content will be deployed. You can find this in the course URL (e.g., `canvas.instructure.com/courses/12345` where `12345` is the course ID).
 
 ```yaml
-COURSE_IMAGE: example_course_image.png
+CANVAS_COURSE_ID: 12345
 ```
+
+### `LOCAL_TIME_ZONE`
+
+The timezone for interpreting dates and times in your course. Use standard timezone identifiers (e.g., `America/Denver`, `America/Chicago`, `America/New_York`).
+
+```yaml
+LOCAL_TIME_ZONE: America/Denver
+```
+
+### `DEPLOY_ROOT`
+
+This is the root of the project you are deploying relative to the `course_info` file.
+
+```yaml
+DEPLOY_ROOT: ..
+```
+
+## Additional Fields
 
 ### `GLOBAL_ARGS`
 
@@ -59,9 +69,7 @@ A complete `course_info` file might look like the following:
 CANVAS_API_URL: https://byu.instructure.com/
 CANVAS_COURSE_ID: 12345
 LOCAL_TIME_ZONE: America/Denver
-COURSE_NAME: Example Course
-COURSE_CODE: EXAMPLE 101
-COURSE_IMAGE: example_course_image.png
+DEPLOY_ROOT: ..
 GLOBAL_ARGS:
   semester: Fall 2025
   instructor_name: Dr. Smith

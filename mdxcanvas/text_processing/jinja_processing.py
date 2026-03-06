@@ -1,5 +1,4 @@
 import csv
-from datetime import datetime
 import json
 import re
 from pathlib import Path
@@ -9,14 +8,14 @@ import yaml
 from jinja2 import Environment, FileSystemLoader
 
 from ..our_logging import get_logger
-from ..processing_context import get_current_file
+from ..processing_context import get_current_file_str
 
 logger = get_logger()
 
 
 def _get_args(args_path: Path, global_args: dict) -> dict | list:
     if args_path.suffix == '.jinja':
-        content = _render_template(args_path.read_text(), global_args=global_args)
+        content = _render_template(args_path.read_text(), global_args, args_path.parent)
         args_path = Path(args_path.stem)
     else:
         content = args_path.read_text()
@@ -39,14 +38,14 @@ def _get_args(args_path: Path, global_args: dict) -> dict | list:
 
 def _render_template(
         template: str,
-        parent_folder: Path = None,
-        args_path: Path = None,
-        args: dict | list = None,
-        global_args: dict = None,
-        templates: list[Path] = None
+        global_args: dict,
+        parent_folder: Path,
+        args_path: Path | None = None,
+        args: dict | list | None = None,
+        templates: list[Path] | None = None
 ) -> str:
     loader_paths = [parent_folder, args_path, *(templates or [])]
-    loader_paths = [p for p in loader_paths if p is not None]
+    loader_paths = [p for p in loader_paths if p]
 
     env = Environment(
         loader=FileSystemLoader(loader_paths),
@@ -78,15 +77,15 @@ def _render_template(
         jj_template = env.from_string(template)
         return jj_template.render(context)
     except Exception as ex:
-        raise Exception(f'Error processing {get_current_file()}', ex)
+        raise Exception(f'Error processing {get_current_file_str()}', ex)
 
 
 def process_jinja(
         template: str,
-        parent_folder: Path = None,
-        args_path: Path = None,
-        global_args: dict = None,
-        templates: list[Path] = None
+        global_args: dict,
+        parent_folder: Path,
+        args_path: Path | None = None,
+        templates: list[Path] | None = None
 ) -> str:
     if args_path:
         args = _get_args(args_path, global_args)
@@ -95,9 +94,9 @@ def process_jinja(
 
     return _render_template(
         template,
-        parent_folder=parent_folder,
+        global_args,
+        parent_folder,
         args_path=args_path,
         args=args,
-        global_args=global_args,
         templates=templates
     )

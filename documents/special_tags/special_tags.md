@@ -23,6 +23,9 @@ Click a tag below to view its full documentation and examples.
 - [`<img>`](tags/img_tag.md)
   Uploads and embeds images in Canvas content.
 
+- [`<mermaid>`](tags/mermaid_tag.md)
+  Renders Mermaid diagrams to PNG and uploads them to Canvas. Supports inline diagrams and external `.mmd` files.
+
 - [`<zip>`](tags/zip_tag.md)
   Includes a `.zip` archive and manages its structure and filters.
 

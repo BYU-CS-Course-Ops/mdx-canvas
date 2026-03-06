@@ -1,36 +1,22 @@
 import re
 import textwrap
 from pathlib import Path
-from xml.etree.ElementTree import Element
+from typing import Generator
 
 import markdown as md
-from bs4 import NavigableString, Tag, Comment
-from markdown import Extension
+from bs4.element import NavigableString, PageElement, Tag, Comment
 from pymdownx.highlight import makeExtension as makeCodehiliteExtension
-from markdown.inlinepatterns import BACKTICK_RE, BacktickInlineProcessor
+from pymdownx.inlinehilite import makeExtension as makeInlineHiliteExtension
+from pymdownx.superfences import makeExtension as makeSuperfencesExtension
+from pymdownx.tilde import makeExtension as makeTildeExtension
 
 from .inline_math import InlineMathExtension
+from .mermaid_fence import make_mermaid_fence_shortcut
 from ..util import parse_soup_from_xml
 
 # Load CSS from file
-_CSS_FILE = Path(__file__).parent / 'github-light.css'
-CODE_BLOCK_CSS = f'<style>\n{_CSS_FILE.read_text()}\n</style>'
-
-
-class BlackInlineCodeProcessor(BacktickInlineProcessor):
-    def handleMatch(self, m: re.Match[str], data: str) -> tuple[Element | str, int, int]:
-        el, start, end = super().handleMatch(m, data)
-        el.attrib['style'] = 'color: #000000'
-        return el, start, end
-
-
-class BlackInlineCodeExtension(Extension):
-    def extendMarkdown(self, md):
-        # We use 'backtick' and 190 which are the same values
-        # used in markdown.inlinepatterns.py to register the original
-        # BacktickInlineCodeProcessor.
-        # By reusing the same name, it overrides the original processor with ours
-        md.inlinePatterns.register(BlackInlineCodeProcessor(BACKTICK_RE), 'backtick', 190)
+_CSS_FILES = [Path(__file__).parent / 'mdxcanvas.css', Path(__file__).parent / 'github-light.css']
+CODE_BLOCK_CSS = f'<style>\n{"\n".join(file.read_text() for file in _CSS_FILES)}\n</style>'
 
 
 def replace_characters(text: str, replacements: dict[str, str]) -> str:
@@ -74,41 +60,45 @@ def process_markdown_text(text: str) -> str:
         'fenced_code',
         'tables',
         'attr_list',
-        'pymdownx.superfences',
+
+        makeSuperfencesExtension(custom_fences=[
+            {
+                'name': 'mermaid',
+                'class': 'mermaid',
+                'format': make_mermaid_fence_shortcut(),
+            }
+        ]),
 
         # Use CSS classes for syntax highlighting (styled by CODE_BLOCK_CSS)
         makeCodehiliteExtension(noclasses=False),
+        makeInlineHiliteExtension(css_class='highlight', style_plain_text='text'),
+
+        # This allows for strikethrough with ~~text~~
+        makeTildeExtension(subscript=False),
 
         # This preserves \(...\) inline math expressions
         #  so Canvas will render them with MathJax
         InlineMathExtension(),
-
-        # This forces the color of inline code to be black
-        # as a workaround for Canvas's super-ugly default red :P
-        BlackInlineCodeExtension(),
-        # TODO - can we solve this with baked-in CSS?
-
-        # TODO - add support for tilde => <del> (strikethrough) (look for extension)
-        #  or maybe look for a github-flavored-markdown extension
     ])
 
     # Include CSS to override Canvas's pre block styling
-    if '<div class="highlight">' in html:
+    if '<div class="highlight">' in html or '<code class="highlight">' in html:
         html = CODE_BLOCK_CSS + html
 
     return html
 
 
-def _form_blocks(tag: Tag, excluded: list[str], inline: list[str]) -> tuple[bool, list[Tag]]:
+def _form_blocks(tag: Tag, excluded: list[str], inline: list[str]
+                 ) -> Generator[tuple[bool, list[PageElement | Tag]], None, None]:
     block_tags = []
 
     for child in list(tag.children):  # Make a copy because .children will change after the yield
-        if isinstance(child, Comment) or child.name in excluded:
+        if isinstance(child, Comment) or (isinstance(child, Tag) and child.name in excluded):
             if block_tags:
                 yield True, block_tags
             block_tags = []
 
-        elif isinstance(child, NavigableString) or child.name in inline:
+        elif isinstance(child, NavigableString) or (isinstance(child, Tag) and child.name in inline):
             block_tags.append(child)
 
         else:
@@ -150,6 +140,7 @@ def process_markdown(text: str, excluded: list[str], inline: list[str]) -> str:
 
     :param text: the Markdown text to process
     :param excluded: a list of tag names to exclude; their contents are left untouched
+    :param inline: a list of tag names to treat as inline tags; their contents are processed as Markdown but not wrapped in <p> tags
     :returns: The XML/HTML text
     """
     content = replace_problematic_characters(text, {'<': '&lt;'})

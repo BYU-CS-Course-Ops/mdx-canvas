@@ -1,22 +1,24 @@
+from pathlib import Path
+
 from canvasapi.course import Course
 from canvasapi.module import ModuleItem
 
 from ..resources import ModuleInfo, ModuleItemInfo
 
 
-def get_module_item(course: Course, module_id: int, module_item_id: int) -> ModuleItem | None:
+def get_module_item(course: Course, module_id: int | str | None, module_item_id: int | str) -> ModuleItem | None:
     if canvas_module := course.get_module(module_id):
         return canvas_module.get_module_item(module_item_id)
 
     return None
 
 
-def deploy_module_item(course: Course, module_item_data: dict) -> tuple[ModuleItemInfo, None]:
+def deploy_module_item(course: Course, module_item_data: dict, _: Path) -> tuple[ModuleItemInfo, None]:
     canvas_module = course.get_module(module_item_data['module_id'])
     if canvas_module is None:
         raise ValueError(f'Unable to find module {module_item_data["module_id"]}')
 
-    if module_item_data['canvas_id'] is not None and (
+    if module_item_data['canvas_id'] and (
             module_item := canvas_module.get_module_item(module_item_data['canvas_id'])):
         module_item.edit(module_item=module_item_data)
     else:
@@ -30,7 +32,7 @@ def deploy_module_item(course: Course, module_item_data: dict) -> tuple[ModuleIt
     ), None
 
 
-def deploy_module(course: Course, module_data: dict) -> tuple[ModuleInfo, None]:
+def deploy_module(course: Course, module_data: dict, _: Path) -> tuple[ModuleInfo, None]:
     module_id = module_data["canvas_id"]
 
     if module_id:
