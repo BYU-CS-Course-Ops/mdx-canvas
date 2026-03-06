@@ -1,4 +1,4 @@
-import cssutils
+from cssutils import CSSParser
 from bs4 import BeautifulSoup
 
 from ..util import parse_soup_from_xml, retrieve_contents
@@ -17,7 +17,7 @@ def get_style(soup: BeautifulSoup) -> str:
 
 
 def parse_css(css: str) -> dict[str, dict[str, str]]:
-    css_parser = cssutils.CSSParser(validate=False)
+    css_parser = CSSParser(validate=False)
     stylesheet = css_parser.parseString(css)
     styles = {}
     for rule in stylesheet:
