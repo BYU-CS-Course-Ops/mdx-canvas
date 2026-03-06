@@ -2,11 +2,7 @@
 
 The `<mermaid>` tag renders Mermaid diagrams and uploads the generated PNG images to Canvas. Diagrams can be defined inline as tag content or referenced from external `.mmd` files.
 
-Mermaid diagrams are rendered at deployment time using mermaid-cli (locally installed), converted to high-DPI PNG images, trimmed to remove excess whitespace, and uploaded as Canvas file resources.
-
-## Requirements
-
-- [mermaid-cli](https://github.com/mermaid-js/mermaid-cli) must be installed and available (the `mmdc` command must be accessible)
+Mermaid diagrams are rendered at deployment time using the mermaid engine in a playwright browser, converted to high-DPI PNG images, trimmed to remove excess whitespace, and uploaded as Canvas file resources.
 
 ## Inline vs File-Based
 
@@ -123,7 +119,7 @@ When processing Markdown, these fence blocks are automatically converted to `<me
 You can also use attributes with fence blocks:
 
 ````markdown
-```mermaid {: .diagram-class #my-diagram alt="My Diagram" }
+```mermaid {: .diagram-class id="my-diagram" alt="My Diagram" }
 sequenceDiagram
     participant A
     participant B

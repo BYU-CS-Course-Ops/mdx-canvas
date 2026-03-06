@@ -1,7 +1,7 @@
+import io
 import os
 import subprocess
 import sys
-import time
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from urllib.parse import quote
@@ -64,14 +64,14 @@ def _build_template(background: str = "transparent", theme: str = "default", svg
     """
 
 
-def _trim_whitespace(output_path: Path, padding: int = 10) -> None:
+def _trim_whitespace(data: bytes, output_path: Path, padding: int = 10) -> None:
     """
     Trim extraneous whitespace from a PNG image.
 
     Crops the image to its non-transparent bounding box,
     keeping a small padding around the content.
     """
-    with Image.open(output_path) as img:
+    with Image.open(io.BytesIO(data)) as img:
         if img.mode != 'RGBA':
             img = img.convert('RGBA')
 
@@ -99,16 +99,34 @@ def _ensure_pw_chromium():
             # Try launching to verify presence
             browser = p.chromium.launch()  # will fail if not installed
             browser.close()
+        logger.debug("Playwright Chromium is already installed")
     except PWError:
         # Use hermetic install under site-packages
         os.environ.setdefault("PLAYWRIGHT_BROWSERS_PATH", "0")
         logger.info("Installing Playwright Chromium (one time)...")
         # Run the official installer
         cmd = [sys.executable, "-m", "playwright", "install", "chromium", "--with-deps"]
-        subprocess.check_call(cmd)
+
+        # Capture output and only show if debug logging is enabled
+        try:
+            result = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True,
+                check=True
+            )
+            if result.stdout:
+                logger.debug(f"Playwright install output:\n{result.stdout}")
+            logger.info("Playwright Chromium installed successfully")
+        except subprocess.CalledProcessError as e:
+            error_msg = f"Failed to install Playwright Chromium (exit code {e.returncode})"
+            if e.stderr:
+                error_msg += f"\n{e.stderr}"
+            logger.error(error_msg)
+            raise
 
 
-def render_mermaid_to_png(id: StrLike, source: str, output_dir: Path) -> Path:
+def render_mermaid_to_png(id: StrLike, data: MermaidData, output_dir: Path, deploy_root: Path) -> Path:
     """
     Render mermaid source code to a trimmed, high-resolution PNG file.
 
@@ -120,6 +138,13 @@ def render_mermaid_to_png(id: StrLike, source: str, output_dir: Path) -> Path:
     :param output_dir: Directory to store rendered PNG files
     :returns: Path to the generated PNG file
     """
+    path = data.get('path')
+    if path:
+        mermaid_file = relative_to_abs(Path(path), deploy_root)
+        source = mermaid_file.read_text(encoding='utf-8')
+    else:
+        source = data['source']
+
     output_dir.mkdir(parents=True, exist_ok=True)
     _ensure_pw_chromium()
 
@@ -129,11 +154,14 @@ def render_mermaid_to_png(id: StrLike, source: str, output_dir: Path) -> Path:
     with sync_playwright() as p:
         browser = p.chromium.launch()
         context = browser.new_context(
-            device_scale_factor=6,  # High-resolution rendering for Retina displays
+            device_scale_factor=5,  # High-resolution rendering for Retina displays
         )
         page = context.new_page()
+        attrs = data.get('attrs', {})
 
-        template = _build_template()
+        template = _build_template(background=attrs.get('background', 'transparent'),
+                                   theme=attrs.get('theme', 'default'),
+                                   svg_padding=int(attrs.get('svg_padding', 10)))
 
         # Load our HTML shell from a data URL
         page.goto("data:text/html;charset=utf-8," + quote(template, safe=''))
@@ -143,20 +171,13 @@ def render_mermaid_to_png(id: StrLike, source: str, output_dir: Path) -> Path:
         svg_locator = page.locator("#container svg")
         svg_locator.wait_for(state="visible")
 
-        svg_locator.screenshot(
+        _trim_whitespace(svg_locator.screenshot(
             path=str(output_path),
             scale='device',
             omit_background=True
-        )
+        ), output_path)
 
         browser.close()
-
-    # Trim extraneous whitespace from the rendered image
-    _trim_whitespace(output_path)
-
-    # Reset file modification time to 1980-01-01 for deterministic output
-    mtime = time.mktime((1980, 1, 1, 0, 0, 0, 0, 1, -1))
-    os.utime(output_path, (mtime, mtime))
 
     logger.debug(f'Generated mermaid diagram: {output_path.name}')
     return output_path
@@ -179,17 +200,8 @@ def deploy_mermaid(
     :param deploy_root: Root directory for resolving relative paths
     :returns: Tuple of (FileInfo, None)
     """
-    # Determine source
-    path = data.get('path')
-    if path:
-        mermaid_file = relative_to_abs(Path(path), deploy_root)
-        source = mermaid_file.read_text(encoding='utf-8')
-    else:
-        source = data['source']
-
-    # Render mermaid to PNG in temporary directory
     with TemporaryDirectory() as tmpdir:
-        output_path = render_mermaid_to_png(data['id'], source, Path(tmpdir))
+        output_path = render_mermaid_to_png(data['id'], data, Path(tmpdir), deploy_root)
 
         # Create FileData for the rendered PNG
         file_data = FileData(

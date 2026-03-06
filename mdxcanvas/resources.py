@@ -149,6 +149,7 @@ class MermaidData(TypedDict):
     unlock_at: StrLike | None
     alt: NotRequired[StrLike | None]
     css_class: NotRequired[StrLike | None]
+    attrs: NotRequired[dict[str, str]]
     canvas_id: NotRequired[str | None]
 
 

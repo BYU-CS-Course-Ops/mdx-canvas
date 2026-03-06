@@ -55,6 +55,22 @@ def make_mermaid_preprocessor(parent: Path, resources: ResourceManager):
         # Generate resource ID from content hash
         resource_id: str = tag.get('name', f"mermaid-{_content_hash(source)}")  # pyright: ignore[reportAssignmentType]
 
+        # Preserve custom rendering attributes as a dictionary in MermaidData.
+        reserved_attrs = {
+            'path',
+            'name',
+            'canvas_folder',
+            'lock_at',
+            'unlock_at',
+            'alt',
+            'class',
+        }
+        custom_attrs = {
+            key: ' '.join(value) if isinstance(value, list) else str(value)
+            for key, value in tag.attrs.items()
+            if key not in reserved_attrs and value is not None
+        }
+
         # Create MermaidData
         data = MermaidData(
             id=resource_id,
@@ -64,6 +80,7 @@ def make_mermaid_preprocessor(parent: Path, resources: ResourceManager):
             unlock_at=tag.get('unlock_at'),
             alt=tag.get('alt'),
             css_class=tag.get('class'),
+            attrs=custom_attrs,
         )
 
         # Register resource

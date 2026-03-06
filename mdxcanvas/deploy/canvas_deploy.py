@@ -224,7 +224,7 @@ def identify_modified_or_outdated(
 
         stored_md5 = md5s.get_checksum(item)
 
-        current_md5 = compute_md5(resource_data, deploy_root)
+        current_md5 = compute_md5(resource_data, deploy_root)  # pyright: ignore[reportArgumentType]
 
         # Attach the Canvas object id (stored as `canvas_id`) to the resource data
         # so deployment can detect whether to create a new item or update an existing one.

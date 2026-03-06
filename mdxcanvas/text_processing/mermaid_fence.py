@@ -1,3 +1,6 @@
+from html import escape
+
+
 def make_mermaid_fence_shortcut():
     """
     Create a fence formatter that converts ```mermaid``` blocks to <mermaid> tags.
@@ -6,9 +9,8 @@ def make_mermaid_fence_shortcut():
     while using the new tag-based preprocessor system.
     """
     def mermaid_fence_format(source, language, css_class, options, md, **kwargs):
-        # Build extra attributes from {: .class #id key="value" } syntax
+        # Build extra attributes from {: .class key="value" } syntax
         classes = kwargs.get('classes', [])
-        id_value = kwargs.get('id_value', '')
         attrs = dict(kwargs.get('attrs', {}))
 
         if css_class and css_class not in classes:
@@ -16,11 +18,12 @@ def make_mermaid_fence_shortcut():
 
         attr_parts = []
         if classes:
-            attr_parts.append(f'class="{" ".join(classes)}"')
-        if id_value:
-            attr_parts.append(f'id="{id_value}"')
-        if 'alt' in attrs:
-            attr_parts.append(f'alt="{attrs["alt"]}"')
+            class_value = ' '.join(classes)
+            attr_parts.append(f'class="{escape(class_value, quote=True)}"')
+
+        # Pass through custom key/value attributes to the <mermaid> tag.
+        for key, value in attrs.items():
+            attr_parts.append(f'{key}="{escape(str(value), quote=True)}"')
 
         extra_attrs = (' ' + ' '.join(attr_parts)) if attr_parts else ''
 
