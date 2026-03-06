@@ -103,7 +103,7 @@ class SyllabusInfo(ResourceInfo):
 class CanvasResource(TypedDict):
     type: str
     id: str | Any
-    data: dict | FileData | ZipFileData | QuartoSlidesData | SyllabusData
+    data: dict | FileData | ZipFileData | QuartoSlidesData | MermaidData | SyllabusData
     content_path: str
 
 
@@ -138,6 +138,17 @@ class QuartoSlidesData(TypedDict):
     canvas_folder: StrLike | None
     lock_at: StrLike | None
     unlock_at: StrLike | None
+    canvas_id: NotRequired[str | None]
+
+
+class MermaidData(TypedDict):
+    id: StrLike
+    source: str
+    canvas_folder: StrLike | None
+    lock_at: StrLike | None
+    unlock_at: StrLike | None
+    alt: NotRequired[StrLike | None]
+    css_class: NotRequired[StrLike | None]
     canvas_id: NotRequired[str | None]
 
 

@@ -3,6 +3,7 @@ from typing import Callable
 
 from .announcement_tags import AnnouncementTagProcessor
 from .assignment_tags import AssignmentTagProcessor
+from .mermaid_preprocessor import make_mermaid_preprocessor
 from .quarto_slides_preprocessor import make_quarto_slides_preprocessor
 from .syllabus_tags import SyllabusTagProcessor
 from ..resources import ResourceManager
@@ -48,6 +49,7 @@ def preprocess_xml(
         'include': make_include_preprocessor(deploy_root, parent, process_file),
         'course-link': make_link_preprocessor(),
         'md-page': make_markdown_page_preprocessor(deploy_root, parent, process_file),
+        'mermaid': make_mermaid_preprocessor(parent, resources),
         'quarto-slides': make_quarto_slides_preprocessor(deploy_root, parent, resources)
     }
 

@@ -3,7 +3,6 @@ import json
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import unicodedata
-from typing import no_type_check
 
 import requests
 from canvasapi.course import Course
@@ -34,7 +33,13 @@ def _compute_checksum_of_path(resource_path: Path) -> bytes:
     raise FileNotFoundError(f'Path does not exist or is not a file/directory: {resource_path}')
 
 
-@no_type_check
+def _normalize_json_for_hashing(data: dict) -> str:
+    """Normalize JSON data for consistent hashing across platforms"""
+    json_str = json.dumps(data, sort_keys=True, ensure_ascii=False)
+    normalized = unicodedata.normalize('NFC', json_str).replace('\r\n', '\n').replace('\r', '\n')
+    return normalized
+
+
 def compute_md5(obj: CanvasResource | FileData | ZipFileData | QuartoSlidesData | SyllabusData,
                 deploy_root: Path) -> str:
     # Keys that should not affect change detection:
@@ -45,16 +50,15 @@ def compute_md5(obj: CanvasResource | FileData | ZipFileData | QuartoSlidesData 
 
     # Hash file *contents* from checksum_paths
     paths = obj.get('checksum_paths', [])
-    for path in paths:
+    for path in sorted(paths):
         hashable += _compute_checksum_of_path(relative_to_abs(Path(path), deploy_root))
 
-    # Build a dict for JSON hashing, normalizing path values
-    filtered = {k: v for k, v in obj.items() if not (k == 'path' and 'mermaid-' in v) or k not in FILTERED_KEYS}
+    # Build a dict for JSON hashing
+    filtered = {k: v for k, v in obj.items() if k not in FILTERED_KEYS}
 
     # Normalize the JSON string to ensure consistent encoding and line endings across platforms
-    json_str = json.dumps(filtered, sort_keys=True, ensure_ascii=False)
-    normalized = unicodedata.normalize('NFC', json_str).replace('\r\n', '\n').replace('\r', '\n')
-    hashable += normalized.encode('utf-8')
+    json_str = _normalize_json_for_hashing(filtered)
+    hashable += json_str.encode('utf-8')
 
     return hashlib.md5(hashable).hexdigest()
 
@@ -112,7 +116,7 @@ class MD5Sums:
         }
         with TemporaryDirectory() as tmpdir:
             tmpfile = Path(tmpdir) / MD5_FILE_NAME
-            tmpfile.write_text(json.dumps(data), encoding='utf-8')
+            tmpfile.write_text(_normalize_json_for_hashing(data), encoding='utf-8')
             deploy_file(self._course, FileData(
                 path=(p := to_relative_posix(tmpfile.absolute(), self._deploy_root)),
                 checksum_paths=[p],

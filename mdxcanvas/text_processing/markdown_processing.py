@@ -11,7 +11,7 @@ from pymdownx.superfences import makeExtension as makeSuperfencesExtension
 from pymdownx.tilde import makeExtension as makeTildeExtension
 
 from .inline_math import InlineMathExtension
-from .mermaid_rendering import make_mermaid_fence_format
+from .mermaid_fence import make_mermaid_fence_shortcut
 from ..resources import ResourceManager
 from ..util import parse_soup_from_xml
 
@@ -54,7 +54,7 @@ def replace_problematic_characters(text: str, replacements: dict[str, str]) -> s
     return '\n'.join(output_lines)
 
 
-def process_markdown_text(text: str, resources: ResourceManager) -> str:
+def process_markdown_text(text: str) -> str:
     dedented = textwrap.dedent(text)
 
     html = md.markdown(dedented, extensions=[
@@ -66,7 +66,7 @@ def process_markdown_text(text: str, resources: ResourceManager) -> str:
             {
                 'name': 'mermaid',
                 'class': 'mermaid',
-                'format': make_mermaid_fence_format(resources),
+                'format': make_mermaid_fence_shortcut(),
             }
         ]),
 
@@ -89,7 +89,8 @@ def process_markdown_text(text: str, resources: ResourceManager) -> str:
     return html
 
 
-def _form_blocks(tag: Tag, excluded: list[str], inline: list[str]) -> Generator[tuple[bool, list[PageElement | Tag]], None, None]:
+def _form_blocks(tag: Tag, excluded: list[str], inline: list[str]
+                 ) -> Generator[tuple[bool, list[PageElement | Tag]], None, None]:
     block_tags = []
 
     for child in list(tag.children):  # Make a copy because .children will change after the yield
@@ -112,24 +113,22 @@ def _form_blocks(tag: Tag, excluded: list[str], inline: list[str]) -> Generator[
         yield True, block_tags
 
 
-def _process_markdown(parent, excluded: list[str], inline: list[str], resources: ResourceManager):
+def _process_markdown(parent, excluded: list[str], inline: list[str]):
     for needs_markdown, block in _form_blocks(parent, excluded, inline):
         if needs_markdown:
             result = parse_soup_from_xml(
                 process_markdown_text(
-                    ''.join((str(b) for b in block)),
-                    resources=resources,
+                    ''.join((str(b) for b in block))
                 )
             )
             for tag in block:
                 tag.replace_with(result)
         else:
             for tag in block:
-                _process_markdown(tag, excluded, inline, resources=resources)
+                _process_markdown(tag, excluded, inline)
 
 
-
-def process_markdown(text: str, excluded: list[str], inline: list[str], resources: ResourceManager) -> str:
+def process_markdown(text: str, excluded: list[str], inline: list[str]) -> str:
     """
     Process Markdown text and return XML text
 
@@ -147,5 +146,5 @@ def process_markdown(text: str, excluded: list[str], inline: list[str], resource
     """
     content = replace_problematic_characters(text, {'<': '&lt;'})
     soup = parse_soup_from_xml(content)
-    _process_markdown(soup, excluded, inline, resources=resources)
+    _process_markdown(soup, excluded, inline)
     return str(soup)

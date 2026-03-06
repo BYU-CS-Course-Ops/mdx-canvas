@@ -13,7 +13,7 @@ from ..our_logging import get_logger
 from ..resources import FileData
 from ..resources import FileInfo
 from ..resources import QuartoSlidesData
-from ..util import find_quarto_root, relative_to_abs, to_relative_posix
+from ..util import relative_to_abs, to_relative_posix
 
 logger = get_logger()
 

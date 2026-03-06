@@ -20,6 +20,7 @@ from .checksums import MD5Sums, compute_md5
 from .course_settings import deploy_settings
 from .file import deploy_file
 from .group import deploy_group
+from .mermaid import deploy_mermaid
 from .migration import migrate
 from .module import deploy_module, deploy_module_item, get_module_item
 from .override import deploy_override, get_override
@@ -48,6 +49,7 @@ DEPLOYERS: dict[str, Callable[[Course, Any, Path], tuple[ResourceInfo, tuple[str
     'assignment_group': deploy_group,
     'course_settings': deploy_settings,
     'file': deploy_file,
+    'mermaid': deploy_mermaid,
     'module': deploy_module,
     'module_item': deploy_module_item,
     'override': deploy_override,
@@ -295,7 +297,7 @@ def _lookup_stale_canvas_resource(course: Course, item_type: str, item_id: str,
         # Standard Canvas API getters (course.get_assignment, course.get_page, etc.)
         if item_type == 'announcement':
             lookup = course.get_discussion_topic
-        elif item_type in ['zip', 'quarto-slides']:
+        elif item_type in ['zip', 'quarto-slides', 'mermaid']:
             lookup = course.get_file
         else:
             lookup = getattr(course, f'get_{item_type}', None)
