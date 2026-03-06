@@ -12,12 +12,11 @@ from pymdownx.tilde import makeExtension as makeTildeExtension
 
 from .inline_math import InlineMathExtension
 from .mermaid_fence import make_mermaid_fence_shortcut
-from ..resources import ResourceManager
 from ..util import parse_soup_from_xml
 
 # Load CSS from file
-_CSS_FILE = Path(__file__).parent / 'github-light.css'
-CODE_BLOCK_CSS = f'<style>\n{_CSS_FILE.read_text()}\n</style>'
+_CSS_FILES = [Path(__file__).parent / 'mdxcanvas.css', Path(__file__).parent / 'github-light.css']
+CODE_BLOCK_CSS = f'<style>\n{"\n".join(file.read_text() for file in _CSS_FILES)}\n</style>'
 
 
 def replace_characters(text: str, replacements: dict[str, str]) -> str:

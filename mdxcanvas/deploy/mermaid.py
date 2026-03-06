@@ -150,7 +150,6 @@ def render_mermaid_to_png(id: StrLike, data: MermaidData, output_dir: Path, depl
 
     output_path = output_dir / f'{id}.png'
 
-    # Render mermaid diagram to PNG using local mermaid-cli
     with sync_playwright() as p:
         browser = p.chromium.launch()
         context = browser.new_context(

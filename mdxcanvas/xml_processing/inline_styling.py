@@ -1,19 +1,19 @@
 import cssutils
 from bs4 import BeautifulSoup
 
-from ..util import parse_soup_from_xml
+from ..util import parse_soup_from_xml, retrieve_contents
 
 
 def get_style(soup: BeautifulSoup) -> str:
-    style = ''
+    styles = ''
 
     for tag in soup.find_all("style"):
-        content = tag.text.strip()
-        if content not in style:
-            style += content + ' '
+        contents = retrieve_contents(tag)
+        if contents not in styles:
+            styles += f'\n{contents}'
         tag.decompose()
 
-    return style
+    return styles
 
 
 def parse_css(css: str) -> dict[str, dict[str, str]]:
@@ -41,7 +41,7 @@ def apply_inline_styles(soup: BeautifulSoup, styles: dict[str, dict[str, str]]) 
                         key, value = prop.split(':', 1)
                         existing_props[key.strip()] = value.strip()
 
-            # Merge properties: new CSS properties override existing inline styles
+            # Merge properties: existing inline styles take precedence over CSS rules
             merged_props = {**properties, **existing_props}
 
             # Reconstruct style string
@@ -51,7 +51,7 @@ def apply_inline_styles(soup: BeautifulSoup, styles: dict[str, dict[str, str]]) 
 
 def bake_css(soup: BeautifulSoup, global_css: str) -> None:
     css = get_style(soup)
-    css = parse_css(global_css + css)
+    css = parse_css('\n'.join([global_css, css]))
     apply_inline_styles(soup, css)
 
 
