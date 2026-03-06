@@ -36,7 +36,7 @@ from ..resources import CanvasResource, iter_keys, ResourceInfo
 
 logger = get_logger()
 
-SHELL_DEPLOYERS: dict[str, Callable[[Course, dict], tuple[ResourceInfo, tuple[str, str] | None]]] = {
+SHELL_DEPLOYERS: dict[str, Callable[[Course, dict, Path], tuple[ResourceInfo, tuple[str, str] | None]]] = {
     # Current known resources that need shell deployments
     'assignment': deploy_shell_assignment,
     'page': deploy_shell_page,

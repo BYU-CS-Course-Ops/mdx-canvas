@@ -155,7 +155,7 @@ def deploy_quiz_question_order(course: Course, order_data: QuizQuestionOrderData
     ), info
 
 
-def deploy_shell_quiz(course: Course, quiz_data: dict) -> tuple[QuizInfo, tuple[str, str] | None]:
+def deploy_shell_quiz(course: Course, quiz_data: dict, deploy_root: Path) -> tuple[QuizInfo, tuple[str, str] | None]:
     shell_quiz_data = quiz_data.copy()
     shell_quiz_data['description'] = "<p>Shell quiz for dependency cycle.</p>"
-    return deploy_quiz(course, shell_quiz_data, Path("."))
+    return deploy_quiz(course, shell_quiz_data, deploy_root)
