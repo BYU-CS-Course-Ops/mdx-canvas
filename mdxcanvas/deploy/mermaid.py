@@ -9,8 +9,7 @@ from urllib.parse import quote
 from canvasapi.course import Course
 from PIL import Image
 from PIL.PngImagePlugin import PngInfo
-from playwright.sync_api import Error as PWError
-from playwright.sync_api import sync_playwright
+from playwright.sync_api import sync_playwright, Error as PWError
 
 from .file import deploy_file
 from ..our_logging import get_logger
