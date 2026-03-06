@@ -127,6 +127,8 @@ class ZipFileData(TypedDict):
     zip_contents: dict[str, str]
     checksum_paths: NotRequired[list[str]]
     canvas_folder: StrLike | None
+    lock_at: StrLike | None
+    unlock_at: StrLike | None
     canvas_id: NotRequired[str | None]
 
 

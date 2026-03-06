@@ -1,5 +1,4 @@
 import re
-from os.path import basename
 from pathlib import Path
 from typing import Callable
 
@@ -238,7 +237,9 @@ def make_zip_preprocessor(deploy_root: Path, parent: Path, resources: ResourceMa
                 zip_file_name=name,
                 zip_contents=zip_contents,
                 checksum_paths=[fpath for fpath in zip_contents.values()],
-                canvas_folder=tag.get('canvas_folder')
+                canvas_folder=tag.get('canvas_folder'),
+                lock_at=tag.get('lock_at'),
+                unlock_at=tag.get('unlock_at')
             ),
             content_path=get_current_file_str()
         )
@@ -316,7 +317,7 @@ def make_include_preprocessor(
 
             if parse_bool(tag.get('fenced', 'false')):
                 suffix = imported_file.suffix.lstrip('.')
-                filename_attr = f' {{: title="{basename(imported_file)}" }}' if parse_bool(
+                filename_attr = f' {{: title="{imported_file.name}" }}' if parse_bool(
                     tag.get('include_filename', 'false')) else ''
                 imported_raw_content = f'```{suffix}{filename_attr}\n{imported_raw_content}\n```\n'
                 suffixes = suffixes + ['.md']
