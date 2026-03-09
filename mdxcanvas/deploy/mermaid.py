@@ -93,18 +93,18 @@ def _trim_whitespace(data: bytes, output_path: Path, padding: int = 10) -> None:
 
 def _ensure_pw_chromium():
     """Ensure that Playwright Chromium is installed."""
+    # Prefer hermetic installs inside site-packages
+    os.environ.setdefault("PLAYWRIGHT_BROWSERS_PATH", "0")
+
     try:
         with sync_playwright() as p:
             # Try launching to verify presence
-            browser = p.chromium.launch()  # will fail if not installed
+            browser = p.chromium.launch(headless=True)  # will fail if not installed
             browser.close()
         logger.debug("Playwright Chromium is already installed")
     except PWError:
-        # Use hermetic install under site-packages
-        os.environ.setdefault("PLAYWRIGHT_BROWSERS_PATH", "0")
         logger.info("Installing Playwright Chromium (one time)...")
-        # Run the official installer
-        cmd = [sys.executable, "-m", "playwright", "install", "chromium", "--with-deps"]
+        cmd = [sys.executable, "-m", "playwright", "install", "--with-deps", "--only-shell", "chromium"]
 
         # Capture output and only show if debug logging is enabled
         try:
@@ -150,7 +150,7 @@ def render_mermaid_to_png(id: StrLike, data: MermaidData, output_dir: Path, depl
     output_path = output_dir / f'{id}.png'
 
     with sync_playwright() as p:
-        browser = p.chromium.launch()
+        browser = p.chromium.launch(headless=True)
         context = browser.new_context(
             device_scale_factor=5,  # High-resolution rendering for Retina displays
         )
