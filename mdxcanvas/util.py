@@ -16,7 +16,10 @@ def parse_soup_from_xml(text: str) -> BeautifulSoup:
     return BeautifulSoup(text, 'html.parser')
 
 
-def retrieve_contents(tag: Tag, ignored_child_tag_names: list[str] = ()) -> str:  # type: ignore[reportIncompatibleVariableOverride]
+def retrieve_contents(
+        tag: Tag,
+        ignored_child_tag_names: list[str] = ()  # type: ignore[reportIncompatibleVariableOverride]
+) -> str:
     """
     Return all the HTML contents of the specified tag
     Excludes the contents of specific sub-tags.
@@ -39,8 +42,11 @@ def to_relative_posix(path: Path, deploy_root: Path) -> str:
     the operating system.  Uses ``..`` navigation when *path* is not
     inside *root*.
     """
-    path = Path(os.path.relpath(path.resolve(), deploy_root.resolve()))
-    return path.as_posix()
+    try:
+        # Python 3.12+ has walk_up support
+        return path.resolve().relative_to(deploy_root.resolve(), walk_up=True).as_posix()
+    except TypeError:
+        return Path(os.path.relpath(path.resolve(), deploy_root.resolve())).as_posix()
 
 
 def relative_to_abs(path: Path, deploy_root: Path) -> Path:
