@@ -1,8 +1,11 @@
 from pathlib import Path
-from bs4 import Tag
-from .processing_context import get_current_file
+from typing import Any, no_type_check
 
+from bs4.element import Tag
 
+from .processing_context import get_current_file_str
+
+@no_type_check
 def get_tag_source_file(tag: Tag) -> Path | None:
     if tag and (source := tag.get('data-source')):
         return Path(source)
@@ -18,8 +21,8 @@ def get_file_path(tag: Tag) -> Path:
     if source := get_tag_source_file(tag):
         return source
 
-    if current := get_current_file():
-        return current
+    if current := get_current_file_str():
+        return Path(current)
 
     raise ValueError("No file context available")
 
@@ -59,7 +62,7 @@ def format_tag(tag: Tag, max_length: int = 80) -> str:
     return f"<{tag_name}> ({len(attr_strs)} attributes)"
 
 
-def validate_required_attribute(tag: Tag, attr_name: str, tag_display_name: str | None = None) -> str:
+def validate_required_attribute(tag: Tag, attr_name: str, tag_display_name: str | None = None) -> str | Any:
     if not (value := tag.get(attr_name)):
         display_name = tag_display_name if tag_display_name else tag.name
         raise ValueError(f'Required field "{attr_name}" missing from {display_name} tag {format_tag(tag)}\n  in {get_file_path(tag)}')
