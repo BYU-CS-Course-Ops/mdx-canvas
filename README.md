@@ -170,4 +170,4 @@ Apply custom styling across your content using external CSS files.
 
 ## Demo Course
 
-Explore the [`demo_course`](demo-course) folder to see MDXCanvas in action:
+Explore the [`demo_course`](demo-course) folder to see MDXCanvas in action.
