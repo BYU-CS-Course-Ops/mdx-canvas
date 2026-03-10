@@ -13,18 +13,21 @@ from ..our_logging import get_logger
 from ..resources import FileData
 from ..resources import FileInfo
 from ..resources import QuartoSlidesData
-from ..util import find_quarto_root
+from ..util import relative_to_abs, to_relative_posix
 
 logger = get_logger()
 
 
-def _run_quarto_render(data: QuartoSlidesData, tmpdir: Path) -> Path:
+def _run_quarto_render(data: QuartoSlidesData, tmpdir: Path, deploy_root: Path) -> Path:
     # needs to be data['path'] relative to quarto project root
     # which is where _quarto.yaml is (parent) or the current folder
-    slide_file = Path(data['path'])
-    quarto_root = find_quarto_root(slide_file)
+    slide_file = relative_to_abs(Path(data['path']), deploy_root)
+    quarto_root = relative_to_abs(Path(data['root_path']), deploy_root)
     relative_to_quarto_root = slide_file.parent.absolute().relative_to(quarto_root)
-    output_file = (tmpdir / relative_to_quarto_root / data['slides_name']).absolute()
+
+    output_file = (
+        tmpdir / relative_to_quarto_root / data['slides_name']  # pyright: ignore[reportOperatorIssue]
+    ).absolute()
 
     cmd = [
         'quarto', 'render', data['path'],
@@ -122,8 +125,8 @@ def _inline_assets(html: str, base_dir: Path) -> str:
     return pattern.sub(repl, html)
 
 
-def _build_slides(data: QuartoSlidesData, tmpdir: Path) -> FileData:
-    output_file = _run_quarto_render(data, tmpdir)
+def _build_slides(data: QuartoSlidesData, tmpdir: Path, deploy_root: Path) -> FileData:
+    output_file = _run_quarto_render(data, tmpdir, deploy_root)
     html = output_file.read_text()
     html = _bundle_js(html, output_file.parent)
     html = _inline_css(html, output_file.parent)
@@ -131,7 +134,7 @@ def _build_slides(data: QuartoSlidesData, tmpdir: Path) -> FileData:
     output_file.write_text(html)
 
     return FileData(
-        path=(p := str(output_file)),
+        path=(p := to_relative_posix(output_file, deploy_root)),
         checksum_paths=[p],
         canvas_folder=data.get('canvas_folder'),
         lock_at=data.get('lock_at'),
@@ -139,8 +142,8 @@ def _build_slides(data: QuartoSlidesData, tmpdir: Path) -> FileData:
     )
 
 
-def deploy_quarto_slides(course: Course, data: QuartoSlidesData) -> tuple[FileInfo, None]:
+def deploy_quarto_slides(course: Course, data: QuartoSlidesData, deploy_root: Path) -> tuple[FileInfo, None]:
     with TemporaryDirectory() as tmpdir:
-        filedata = _build_slides(data, Path(tmpdir))
+        filedata = _build_slides(data, Path(tmpdir), deploy_root)
 
-        return deploy_file(course, filedata)
+        return deploy_file(course, filedata, deploy_root)

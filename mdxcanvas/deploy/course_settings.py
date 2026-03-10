@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from canvasapi.course import Course
 
 from ..resources import CourseSettings, CourseSettingsInfo
@@ -9,7 +11,7 @@ class CourseObj:
         self.uri = f'/courses/{course_id}'
 
 
-def deploy_settings(course: Course, data: CourseSettings) -> tuple[CourseSettingsInfo, None]:
+def deploy_settings(course: Course, data: CourseSettings, _: Path) -> tuple[CourseSettingsInfo, None]:
     course.update(course={
         'name': data['name'],
         'course_code': data['code'],

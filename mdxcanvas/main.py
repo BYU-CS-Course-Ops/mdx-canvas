@@ -28,6 +28,7 @@ class CourseInfo(TypedDict):
     CANVAS_API_URL: str
     CANVAS_COURSE_ID: int
     LOCAL_TIME_ZONE: str
+    DEPLOY_ROOT: str
 
 
 def load_config(config_path: Path):
@@ -60,20 +61,21 @@ def _post_process_content(xml_content: str, global_css: str) -> str:
         lambda s: bake_css(s, global_css)
     ]
     for xml_post in xml_postprocessors:
-        soup = xml_post(soup)
+        xml_post(soup)
 
-    return str(soup)
+    return soup.decode(formatter='minimal')
 
 
 def process_file(
         resources: ResourceManager,
+        deploy_root: Path,
         parent_folder: Path,
         content: str,
         content_type: list[str],
-        global_args: dict = None,
-        args_file: Path = None,
-        templates: list[Path] = None,
-        css_file: Path = None
+        global_args: dict,
+        args_file: Path | None = None,
+        templates: list[Path] | None = None,
+        css_file: Path | None = None,
 ) -> str:
     """
     Read a file and fully process the text content
@@ -84,15 +86,15 @@ def process_file(
     if is_jinja(content_type):
         content = process_jinja(
             content,
-            parent_folder=parent_folder,
+            global_args,
+            parent_folder,
             args_path=args_file,
-            global_args=global_args,
             templates=templates
         )
 
     if '.md' in content_type:
         # Process Markdown
-        excluded = ['pre', 'style', 'distractors']
+        excluded = ['pre', 'style', 'distractors', 'mermaid']
         inline = [
             'br', 'a', 'strong', 'em', 'span', 'file',
             'link', 'zip', 'course-link', 'timestamp'
@@ -104,13 +106,13 @@ def process_file(
 
     # Preprocess XML
     def load_and_process_file_contents(parent: Path, content: str, content_type: list[str], **kwargs) -> str:
-        return process_file(resources, parent, content, content_type,
-                            global_args=global_args, templates=templates, **kwargs)
+        return process_file(resources, deploy_root, parent, content, content_type,
+                            global_args, templates=templates, **kwargs)
 
-    xml_content = preprocess_xml(parent_folder, xml_content, resources, load_and_process_file_contents)
+    xml_content = preprocess_xml(deploy_root, parent_folder, xml_content, resources, load_and_process_file_contents)
 
     # Post-process the XML
-    global_css = css_file.read_text() if css_file is not None else ''
+    global_css = css_file.read_text() if css_file else ''
 
     # TODO - after April 2026, the default style in BYU Canvas will
     #  probably address this issue and this line can be removed.
@@ -131,7 +133,7 @@ def get_course(api_token: str, api_url: str, canvas_course_id: int) -> Course:
     course: Course = canvas.get_course(canvas_course_id)
 
     # NB: this is a hack, but it makes things MUCH easier down the line when dealing with announcements
-    course.canvas = canvas
+    course.canvas = canvas  # type: ignore
 
     return course
 
@@ -140,13 +142,13 @@ def main(
         canvas_api_token: str,
         course_info_file: Path,
         input_file: Path,
-        args_file: Path = None,
-        global_args_file: Path = None,
-        templates: list[Path] = None,
-        css_file: Path = None,
+        args_file: Path | None = None,
+        global_args_file: Path | None = None,
+        templates: list[Path] | None = None,
+        css_file: Path | None = None,
         dryrun: bool = False,
         cleanup: bool = False,
-        output_file: str = None
+        output_file: str | None = None
 ):
     # Initialize deployment report
     report = DeploymentReport(output_file)
@@ -155,6 +157,8 @@ def main(
     try:
         # Make sure the course actually exists before doing any real effort
         course_info = load_config(course_info_file)
+        course_info_dir = course_info_file.parent.resolve().absolute()
+        deploy_root = (course_info_dir / Path(course_info['DEPLOY_ROOT'])).resolve().absolute()
         global_args = course_info.get('GLOBAL_ARGS', {})
 
         course = get_course(canvas_api_token, course_info['CANVAS_API_URL'], course_info['CANVAS_COURSE_ID'])
@@ -172,6 +176,7 @@ def main(
             content_type, content = read_content(input_file)
             processed_content = process_file(
                 resources,
+                deploy_root,
                 input_file.parent,
                 content,
                 content_type,
@@ -186,7 +191,8 @@ def main(
 
             # Deploy XML
             logger.info('Deploying to Canvas')
-            deploy_to_canvas(course, course_info['LOCAL_TIME_ZONE'], resources, report, dryrun=dryrun, cleanup=cleanup)
+            deploy_to_canvas(course, course_info['LOCAL_TIME_ZONE'], resources, report, dryrun=dryrun, cleanup=cleanup,
+                            deploy_root=deploy_root)
 
     except Exception as e:
         logger.exception(f"{type(e).__name__}: {e}")

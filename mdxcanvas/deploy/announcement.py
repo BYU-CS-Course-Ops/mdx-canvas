@@ -1,9 +1,11 @@
+from pathlib import Path
+
 from canvasapi.course import Course
 
 from ..resources import AnnouncementInfo
 
 
-def deploy_announcement(course: Course, announcement_info: dict) -> tuple[AnnouncementInfo, None]:
+def deploy_announcement(course: Course, announcement_info: dict, _: Path) -> tuple[AnnouncementInfo, None]:
     announcement_id = announcement_info["canvas_id"]
 
     if announcement_id:
@@ -19,7 +21,7 @@ def deploy_announcement(course: Course, announcement_info: dict) -> tuple[Announ
         'uri': f'/courses/{course.id}/discussion_topics/{canvas_announcement.id}',
 
         # Following fields have been observed to be missing in some cases
-        'url': canvas_announcement.html_url if hasattr(canvas_announcement, 'html_url') else None
+        'url': getattr(canvas_announcement, 'html_url', None)
     }
 
     return announcement_object_info, None

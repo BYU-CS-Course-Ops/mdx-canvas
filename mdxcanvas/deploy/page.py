@@ -1,9 +1,11 @@
+from pathlib import Path
+
 from canvasapi.course import Course
 
 from ..resources import PageInfo
 
 
-def deploy_page(course: Course, page_info: dict) -> tuple[PageInfo, None]:
+def deploy_page(course: Course, page_info: dict, _: Path) -> tuple[PageInfo, None]:
     page_id = page_info["canvas_id"]
 
     if page_id:
@@ -19,15 +21,15 @@ def deploy_page(course: Course, page_info: dict) -> tuple[PageInfo, None]:
         'uri': f'/courses/{course.id}/pages/{canvas_page.url}',
 
         # Following fields have been observed to be missing in some cases
-        'url': canvas_page.html_url if hasattr(canvas_page, 'html_url') else None
+        'url': getattr(canvas_page, 'html_url', None)
     }
 
     return page_object_info, None
 
 
-def deploy_shell_page(course: Course, page_info: dict) -> tuple[PageInfo, None]:
+def deploy_shell_page(course: Course, page_info: dict, deploy_root: Path) -> tuple[PageInfo, None]:
     shell_page_info = page_info.copy()
     shell_page_info[
         'body'] = "<p>This is a shell page created to break a dependency cycle. The full content will be deployed later.</p>"
 
-    return deploy_page(course, shell_page_info)
+    return deploy_page(course, shell_page_info, deploy_root)

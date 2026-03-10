@@ -1,10 +1,9 @@
-from bs4 import Tag
+from bs4.element import Tag
 
 from .attributes import parse_settings, Attribute, parse_bool, parse_date
 from ..util import retrieve_contents
 from ..resources import ResourceManager, CanvasResource
-from ..error_helpers import format_tag
-from ..processing_context import get_current_file
+from ..processing_context import get_current_file_str
 
 
 class PageTagProcessor:
@@ -34,6 +33,6 @@ class PageTagProcessor:
             type='page',
             id=page_tag.get('id', page_tag['title']),
             data=settings,
-            content_path=str(get_current_file().resolve())
+            content_path=get_current_file_str()
         )
         self._resources.add_resource(page)

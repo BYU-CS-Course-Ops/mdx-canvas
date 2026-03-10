@@ -1,9 +1,10 @@
-from bs4 import Tag
 from typing import TypedDict, List
+
+from bs4.element import Tag
 
 from .attributes import Attribute, parse_settings, parse_int
 from ..resources import ResourceManager, CanvasResource, get_key
-from ..processing_context import get_current_file
+from ..processing_context import get_current_file_str
 
 
 class AssignmentGroupRules(TypedDict, total=False):
@@ -18,7 +19,10 @@ def _parse_never_drop_assignments(tag: Tag) -> List[int]:
         return []
 
     never_drop_ids = []
-    assignment_names = [name.strip() for name in never_drop_attr.split('|')]
+
+    assignment_names = [
+        name.strip() for name in never_drop_attr.split('|')  # pyright: ignore[reportAttributeAccessIssue]
+    ]
 
     for assignment_name in assignment_names:
         if assignment_name:
@@ -34,10 +38,10 @@ def _parse_never_drop_assignments(tag: Tag) -> List[int]:
 def _extract_rules_from_group_data(group_data: dict) -> dict:
     rules: AssignmentGroupRules = {}
 
-    if 'drop_lowest' in group_data and group_data['drop_lowest'] is not None:
+    if 'drop_lowest' in group_data and group_data['drop_lowest']:
         rules['drop_lowest'] = group_data.pop('drop_lowest')
 
-    if 'drop_highest' in group_data and group_data['drop_highest'] is not None:
+    if 'drop_highest' in group_data and group_data['drop_highest']:
         rules['drop_highest'] = group_data.pop('drop_highest')
 
     if 'never_drop' in group_data and group_data['never_drop']:
@@ -92,7 +96,7 @@ class AssignmentGroupTagProcessor:
             type='assignment_group',
             id=tag.get('id', group_data['name']),
             data=group_data,
-            content_path=str(get_current_file().resolve())
+            content_path=get_current_file_str()
         )
 
         self._resources.add_resource(assignment_group)
