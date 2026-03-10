@@ -4,7 +4,7 @@
     due_at="Dec 31, 2025, 11:59 PM"
     available_from="Jan 01, 2025, 11:59 PM"
     available_to="Dec 31, 2025, 11:59 PM"
-    assignment_group="Quizzes">
+    assignment_group="quizzes">
 
 <description>
     This is an **example** quiz!
@@ -27,7 +27,7 @@
 </description>
 
 <questions>
-    <question type="text">
+    <question id="q1" type="text">
         ## Basic Markdown formatting
 
         > 'Twas brillig and the slithy toves
@@ -52,11 +52,11 @@
 
     </question>
 
-    <question type="true-false" answer="false">
+    <question id="q2" type="true-false" answer="false">
         Zebras have **5** legs.
     </question>
 
-    <question type="multiple-choice">
+    <question id="q3" type="multiple-choice">
         What is the capital of France?
 
         <correct>Paris</correct>
@@ -65,7 +65,7 @@
         <incorrect>Madrid</incorrect>
     </question>
 
-    <question type="multiple-answers">
+    <question id="q4" type="multiple-answers">
         Which of the following are programming languages?
 
         <correct>Python</correct>
@@ -74,7 +74,7 @@
         <incorrect>CSS</incorrect>
     </question>
 
-    <question type="matching">
+    <question id="q5" type="matching">
         Match the following countries with their capitals.
 
         <pair left="France" right="Paris" />
@@ -88,7 +88,7 @@
         </distractors>
     </question>
 
-    <question type="multiple-tf">
+    <question id="q6" type="multiple-tf">
         Which of the following statements are true?
 
         <correct>Python is a programming language.</correct>
@@ -97,48 +97,47 @@
         <incorrect>CSS is a programming language.</incorrect>
     </question>
 
-    <question type="fill-in-the-blank">
+    <question id="q7" type="fill-in-the-blank">
         The capital of France is [blank].
 
         <correct text="Paris" />
     </question>
 
-    <question type="fill-in-multiple-blanks">
+    <question id="q8" type="fill-in-multiple-blanks">
         The U.S. flag has [stripes] stripes and [stars] stars.
 
         <correct text="13" blank="stripes" />
         <correct text="50" blank="stars" />
     </question>
 
-    <question type="fill-in-multiple-blanks-filled-answers">
-        The U.S. flag has [13] stripes and [50] stars.
+    <question id="q9" type="fill-in-multiple-blanks-filled-answers">
+        The U.S. flag has [[13]] stripes and [[50]] stars.
     </question>
 
-    <question type="essay">
+    <question id="q10" type="essay">
         Discuss the impact of technology on modern education.
     </question>
 
-    <question type="file-upload">
+    <question id="q11" type="file-upload">
         Upload your project files for review.
     </question>
 
-    <question type="numerical" numerical_answer_type="exact">
+    <question id="q12" type="numerical" numerical_answer_type="exact">
         What is π?
 
         <correct answer_exact="3.14159" answer_error_margin="0.0001" />
     </question>
 
-    <question type="numerical" numerical_answer_type="range">
+    <question id="q13" type="numerical" numerical_answer_type="range">
         Give a value for x such that 1 ≤ x ≤ 10.
 
         <correct answer_range_start="1" answer_range_end="10" />
     </question>
 
-    <question type="numerical" numerical_answer_type="precision">
+    <question id="q14" type="numerical" numerical_answer_type="precision">
         What is the value of π?
 
         <correct answer_approximate="3.14159" answer_precision="5" />
     </question>
-
 </questions>
 </quiz>

@@ -4,21 +4,19 @@ The `<page>` tag creates a content page in the course. You can use Markdown, HTM
 
 ## Attributes
 
-### `title`
+### `title` (required)
 
-Sets the title of the page (required). This is how the page will appear in Canvas and how it should be referenced in `<item>` tags.
+Sets the title of the page. This is how the page will appear in Canvas and how it should be referenced in `<item>` tags.
 
 ```xml
-<page title="Example Page">
+<page id="example_page" title="Example Page">
 ...
 </page>
 ```
 
-### `id`
+### `id` (required)
 
-Optional unique identifier for the page. If not specified, defaults to the `title` value.
-
-Use an explicit `id` when you need to change the page's title later without creating a new resource, or when you want a more stable identifier for referencing.
+Unique identifier for the page. This must be unique across all pages in your course and is used to reference the page in module items.
 
 ```xml
 <page
@@ -28,7 +26,45 @@ Use an explicit `id` when you need to change the page's title later without crea
 </page>
 ```
 
-**Legacy scenario:** If you have an existing page without an `id` and want to rename it, add an `id` attribute with the value of the old title before changing the title.
+### `published` (optional, defaults to unpublished)
+
+Whether the page is visible to students immediately. Set to `"true"` to publish.
+
+```xml
+<page id="synopsis" title="Course Synopsis" published="true">
+...
+</page>
+```
+
+### `front_page` (optional, defaults to false)
+
+Set to `"true"` to make this the default landing page when students access the course.
+
+```xml
+<page id="home" title="Welcome" front_page="true">
+...
+</page>
+```
+
+### `student_todo_at` (optional)
+
+Date when this page should appear in students' to-do list. Format: `MMM d, yyyy, h:mm AM/PM`.
+
+```xml
+<page id="reading" title="Required Reading" student_todo_at="Jan 15, 2025, 9:00 AM">
+...
+</page>
+```
+
+### `publish_at` (optional)
+
+Date and time when the page should automatically become visible to students. Format: `MMM d, yyyy, h:mm AM/PM`.
+
+```xml
+<page id="midterm_review" title="Midterm Review" publish_at="Feb 1, 2025, 8:00 AM">
+...
+</page>
+```
 
 ## Content
 
@@ -45,7 +81,7 @@ All standard Markdown and Canvas HTML formatting is supported.
 ## Example
 
 ```xml
-<page title="Example Page">
+<page id="example_page" title="Example Page">
     # Welcome to the Example Page
 
     Things like headers and `MD` formatting can be used here.

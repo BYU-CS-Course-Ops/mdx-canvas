@@ -33,9 +33,7 @@ def deploy_module_item(course: Course, module_item_data: dict, _: Path) -> tuple
 
 
 def deploy_module(course: Course, module_data: dict, _: Path) -> tuple[ModuleInfo, None]:
-    module_id = module_data["canvas_id"]
-
-    if module_id:
+    if module_id := module_data.get('canvas_id'):
         canvas_module = course.get_module(module_id)
         if 'published' not in module_data:
             module_data['published'] = canvas_module.published

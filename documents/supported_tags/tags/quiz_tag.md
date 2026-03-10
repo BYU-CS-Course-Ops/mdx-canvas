@@ -11,14 +11,14 @@ The following attributes are supported on the `<quiz>` tag. Several of them are 
 Sets the quiz title (required).
 
 ```xml
-<quiz title="Midterm Exam">
+<quiz id="midterm_exam" title="Midterm Exam">
 ...
 </quiz>
 ```
 
 ### `id`
 
-Optional unique identifier for the quiz. If not specified, defaults to the `title` value.
+Unique identifier for the quiz (required).
 
 Use an explicit `id` when you need to change the quiz's title later without creating a new resource, or when you want a more stable identifier for referencing.
 
@@ -48,8 +48,9 @@ See the [`<assignment>` tag documentation](assignment_tag.md) for details on how
 Set to `"true"` to randomize the order of answer choices for each student.
 
 ```xml
-<quiz 
-    title="Quiz 1" 
+<quiz
+    id="quiz_1"
+    title="Quiz 1"
     shuffle_answers="true">
 ...
 </quiz>
@@ -60,7 +61,7 @@ Set to `"true"` to randomize the order of answer choices for each student.
 Specifies the time limit in minutes. If omitted, the quiz has no time limit.
 
 ```xml
-<quiz title="Quiz 1" time_limit="30">
+<quiz id="quiz_1" title="Quiz 1" time_limit="30">
 ...
 </quiz>
 ```
@@ -70,8 +71,9 @@ Specifies the time limit in minutes. If omitted, the quiz has no time limit.
 Sets how many times a student may attempt the quiz. Use `-1` for unlimited attempts.
 
 ```xml
-<quiz 
-    title="Quiz 1" 
+<quiz
+    id="quiz_1"
+    title="Quiz 1"
     allowed_attempts="3">
 ...
 </quiz>
@@ -83,6 +85,7 @@ Sets a passcode students must enter to access the quiz.
 
 ```xml
 <quiz
+    id="quiz_1"
     title="Quiz 1"
     access_code="secure123">
 ...
@@ -95,6 +98,7 @@ Specifies the type of quiz. Valid values: `assignment` (default), `practice_quiz
 
 ```xml
 <quiz
+    id="practice_quiz_1"
     title="Practice Quiz"
     quiz_type="practice_quiz">
 ...
@@ -107,6 +111,7 @@ Sets the total points for the quiz. If omitted, calculated from question points.
 
 ```xml
 <quiz
+    id="quiz_1"
     title="Quiz 1"
     points_possible="100">
 ...
@@ -119,6 +124,7 @@ Determines how multiple attempts are scored. Valid values: `keep_highest` (defau
 
 ```xml
 <quiz
+    id="quiz_1"
     title="Quiz 1"
     allowed_attempts="3"
     scoring_policy="keep_highest">
@@ -132,6 +138,7 @@ Date/time when correct answers become visible to students. Format: `MMM d, yyyy,
 
 ```xml
 <quiz
+    id="quiz_1"
     title="Quiz 1"
     show_correct_answers_at="Jan 20, 2025, 12:00 PM">
 ...
@@ -165,7 +172,7 @@ See [quiz question types](quiz_question_types.md) for full documentation of supp
 You can specify different due dates for different course sections using the `<overrides>` container with `<override>` tags.
 
 ```xml
-<quiz title="Midterm Exam" due_at="Feb 15, 2025, 11:59 PM">
+<quiz id="midterm_exam" title="Midterm Exam" due_at="Feb 15, 2025, 11:59 PM">
   <overrides>
     <override section_id="12345" due_at="Feb 20, 2025, 11:59 PM" />
     <override section_id="67890" due_at="Feb 22, 2025, 11:59 PM" />
@@ -187,6 +194,7 @@ See the [`<override>` tag documentation](override_tag.md) for more details on se
 
 ```xml
 <quiz
+    id="example_quiz"
     title="Example Quiz"
     due_at="Jan 1, 2025, 11:59 PM"
     available_from="Jan 1, 2025, 9:00 AM"
@@ -203,11 +211,11 @@ See the [`<override>` tag documentation](override_tag.md) for more details on se
     </description>
 
     <questions>
-        <question type="true-false" answer="true">
+        <question id="q1" type="true-false" answer="true">
             Is the sky blue?
         </question>
 
-        <question type="multiple-choice">
+        <question id="q2" type="multiple-choice">
             What is the capital of France?
 
             <correct>Paris</correct>
@@ -218,3 +226,24 @@ See the [`<override>` tag documentation](override_tag.md) for more details on se
     </questions>
 </quiz>
 ```
+
+## Important Notes
+
+### Attribute Naming
+
+The following MDXCanvas attributes are automatically mapped to Canvas API field names:
+
+- `available_from` → Canvas `unlock_at`
+- `available_to` → Canvas `lock_at`
+
+This mapping happens automatically during deployment—you should use the MDXCanvas attribute names in your XML.
+
+### Publishing Behavior
+
+When you edit an existing quiz that has student submissions, Canvas requires manual saving in the browser. MDXCanvas will post the changes but will not automatically re-publish the quiz. If the quiz has no submissions, MDXCanvas will handle publishing automatically.
+
+### Quiz Questions
+
+Quiz questions are managed in the `<questions>` container and are created/updated as separate resources. Each question requires a unique ID within the quiz scope and a supported `type`. Questions are deployed after the quiz itself is created.
+
+See the [quiz question types documentation](quiz_question_types.md) for complete information on all supported question types and their specific syntax.

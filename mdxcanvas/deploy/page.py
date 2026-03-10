@@ -6,9 +6,7 @@ from ..resources import PageInfo
 
 
 def deploy_page(course: Course, page_info: dict, _: Path) -> tuple[PageInfo, None]:
-    page_id = page_info["canvas_id"]
-
-    if page_id:
+    if page_id := page_info.get('canvas_id'):
         canvas_page = course.get_page(page_id)
         canvas_page.edit(wiki_page=page_info)
     else:

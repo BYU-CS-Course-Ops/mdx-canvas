@@ -7,8 +7,8 @@
     <syllabus> <include path="syllabus.md"/> </syllabus>
 
     <assignment-groups>
-        <group name="Assignments" weight="50" />
-        <group name="Quizzes" weight="50" />
+        <group id="assignments" name="Assignments" weight="50" />
+        <group id="quizzes" name="Quizzes" weight="50" />
     </assignment-groups>
 
     <include path="demo-assignment.canvas.md.xml.jinja" />
@@ -34,13 +34,12 @@
 
     <module id="Quiz Module" title="Quizzes">
         <item type="quiz" content_id="demo quiz" indent="1" />
-        <item type="page" content_id="demo page" indent="1" />
     </module>
 
     <module id="Page Module" title="Pages">
         <item type="page" content_id="demo page" indent="1" />
+        <item type="page" content_id="another demo" indent="1" />
         <item type="page" content_id="quarto slides demo" indent="1" />
-        <item type="quiz" content_id="demo quiz" indent="1" />
-        <item type="page" content_id="demo mermaid" indent="1"/>
+        <item type="page" content_id="demo mermaid" indent="1" />
     </module>
 </div>

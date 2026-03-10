@@ -3,7 +3,6 @@ from pathlib import Path
 from canvasapi.course import Course
 from canvasapi.quiz import QuizQuestion, Quiz
 
-from .util import update_group_name_to_id
 from ..resources import QuizInfo, QuizQuestionInfo, QuizQuestionOrderInfo, QuizQuestionOrderData
 
 
@@ -34,12 +33,8 @@ def republish_quiz_after_edit(canvas_quiz, was_published: bool):
 
 def deploy_quiz(course: Course, quiz_data: dict, _: Path) -> tuple[QuizInfo, tuple[str, str] | None]:
     """Deploy quiz settings/metadata only. Questions are deployed separately."""
-    quiz_id = quiz_data["canvas_id"]
-
-    update_group_name_to_id(course, quiz_data)
-
     info = None
-    if quiz_id:
+    if quiz_id := quiz_data.get('canvas_id'):
         # Updating existing quiz
         canvas_quiz = course.get_quiz(quiz_id)
         info = get_quiz_review_info(canvas_quiz)
@@ -78,7 +73,7 @@ def deploy_quiz_question(course: Course, quiz_question_data: dict, _: Path) -> t
         raise ValueError(f'Quiz question text exceeds Canvas limit of 16,161 characters (got {len(quiz_question_data["question_text"])} characters)')
 
     info = None
-    if quiz_question_data['canvas_id'] and (
+    if quiz_question_data.get('canvas_id') and (
             quiz_question := canvas_quiz.get_question(quiz_question_data['canvas_id'])):
         # Updating existing question
         info = get_quiz_review_info(canvas_quiz)

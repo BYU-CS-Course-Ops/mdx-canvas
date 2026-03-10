@@ -106,3 +106,99 @@ print("Another line.")
 ```
 
 An example of this can be found in the demo course [here](../../../demo_course/course.canvas.md.xml).
+
+## Advanced Features & Tips
+
+### Conditional Includes Based on Environment
+
+Use Jinja to include different files based on deployment environment:
+
+```jinja
+{% if environment == 'production' %}
+<include path="content/real_api_settings.md" />
+{% else %}
+<include path="content/test_api_settings.md" />
+{% endif %}
+```
+
+Deploy with different `--global-args` files to control which file is included:
+
+**`prod_args.yaml`:**
+```yaml
+environment: production
+```
+
+**`test_args.yaml`:**
+```yaml
+environment: testing
+```
+
+```bash
+# Production
+mdxcanvas --course-info prod_course_info.yaml \
+          --global-args prod_args.yaml \
+          content.xml
+
+# Testing
+mdxcanvas --course-info test_course_info.yaml \
+          --global-args test_args.yaml \
+          content.xml
+```
+
+### Extracting Specific Code Sections
+
+The `lines` attribute is powerful for extracting specific documentation or code sections without duplicating content:
+
+**File: `src/solution.py`:**
+```python
+# Lines 1-10: Basic setup
+def setup():
+    ...
+
+# Lines 11-25: Main algorithm
+def solve():
+    ...
+
+# Lines 26-35: Output formatting
+def format_result():
+    ...
+```
+
+**In assignment description - show only the main algorithm:**
+```xml
+<assignment title="Algorithm Task">
+    <include path="src/solution.py" lines="11:25" fenced="True" include_filename="True" />
+</assignment>
+```
+
+This extracts just the `solve()` function without showing setup or formatting.
+
+### Template-Driven Includes
+
+Combine includes with Jinja template arguments to create dynamic content:
+
+```jinja
+{% for example in examples %}
+<question type="text">
+    Study this example:
+
+    <include path="examples/{{ example }}.py" fenced="True" include_filename="True" />
+</question>
+{% endfor %}
+```
+
+Pass different example files via the `--args` argument, making your content highly reusable.
+
+### Wrapper Div Control
+
+By default, `<include>` wraps content in a `<div data-source="..." data-lines="...">` container. This is useful for styling but can be disabled:
+
+```xml
+<!-- Default: content wrapped in div -->
+<include path="intro.md" />
+
+<!-- Unwrapped: content inserted directly -->
+<include path="intro.md" usediv="false" />
+```
+
+Use `usediv="false"` when including content that shouldn't be in a container (e.g., table rows, list items).
