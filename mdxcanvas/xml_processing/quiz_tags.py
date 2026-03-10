@@ -132,13 +132,13 @@ class QuizTagProcessor:
 
         if not order_items:
             logger.warning(f"No questions found for quiz {quiz_rid} @ {get_file_path(questions_tag)}")
-
-        self._resources.add_resource(CanvasResource(
-            type='quiz_question_order',
-            id=f'{quiz_rid}|order',
-            data={
-                'quiz_id': get_key('quiz', quiz_rid, 'id'),
-                'order': order_items
-            },
-            content_path=get_current_file_str()
-        ))
+        else:
+            self._resources.add_resource(CanvasResource(
+                type='quiz_question_order',
+                id=f'{quiz_rid}|order',
+                data={
+                    'quiz_id': get_key('quiz', quiz_rid, 'id'),
+                    'order': order_items
+                },
+                content_path=get_current_file_str()
+            ))
