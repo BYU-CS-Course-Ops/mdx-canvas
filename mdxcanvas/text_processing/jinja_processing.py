@@ -65,8 +65,7 @@ def _render_template(
         "debug": lambda msg: logger.debug(msg),
         "get_arg": lambda *args: global_args.get(*args),
         # "grep": lambda pattern, string, *args: m.groups() if (m := re.search(pattern, string, *args)) else None
-        "search": re.search,
-        "timestamp": lambda fmt="%B %d, %Y at %I:%M %p": datetime.now().strftime(fmt)
+        "search": re.search
     }
 
     if global_args:
