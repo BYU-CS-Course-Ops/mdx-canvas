@@ -1,0 +1,219 @@
+- id: day-01-welcome
+  title: "Day 1: Welcome to the Sea"
+  focus: "Marine biology as a discipline, why the ocean matters, and how this course will work."
+  learning_objectives:
+    - "Describe the scope of marine biology."
+    - "Identify ecological and economic reasons the ocean matters."
+    - "Connect the history of marine science to present-day research questions."
+  core_topics:
+    - heading: "Marine Biology in Context"
+      body: "Marine biology examines organisms, habitats, and ecological processes across the global ocean. It overlaps with ecology, chemistry, geology, climatology, and policy."
+    - heading: "Why the Ocean Matters"
+      body: "The ocean regulates climate, supports biodiversity, and underpins fisheries, shipping, recreation, and other coastal economies."
+    - heading: "A Brief History of the Field"
+      body: "Trace how marine biology developed from exploration and specimen collection into a modern science shaped by remote sensing, submersibles, molecular tools, and long-term ecological monitoring."
+  applied_activity_intro: "Write a short course entry in your lab notebook:"
+  applied_activity_bullets:
+    - "Define marine biology in your own words."
+    - "List three reasons ocean systems matter locally or globally."
+    - "Identify one marine ecosystem you want to learn more about and why."
+  closing_heading: "Exit Question"
+  closing_text: "What makes marine biology different from studying terrestrial ecosystems alone?"
+
+- id: day-02-ocean-geography
+  title: "Day 2: Ocean Geography"
+  focus: "Ocean basins, tectonic activity, and how scientists map the seafloor."
+  learning_objectives:
+    - "Locate major ocean basins and prominent seafloor features."
+    - "Explain how plate tectonics shape marine environments."
+    - "Interpret why bathymetry matters for circulation, habitat, and exploration."
+  core_topics:
+    - heading: "Ocean Basins and Features"
+      body: "Review continental shelves, slopes, abyssal plains, trenches, seamounts, and mid-ocean ridges."
+    - heading: "Plate Tectonics"
+      body: "Oceanic crust is created at spreading centers and recycled at subduction zones, influencing volcanism, trench formation, hydrothermal systems, and habitat distribution."
+    - heading: "Bathymetry and Sonar"
+      body: "Scientists use sonar and remote sensing to map the seafloor, helping them understand topography, currents, and access to different marine regions."
+  applied_activity_intro: "Create a labeled sketch of a cross-section from coastline to trench. Include:"
+  applied_activity_bullets:
+    - "Continental shelf"
+    - "Continental slope"
+    - "Abyssal plain"
+    - "Mid-ocean ridge or trench"
+  closing_heading: "Reflection Prompt"
+  closing_text: "How does seafloor structure shape the kinds of ecosystems that can exist there?"
+
+- id: day-03-seawater-chemistry
+  title: "Day 3: Seawater Chemistry"
+  focus: "Salinity, temperature, density, dissolved gases, and ocean acidification."
+  learning_objectives:
+    - "Explain how salinity and temperature influence seawater density."
+    - "Describe the role of dissolved gases and nutrients in marine productivity."
+    - "Summarize the biological consequences of ocean acidification."
+  core_topics:
+    - heading: "Salinity, Temperature, and Density"
+      body: "Water masses differ based on temperature and salinity, and those density differences drive stratification and contribute to ocean circulation."
+    - heading: "Dissolved Gases and Nutrient Cycling"
+      body: "Marine organisms depend on oxygen, carbon dioxide, nitrogen, phosphorus, and other nutrients that move through linked biological and physical cycles."
+    - heading: "Ocean Acidification"
+      body: "As carbon dioxide dissolves into seawater, carbonate chemistry shifts and shell- or skeleton-building organisms can face higher energetic costs and reduced growth."
+  applied_activity_intro: "Compare two hypothetical water samples and predict which is denser:"
+  applied_activity_bullets:
+    - "Sample A: warm, low salinity"
+    - "Sample B: cold, high salinity"
+    - "Explain your reasoning in two or three sentences."
+  closing_heading: "Exit Question"
+  closing_text: "Why is ocean chemistry central to both ecosystem health and climate discussions?"
+
+- id: day-04-phytoplankton
+  title: "Day 4: Phytoplankton and Primary Production"
+  focus: "Photosynthetic microorganisms, chlorophyll, productivity, and seasonal blooms."
+  learning_objectives:
+    - "Describe the ecological importance of phytoplankton."
+    - "Explain primary production in marine systems."
+    - "Connect bloom dynamics to nutrient availability and oxygen stress."
+  core_topics:
+    - heading: "Phytoplankton as Primary Producers"
+      body: "Phytoplankton convert light energy into chemical energy and support marine food webs from the surface ocean upward."
+    - heading: "Measuring Productivity"
+      body: "Scientists estimate productivity using chlorophyll concentration, oxygen production, carbon uptake, and satellite data."
+    - heading: "Blooms and Dead Zones"
+      body: "When nutrient inputs rise, blooms can intensify, and some bloom events contribute to hypoxia when decomposition removes oxygen from the water column."
+  applied_activity_intro: "In your notebook, explain the difference between these three ideas:"
+  applied_activity_bullets:
+    - "High biomass"
+    - "High productivity"
+    - "Healthy ecosystem function"
+  closing_heading: "Discussion Prompt"
+  closing_text: "How can a process that supports life also contribute to ecological stress under some conditions?"
+
+- id: day-05-zooplankton
+  title: "Day 5: Zooplankton and Food Webs"
+  focus: "Planktonic animals, trophic transfer, and the biological pump."
+  learning_objectives:
+    - "Identify major roles zooplankton play in marine food webs."
+    - "Explain how energy moves between trophic levels."
+    - "Describe how the biological pump transfers carbon to depth."
+  core_topics:
+    - heading: "Zooplankton Diversity"
+      body: "Zooplankton include larval forms, grazers, predators, and vertically migrating organisms that link surface production to deeper waters."
+    - heading: "Trophic Structure"
+      body: "Energy transfer between trophic levels is incomplete, which shapes predator-prey relationships and limits how much biomass can be supported at higher levels."
+    - heading: "The Biological Pump"
+      body: "Carbon fixed near the surface can sink through fecal pellets, marine snow, and dead biomass, helping transport carbon into the deep ocean."
+  applied_activity_intro: "Build a five-step food chain beginning with phytoplankton and ending with a large marine predator. Mark:"
+  applied_activity_bullets:
+    - "Where energy is lost"
+    - "Where carbon may be exported to depth"
+  closing_heading: "Midweek Checkpoint"
+  closing_text: "Complete the midweek quiz after reviewing Days 1 through 5 and updating your lab notebook with the main concepts from Units 1 and 2."
+
+- id: day-06-coral-reefs
+  title: "Day 6: Coral Reefs"
+  focus: "Coral biology, reef structure, biodiversity, bleaching, and restoration."
+  learning_objectives:
+    - "Explain the coral-zooxanthellae symbiosis."
+    - "Describe why reefs support high biodiversity."
+    - "Evaluate major threats to coral reef systems."
+  core_topics:
+    - heading: "Coral Biology"
+      body: "Reef-building corals are colonial cnidarians that host symbiotic algae, a partnership that helps fuel reef growth in sunlit, nutrient-poor waters."
+    - heading: "Reef Structure and Zonation"
+      body: "Physical gradients in light, wave energy, and depth create distinct reef zones and habitat niches."
+    - heading: "Bleaching and Restoration"
+      body: "Heat stress, acidification, disease, and pollution can destabilize coral-algal relationships, and restoration programs aim to support recovery through transplantation, nursery work, and local management."
+  applied_activity_intro: "Choose one coral reef threat and answer:"
+  applied_activity_bullets:
+    - "What is the biological mechanism of harm?"
+    - "Which organisms are affected first?"
+    - "What kind of restoration or management response is realistic?"
+  closing_heading: "Reflection Prompt"
+  closing_text: "Why are coral reefs both biologically productive and environmentally fragile?"
+
+- id: day-07-estuaries-mangroves
+  title: "Day 7: Estuaries and Mangroves"
+  focus: "Brackish-water systems, tidal dynamics, mangrove adaptations, and nursery habitat functions."
+  learning_objectives:
+    - "Define the ecological importance of estuaries."
+    - "Describe how mangroves and saltmarshes tolerate variable salinity and flooding."
+    - "Explain why coastal transition zones matter for fisheries and shoreline protection."
+  core_topics:
+    - heading: "Estuarine Dynamics"
+      body: "Freshwater and seawater mix in estuaries, creating strong gradients in salinity, nutrients, sediments, and biological productivity."
+    - heading: "Mangrove Adaptations"
+      body: "Mangroves tolerate salty, low-oxygen sediments through specialized roots, salt management strategies, and structural traits that stabilize shorelines."
+    - heading: "Nursery Habitat and Coastal Protection"
+      body: "Estuaries, mangroves, and saltmarshes shelter juvenile organisms and reduce erosion by buffering waves and trapping sediment."
+  applied_activity_intro: "Compare coral reefs and estuaries using three categories:"
+  applied_activity_bullets:
+    - "Water conditions"
+    - "Dominant stressors"
+    - "Ecosystem services"
+  closing_heading: "Discussion Prompt"
+  closing_text: "Why do coastal ecosystems often deliver both high biodiversity value and direct human benefit?"
+
+- id: day-08-deep-sea
+  title: "Day 8: The Deep Sea"
+  focus: "Hydrothermal vents, chemosynthesis, abyssal life, pressure adaptations, and bioluminescence."
+  learning_objectives:
+    - "Distinguish deep-sea ecosystems from sunlit marine habitats."
+    - "Explain chemosynthesis as an alternative energy pathway."
+    - "Identify common structural and behavioral adaptations to deep-sea conditions."
+  core_topics:
+    - heading: "Hydrothermal Vents"
+      body: "Vent systems support communities based on chemical energy rather than sunlight, and symbiotic microbes allow many vent organisms to thrive in chemically extreme environments."
+    - heading: "Abyssal Plain Communities"
+      body: "Life in the deep sea often depends on sparse organic inputs from the surface, making efficiency and specialization important."
+    - heading: "Bioluminescence and Gigantism"
+      body: "Some deep-sea organisms use light for communication, camouflage, or predation, while others show unusual body forms or large size associated with cold, high-pressure environments."
+  applied_activity_intro: "Write a short field-note style observation describing one imagined deep-sea organism. Include:"
+  applied_activity_bullets:
+    - "Habitat"
+    - "Feeding strategy"
+    - "Pressure or light adaptation"
+  closing_heading: "Exit Question"
+  closing_text: "What does the deep sea reveal about the range of conditions under which life can persist?"
+
+- id: day-09-marine-mammals
+  title: "Day 9: Marine Mammals"
+  focus: "Cetaceans, pinnipeds, sea otters, thermoregulation, communication, migration, and social behavior."
+  learning_objectives:
+    - "Compare major marine mammal groups and their adaptations."
+    - "Explain how marine mammals conserve heat and navigate large habitats."
+    - "Connect behavior to ecological role and conservation needs."
+  core_topics:
+    - heading: "Cetaceans"
+      body: "Whales, dolphins, and porpoises show strong adaptations for swimming, diving, communication, and, in many species, echolocation."
+    - heading: "Pinnipeds and Sea Otters"
+      body: "Marine mammals use blubber, dense fur, body size, and behavior to reduce heat loss in water."
+    - heading: "Migration and Social Structure"
+      body: "Many species rely on migration corridors, breeding grounds, acoustic communication, and social learning."
+  applied_activity_intro: "Prepare for the group presentation by selecting a marine ecosystem and identifying:"
+  applied_activity_bullets:
+    - "One flagship species"
+    - "One ecological interaction"
+    - "One major conservation challenge"
+  closing_heading: "Discussion Prompt"
+  closing_text: "How do marine mammals illustrate the connection between physiology, behavior, and habitat protection?"
+
+- id: day-10-sharks-rays-turtles
+  title: "Day 10: Sharks, Rays, and Sea Turtles"
+  focus: "Elasmobranch sensory biology, sea turtle navigation, and conservation policy."
+  learning_objectives:
+    - "Describe sensory adaptations in sharks and rays."
+    - "Explain key features of sea turtle life history and nesting behavior."
+    - "Evaluate how fishing pressure and policy shape species outcomes."
+  core_topics:
+    - heading: "Sharks and Rays"
+      body: "Elasmobranchs use specialized senses, including electroreception, to detect prey and navigate marine environments."
+    - heading: "Sea Turtles"
+      body: "Sea turtles depend on nesting beaches, oceanic migration routes, and developmental habitats that may span multiple jurisdictions."
+    - heading: "Conservation Challenges"
+      body: "Bycatch, habitat loss, pollution, illegal harvest, and finning create management problems that require both biological knowledge and policy coordination."
+  applied_activity_intro: "Complete a final comparison chart for these three groups:"
+  applied_activity_bullets:
+    - "Marine mammals: note one adaptation, one threat, and one effective conservation response"
+    - "Sharks and rays: note one adaptation, one threat, and one effective conservation response"
+    - "Sea turtles: note one adaptation, one threat, and one effective conservation response"
+  closing_heading: "Final Reflection Setup"
+  closing_text: "Use today’s content to choose a real-world marine issue for your reflection essay. Your final submission should connect course concepts across physical systems, ecology, organismal biology, and conservation."

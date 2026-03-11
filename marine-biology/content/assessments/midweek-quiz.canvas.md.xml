@@ -1,0 +1,71 @@
+<quiz title="Midweek Quiz: Units 1 &amp; 2" id="midweek-quiz"
+      due_at="Mar 20, 2026, 11:59 PM"
+      allowed_attempts="2"
+      time_limit="30"
+      shuffle_answers="true"
+      scoring_policy="keep_highest"
+      points_possible="15">
+
+<description>
+
+This quiz covers material from **Units 1 and 2** (Days 1–5): ocean geography, seawater chemistry, phytoplankton and primary production, and zooplankton and food webs.
+
+You have **30 minutes** and **2 attempts** — your highest score will be kept.
+
+</description>
+
+<questions>
+
+<question type="true-false" points="1" answer="true">
+The Southern Ocean is sometimes considered Earth's fifth ocean basin.
+</question>
+
+<question type="multiple-choice" points="2">
+Which process drives seafloor spreading at mid-ocean ridges?
+<correct>Magma upwelling from the mantle creating new oceanic crust</correct>
+<incorrect>Subduction of oceanic crust beneath continental crust</incorrect>
+<incorrect>Erosion of continental shelf sediments</incorrect>
+<incorrect>Glacial isostatic rebound</incorrect>
+</question>
+
+<question type="multiple-choice" points="2">
+Ocean acidification occurs primarily because the ocean absorbs excess atmospheric:
+<correct>Carbon dioxide (CO₂)</correct>
+<incorrect>Nitrogen (N₂)</incorrect>
+<incorrect>Methane (CH₄)</incorrect>
+<incorrect>Sulfur dioxide (SO₂)</incorrect>
+</question>
+
+<question type="true-false" points="1" answer="true">
+Phytoplankton produce roughly 50% of Earth's oxygen through photosynthesis.
+</question>
+
+<question type="multiple-choice" points="2">
+Which factor most directly triggers the spring phytoplankton bloom in temperate seas?
+<correct>Increased daylight hours combined with shallow mixed-layer depth allowing nutrient-rich water near the surface</correct>
+<incorrect>A sudden increase in ocean temperature</incorrect>
+<incorrect>Upwelling driven by seasonal winds</incorrect>
+<incorrect>Migration of zooplankton away from surface waters</incorrect>
+</question>
+
+<question type="multiple-choice" points="2">
+The "biological pump" refers to:
+<correct>The transport of carbon from the surface ocean to the deep sea through sinking organic matter</correct>
+<incorrect>Mechanical mixing of ocean layers by wind</incorrect>
+<incorrect>Upwelling of deep, nutrient-rich water to the surface</incorrect>
+<incorrect>Filtration of seawater by whale sharks and manta rays</incorrect>
+</question>
+
+<question type="fill-in-multiple-blanks" points="2">
+Copepods are considered the most [abundant] animals on Earth and serve as a critical link between [phytoplankton] and higher trophic levels.
+<correct text="abundant" blank="abundant"/>
+<correct text="phytoplankton" blank="phytoplankton"/>
+<correct text="primary producers" blank="phytoplankton"/>
+</question>
+
+<question type="essay" points="3">
+Explain how thermohaline circulation (the "ocean conveyor belt") is driven by differences in water density. In your answer, identify at least two factors that affect seawater density.
+</question>
+
+</questions>
+</quiz>

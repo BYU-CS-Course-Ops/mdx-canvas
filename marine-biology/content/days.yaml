@@ -1,0 +1,169 @@
+- num: 1
+  id_slug: welcome
+  title: "Welcome to the Sea"
+  intro: "Welcome to the ocean! Today we set the stage for two weeks of discovery."
+  topics:
+    - name: "Course overview and expectations"
+      description: "Syllabus walkthrough, lab notebook requirements, and assessment breakdown."
+    - name: "History of marine biology as a discipline"
+      description: "From Aristotle's observations to the HMS Challenger expedition to modern oceanographic research vessels."
+    - name: "Why the ocean matters"
+      description: "Ecological significance (50% of Earth's oxygen, climate regulation, food webs) and economic significance (fisheries, shipping, tourism, pharmaceuticals)."
+  questions:
+    - "What makes the ocean fundamentally different from terrestrial environments?"
+    - "How has our ability to study the deep sea changed over the last century?"
+    - "Why should everyone — regardless of location — care about ocean health?"
+  activity: "Introductory discussion: *What do you already know about the ocean, and what surprises you most about it?*"
+
+- num: 2
+  id_slug: ocean-geography
+  title: "Ocean Geography"
+  intro: "The ocean is not one uniform body of water — it is shaped by tectonic forces, volcanic activity, and billions of years of geological change."
+  topics:
+    - name: "Major ocean basins and their features"
+      description: "Pacific, Atlantic, Indian, Arctic, and Southern Oceans; continental shelves, slopes, and abyssal plains."
+    - name: "Tectonic plates, mid-ocean ridges, and trenches"
+      description: "Seafloor spreading, subduction zones, and how they shape the ocean floor; the Mariana Trench as Earth's deepest point (~11,000 m)."
+    - name: "Mapping the seafloor: bathymetry and sonar technology"
+      description: "Multibeam sonar, satellite altimetry, and why less than 25% of the seafloor has been mapped at high resolution."
+  questions:
+    - "How do tectonic processes create both the deepest trenches and the longest mountain ranges on Earth?"
+    - "Why is ocean floor mapping so much harder than mapping the surface of Mars?"
+    - "How does ocean basin shape influence circulation patterns and climate?"
+  activity: "Virtual lab: Interpret a bathymetric map to identify major seafloor features and estimate water depths across an ocean transect."
+
+- num: 3
+  id_slug: seawater-chemistry
+  title: "Seawater Chemistry"
+  intro: "Seawater is far more than salt and water — its chemistry governs which organisms can live where, and how the ocean interacts with Earth's climate."
+  topics:
+    - name: "Salinity, temperature, and density relationships"
+      description: "The thermohaline circulation, pycnoclines, and how density stratification controls mixing and nutrient distribution."
+    - name: "Dissolved gases and nutrient cycling"
+      description: "Oxygen minimum zones, nitrogen and phosphorus cycles, and why nutrients limit primary production in vast ocean regions."
+    - name: "Ocean acidification: causes and consequences"
+      description: "CO₂ absorption, carbonate chemistry, pH trends since industrialization, and impacts on calcifying organisms (corals, mollusks, pteropods)."
+  questions:
+    - "How does the ocean's density structure affect the distribution of life?"
+    - "What is a 'dead zone' and how does nutrient enrichment cause one?"
+    - "At current rates of acidification, which marine organisms are most at risk and why?"
+  activity: "Data analysis: Plot historical ocean pH data and predict the aragonite saturation horizon under two CO₂ emissions scenarios."
+
+- num: 4
+  id_slug: phytoplankton
+  title: "Phytoplankton & Primary Production"
+  intro: "Phytoplankton are microscopic, but their collective impact rivals all of Earth's terrestrial plants combined."
+  topics:
+    - name: "Photosynthetic microorganisms and their global role"
+      description: "Diatoms, dinoflagellates, cyanobacteria, and coccolithophores — responsible for ~50% of global oxygen production and the base of nearly all marine food webs."
+    - name: "Measuring chlorophyll and productivity"
+      description: "Fluorometry, satellite ocean color sensors (SeaWiFS, MODIS), and net primary productivity calculations."
+    - name: "Seasonal blooms and dead zones"
+      description: "Spring bloom dynamics driven by light and nutrient availability; how agricultural runoff creates hypoxic dead zones via eutrophication."
+  questions:
+    - "Why do phytoplankton bloom in spring in temperate seas but remain relatively constant near the equator?"
+    - "How do satellite sensors detect chlorophyll concentrations from orbit?"
+    - "What is the relationship between phytoplankton productivity and atmospheric CO₂?"
+  activity: "Examine satellite chlorophyll imagery from the North Atlantic across seasons. Explain the pattern you observe in terms of light, nutrients, and mixing depth."
+
+- num: 5
+  id_slug: zooplankton
+  title: "Zooplankton & Food Webs"
+  intro: "Zooplankton bridge the gap between microscopic algae and the fish, whales, and seabirds we can see with our eyes."
+  topics:
+    - name: "Diversity of planktonic animals"
+      description: "Copepods (the most abundant animals on Earth), krill, jellyfish, larvaceans, chaetognaths, and larval stages of larger animals."
+    - name: "Trophic levels and energy transfer"
+      description: "The 10% rule, trophic efficiency, and why the ocean supports far fewer top predators per unit area than tropical forests."
+    - name: "The biological pump: carbon sequestration in the deep sea"
+      description: "Fecal pellets and marine snow, the mesopelagic zone, and how the biological pump moves ~10 Gt of carbon per year to the deep ocean."
+  questions:
+    - "Why are copepods ecologically so important despite their tiny size?"
+    - "How does trophic level affect the accumulation of pollutants like mercury in marine organisms?"
+    - "What would happen to the biological pump if zooplankton populations declined significantly?"
+  note: "**Today:** The midweek quiz covering Units 1 & 2 is due by end of day. See the Assessments module."
+
+- num: 6
+  id_slug: coral-reefs
+  title: "Coral Reefs"
+  intro: "Coral reefs cover less than 1% of the ocean floor yet support roughly 25% of all marine species."
+  topics:
+    - name: "Coral biology: symbiosis with zooxanthellae"
+      description: "How corals are animals that farm algae; the photosynthesis–calcification partnership; why this symbiosis makes reefs possible in nutrient-poor tropical water."
+    - name: "Reef structure, zonation, and biodiversity"
+      description: "Fore reef, reef crest, back reef, and lagoon; fish guilds, invertebrate diversity, and the roles of grazers, predators, and cleaners."
+    - name: "Bleaching events and restoration efforts"
+      description: "Thermal stress and zooxanthellae expulsion; the 1998, 2016, and 2024 global bleaching events; coral gardening, assisted evolution, and Marine Protected Areas."
+  questions:
+    - "Why do corals require clear, warm, nutrient-poor water — conditions that seem inhospitable to life?"
+    - "How does overfishing indirectly cause algae to overgrow reefs?"
+    - "What are the ethical trade-offs in assisted evolution approaches to reef conservation?"
+  activity: "Case study: Analyze temperature and bleaching data from the Great Barrier Reef (2016). What management interventions were attempted, and how effective were they?"
+
+- num: 7
+  id_slug: estuaries-mangroves
+  title: "Estuaries & Mangroves"
+  intro: "Estuaries and mangrove forests are among Earth's most productive ecosystems — and among its most threatened."
+  topics:
+    - name: "Brackish water dynamics and tidal influence"
+      description: "Salinity gradients, haloclines, stratification and mixing; how tidal flushing controls nutrient and oxygen levels in estuaries."
+    - name: "Mangrove adaptations and nursery habitat functions"
+      description: "Prop roots and pneumatophores for gas exchange and structural support; viviparous propagules; why 80% of commercial fish species spend juvenile stages in mangroves or estuaries."
+    - name: "Saltmarsh ecology and coastal protection"
+      description: "Cordgrass and halophyte communities; sediment trapping and carbon sequestration (blue carbon); how saltmarshes reduce storm surge energy."
+  questions:
+    - "How do mangroves survive being submerged in saltwater that would kill most terrestrial plants?"
+    - "Why does estuary destruction disproportionately harm commercial fisheries far offshore?"
+    - "What is 'blue carbon' and why has it become central to coastal climate policy?"
+  activity: "Map exercise: Identify estuarine zones in a given watershed and predict which areas would be most affected by a 30% reduction in freshwater inflow due to upstream dams."
+
+- num: 8
+  id_slug: deep-sea
+  title: "The Deep Sea"
+  intro: "Below 200 meters, sunlight disappears — yet the deep sea teems with life adapted to crushing pressure, near-freezing temperatures, and perpetual darkness."
+  topics:
+    - name: "Hydrothermal vents and chemosynthesis"
+      description: "Mid-ocean ridge vent fields; sulfur-oxidizing bacteria as primary producers; tube worms (*Riftia pachyptila*), vent crabs, and alvinellid worms."
+    - name: "Abyssal plain communities and adaptations to pressure"
+      description: "Sea cucumbers, brittle stars, and xenophyophores; piezophilic enzymes and pressure-adapted cell membranes; how the abyssal plain depends almost entirely on marine snow from above."
+    - name: "Bioluminescence and deep-sea gigantism"
+      description: "Chemical light production (luciferin/luciferase); uses for predation, camouflage, and communication; gigantism in isopods, squid, and other taxa and the hypotheses explaining it."
+  questions:
+    - "How does chemosynthesis allow vent communities to thrive without any connection to sunlight?"
+    - "Why are deep-sea organisms so vulnerable to disturbance despite living in such an extreme environment?"
+    - "What are the biological and ethical arguments for and against deep-sea mining?"
+  activity: "Virtual deep dive: Explore footage from a remotely operated vehicle (ROV) expedition. Identify at least five organisms and hypothesize how each adapts to one specific deep-sea challenge."
+
+- num: 9
+  id_slug: marine-mammals
+  title: "Marine Mammals"
+  intro: "Marine mammals returned to the ocean from a terrestrial ancestor — and in doing so, evolved some of the most sophisticated physiological and behavioral adaptations in the animal kingdom."
+  topics:
+    - name: "Cetacean biology: whales, dolphins, and porpoises"
+      description: "Mysticeti (baleen whales) vs. odontoceti (toothed whales); evolutionary history from *Pakicetus*; the largest animals ever to live on Earth."
+    - name: "Pinnipeds and sea otters: thermoregulation strategies"
+      description: "Blubber, countercurrent heat exchange, and pelage; dive physiology (bradycardia, spleen contraction, myoglobin); the unique keystone role of sea otters in kelp forest ecology."
+    - name: "Echolocation, migration, and social behavior"
+      description: "Biosonar mechanics in dolphins and sperm whales; humpback whale songs and cultural transmission; long-distance migrations of gray whales and elephant seals."
+  questions:
+    - "What physiological changes allow Weddell seals to dive for over 80 minutes without breathing?"
+    - "How did the removal of sea otters from parts of the Pacific Coast cause kelp forests to collapse?"
+    - "What evidence suggests that cetaceans have culture — behaviors learned socially rather than inherited genetically?"
+  note: "**Today:** Group presentations. Each team presents a 10–15 minute deep-dive on a chosen marine ecosystem."
+
+- num: 10
+  id_slug: sharks-rays-turtles
+  title: "Sharks, Rays & Sea Turtles"
+  intro: "Sharks have patrolled the oceans for 450 million years. Sea turtles have been navigating the world's oceans for 100 million years. Today, both face pressures more intense than any mass extinction."
+  topics:
+    - name: "Elasmobranch sensory systems and electroreception"
+      description: "The lateral line, ampullae of Lorenzini, and olfaction; how sharks detect electrical fields as weak as one-billionth of a volt; ray adaptations for benthic life."
+    - name: "Sea turtle nesting ecology and navigation"
+      description: "Seven living species and their conservation status; geomagnetic imprinting and long-distance navigation; temperature-dependent sex determination and how warming beaches skew sex ratios."
+    - name: "Bycatch, finning, and conservation policy"
+      description: "100 million sharks killed annually; the global shark fin trade; CITES listings, shark sanctuaries, and the effectiveness of fishing gear modifications to reduce bycatch."
+  questions:
+    - "Why are apex predators like sharks disproportionately important for ecosystem stability?"
+    - "How does a sea turtle 'remember' the beach where it was born decades later?"
+    - "Compare the effectiveness of two different conservation policy approaches for either sharks or sea turtles."
+  note: "**Due today:** Final Reflection Essay (1,500 words) and Lab Notebook. See the Assessments module for submission details."
