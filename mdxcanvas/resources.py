@@ -103,7 +103,7 @@ class SyllabusInfo(ResourceInfo):
 class CanvasResource(TypedDict):
     type: str
     id: str | Any
-    data: dict | FileData | ZipFileData | QuartoSlidesData | MermaidData | SyllabusData
+    data: 'dict | FileData | ZipFileData | QuartoSlidesData | MermaidData | SyllabusData'
     content_path: str
 
 
