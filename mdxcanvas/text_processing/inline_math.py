@@ -5,7 +5,7 @@ from markdown.preprocessors import Preprocessor
 
 
 class InlineMathPreprocessor(Preprocessor):
-    """
+    r"""
     Canvas supports \(...\) inline math (MathJax)
     But the \(...\) get mangled into (...) somewhere along the way.
     This extension stashes \(...\) so it is preserved

@@ -3,7 +3,7 @@ import sys
 
 
 class DeploymentReport:
-    def __init__(self, output_file: str):
+    def __init__(self, output_file: str | None = None):
         self.output_file = output_file
         self.report = {
             "deployed_content": [],
@@ -11,7 +11,7 @@ class DeploymentReport:
             "error": ""
         }
 
-    def add_deployed_content(self, rtype: str, content_name: str, content_url: str = None):
+    def add_deployed_content(self, rtype: str, content_name: str, content_url: str | None = None):
         self.report["deployed_content"].append((rtype, content_name, content_url))
 
     def get_deployed_content(self):

@@ -1,11 +1,11 @@
 from datetime import datetime
 
-from bs4 import Tag
+from bs4.element import Tag
 
 from .attributes import parse_settings, Attribute, parse_date, parse_bool
 from ..resources import ResourceManager, CanvasResource
 from ..util import retrieve_contents
-from ..processing_context import get_current_file
+from ..processing_context import get_current_file_str
 
 
 class AnnouncementTagProcessor:
@@ -13,10 +13,6 @@ class AnnouncementTagProcessor:
         self._resources = resources
 
     def __call__(self, announcement_tag: Tag):
-        # Note - it appears you can edit announcement that haven't published yet
-        # Not sure if you can edit announcements that have published already
-        # Gordon Bean (Jan 17, 2025)
-
         fields = [
             Attribute('id', ignore=True),
             Attribute('title', required=True),
@@ -43,6 +39,6 @@ class AnnouncementTagProcessor:
             type='announcement',
             id=announcement_tag.get('id', settings['title']),
             data=settings,
-            content_path=str(get_current_file().resolve())
+            content_path=get_current_file_str()
         )
         self._resources.add_resource(announcement)

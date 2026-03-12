@@ -1,9 +1,11 @@
+from pathlib import Path
+
 from canvasapi.course import Course
 
 from ..resources import SyllabusData, SyllabusInfo
 
 
-def deploy_syllabus(course: Course, data: SyllabusData) -> tuple[SyllabusInfo, None]:
+def deploy_syllabus(course: Course, data: SyllabusData, _: Path) -> tuple[SyllabusInfo, None]:
     course.update(course={'syllabus_body': data['content']})
 
     syllabus_object_info: SyllabusInfo = {

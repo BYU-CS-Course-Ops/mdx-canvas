@@ -23,7 +23,3 @@ def get_canvas_object(course_getter, attr_name, attr):
         if obj.__getattribute__(attr_name) == attr:
             return obj
     return None
-
-
-class ResourceNotFoundException(Exception):
-    pass

@@ -1,7 +1,10 @@
+import os
 import textwrap
 import warnings
+from pathlib import Path
 
-from bs4 import BeautifulSoup, Tag, NavigableString, MarkupResemblesLocatorWarning
+from bs4 import BeautifulSoup, MarkupResemblesLocatorWarning
+from bs4.element import NavigableString, Tag
 
 # We parse basic strings (no tags) all the time.
 # bs4 warns that these might be names or urls.
@@ -13,7 +16,10 @@ def parse_soup_from_xml(text: str) -> BeautifulSoup:
     return BeautifulSoup(text, 'html.parser')
 
 
-def retrieve_contents(tag: Tag, ignored_child_tag_names: list[str] = ()) -> str:
+def retrieve_contents(
+        tag: Tag,
+        ignored_child_tag_names: list[str] = ()  # type: ignore[reportIncompatibleVariableOverride]
+) -> str:
     """
     Return all the HTML contents of the specified tag
     Excludes the contents of specific sub-tags.
@@ -26,3 +32,44 @@ def retrieve_contents(tag: Tag, ignored_child_tag_names: list[str] = ()) -> str:
             or (isinstance(c, Tag) and c.name not in ignored_child_tag_names)
         )
     )
+
+
+def to_relative_posix(path: Path, deploy_root: Path) -> str:
+    """Convert a path to a POSIX-style string relative to root.
+
+    Returns a forward-slash separated path relative to *root* so that
+    the same logical file always produces the same string regardless of
+    the operating system.  Uses ``..`` navigation when *path* is not
+    inside *root*.
+    """
+    try:
+        # Python 3.12+ has walk_up support
+        return path.resolve().relative_to(deploy_root.resolve(), walk_up=True).as_posix()
+    except TypeError:
+        return Path(os.path.relpath(path.resolve(), deploy_root.resolve())).as_posix()
+
+
+def relative_to_abs(path: Path, deploy_root: Path) -> Path:
+    """Convert a path relative to the deploy root to an absolute path."""
+    return (deploy_root / path).resolve().absolute()
+
+
+def find_quarto_root(slide_file: Path) -> Path:
+    """Returns the folder containing _quarto.yaml, or the slide_file.parent"""
+    cur_dir = slide_file.absolute().parent
+
+    while True:
+        quarto_yaml = cur_dir / '_quarto.yaml'
+        if quarto_yaml.exists():
+            return quarto_yaml.parent
+
+        quarto_yaml = cur_dir / '_quarto.yml'
+        if quarto_yaml.exists():
+            return quarto_yaml.parent
+
+        if cur_dir == cur_dir.parent:  # i.e. we're at root now
+            break
+
+        cur_dir = cur_dir.parent
+
+    return slide_file.parent.absolute()

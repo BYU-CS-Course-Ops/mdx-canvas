@@ -58,6 +58,17 @@ Canvas folder path to upload the zip file to. Organizes files in Canvas file sto
 <zip path="labs/lab1" canvas_folder="Lab Materials" />
 ```
 
+### `unlock_at` / `lock_at` (optional)
+
+Availability dates for the uploaded file.
+
+```xml
+<zip
+    path="labs/lab1"
+    unlock_at="Jan 08, 2026, 08:00 AM"
+    lock_at="Jan 31, 2026, 11:59 PM" />
+```
+
 ## Example
 
 ```xml
@@ -65,7 +76,7 @@ Canvas folder path to upload the zip file to. Organizes files in Canvas file sto
     <description>
         Download the zip file below to get the starter files for this lab.
 
-        <zip 
+        <zip
             name="lab1_resources.zip"
             path="labs/lab1"
             additional_files="shared_utils.py"
