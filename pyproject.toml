@@ -26,6 +26,7 @@ playwright = "^1.58.0"
 [tool.poetry.group.dev.dependencies]
 pytest = "^9.0.2"
 poetry-version-from-file = "^1.1.0"
+myteam = "^0.2.3"
 
 [tool.poetry.plugins.version-from-file]
 enabled = "true"
