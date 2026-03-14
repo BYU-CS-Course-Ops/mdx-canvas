@@ -21,7 +21,7 @@ export CANVAS_API_TOKEN="your_token_here"
 To deploy content to Canvas, run:
 
 ```bash
-mdxcanvas --course-info <course_info.json> <content_file>
+mdxcanvas --course-info <course_info.yaml> <content_file>
 ```
 
 ### `course_info`
@@ -37,6 +37,7 @@ The file must include:
 - `CANVAS_API_URL`
 - `CANVAS_COURSE_ID`
 - `LOCAL_TIME_ZONE`
+- `DEPLOY_ROOT`
 
 Example (YAML):
 
@@ -44,9 +45,10 @@ Example (YAML):
 CANVAS_API_URL: https://byu.instructure.com/
 CANVAS_COURSE_ID: 12345
 LOCAL_TIME_ZONE: America/Denver
+DEPLOY_ROOT: ..
 ```
 
-For extended options like `COURSE_NAME`, `COURSE_IMAGE`, `GLOBAL_ARGS`, etc., see the
+For more information, and extended options like `GLOBAL_ARGS`, see the
 [Course Info Guide](documents/course_info.md).
 
 ### `content_file`
@@ -61,12 +63,12 @@ The content file defines what will be pushed to Canvas. Supported formats:
 Example (`.xml` quiz):
 
 ```xml
-<quiz title="Example Quiz">
+<quiz id="hp_quiz" title="Example Quiz">
 
     <description>
         # Attention
 
-        The following questions test your knowledge of the wizzarding world of **Harry Potter**.
+        The following questions test your knowledge of the wizarding world of **Harry Potter**.
     </description>
 
     <questions>
@@ -100,7 +102,8 @@ The `mdxcanvas` command supports the following options:
 - `--templates <files>` - List of template files to import
 - `--css <file>` - Path to CSS file for styling
 - `--debug` - Enable debug logging
-- `--dryrun` / `--dry-run` - Preview changes without deploying to Canvas
+- `--dryrun` or `--dry-run` - Preview changes without deploying to Canvas
+- `--cleanup` - Remove Canvas resources not present in the input file
 - `--output-file <file>` - Save deployment report to specified file
 
 Example with options:
@@ -167,4 +170,4 @@ Apply custom styling across your content using external CSS files.
 
 ## Demo Course
 
-Explore the [`demo_course`](demo-course) folder to see MDXCanvas in action:
+Explore the [`demo_course`](demo-course) folder to see MDXCanvas in action.

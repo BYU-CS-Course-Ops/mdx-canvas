@@ -2,7 +2,7 @@ from typing import Callable
 
 from bs4.element import Tag
 
-from .attributes import Attribute, parse_int, parse_bool, parse_date, parse_settings
+from .attributes import Attribute, parse_int, parse_bool, parse_date, parse_settings, make_id_parser
 from ..util import retrieve_contents
 from .quiz_questions import parse_text_question, parse_true_false_question, parse_multiple_choice_question, \
     parse_multiple_answers_question, parse_matching_question, parse_multiple_true_false_question, \
@@ -10,7 +10,7 @@ from .quiz_questions import parse_text_question, parse_true_false_question, pars
     parse_fill_in_multiple_blanks_question, parse_fill_in_multiple_blanks_filled_answers
 from ..resources import ResourceManager, CanvasResource, StrLike, get_key
 from .override_parsing import parse_overrides_container
-from ..error_helpers import format_tag, get_file_path
+from ..error_helpers import format_tag, get_file_path, validate_required_attribute
 from ..processing_context import get_current_file_str
 from ..our_logging import get_logger
 
@@ -20,7 +20,7 @@ logger = get_logger()
 class QuizTagProcessor:
     def __init__(self, resources: ResourceManager):
         self._resources = resources
-        self.question_types: dict[StrLike, Callable] = {
+        self.question_types: dict[StrLike, Callable[[Tag], list[dict]]] = {
             'text': parse_text_question,
             'true-false': parse_true_false_question,
             'multiple-choice': parse_multiple_choice_question,
@@ -41,7 +41,7 @@ class QuizTagProcessor:
         }
         quiz.update(self._parse_quiz_settings(quiz_tag))
 
-        rid: str = quiz_tag.get('id', quiz['title'])  # pyright: ignore[reportAssignmentType]
+        rid = quiz.pop('id')
 
         for tag in quiz_tag.children:
             if not isinstance(tag, Tag):
@@ -68,10 +68,10 @@ class QuizTagProcessor:
 
     def _parse_quiz_settings(self, settings_tag):
         fields = [
-            Attribute('id', ignore=True),
+            Attribute('id', required=True),
             Attribute('title', required=True),
             Attribute('quiz_type', 'assignment'),
-            Attribute('assignment_group'),
+            Attribute('assignment_group', parser=make_id_parser('assignment_group'), new_name='assignment_group_id'),
             Attribute('time_limit', parser=parse_int),
             Attribute('shuffle_answers', False, parse_bool),
             Attribute('hide_results'),  # TODO - should be boolean?
@@ -90,7 +90,7 @@ class QuizTagProcessor:
             Attribute('published', parser=parse_bool),
             Attribute('one_time_results', False, parse_bool),
             Attribute('only_visible_to_overrides', parser=parse_bool),
-            Attribute('points_possible')
+            Attribute('points_possible', parser=parse_int)
         ]
 
         return parse_settings(settings_tag, fields)
@@ -98,12 +98,8 @@ class QuizTagProcessor:
     def _parse_questions(self, quiz_rid: StrLike, questions_tag: Tag):
         order_items = []
 
-        for pos, tag in enumerate(questions_tag.find_all('question', recursive=False)):
-            q_type = tag.get("type")
-
-            if not q_type:
-                raise ValueError(
-                    f"Question type not specified @ {format_tag(tag)}\n  in {get_file_path(tag)}")
+        for tag in questions_tag.find_all('question', recursive=False):
+            q_type = validate_required_attribute(tag, 'type', 'question')
 
             if not (parse_question := self.question_types.get(q_type)):  # pyright: ignore[reportArgumentType]
                 raise ValueError(
@@ -111,10 +107,8 @@ class QuizTagProcessor:
                     f"Supported types: {', '.join(self.question_types.keys())}\n  "  # type: ignore
                     f"in {get_file_path(tag)}")
 
-            qid = tag.get('id', f"q{pos}")
-
-            for question in parse_question(tag, qid):
-                question_id = question['question_id']
+            for question in parse_question(tag):
+                question_id = question.pop('question_id')
                 question_rid = f"{quiz_rid}|{question_id}"
                 question['quiz_id'] = get_key('quiz', quiz_rid, 'id')
 

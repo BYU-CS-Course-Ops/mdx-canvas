@@ -2,15 +2,10 @@ from typing import Any
 
 from bs4.element import Tag
 
-from .attributes import Attribute, parse_bool, parse_dict, parse_list, parse_settings, parse_int
+from .attributes import Attribute, make_id_list_parser, parse_bool, parse_dict, parse_settings, parse_int
 from ..resources import ResourceManager, StrLike, get_key, CanvasResource
 from ..error_helpers import format_tag, get_file_path
 from ..processing_context import get_current_file_str
-
-
-def _parse_module_list(text: str) -> list[str]:
-    modules = parse_list(text)
-    return [get_key('module', module, 'id') for module in modules]
 
 
 class ModuleTagProcessor:
@@ -34,12 +29,12 @@ class ModuleTagProcessor:
 
     def __call__(self, module_tag: Tag):
         fields = [
-            Attribute('id', ignore=True),
+            Attribute('id', required=True),
             Attribute('title', required=True, new_name='name'),
             Attribute('position'),
             Attribute('published', parser=parse_bool),
             Attribute('previous-module'),
-            Attribute('prerequisite_module_ids', parser=_parse_module_list)
+            Attribute('prerequisite_module_ids', parser=make_id_list_parser('module'))
         ]
 
         module_data = parse_settings(module_tag, fields)
@@ -57,7 +52,7 @@ class ModuleTagProcessor:
         if prev_mod := module_data.get('previous-module'):
             module_data['_comments']['previous_module'] = get_key('module', prev_mod, 'id')
 
-        module_id: str = module_tag.get('id', module_data['name'])  # pyright: ignore[reportAssignmentType]
+        module_id = module_data.pop('id')
         self._previous_module = module_id
 
         self._resources.add_resource(CanvasResource(
@@ -91,7 +86,7 @@ class ModuleTagProcessor:
         if rtype == 'Syllabus':
             fields.extend([
                 Attribute('title'),
-                Attribute('id')
+                Attribute('id', required=True)
             ])
             item.update(parse_settings(tag, fields))
 
@@ -99,41 +94,32 @@ class ModuleTagProcessor:
             item['external_url'] = get_key('syllabus', 'syllabus', 'url')
             if 'title' not in item:
                 item['title'] = 'Syllabus'
-            if 'id' not in item:
-                item['id'] = item['title']
 
         elif rtype == 'ExternalUrl':
             fields.extend([
                 Attribute('external_url', required=True),
                 Attribute('title'),
-                Attribute('id')
+                Attribute('id', required=True)
             ])
             item.update(parse_settings(tag, fields))
             if 'title' not in item:
                 item['title'] = item['external_url']
-            if 'id' not in item:
-                item['id'] = item['title']
 
         elif rtype == 'SubHeader':
             fields.extend([
                 Attribute('title', required=True),
-                Attribute('id'),
+                Attribute('id', required=True),
             ])
             item.update(parse_settings(tag, fields))
-            if 'id' not in item:
-                item['id'] = item['title']
 
         elif rtype in ['Page', 'Quiz', 'Assignment', 'File']:
             fields.extend([
-                Attribute('content_id', ignore=True),
+                Attribute('content_id', required=True),
                 Attribute('title')
             ])
-
-            if not (rid := tag.get('content_id')):
-                raise ValueError(
-                    f'Module "{rtype}" item must have "content_id" @ {format_tag(tag)}\n  in {get_file_path(tag)}')
-
             item.update(parse_settings(tag, fields))
+
+            rid = tag['content_id']
             if rtype == 'Page':
                 item['page_url'] = get_key('page', rid, 'page_url')
             else:
@@ -165,7 +151,7 @@ class ModuleTagProcessor:
 
         self._resources.add_resource(CanvasResource(
             type='module_item',
-            id=item['id'],
+            id=item.pop('id'),
             data=item,
             content_path=get_current_file_str()
         ))

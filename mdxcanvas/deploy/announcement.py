@@ -6,9 +6,7 @@ from ..resources import AnnouncementInfo
 
 
 def deploy_announcement(course: Course, announcement_info: dict, _: Path) -> tuple[AnnouncementInfo, None]:
-    announcement_id = announcement_info["canvas_id"]
-
-    if announcement_id:
+    if announcement_id := announcement_info.get('canvas_id'):
         canvas_announcement = course.get_discussion_topic(announcement_id)
         canvas_announcement.update(**announcement_info)
 

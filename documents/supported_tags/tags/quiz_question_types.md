@@ -11,7 +11,7 @@ Each question has a `type` attribute and may include one or more child tags (e.g
 Displays a block of instructional or contextual text. It does not require an answer.
 
 ```xml
-<question type="text">
+<question id="text_1" type="text">
     This is a text question that provides instructions for the following questions.
 </question>
 ```
@@ -21,7 +21,7 @@ Displays a block of instructional or contextual text. It does not require an ans
 Presents a True/False question. Requires the `answer` attribute (`true` or `false`).
 
 ```xml
-<question type="true-false" answer="true">
+<question id="tf_1" type="true-false" answer="true">
     Is the sky blue?
 </question>
 ```
@@ -31,7 +31,7 @@ Presents a True/False question. Requires the `answer` attribute (`true` or `fals
 Creates a single-answer multiple-choice question. Requires at least one `<correct>` and one or more `<incorrect>` options.
 
 ```xml
-<question type="multiple-choice">
+<question id="mc_1" type="multiple-choice">
     What is the capital of France?
 
     <correct>Paris</correct>
@@ -46,7 +46,7 @@ Creates a single-answer multiple-choice question. Requires at least one `<correc
 Allows selection of multiple correct answers.
 
 ```xml
-<question type="multiple-answers">
+<question id="ma_1" type="multiple-answers">
     Which of the following are programming languages?
 
     <correct>Python</correct>
@@ -61,7 +61,7 @@ Allows selection of multiple correct answers.
 Requires students to match items from two columns. Use `<pair>` for correct matches and optionally `<distractors>`.
 
 ```xml
-<question type="matching">
+<question id="matching_1" type="matching">
     Match the following countries with their capitals.
 
     <pair left="France" right="Paris" />
@@ -81,7 +81,7 @@ Requires students to match items from two columns. Use `<pair>` for correct matc
 Presents multiple True/False statements. Students select which are true.
 
 ```xml
-<question type="multiple-tf">
+<question id="mtf_1" type="multiple-tf">
     Which of the following statements are true?
 
     <correct>Python is a programming language.</correct>
@@ -96,7 +96,7 @@ Presents multiple True/False statements. Students select which are true.
 Creates a single blank the student must fill in. Use `[blank]` in the sentence and `<correct text="..." />` to define valid answers.
 
 ```xml
-<question type="fill-in-the-blank">
+<question id="fitb_1" type="fill-in-the-blank">
     The capital of France is [blank].
 
     <correct text="Paris" />
@@ -108,7 +108,7 @@ Creates a single blank the student must fill in. Use `[blank]` in the sentence a
 Creates multiple blanks identified by name (e.g., `[stars]`). Each `<correct>` must define the matching `blank`.
 
 ```xml
-<question type="fill-in-multiple-blanks">
+<question id="fimb_1" type="fill-in-multiple-blanks">
     The U.S. flag has [stripes] stripes and [stars] stars.
 
     <correct text="13" blank="stripes" />
@@ -121,7 +121,7 @@ Creates multiple blanks identified by name (e.g., `[stars]`). Each `<correct>` m
 A shorthand variation of the previous format where correct answers are embedded directly.
 
 ```xml
-<question type="fill-in-multiple-blanks-filled-answers">
+<question id="fimbfa_1" type="fill-in-multiple-blanks-filled-answers">
     The U.S. flag has [[13]] stripes and [[50]] stars.
 </question>
 ```
@@ -131,7 +131,7 @@ A shorthand variation of the previous format where correct answers are embedded 
 Accepts an open-ended text response. No `answer` or child tags are required.
 
 ```xml
-<question type="essay">
+<question id="essay_1" type="essay">
     Discuss the impact of technology on modern education.
 </question>
 ```
@@ -141,7 +141,7 @@ Accepts an open-ended text response. No `answer` or child tags are required.
 Prompts the student to upload a file as their response.
 
 ```xml
-<question type="file-upload">
+<question id="fu_1" type="file-upload">
     Upload your project files for review.
 </question>
 ```
@@ -153,7 +153,7 @@ Accepts a numerical answer and supports three modes via `numerical_answer_type`:
 #### 1. Exact Answer
 
 ```xml
-<question type="numerical" numerical_answer_type="exact">
+<question id="num_exact_1" type="numerical" numerical_answer_type="exact">
     What is π?
 
     <correct answer_exact="3.14159" answer_error_margin="0.0001" />
@@ -163,7 +163,7 @@ Accepts a numerical answer and supports three modes via `numerical_answer_type`:
 #### 2. Range Answer
 
 ```xml
-<question type="numerical" numerical_answer_type="range">
+<question id="num_range_1" type="numerical" numerical_answer_type="range">
     Give a value for x such that 1 ≤ x ≤ 10.
 
     <correct answer_range_start="1" answer_range_end="10" />
@@ -173,7 +173,7 @@ Accepts a numerical answer and supports three modes via `numerical_answer_type`:
 #### 3. Precision Answer
 
 ```xml
-<question type="numerical" numerical_answer_type="precision">
+<question id="num_precision_1" type="numerical" numerical_answer_type="precision">
     What is the value of π?
 
     <correct answer_approximate="3.14159" answer_precision="5" />

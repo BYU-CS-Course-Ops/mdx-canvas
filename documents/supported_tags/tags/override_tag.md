@@ -54,6 +54,7 @@ Latest date to accept late submissions for this section. Format: `MMM d, yyyy, h
 
 ```xml
 <assignment
+    id="homework_1"
     title="Homework 1"
     due_at="Jan 15, 2025, 11:59 PM"
     available_from="Jan 8, 2025, 9:00 AM">
@@ -74,6 +75,7 @@ Latest date to accept late submissions for this section. Format: `MMM d, yyyy, h
 
 ```xml
 <quiz
+    id="midterm_exam"
     title="Midterm Exam"
     due_at="Feb 15, 2025, 11:59 PM">
 

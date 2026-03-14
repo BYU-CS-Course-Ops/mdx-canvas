@@ -5,6 +5,8 @@ pages, and more.
 
 Click on a tag to view its full documentation and usage examples.
 
+For legacy repositories that need explicit resource IDs added across course files and documentation examples, see the [AI migration prompt](../migrating_to_explicit_ids.md).
+
 ## Module Structure
 
 - [`<item>`](tags/item_tag.md) - Specifies an item (e.g., page, assignment, quiz) inside a module.

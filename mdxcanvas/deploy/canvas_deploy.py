@@ -43,6 +43,15 @@ SHELL_DEPLOYERS: dict[str, Callable[[Course, dict, Path], tuple[ResourceInfo, tu
     'quiz': deploy_shell_quiz
 }
 
+# The content field each shell deployer replaces with placeholder text.
+# Strip these before resolving links in the shell pass to avoid attempting
+# to resolve cyclic references that aren't deployed yet.
+SHELL_CONTENT_FIELDS: dict[str, str] = {
+    'assignment': 'description',
+    'page': 'body',
+    'quiz': 'description',
+}
+
 DEPLOYERS: dict[str, Callable[[Course, Any, Path], tuple[ResourceInfo, tuple[str, str] | None]]] = {
     'announcement': deploy_announcement,
     'assignment': deploy_assignment,
@@ -262,7 +271,7 @@ def identify_modified_or_outdated(
 def get_stale_resources(resources: dict[tuple[str, str], CanvasResource], md5s: MD5Sums) -> list[tuple[str, str, dict]]:
     stale = [
         (rtype, rid, canvas_info)
-        for (rtype, rid), info in md5s.items()
+        for (rtype, rid), _ in md5s.items()
         if (rtype, rid) not in resources and rtype not in ['syllabus', 'course_settings', 'quiz_question_order']
         if (canvas_info := md5s.get_canvas_info((rtype, rid)))
     ]
@@ -419,6 +428,13 @@ def _deploy_resources(course: Course, to_deploy: dict, md5s: MD5Sums, report: De
             logger.info(f'[{index:>{index_width}}/{total}] {shell_tag}{rtype:{max_len}}  {rid}')
 
             if is_shell:
+                # Strip the content field to remove cyclic references before resolving,
+                # then resolve remaining structural links (e.g. assignment_group_id)
+                if content_field := SHELL_CONTENT_FIELDS.get(rtype):
+                    resource_data = {**resource_data, content_field: ''}
+                with lock:
+                    snapshot_objs = dict(resource_objs)
+                resource_data = update_links(md5s, resource_data, snapshot_objs, resource)
                 canvas_obj_info, info = deploy_resource(
                     SHELL_DEPLOYERS, course, rtype, resource_data, resource, deploy_root)
                 with lock:

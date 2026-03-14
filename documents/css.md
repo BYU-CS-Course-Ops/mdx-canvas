@@ -1,24 +1,24 @@
 # CSS Styling Guide
 
-MDXCanvas supports attaching a custom CSS file to apply consistent styling across your generated course content.
+MDXCanvas supports attaching a custom CSS file to apply consistent styling across your generated course content. CSS styles are "baked in" (embedded directly) to the rendered HTML, ensuring that styles are preserved when content is deployed to Canvas.
 
 This is especially useful for controlling the appearance of:
 
-- Headings
+- Headings, text, and typography
 - Tables
 - Code blocks
 - Page spacing
-- Fonts and typography
+- Colors and custom styling
 
 ## How to Use Custom CSS
 
 To include a custom CSS file when running MDXCanvas, use the `--css` flag:
 
 ```bash
-mdxcanvas --course-info <course_info.json> --css <path/to/style.css>
-````
+mdxcanvas --course-info <course_info.yaml> --css <path/to/style.css> <content.canvas.md.xml>
+```
 
-Your stylesheet will be applied to all rendered HTML and Canvas-supported pages.
+Your stylesheet will be processed and styles will be embedded directly into the rendered Canvas content.
 
 ## Notes
 
