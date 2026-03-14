@@ -4,12 +4,20 @@ The `<file>` tag uploads a file to Canvas and creates a download link. Use this 
 
 ## Attributes
 
+### `id` (required)
+
+Stable resource ID used by MDXCanvas to track and reference the uploaded file.
+
+```xml
+<file id="course-syllabus" path="resources/syllabus.pdf" />
+```
+
 ### `path` (required)
 
 Relative path to the file within your course content directory.
 
 ```xml
-<file path="resources/syllabus.pdf" />
+<file id="course-syllabus" path="resources/syllabus.pdf" />
 ```
 
 ### `canvas_folder` (optional)
@@ -17,7 +25,10 @@ Relative path to the file within your course content directory.
 Canvas folder path to upload the file to. Organizes files in Canvas file storage.
 
 ```xml
-<file path="resources/syllabus.pdf" canvas_folder="Course Documents" />
+<file
+    id="course-syllabus"
+    path="resources/syllabus.pdf"
+    canvas_folder="Course Documents" />
 ```
 
 ### `unlock_at` (optional)
@@ -25,7 +36,7 @@ Canvas folder path to upload the file to. Organizes files in Canvas file storage
 Date/time when the file becomes available to students. Format: `MMM d, yyyy, h:mm AM/PM`.
 
 ```xml
-<file path="exam_solutions.pdf" unlock_at="Dec 20, 2025, 12:00 PM" />
+<file id="exam-solutions" path="exam_solutions.pdf" unlock_at="Dec 20, 2025, 12:00 PM" />
 ```
 
 ### `lock_at` (optional)
@@ -33,7 +44,7 @@ Date/time when the file becomes available to students. Format: `MMM d, yyyy, h:m
 Date/time when the file is no longer available to students. Format: `MMM d, yyyy, h:mm AM/PM`.
 
 ```xml
-<file path="exam.pdf" lock_at="Dec 15, 2025, 11:59 PM" />
+<file id="midterm-exam" path="exam.pdf" lock_at="Dec 15, 2025, 11:59 PM" />
 ```
 
 ## Examples
@@ -44,7 +55,7 @@ Date/time when the file is no longer available to students. Format: `MMM d, yyyy
 <assignment title="Example Assignment">
     Please download the starter code:
 
-    <file path="resources/starter_code.py" />
+    <file id="starter-code" path="resources/starter_code.py" />
 </assignment>
 ```
 
@@ -54,8 +65,8 @@ Date/time when the file is no longer available to students. Format: `MMM d, yyyy
 <page title="Resources">
     Course materials:
 
-    <file path="syllabus.pdf" canvas_folder="Course Documents" />
-    <file path="schedule.pdf" canvas_folder="Course Documents" />
+    <file id="course-syllabus" path="syllabus.pdf" canvas_folder="Course Documents" />
+    <file id="course-schedule" path="schedule.pdf" canvas_folder="Course Documents" />
 </page>
 ```
 
@@ -65,6 +76,7 @@ Date/time when the file is no longer available to students. Format: `MMM d, yyyy
 <page title="Exam Materials">
     <!-- Exam available for 2 hours -->
     <file
+        id="midterm-exam"
         path="midterm_exam.pdf"
         unlock_at="Feb 15, 2025, 9:00 AM"
         lock_at="Feb 15, 2025, 11:00 AM"
@@ -72,6 +84,7 @@ Date/time when the file is no longer available to students. Format: `MMM d, yyyy
 
     <!-- Solutions available after exam -->
     <file
+        id="midterm-solutions"
         path="midterm_solutions.pdf"
         unlock_at="Feb 15, 2025, 2:00 PM"
         canvas_folder="Exams" />

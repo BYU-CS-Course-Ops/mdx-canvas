@@ -4,6 +4,8 @@ These tags provide advanced functionality like file inclusion, modular content r
 
 Click a tag below to view its full documentation and examples.
 
+For legacy repositories that need explicit resource IDs added across course files and documentation examples, see the [AI migration prompt](../migrating_to_explicit_ids.md).
+
 ## Course Configuration
 
 - [`<course-settings>`](tags/course_settings_tag.md)

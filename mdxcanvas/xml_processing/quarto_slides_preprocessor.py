@@ -31,6 +31,7 @@ def _find_quarto_dependencies(slide_file: Path, deploy_root: Path) -> list[str]:
 
 def make_quarto_slides_preprocessor(deploy_root: Path, parent: Path, resources: ResourceManager):
     def process_quarto_slides(tag: Tag):
+        resource_id = validate_required_attribute(tag, 'id', 'quarto-slides')
         qmd_file = (
                 parent
                 / validate_required_attribute(tag, 'path', 'quarto-slides')
@@ -48,7 +49,7 @@ def make_quarto_slides_preprocessor(deploy_root: Path, parent: Path, resources: 
 
         file = CanvasResource(
             type='quarto-slides',
-            id=name,
+            id=resource_id,
             data=QuartoSlidesData(
                 path=to_relative_posix(qmd_file, deploy_root),
                 root_path=to_relative_posix(parent, deploy_root),

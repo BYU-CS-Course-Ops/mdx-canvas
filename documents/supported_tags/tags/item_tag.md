@@ -129,7 +129,7 @@ If `title` is omitted, uses the URL as the display text.
   <item type="quiz" content_id="week1_quiz" indent="1" />
 
   <item type="subheader" id="resources_section" title="Resources" />
-  <item type="file" content_id="lecture_notes.pdf" indent="1" />
+  <item type="file" content_id="lecture-notes" indent="1" />
   <item type="externalurl" id="docs_link" external_url="https://docs.example.com" title="External Documentation" indent="1" />
 </module>
 ```

@@ -184,4 +184,4 @@ canvas_material/                  ← DEPLOY_ROOT (resolved via `..` from course
     └── assets/
 ```
 
-All relative paths in your content (e.g., `<file path="pages/assets/logo.png" />`) are resolved relative to `DEPLOY_ROOT` — in this case, `canvas_material/`.
+All relative paths in your content (e.g., `<file id="course-logo" path="pages/assets/logo.png" />`) are resolved relative to `DEPLOY_ROOT` — in this case, `canvas_material/`.
