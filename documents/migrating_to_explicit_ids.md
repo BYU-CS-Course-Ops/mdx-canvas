@@ -25,7 +25,6 @@ Search the full repository for MDXCanvas tags, including:
 - included markdown files
 - demo content
 - documentation examples
-- HTML `<img>` tags that are processed by MDXCanvas
 - any other files that embed MDXCanvas XML tags
 
 Task:
@@ -48,24 +47,20 @@ Use these migration rules:
 4. `<module>`: if `id` is missing, set `id` equal to the current `title`.
 5. `<announcement>`: if `id` is missing, set `id` equal to the current `title`.
 6. `<group>`: if `id` is missing, set `id` equal to the current `name`.
-8. `<md-page>`: if `id` is missing, set `id` equal to the intended page identifier used for references. Prefer the existing obvious page name from surrounding context or filename.
-9. `<file>`: if `id` is missing, set `id` equal to the basename of `path`.
-   Example: `<file path="resources/syllabus.pdf" />` becomes `<file id="syllabus.pdf" path="resources/syllabus.pdf" />`
-10. `<zip>`: if `id` is missing:
-   - use `name` when `name` is present
-   - otherwise derive it from `path` using the old behavior:
-     - remove `.` characters
-     - replace `/` with `-`
-     - trim leading and trailing `-`
-     - append `.zip`
-   Example: `path="labs/lab1"` becomes `id="labs-lab1.zip"`
-11. `<quarto-slides>`: if `id` is missing:
-    - use `name` when `name` is present
-    - otherwise derive it from `path` using the old behavior from `main`:
-      - take the `.qmd` basename
-      - replace `.qmd` with `.slides.html`
-    Example: `<quarto-slides path="slides/week1.qmd" />` becomes `id="week1.slides.html"`
-12. `<mermaid>` and fenced Mermaid blocks:
+7. `<md-page>`: if `id` is missing, set `id` equal to the intended page identifier used for references. Prefer the existing obvious page name from surrounding context or filename.
+8. `<file>`:
+    - do not add a new `id` when one is missing
+    - if an `id` is already present, leave it unchanged
+    - do not rewrite file examples just to add an `id`
+9. `<zip>`:
+    - do not add a new `id` when one is missing
+    - if an `id` is already present, leave it unchanged
+    - do not rewrite zip examples just to add an `id`
+10. `<quarto-slides>`:
+    - do not add a new `id` when one is missing
+    - if an `id` is already present, leave it unchanged
+    - do not rewrite quarto-slides examples just to add an `id`
+11. `<mermaid>` and fenced Mermaid blocks:
     - do not add a new `id` when one is missing
     - if an `id` is already present, leave it unchanged
     - do not rewrite Mermaid examples just to add an `id`
@@ -84,7 +79,5 @@ After editing:
 
 ## Notes
 
-- The `<quarto-slides>` rule above preserves the legacy behavior from the `main` branch, where the resource ID matched `name` if present, or the derived default slide filename otherwise.
-- The `<img>` rule preserves the legacy local-file behavior from `tag_preprocessors.py`, where uploaded images previously used the basename of `src` as the internal file resource ID.
 - Mermaid is intentionally excluded from required `id` backfills in this migration prompt. Leave Mermaid content alone unless it already has an `id`, in which case preserve it.
 - For tags whose legacy ID came from `title` or `name`, keeping that exact value avoids accidental resource recreation during future deploys.
