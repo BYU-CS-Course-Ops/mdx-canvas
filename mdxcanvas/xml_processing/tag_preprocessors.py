@@ -64,6 +64,7 @@ def make_course_settings_preprocessor(deploy_root: Path, parent: Path, resources
 def make_image_preprocessor(deploy_root: Path, parent: Path, resources: ResourceManager):
     def process_image(tag: Tag):
         # TODO - handle b64-encoded images
+
         src = validate_required_attribute(tag, 'src', 'img')
         if src.startswith('http') or src.startswith('__@@'):
             # No changes necessary
@@ -79,7 +80,7 @@ def make_image_preprocessor(deploy_root: Path, parent: Path, resources: Resource
         # noinspection PyTypeChecker
         file = CanvasResource(
             type='file',
-            id=src_path.name,
+            id=src.name,
             data=FileData(
                 path=(p := to_relative_posix(src, deploy_root)),
                 checksum_paths=[p],
@@ -111,7 +112,6 @@ def make_file_anchor_tag(resource_key: StrLike, filename: StrLike, **kwargs):
 
 def make_file_preprocessor(deploy_root: Path, parent: Path, resources: ResourceManager):
     def process_file(tag: Tag):
-        file_id = validate_required_attribute(tag, 'id', 'file')
         path_value = validate_required_attribute(tag, 'path', 'file')
         attrs = tag.attrs
         path = (parent / path_value).resolve().absolute()
@@ -122,7 +122,7 @@ def make_file_preprocessor(deploy_root: Path, parent: Path, resources: ResourceM
 
         file = CanvasResource(
             type='file',
-            id=file_id,
+            id=path.name,
             data=FileData(
                 path=(p := to_relative_posix(path, deploy_root)),
                 checksum_paths=[p],
@@ -192,7 +192,6 @@ def _get_additional_files(additional_files: list[Path]) -> dict[str, Path]:
 
 def make_zip_preprocessor(deploy_root: Path, parent: Path, resources: ResourceManager):
     def process_zip(tag: Tag):
-        file_id = validate_required_attribute(tag, 'id', 'zip')
         content_folder = validate_required_attribute(tag, 'path', 'zip')
 
         name = tag.get("name")
@@ -233,7 +232,7 @@ def make_zip_preprocessor(deploy_root: Path, parent: Path, resources: ResourceMa
 
         file = CanvasResource(
             type='zip',
-            id=file_id,
+            id=name,
             data=ZipFileData(
                 zip_file_name=name,
                 zip_contents=zip_contents,
