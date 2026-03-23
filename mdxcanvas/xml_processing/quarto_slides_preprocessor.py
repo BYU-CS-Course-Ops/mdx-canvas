@@ -10,8 +10,7 @@ from ..resources import ResourceManager, CanvasResource
 from ..util import find_quarto_root, to_relative_posix
 
 
-def _find_quarto_dependencies(slide_file: Path, deploy_root: Path) -> list[str]:
-    quarto_root = find_quarto_root(slide_file)
+def _find_quarto_dependencies(quarto_root: Path, deploy_root: Path) -> list[str]:
     deps = []
 
     quarto_yaml = quarto_root / '_quarto.yaml'
@@ -44,14 +43,15 @@ def make_quarto_slides_preprocessor(deploy_root: Path, parent: Path, resources: 
         if not name:
             name = qmd_file.name.replace('.qmd', '.slides.html')
 
-        checksum_paths = [to_relative_posix(qmd_file, deploy_root)] + _find_quarto_dependencies(qmd_file, deploy_root)
+        quarto_root = find_quarto_root(qmd_file)
+        checksum_paths = [to_relative_posix(qmd_file, deploy_root)] + _find_quarto_dependencies(quarto_root, deploy_root)
 
         file = CanvasResource(
             type='quarto-slides',
             id=name,
             data=QuartoSlidesData(
                 path=to_relative_posix(qmd_file, deploy_root),
-                root_path=to_relative_posix(parent, deploy_root),
+                root_path=to_relative_posix(quarto_root, deploy_root),
                 checksum_paths=checksum_paths,
                 slides_name=name,
                 canvas_folder=tag.get('canvas_folder'),

@@ -13,7 +13,7 @@ from ..our_logging import get_logger
 from ..resources import FileData
 from ..resources import FileInfo
 from ..resources import QuartoSlidesData
-from ..util import relative_to_abs, to_relative_posix, to_relative_path
+from ..util import relative_to_abs, to_relative_posix
 
 logger = get_logger()
 
@@ -23,14 +23,14 @@ def _run_quarto_render(data: QuartoSlidesData, tmpdir: Path, deploy_root: Path) 
     # which is where _quarto.yaml is (parent) or the current folder
     slide_file = relative_to_abs(Path(data['path']), deploy_root)
     quarto_root = relative_to_abs(Path(data['root_path']), deploy_root)
-    relative_to_quarto_root = to_relative_path(slide_file.parent.absolute(), quarto_root)
+    relative_to_quarto_root = slide_file.parent.absolute().relative_to(quarto_root)
 
     output_file = (
         tmpdir / relative_to_quarto_root / data['slides_name']  # pyright: ignore[reportOperatorIssue]
     ).absolute()
 
     cmd = [
-        'quarto', 'render', data['path'],
+        'quarto', 'render', str(slide_file),
         '--output-dir', str(tmpdir),
         '--output', str(output_file.name),
         '--log-level', 'info'
