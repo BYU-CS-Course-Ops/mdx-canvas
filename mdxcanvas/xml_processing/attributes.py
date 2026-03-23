@@ -149,7 +149,7 @@ def parse_settings(tag: Tag, attributes: list[Attribute]):
 
         elif attribute.required:
             raise Exception(
-                f'Required field "{attribute.name}" missing from {tag.name} tag {format_tag(tag)}\n  in {get_file_path(tag)}')
+                f'Required field "{attribute.name}" missing from {tag.name} tag {format_tag(tag)}\n @ {get_tag_path(tag)} in {get_file_path(tag)}')
 
     for key in tag.attrs:
         if key not in processed_fields:
