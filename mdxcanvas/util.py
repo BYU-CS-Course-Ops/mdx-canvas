@@ -34,15 +34,6 @@ def retrieve_contents(
     )
 
 
-def to_relative_path(path: Path, root: Path) -> Path:
-    """Convert an absolute path to a path relative to root."""
-    try:
-        # Python 3.12+ has walk_up support
-        return path.resolve().relative_to(root.resolve(), walk_up=True)
-    except TypeError:
-        return Path(os.path.relpath(path.resolve(), root.resolve()))
-
-
 def to_relative_posix(path: Path, deploy_root: Path) -> str:
     """Convert a path to a POSIX-style string relative to root.
 
@@ -51,7 +42,11 @@ def to_relative_posix(path: Path, deploy_root: Path) -> str:
     the operating system.  Uses ``..`` navigation when *path* is not
     inside *root*.
     """
-    return to_relative_path(path, deploy_root).as_posix()
+    try:
+        # Python 3.12+ has walk_up support
+        return path.resolve().relative_to(deploy_root.resolve(), walk_up=True).as_posix()
+    except TypeError:
+        return Path(os.path.relpath(path.resolve(), deploy_root.resolve())).as_posix()
 
 
 def relative_to_abs(path: Path, deploy_root: Path) -> Path:
