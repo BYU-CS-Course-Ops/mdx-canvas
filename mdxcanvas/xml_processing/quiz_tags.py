@@ -87,6 +87,7 @@ class QuizTagProcessor:
             Attribute('available_to', parser=parse_date, new_name='lock_at'),
             Attribute('due_at', parser=parse_date),
             Attribute('access_code'),
+            Attribute('position', parser=parse_int),
             Attribute('published', parser=parse_bool),
             Attribute('one_time_results', False, parse_bool),
             Attribute('only_visible_to_overrides', parser=parse_bool),
