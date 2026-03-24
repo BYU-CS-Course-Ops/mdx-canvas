@@ -30,7 +30,7 @@ def _run_quarto_render(data: QuartoSlidesData, tmpdir: Path, deploy_root: Path) 
     ).absolute()
 
     cmd = [
-        'quarto', 'render', data['path'],
+        'quarto', 'render', str(slide_file),
         '--output-dir', str(tmpdir),
         '--output', str(output_file.name),
         '--log-level', 'info'
