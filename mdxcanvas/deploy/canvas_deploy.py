@@ -36,6 +36,8 @@ from ..resources import CanvasResource, iter_keys, ResourceInfo
 
 logger = get_logger()
 
+DEFAULT_STALE_RESOURCE_TYPES = frozenset({'quiz', 'module_item'})
+
 SHELL_DEPLOYERS: dict[str, Callable[[Course, dict, Path], tuple[ResourceInfo, tuple[str, str] | None]]] = {
     # Current known resources that need shell deployments
     'assignment': deploy_shell_assignment,
@@ -268,11 +270,16 @@ def identify_modified_or_outdated(
 # Stale resource handling
 # =============================================================================
 
-def get_stale_resources(resources: dict[tuple[str, str], CanvasResource], md5s: MD5Sums) -> list[tuple[str, str, dict]]:
+def get_stale_resources(
+        resources: dict[tuple[str, str], CanvasResource],
+        md5s: MD5Sums,
+        allowed_types: set[str] | frozenset[str] | None = None
+) -> list[tuple[str, str, dict]]:
     stale = [
         (rtype, rid, canvas_info)
         for (rtype, rid), _ in md5s.items()
         if (rtype, rid) not in resources and rtype not in ['syllabus', 'course_settings', 'quiz_question_order']
+        if allowed_types is None or rtype in allowed_types
         if (canvas_info := md5s.get_canvas_info((rtype, rid)))
     ]
 
@@ -467,8 +474,9 @@ def _deploy_resources(course: Course, to_deploy: dict, md5s: MD5Sums, report: De
     )
 
 
-def _remove_stale_resources(course: Course, resources: dict, md5s: MD5Sums) -> int:
-    if stale_resources := get_stale_resources(resources, md5s):
+def _remove_stale_resources(course: Course, resources: dict, md5s: MD5Sums,
+                            allowed_types: set[str] | frozenset[str] | None = None) -> int:
+    if stale_resources := get_stale_resources(resources, md5s, allowed_types=allowed_types):
         remove_stale_resources(course, stale_resources, md5s)
 
     return len(stale_resources) if stale_resources else 0
@@ -503,8 +511,9 @@ def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, s
                               resource_dependencies, resource_order, deploy_root=deploy_root, dryrun=dryrun)
             actions.append(f'{len(to_deploy)} resources deployed')
 
-        if cleanup:
-            if removed_count := _remove_stale_resources(course, resources, md5s):
-                actions.append(f'{removed_count} stale resources removed')
+        stale_resource_types = None if cleanup else DEFAULT_STALE_RESOURCE_TYPES
+        if removed_count := _remove_stale_resources(
+                course, resources, md5s, allowed_types=stale_resource_types):
+            actions.append(f'{removed_count} stale resources removed')
 
     _log_completion(actions, time.perf_counter() - start_time)
