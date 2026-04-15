@@ -165,7 +165,7 @@ You can specify different due dates for different course sections using the `<ov
 </assignment>
 ```
 
-See the [`<override>` tag documentation](override_tag.md) for more details on section-specific dates.
+See the [`<override>` tag documentation](../../../skills/generate-quiz/references/override_tag.md) for more details on section-specific dates.
 
 ## Full Example
 
