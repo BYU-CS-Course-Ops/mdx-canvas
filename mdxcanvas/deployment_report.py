@@ -35,17 +35,31 @@ class DeploymentReport:
                 f.write(json.dumps(self.report, indent=4))
 
     def print_report(self):
-        if self.report['deployed_content']:
-            groups = {}
-            for rtype, rid, url in self.report['deployed_content']:
-                if url not in groups:
-                    groups[url] = []
-                groups[url].append((rtype, rid))
+        DETAIL_THRESHOLD = 20
+
+        deployed = self.report['deployed_content']
+        if deployed:
+            type_counts = {}
+            for rtype, _, _ in deployed:
+                type_counts[rtype] = type_counts.get(rtype, 0) + 1
 
             print(' Deployed Content '.center(60, '-'))
-            for url, resources in groups.items():
-                resources_str = ', '.join(rid for _, rid in resources)
-                print(f'{resources_str}: {url}')
+            type_width = max(len('Type'), max(len(t) for t in type_counts))
+            count_width = max(len('Count'), max(len(str(c)) for c in type_counts.values()))
+            print(f'{"Type".ljust(type_width)}  {"Count".rjust(count_width)}')
+            print(f'{"-" * type_width}  {"-" * count_width}')
+            for rtype in sorted(type_counts):
+                print(f'{rtype.ljust(type_width)}  {str(type_counts[rtype]).rjust(count_width)}')
+            print(f'{"Total".ljust(type_width)}  {str(len(deployed)).rjust(count_width)}')
+
+            if len(deployed) <= DETAIL_THRESHOLD:
+                groups = {}
+                for rtype, rid, url in deployed:
+                    groups.setdefault(url, []).append((rtype, rid))
+                print()
+                for url, resources in groups.items():
+                    resources_str = ', '.join(rid for _, rid in resources)
+                    print(f'{resources_str}: {url}')
 
         if self.report['content_to_review']:
             print(' Content to Review '.center(60, '-'))
