@@ -1,6 +1,6 @@
 # `<item>` Tag
 
-The `<item>` tag defines individual items within a module. Items can link to existing content (pages, assignments, 
+The `<item>` tag defines individual items within a module. Items can link to existing content (pages, assignments,
 quizzes, files) or create structure (subheaders, external links).
 
 ## Common Attributes
@@ -63,7 +63,7 @@ See [Canvas API documentation](https://canvas.instructure.com/doc/api/modules.ht
 
 #### `content_id` (required)
 
-The `id` of the existing content to link to. This must match the `id` attribute of a `<page>`, `<assignment>`, 
+The `id` of the existing content to link to. This must match the `id` attribute of a `<page>`, `<assignment>`,
 `<quiz>`, or `<file>` tag defined elsewhere.
 
 ```xml
@@ -84,10 +84,10 @@ The `id` of the existing content to link to. This must match the `id` attribute 
 
 ### For `subheader` Items
 
-Creates a text divider within the module. Uses `title` for the header text.
+Creates a text divider within the module. Requires `title` for the header text and an `id`.
 
 ```xml
-<item type="subheader" title="Week 1 Readings" />
+<item type="subheader" id="section1" title="Week 1 Readings" />
 ```
 
 ---
@@ -99,30 +99,38 @@ Creates a text divider within the module. Uses `title` for the header text.
 URL to link to. Can be any valid web address.
 
 ```xml
-<item type="externalurl" external_url="https://example.com" title="Example Website" />
+<item type="externalurl" id="docs_link" external_url="https://example.com" title="Example Website" />
 ```
 
 If `title` is omitted, uses the URL as the display text.
 
 ---
 
+## Important Notes
+
+- **Type-Required Attributes**: Different item types require different attributes:
+  - **page, assignment, quiz, file**: Require `content_id` to reference the item's `id`
+  - **subheader**: Requires `title` and `id`
+  - **externalurl**: Requires `external_url` and `id`
+  - **syllabus**: Optional `title` (defaults to "Syllabus"), requires `id`
+
 ## Examples
 
 ### Basic Module with Various Item Types
 
 ```xml
-<module title="Week 1: Getting Started">
-  <item type="subheader" title="Introduction" />
+<module id="week_1" title="Week 1: Getting Started">
+  <item type="subheader" id="intro_section" title="Introduction" />
   <item type="page" content_id="welcome_page" />
   <item type="page" content_id="syllabus_page" title="Read the Syllabus" />
 
-  <item type="subheader" title="Assignments" />
+  <item type="subheader" id="assignments_section" title="Assignments" />
   <item type="assignment" content_id="hw1" indent="1" />
   <item type="quiz" content_id="week1_quiz" indent="1" />
 
-  <item type="subheader" title="Resources" />
+  <item type="subheader" id="resources_section" title="Resources" />
   <item type="file" content_id="lecture_notes.pdf" indent="1" />
-  <item type="externalurl" external_url="https://docs.example.com" title="External Documentation" indent="1" />
+  <item type="externalurl" id="docs_link" external_url="https://docs.example.com" title="External Documentation" indent="1" />
 </module>
 ```
 

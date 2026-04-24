@@ -215,7 +215,12 @@ def entry():
     parser.add_argument("--css", type=Path, default=None)
     parser.add_argument('--debug', action='store_true')
     parser.add_argument('--dryrun', '--dry-run', action='store_true')
-    parser.add_argument('--cleanup', action='store_true', help="Remove canvas resources not present in the input file")
+    parser.add_argument(
+        '--cleanup',
+        action='store_true',
+        help='Remove all Canvas resources not present in the input file. '
+             'Stale quizzes and module items are removed by default.'
+    )
     parser.add_argument('--output-file', type=str, default=None)
     args = parser.parse_args()
 

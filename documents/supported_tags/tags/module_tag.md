@@ -10,14 +10,14 @@ Sets the title of the module as it appears in Canvas (required).
 
 ```xml
 
-<module title="Week 1: Introduction">
+<module id="week_1" title="Week 1: Introduction">
     ...
 </module>
 ```
 
 ### `id`
 
-Optional unique identifier for the module. If not specified, defaults to the `title` value.
+Unique identifier for the module (required).
 
 Use an explicit `id` when you need to:
 - Change the module's title later without creating a new resource
@@ -54,9 +54,62 @@ For details on valid item types and attributes, see the [`<item>` tag documentat
 ## Example
 
 ```xml
-<module title="Example Module 1">
+<module id="example_module_1" title="Example Module 1">
     <item type="page" title="Introduction to the Course" />
     <item type="assignment" title="First Assignment" indent="1" />
     <item type="quiz" title="Module Quiz" indent="1" />
 </module>
 ```
+
+## Advanced Features
+
+### Module Prerequisites
+
+Create a prerequisite chain where students must complete earlier modules before unlocking later ones. Use the `prerequisite_module_ids` attribute with completion requirements:
+
+```xml
+<!-- Module 1: Foundation -->
+<module id="module-1" title="Module 1: Foundations">
+    <item type="page" content_id="intro" completion_requirement="type=must_view" />
+</module>
+
+<!-- Module 2: Requires Module 1 completion -->
+<module id="module-2" title="Module 2: Advanced Topics" prerequisite_module_ids="module-1">
+    <item type="page" content_id="advanced" />
+</module>
+
+<!-- Module 3: Requires both Module 1 and 2 -->
+<module id="module-3" title="Module 3: Capstone" prerequisite_module_ids="module-1,module-2">
+    <item type="assignment" content_id="capstone_project" />
+</module>
+```
+
+**Rules:**
+- The prerequisite module's completion requirements must be met before the dependent module unlocks
+- Students see the module in the sidebar but cannot access its content until prerequisites are satisfied
+- Multiple prerequisites can be specified as a comma-separated list
+
+### Structured Completion Requirements
+
+Design modules that enforce structured progression using completion requirements on items:
+
+```xml
+<module id="week-1" title="Week 1: Linear Algebra">
+    <!-- Reading is required -->
+    <item type="page" content_id="linear_algebra_intro"
+          completion_requirement="type=must_view" />
+
+    <!-- Quiz requires minimum score -->
+    <item type="quiz" content_id="week1_quiz"
+          completion_requirement="type=min_score,min_score=80" />
+
+    <!-- Assignment requires submission -->
+    <item type="assignment" content_id="linear_algebra_hw"
+          completion_requirement="type=must_submit" />
+</module>
+```
+
+**Completion types:**
+- `type=must_view` - Student must open/view the item
+- `type=must_submit` - Student must submit (assignments/quizzes only)
+- `type=min_score,min_score=XX` - Student must score at least XX% (quizzes only)

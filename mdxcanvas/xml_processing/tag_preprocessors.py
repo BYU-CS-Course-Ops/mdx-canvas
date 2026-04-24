@@ -375,6 +375,7 @@ def make_markdown_page_preprocessor(
 ):
     def process_markdown_page(tag: Tag):
         content_path = validate_required_attribute(tag, 'path', 'md-page')
+        page_id = validate_required_attribute(tag, 'id', 'md-page')
         content_path_obj = Path(parent_folder) / content_path
 
         page_title = tag.get('title')
@@ -394,9 +395,7 @@ def make_markdown_page_preprocessor(
 
         page_tag = Tag(name='page', attrs={'title': page_title})
         page_tag.append(include_tag)
-
-        if page_id := tag.get('id'):
-            page_tag['id'] = page_id
+        page_tag['id'] = page_id
 
         include_processor = make_include_preprocessor(deploy_root, parent_folder, process_file)
 

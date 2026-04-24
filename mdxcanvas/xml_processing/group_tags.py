@@ -2,7 +2,7 @@ from typing import TypedDict, List
 
 from bs4.element import Tag
 
-from .attributes import Attribute, parse_settings, parse_int
+from .attributes import Attribute, make_id_list_parser, parse_settings, parse_int
 from ..resources import ResourceManager, CanvasResource, get_key
 from ..processing_context import get_current_file_str
 
@@ -13,38 +13,16 @@ class AssignmentGroupRules(TypedDict, total=False):
     never_drop: List[int]
 
 
-def _parse_never_drop_assignments(tag: Tag) -> List[int]:
-    never_drop_attr = tag.get('never_drop')
-    if not never_drop_attr:
-        return []
-
-    never_drop_ids = []
-
-    assignment_names = [
-        name.strip() for name in never_drop_attr.split('|')  # pyright: ignore[reportAttributeAccessIssue]
-    ]
-
-    for assignment_name in assignment_names:
-        if assignment_name:
-            try:
-                assignment_id = get_key('assignment', assignment_name, 'id')
-                never_drop_ids.append(assignment_id)
-            except Exception as e:
-                continue
-
-    return never_drop_ids
-
-
 def _extract_rules_from_group_data(group_data: dict) -> dict:
     rules: AssignmentGroupRules = {}
 
-    if 'drop_lowest' in group_data and group_data['drop_lowest']:
+    if group_data.get('drop_lowest'):
         rules['drop_lowest'] = group_data.pop('drop_lowest')
 
-    if 'drop_highest' in group_data and group_data['drop_highest']:
+    if group_data.get('drop_highest'):
         rules['drop_highest'] = group_data.pop('drop_highest')
 
-    if 'never_drop' in group_data and group_data['never_drop']:
+    if group_data.get('never_drop'):
         rules['never_drop'] = group_data.pop('never_drop')
 
     if rules:
@@ -59,8 +37,8 @@ class AssignmentGroupTagProcessor:
 
     Usage:
         <assignment-groups>
-            <group name="Group 1" weight="25" drop_lowest="5" />
-            <group name="Group 2" weight="75" drop_highest="3" never_drop="assign1|assign2" />
+            <group id="g1" name="Group 1" weight="25" drop_lowest="5" />
+            <group id="g2" name="Group 2" weight="75" drop_highest="3" never_drop="assign1,assign2" />
         </assignment-groups>
     """
 
@@ -77,24 +55,23 @@ class AssignmentGroupTagProcessor:
         Args:
             tag: The assignment group tag to parse
         """
-        never_drop_ids = _parse_never_drop_assignments(tag)
-
         attribute_fields = [
-            Attribute('id', ignore=True),
+            Attribute('id', required=True),
             Attribute('name', required=True),
             Attribute('weight', new_name='group_weight', parser=parse_int),
+            Attribute('never_drop', parser=make_id_list_parser('assignment')),
             Attribute('drop_lowest', parser=parse_int),
-            Attribute('drop_highest', parser=parse_int)
+            Attribute('drop_highest', parser=parse_int),
+            Attribute('position', parser=parse_int)
             # TODO: Find additional attributes to support
         ]
 
         group_data = parse_settings(tag, attribute_fields)
-        group_data['never_drop'] = never_drop_ids
         group_data = _extract_rules_from_group_data(group_data)
 
         assignment_group = CanvasResource(
             type='assignment_group',
-            id=tag.get('id', group_data['name']),
+            id=group_data.pop('id'),
             data=group_data,
             content_path=get_current_file_str()
         )

@@ -10,23 +10,24 @@ def test_timestamp_tag(monkeypatch):
             return fixed if tz is None else fixed.astimezone(tz)
 
     monkeypatch.setattr(canvas_deploy, "datetime", FixedDatetime)
+    timezone = 'America/Denver'
 
     data = 'This is when: <timestamp/>'
     expected = 'This is when: January 11, 2000 at 01:00 AM'
-    assert canvas_deploy.post_process_resource(data) == expected
+    assert canvas_deploy.post_process_resource(data, timezone) == expected
 
     data = 'This is when: <timestamp format="%D" />'
     expected = 'This is when: 01/11/00'
-    assert canvas_deploy.post_process_resource(data) == expected
+    assert canvas_deploy.post_process_resource(data, timezone) == expected
 
     data = "This is when: <timestamp format='%D' />"
     expected = 'This is when: 01/11/00'
-    assert canvas_deploy.post_process_resource(data) == expected
+    assert canvas_deploy.post_process_resource(data, timezone) == expected
 
     data = "<timestamp/> <timestamp format='%D' /> <timestamp/>"
     expected = 'January 11, 2000 at 01:00 AM 01/11/00 January 11, 2000 at 01:00 AM'
-    assert canvas_deploy.post_process_resource(data) == expected
+    assert canvas_deploy.post_process_resource(data, timezone) == expected
 
     data = "<timestamp format='%D'></timestamp>"
     expected = '01/11/00'
-    assert canvas_deploy.post_process_resource(data) == expected
+    assert canvas_deploy.post_process_resource(data, timezone) == expected

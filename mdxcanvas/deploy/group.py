@@ -6,17 +6,16 @@ from ..resources import AssignmentGroupInfo
 
 
 def deploy_group(course: Course, group_data: dict, _: Path) -> tuple[AssignmentGroupInfo, None]:
-    group_id = group_data["canvas_id"]
-
-    if group_id:
+    if group_id := group_data.get('canvas_id'):
         group = course.get_assignment_group(group_id)
     else:
         group = course.create_assignment_group(name=group_data["name"])
 
     group.edit(**group_data)
-    course.update(course={
-        'apply_assignment_group_weights': True,
-    })
+    if group_data.get('rules'):
+        course.update(course={
+            'apply_assignment_group_weights': True,
+        })
 
     group_object_info: AssignmentGroupInfo = {
         'id': group.id

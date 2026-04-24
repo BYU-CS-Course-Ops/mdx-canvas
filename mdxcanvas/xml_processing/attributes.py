@@ -6,6 +6,7 @@ from bs4.element import Tag
 
 from ..our_logging import get_logger
 from ..util import retrieve_contents
+from ..resources import get_key
 from ..error_helpers import format_tag, get_file_path
 
 logger = get_logger()
@@ -46,6 +47,16 @@ def parse_date(date: datetime | str | None) -> str:
         raise TypeError("Date must be a datetime object or a string")
 
 
+def make_id_parser(resource_type: str):
+    """Create a parser function for resource ID references."""
+    return lambda text: get_key(resource_type, text, 'id')
+
+
+def make_id_list_parser(resource_type: str):
+    """Create a parser function for a list of resource ID references."""
+    return lambda text: [get_key(resource_type, item.strip(), 'id') for item in parse_list(text)]
+
+
 def parse_int(text):
     return int(text)
 
@@ -65,6 +76,9 @@ def parse_bool(text):
 
 def parse_list(text):
     items = text.strip().split(',')
+    # Backward compatibility: if the list has only one item and it contains a '|', split on that instead
+    if len(items) == 1 and '|' in items[0]:
+        items = items[0].split('|')
     return [cell.strip() for cell in items if cell.strip()]
 
 

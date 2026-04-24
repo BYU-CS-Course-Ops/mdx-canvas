@@ -2,15 +2,13 @@
     # Fenced Mermaid Diagrams
 
     ```mermaid
-    graph TD
-        A[Fence Syntax] --> B[Converted to Tag]
-        B --> C[Processed by Preprocessor]
-        C --> D[Rendered as PNG]
+    flowchart LR
+        Start --> Middle --> End
     ```
 
     You can also use attributes:
 
-    ```mermaid {: .my-class #my-id alt="Flow Chart" name="start-middle-end"}
+    ```mermaid {: .my-class #my-id alt="Flow Chart" name="start-middle-end" class="diagram"}
     flowchart LR
         Start --> Middle --> End
     ```
@@ -27,5 +25,5 @@
 
     # Included from file
 
-    <mermaid path="external-diagram.mmd" canvas_folder="diagrams" alt="Process Flow" />
+    <mermaid path="external-diagram.mmd" canvas_folder="diagrams" alt="Process Flow" class="diagram"/>
 </page>

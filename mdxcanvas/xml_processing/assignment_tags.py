@@ -1,6 +1,6 @@
 from bs4.element import Tag
 
-from .attributes import parse_settings, Attribute, parse_bool, parse_date, parse_list, parse_dict, \
+from .attributes import make_id_parser, parse_settings, Attribute, parse_bool, parse_date, parse_list, parse_dict, \
     parse_int
 from ..util import retrieve_contents
 from ..resources import ResourceManager, CanvasResource
@@ -14,12 +14,11 @@ class AssignmentTagProcessor:
 
     def __call__(self, assignment_tag: Tag):
         fields = [
-            Attribute('id', ignore=True),
+            Attribute('id', required=True),
             Attribute('allowed_attempts', parser=lambda x: -1 if x == 'not_graded' else int(x)),
             Attribute('allowed_extensions', [], parse_list),
             Attribute('annotatable_attachment_id'),  # TODO keep?
-            Attribute('assignment_group'),
-            Attribute('assignment_overrides'),  # TODO keep?
+            Attribute('assignment_group', parser=make_id_parser('assignment_group'), new_name='assignment_group_id'),
             Attribute('automatic_peer_reviews', False, parse_bool),
             Attribute('available_from', parser=parse_date, new_name='unlock_at'),
             Attribute('available_to', parser=parse_date, new_name='lock_at'),
@@ -43,7 +42,7 @@ class AssignmentTagProcessor:
             Attribute('only_visible_to_overrides', False, parse_bool),
             Attribute('peer_reviews', False, parse_bool),
             Attribute('points_possible', parser=parse_int),
-            Attribute('position', parser=parse_int),  # TODO - should be int?
+            Attribute('position', parser=parse_int),
             Attribute('published', parser=parse_bool),
             Attribute('quiz_lti'),  # TODO - keep?
             Attribute('submission_types', parser=parse_list),  # TODO - keep?
@@ -60,7 +59,7 @@ class AssignmentTagProcessor:
 
         settings.update(parse_settings(assignment_tag, fields))
 
-        rid: str = assignment_tag.get('id', settings['name'])  # pyright: ignore[reportAssignmentType]
+        rid = settings.pop('id')
         assignment = CanvasResource(
             type='assignment',
             id=rid,

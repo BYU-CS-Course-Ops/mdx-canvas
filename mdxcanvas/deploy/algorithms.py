@@ -121,11 +121,23 @@ def linearize_dependencies(
 
     topo_order = kahns_topological_sort(acyclic_graph)
 
-    # Shell deployments for cycle breakers must happen FIRST (before everything else)
+    # Identify assignment groups that are dependencies of cycle breakers
+    group_deps = set()
+    for cb in cycle_breakers:
+        for dep in graph.get(cb, []):
+            if dep[0] == 'assignment_group':
+                group_deps.add(dep)
+
+    # Group deployments for assignment groups used in shells must happen FIRST
+    # (before everything else) so that shell deployments for assignments can
+    # reference them, otherwise the default assignment group will be used instead,
+    # and it clutters the course with an extra assignment group.
+    # Shell deployments for cycle breakers must happen SECOND (before natural order)
     # so that other resources can reference them. Then the full deployment happens
     # in the natural topological order.
-    result = [(node, True) for node in topo_order if node in cycle_breakers]
-    result.extend((node, False) for node in topo_order)
+    result = [(node, False) for node in topo_order if node in group_deps]
+    result.extend((node, True) for node in topo_order if node in cycle_breakers)
+    result.extend((node, False) for node in topo_order if node not in group_deps)
 
     return result
 

@@ -17,7 +17,7 @@ class PageTagProcessor:
         }
 
         fields = [
-            Attribute('id', ignore=True),
+            Attribute('id', required=True),
             Attribute('title', required=True),
             Attribute('editing_roles', 'teachers'),
             Attribute('notify_of_update', False, parse_bool),
@@ -31,7 +31,7 @@ class PageTagProcessor:
 
         page = CanvasResource(
             type='page',
-            id=page_tag.get('id', page_tag['title']),
+            id=settings.pop('id'),
             data=settings,
             content_path=get_current_file_str()
         )

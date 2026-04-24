@@ -4,6 +4,8 @@ The `<quarto-slides>` tag renders a Quarto `.qmd` slide source and uploads the g
 
 This is useful when you want to keep lecture slides in Quarto while still distributing them through course content pages.
 
+For repository-wide migration help when updating legacy content to explicit `id` attributes, see the [AI migration prompt](../../migrating_to_explicit_ids.md).
+
 ## Requirements
 
 - Quarto must be installed and available on your `PATH` (the command `quarto render` is executed during deployment).

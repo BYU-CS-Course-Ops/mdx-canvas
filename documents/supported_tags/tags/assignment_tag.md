@@ -10,6 +10,7 @@ Sets the assignment title (required).
 
 ```xml
 <assignment
+    id="example_assignment"
     title="Example Assignment">
 ...
 </assignment>
@@ -17,7 +18,7 @@ Sets the assignment title (required).
 
 ### `id`
 
-Optional unique identifier for the assignment. If not specified, defaults to the `title` value.
+Unique identifier for the assignment (required).
 
 Use an explicit `id` when you need to change the assignment's title later without creating a new resource, or when you want a more stable identifier for referencing.
 
@@ -36,8 +37,9 @@ Use an explicit `id` when you need to change the assignment's title later withou
 Specifies the due date and time.
 
 ```xml
-<assignment 
-    title="Example Assignment" 
+<assignment
+    id="example_assignment"
+    title="Example Assignment"
     due_at="Jan 1, 2025, 11:59 PM">
 ...
 </assignment>
@@ -48,8 +50,9 @@ Specifies the due date and time.
 Sets when the assignment becomes available to students.
 
 ```xml
-<assignment 
-    title="Example Assignment" 
+<assignment
+    id="example_assignment"
+    title="Example Assignment"
     available_from="Jan 1, 2025, 9:00 AM">
 ...
 </assignment>
@@ -60,8 +63,9 @@ Sets when the assignment becomes available to students.
 Sets when the assignment is no longer available.
 
 ```xml
-<assignment 
-    title="Example Assignment" 
+<assignment
+    id="example_assignment"
+    title="Example Assignment"
     available_to="Jan 1, 2025, 11:59 PM">
 ...
 </assignment>
@@ -72,8 +76,9 @@ Sets when the assignment is no longer available.
 Maximum points possible for the assignment.
 
 ```xml
-<assignment 
-    title="Example Assignment" 
+<assignment
+    id="example_assignment"
+    title="Example Assignment"
     points_possible="100">
 ...
 </assignment>
@@ -85,6 +90,7 @@ Specifies the group the assignment belongs to.
 
 ```xml
 <assignment
+    id="example_assignment"
     title="Example Assignment"
     assignment_group="Example Group">
 ...
@@ -97,6 +103,7 @@ Latest date and time to accept late submissions. Students can still submit after
 
 ```xml
 <assignment
+    id="example_assignment"
     title="Example Assignment"
     due_at="Jan 15, 2025, 11:59 PM"
     late_due="Jan 17, 2025, 11:59 PM">
@@ -109,8 +116,9 @@ Latest date and time to accept late submissions. Students can still submit after
 Specifies allowed submission types (e.g., `online_upload`, `external_tool`).
 
 ```xml
-<assignment 
-    title="Example Assignment" 
+<assignment
+    id="example_assignment"
+    title="Example Assignment"
     submission_types="external_tool">
 ...
 </assignment>
@@ -124,6 +132,7 @@ Used with `submission_types="external_tool"` to specify external tool configurat
 
 ```xml
 <assignment
+  id="example_assignment"
   title="Example Assignment"
   submission_types="external_tool"
   external_tool_tag_attributes="url=https://lti.int.turnitin.com/launch/gs-proxy">
@@ -136,7 +145,7 @@ Used with `submission_types="external_tool"` to specify external tool configurat
 The assignment description can be placed directly inside the `<assignment>` tag. Markdown or HTML formatting is supported.
 
 ```xml
-<assignment title="Example Assignment">
+<assignment id="example_assignment" title="Example Assignment">
     # Example Assignment
 
     This is an example assignment description. You can use **Markdown** or _HTML_.
@@ -148,14 +157,28 @@ The assignment description can be placed directly inside the `<assignment>` tag.
 </assignment>
 ```
 
-**Note:** While you can still use a `<description>` child tag for backwards compatibility, it's not required. Content directly inside the assignment tag will be used as the description.
+## Important Notes
+
+### Attribute Naming
+
+The following MDXCanvas attributes are automatically mapped to Canvas API field names:
+
+- `available_from` → Canvas `unlock_at`
+- `available_to` → Canvas `lock_at`
+- `title` → Canvas `name`
+
+This mapping happens automatically during deployment—you should use the MDXCanvas attribute names in your XML.
+
+### Assignment Groups
+
+The `assignment_group` attribute accepts the group name (e.g., "Homework"). MDXCanvas automatically resolves this to the group's ID during deployment. You must define assignment groups separately using the [`<assignment-group>` tag](assignment_groups_tag.md).
 
 ## Section-Specific Dates
 
 You can specify different due dates for different course sections using the `<overrides>` container with `<override>` tags.
 
 ```xml
-<assignment title="Homework 1" due_at="Jan 15, 2025, 11:59 PM">
+<assignment id="homework_1" title="Homework 1" due_at="Jan 15, 2025, 11:59 PM">
   <overrides>
     <override section_id="12345" due_at="Jan 20, 2025, 11:59 PM" />
     <override section_id="67890" due_at="Jan 22, 2025, 11:59 PM" />
@@ -171,6 +194,7 @@ See the [`<override>` tag documentation](../../../skills/generate-quiz/reference
 
 ```xml
 <assignment
+    id="example_homework"
     title="Example Homework"
     due_at="Jan 1, 2025, 11:59 PM"
     available_from="Jan 1, 2025, 9:00 AM"
