@@ -35,6 +35,15 @@ mostly_common_fields = [
 ]
 
 
+def _maybe_add_answer_comments(answer: dict, tag: Tag | None = None, answer_comments: str | None = None):
+    if answer_comments is None and tag is not None:
+        answer_comments = tag.get('answer_comments')
+
+    if answer_comments:
+        answer['answer_comments'] = answer_comments
+    return answer
+
+
 def parse_text_question(tag: Tag):
     question_text = retrieve_contents(tag)
     question = {
@@ -67,7 +76,9 @@ def parse_true_false_question(tag: Tag):
     </question>
     """
     fields = [
-        Attribute('answer', required=True, parser=parse_bool, default=False)
+        Attribute('answer', required=True, parser=parse_bool, default=False),
+        Attribute('true_answer_comments'),
+        Attribute('false_answer_comments')
     ]
     question = parse_settings(tag, mostly_common_fields + fields)
 
@@ -75,16 +86,19 @@ def parse_true_false_question(tag: Tag):
         "question_text": retrieve_contents(tag, question_children_names),
         "question_type": 'true_false_question',
         "answers": [
-            {
+            _maybe_add_answer_comments({
                 "answer_text": "True",
                 "answer_weight": FULL_POINTS if question["answer"] is True else NO_POINTS
-            },
-            {
+            }, answer_comments=question.get('true_answer_comments')),
+            _maybe_add_answer_comments({
                 "answer_text": "False",
                 "answer_weight": FULL_POINTS if question["answer"] is False else NO_POINTS
-            }
+            }, answer_comments=question.get('false_answer_comments'))
         ]
     })
+
+    question.pop('true_answer_comments', None)
+    question.pop('false_answer_comments', None)
 
     return [question]
 
@@ -117,16 +131,15 @@ def parse_multiple_answers_question(tag: Tag):
 
 
 def _parse_multiple_option_question(question_type, tag):
-    corrects = parse_children_tag_contents(tag, 'correct')
-    answers = parse_children_tag_contents(tag, re.compile(r'correct|incorrect'))
+    answers = tag.find_all(re.compile(r'correct|incorrect'), recursive=False)
     question = {
         "question_text": retrieve_contents(tag, question_children_names),
         "question_type": question_type,
         "answers": [
-            {
-                "answer_html": answer,
-                "answer_weight": FULL_POINTS if answer in corrects else NO_POINTS
-            } for answer in answers
+            _maybe_add_answer_comments({
+                "answer_html": retrieve_contents(answer),
+                "answer_weight": FULL_POINTS if answer.name == 'correct' else NO_POINTS
+            }, answer) for answer in answers
         ]
     }
     question.update(parse_settings(tag, mostly_common_fields))
