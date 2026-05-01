@@ -27,12 +27,12 @@ def test_multiple_choice_answer_comments_are_included():
         {
             'answer_html': 'Paris',
             'answer_weight': 100,
-            'answer_comments': 'Exactly right',
+            'comments_html': '<p>Exactly right</p>',
         },
         {
             'answer_html': 'London',
             'answer_weight': 0,
-            'answer_comments': 'This is the UK capital',
+            'comments_html': '<p>This is the UK capital</p>',
         },
         {
             'answer_html': 'Berlin',
@@ -57,7 +57,7 @@ def test_multiple_answers_answer_comments_are_included():
         {
             'answer_html': 'Python',
             'answer_weight': 100,
-            'answer_comments': 'Yes',
+            'comments_html': '<p>Yes</p>',
         },
         {
             'answer_html': 'JavaScript',
@@ -66,7 +66,7 @@ def test_multiple_answers_answer_comments_are_included():
         {
             'answer_html': 'HTML',
             'answer_weight': 0,
-            'answer_comments': 'Markup language',
+            'comments_html': '<p>Markup language</p>',
         },
     ]
 
@@ -88,12 +88,12 @@ def test_true_false_answer_comments_are_included():
         {
             'answer_text': 'True',
             'answer_weight': 100,
-            'answer_comments': 'Correct',
+            'comments_html': '<p>Correct</p>',
         },
         {
             'answer_text': 'False',
             'answer_weight': 0,
-            'answer_comments': 'False is not correct here',
+            'comments_html': '<p>False is not correct here</p>',
         },
     ]
 
