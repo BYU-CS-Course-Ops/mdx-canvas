@@ -165,7 +165,9 @@ Required. Contains one or more `<question>` tags.
 
 Each question must define a `type` and may include `<correct>`, `<incorrect>`, `<pair>`, and other tags based on the question type.
 
-See [quiz question types](quiz_question_types.md) for full documentation of supported types and examples.
+Per-answer Canvas feedback is also supported for some question types:
+- `multiple-choice` / `multiple-answers`: `answer_comments` on `<correct>` / `<incorrect>`
+- `true-false`: `true_answer_comments` / `false_answer_comments` on `<question>`
 
 ## Section-Specific Dates
 
@@ -211,15 +213,16 @@ See the [`<override>` tag documentation](override_tag.md) for more details on se
     </description>
 
     <questions>
-        <question id="q1" type="true-false" answer="true">
+        <question id="q1" type="true-false" answer="true"
+                  true_answer_comments="Correct" false_answer_comments="The sky is blue under normal daylight conditions.">
             Is the sky blue?
         </question>
 
         <question id="q2" type="multiple-choice">
             What is the capital of France?
 
-            <correct>Paris</correct>
-            <incorrect>London</incorrect>
+            <correct answer_comments="Exactly right">Paris</correct>
+            <incorrect answer_comments="London is the capital of the UK">London</incorrect>
             <incorrect>Berlin</incorrect>
             <incorrect>Madrid</incorrect>
         </question>
@@ -246,4 +249,4 @@ When you edit an existing quiz that has student submissions, Canvas requires man
 
 Quiz questions are managed in the `<questions>` container and are created/updated as separate resources. Each question requires a unique ID within the quiz scope and a supported `type`. Questions are deployed after the quiz itself is created.
 
-See the [quiz question types documentation](quiz_question_types.md) for complete information on all supported question types and their specific syntax.
+See the [quiz question types documentation](quiz_question_types.md) for complete information on supported question types, including per-answer feedback fields.
