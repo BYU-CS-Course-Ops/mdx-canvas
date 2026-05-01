@@ -40,7 +40,8 @@ def _maybe_add_answer_comments(answer: dict, tag: Tag | None = None, answer_comm
         answer_comments = tag.get('answer_comments')
 
     if answer_comments:
-        answer['answer_comments'] = answer_comments
+        answer['comments_html'] = f"<p>{answer_comments}</p>"
+
     return answer
 
 
