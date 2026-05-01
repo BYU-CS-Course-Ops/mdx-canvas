@@ -31,6 +31,8 @@ The `<quiz>` tag contains two child elements:
 
 - `<description>` — optional instructions shown to students before they begin
 - `<questions>` — required; contains one or more `<question>` tags
+- Some question types support per-answer feedback:
+  `answer_comments` on `<correct>` / `<incorrect>`, and `true_answer_comments` / `false_answer_comments` on `true-false`
 
 ```xml
 <quiz title="Chapter 1 Quiz"
@@ -223,15 +225,16 @@ Use `<overrides>` to set different due dates per course section:
     </description>
 
     <questions>
-        <question type="true-false" answer="true">
+        <question type="true-false" answer="true"
+                  true_answer_comments="Correct" false_answer_comments="The sky is blue under normal daylight conditions.">
             Is the sky blue?
         </question>
 
         <question type="multiple-choice">
             What is the capital of France?
 
-            <correct>Paris</correct>
-            <incorrect>London</incorrect>
+            <correct answer_comments="Exactly right">Paris</correct>
+            <incorrect answer_comments="London is the capital of the UK">London</incorrect>
             <incorrect>Berlin</incorrect>
             <incorrect>Madrid</incorrect>
         </question>
@@ -258,15 +261,16 @@ A minimal working quiz:
     </description>
 
     <questions>
-        <question type="true-false" answer="true">
+        <question type="true-false" answer="true"
+                  true_answer_comments="Correct" false_answer_comments="Python variable names are case-sensitive.">
             Python variable names are case-sensitive.
         </question>
 
         <question type="multiple-choice">
             Which of the following is a valid Python variable name?
 
-            <correct>my_var</correct>
-            <incorrect>2myvar</incorrect>
+            <correct answer_comments="Underscores are allowed after the first character">my_var</correct>
+            <incorrect answer_comments="Variable names cannot start with a number">2myvar</incorrect>
             <incorrect>my-var</incorrect>
             <incorrect>my var</incorrect>
         </question>

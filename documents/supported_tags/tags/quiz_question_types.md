@@ -4,6 +4,13 @@ The `<question>` tag is used within the `<questions>` section of a `<quiz>` to d
 
 Each question has a `type` attribute and may include one or more child tags (e.g., `<correct>`, `<incorrect>`, `<pair>`). The content body is treated as the question prompt.
 
+## Answer Feedback
+
+Some question types support per-answer feedback that maps directly to the Canvas API:
+
+- `multiple-choice` and `multiple-answers`: use `answer_comments="..."` on `<correct>` and `<incorrect>`
+- `true-false`: use `true_answer_comments="..."` and `false_answer_comments="..."` on `<question>`
+
 ## Question Types
 
 ### `text`
@@ -19,23 +26,26 @@ Displays a block of instructional or contextual text. It does not require an ans
 ### `true-false`
 
 Presents a True/False question. Requires the `answer` attribute (`true` or `false`).
+Optional per-answer feedback may be provided with `true_answer_comments` and `false_answer_comments`.
 
 ```xml
-<question id="tf_1" type="true-false" answer="true">
+<question id="tf_1" type="true-false" answer="true"
+          true_answer_comments="Correct"
+          false_answer_comments="The sky is blue under normal daylight conditions.">
     Is the sky blue?
 </question>
 ```
 
 ### `multiple-choice`
 
-Creates a single-answer multiple-choice question. Requires at least one `<correct>` and one or more `<incorrect>` options.
+Creates a single-answer multiple-choice question. Requires at least one `<correct>` and one or more `<incorrect>` options. Optional per-answer feedback may be provided with `answer_comments`.
 
 ```xml
 <question id="mc_1" type="multiple-choice">
     What is the capital of France?
 
-    <correct>Paris</correct>
-    <incorrect>London</incorrect>
+    <correct answer_comments="Exactly right">Paris</correct>
+    <incorrect answer_comments="London is the capital of the UK">London</incorrect>
     <incorrect>Berlin</incorrect>
     <incorrect>Madrid</incorrect>
 </question>
@@ -43,15 +53,15 @@ Creates a single-answer multiple-choice question. Requires at least one `<correc
 
 ### `multiple-answers`
 
-Allows selection of multiple correct answers.
+Allows selection of multiple correct answers. Optional per-answer feedback may be provided with `answer_comments`.
 
 ```xml
 <question id="ma_1" type="multiple-answers">
     Which of the following are programming languages?
 
-    <correct>Python</correct>
+    <correct answer_comments="Yes">Python</correct>
     <correct>JavaScript</correct>
-    <incorrect>HTML</incorrect>
+    <incorrect answer_comments="HTML is markup, not a programming language">HTML</incorrect>
     <incorrect>CSS</incorrect>
 </question>
 ```

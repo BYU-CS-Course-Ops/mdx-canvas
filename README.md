@@ -75,13 +75,14 @@ Example (`.xml` quiz):
         <question type="multiple-choice">
             Who is the author of the Harry Potter series?
 
-            <correct>J.K. Rowling</correct>
-            <incorrect>J.R.R. Tolkien</incorrect>
+            <correct answer_comments="Correct">J.K. Rowling</correct>
+            <incorrect answer_comments="Tolkien wrote The Lord of the Rings">J.R.R. Tolkien</incorrect>
             <incorrect>George R.R. Martin</incorrect>
             <incorrect>Stephen King</incorrect>
         </question>
 
-        <question type="true-false" answer="true">
+        <question type="true-false" answer="true"
+                  true_answer_comments="Correct" false_answer_comments="Harry is a wizard.">
             Is Harry Potter a wizard?
         </question>
     </questions>
