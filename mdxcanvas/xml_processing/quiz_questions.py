@@ -132,7 +132,7 @@ def parse_multiple_answers_question(tag: Tag):
 
 
 def _parse_multiple_option_question(question_type, tag):
-    answers = tag.find_all(re.compile(r'correct|incorrect'), recursive=False)
+    answers = tag.find_all(['correct', 'incorrect'], recursive=False)
     question = {
         "question_text": retrieve_contents(tag, question_children_names),
         "question_type": question_type,
