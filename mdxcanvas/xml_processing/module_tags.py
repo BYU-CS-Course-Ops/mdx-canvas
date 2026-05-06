@@ -3,9 +3,9 @@ from typing import Any
 from bs4.element import Tag
 
 from .attributes import Attribute, make_id_list_parser, parse_bool, parse_dict, parse_settings, parse_int
-from ..resources import ResourceManager, StrLike, get_key, CanvasResource
 from ..error_helpers import format_tag, get_file_path
 from ..processing_context import get_current_file_str
+from ..resources import ResourceManager, StrLike, get_key, CanvasResource
 
 
 class ModuleTagProcessor:
@@ -115,7 +115,8 @@ class ModuleTagProcessor:
         elif rtype in ['Page', 'Quiz', 'Assignment', 'File']:
             fields.extend([
                 Attribute('content_id', required=True),
-                Attribute('title')
+                Attribute('title'),
+                Attribute('id')
             ])
             item.update(parse_settings(tag, fields))
 
@@ -124,7 +125,8 @@ class ModuleTagProcessor:
                 item['page_url'] = get_key('page', rid, 'page_url')
             else:
                 item['content_id'] = get_key(rtype.lower(), rid, 'id')
-            item['id'] = rid
+
+            item['id'] = item.get('id', rid)
 
         else:
             raise NotImplementedError(

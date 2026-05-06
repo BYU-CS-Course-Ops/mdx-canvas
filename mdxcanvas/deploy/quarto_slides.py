@@ -1,6 +1,7 @@
 import base64
 import mimetypes
 import re
+import shutil
 import subprocess
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -13,47 +14,83 @@ from ..our_logging import get_logger
 from ..resources import FileData
 from ..resources import FileInfo
 from ..resources import QuartoSlidesData
-from ..util import relative_to_abs, to_relative_posix
+from ..util import relative_to_abs
 
 logger = get_logger()
 
 
+def _copy_quarto_dependencies(quarto_root: Path, temp_quarto_root: Path) -> None:
+    """Copy the Quarto project files needed to render a slide deck."""
+    temp_quarto_root.mkdir(parents=True, exist_ok=True)
+
+    for config_name in ("_quarto.yaml", "_quarto.yml"):
+        config = quarto_root / config_name
+        if config.exists():
+            shutil.copy2(config, temp_quarto_root / config_name)
+
+    extensions = quarto_root / "_extensions"
+    if extensions.exists():
+        shutil.copytree(
+            extensions,
+            temp_quarto_root / "_extensions",
+            dirs_exist_ok=True,
+        )
+
+
+def _copy_slide_to_temp(slide_file: Path, quarto_root: Path, temp_quarto_root: Path) -> Path:
+    """Copy the target slide source into the same relative location under temp."""
+    relative_slide_file = slide_file.relative_to(quarto_root)
+    temp_slide_file = temp_quarto_root / relative_slide_file
+    temp_slide_file.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(slide_file, temp_slide_file)
+    return temp_slide_file
+
+
 def _run_quarto_render(data: QuartoSlidesData, tmpdir: Path, deploy_root: Path) -> Path:
-    # needs to be data['path'] relative to quarto project root
-    # which is where _quarto.yaml is (parent) or the current folder
+    # Copy just the target slide and Quarto project dependencies into a temp
+    # project, render there, bundle the rendered HTML in place, and return the
+    # temp HTML path for deployment.
     slide_file = relative_to_abs(Path(data['path']), deploy_root)
     quarto_root = relative_to_abs(Path(data['root_path']), deploy_root)
-    relative_to_quarto_root = slide_file.parent.absolute().relative_to(quarto_root)
+    temp_quarto_root = tmpdir.absolute()
 
-    output_file = (
-        tmpdir / relative_to_quarto_root / data['slides_name']  # pyright: ignore[reportOperatorIssue]
-    ).absolute()
+    _copy_quarto_dependencies(quarto_root, temp_quarto_root)
+    temp_slide_file = _copy_slide_to_temp(slide_file, quarto_root, temp_quarto_root)
+
+    output_name = str(data['slides_name'])
+    temp_output_file = (temp_slide_file.parent / output_name).absolute()
 
     cmd = [
-        'quarto', 'render', str(slide_file),
-        '--output-dir', str(tmpdir),
-        '--output', str(output_file.name),
-        '--log-level', 'info'
+        'quarto', 'render', temp_slide_file.name,
+        '--output', output_name,
+        '--log-level', 'info',
+        '--no-cache'
     ]
     result = subprocess.run(
         cmd,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=True,  # decode to str instead of bytes
-        cwd=slide_file.parent
+        cwd=temp_slide_file.parent
     )
     log = logger.debug
-    if result.returncode != 0 or not output_file.exists():
+    if result.returncode != 0 or not temp_output_file.exists():
         log = logger.warning
     log(' '.join(cmd))
     log(result.stdout)
     log(result.stderr)
 
     result.check_returncode()  # raises CalledProcessError if non-zero
-    if not output_file.exists():
-        raise FileNotFoundError('Missing quarto render output file: ' + str(output_file))
+    if not temp_output_file.exists():
+        raise FileNotFoundError('Missing quarto render output file: ' + str(temp_output_file))
 
-    return output_file
+    html = temp_output_file.read_text()
+    html = _bundle_js(html, temp_output_file.parent)
+    html = _inline_css(html, temp_output_file.parent)
+    html = _inline_assets(html, temp_output_file.parent)
+    temp_output_file.write_text(html)
+
+    return temp_output_file
 
 
 def _is_external(url: str) -> bool:
@@ -127,14 +164,9 @@ def _inline_assets(html: str, base_dir: Path) -> str:
 
 def _build_slides(data: QuartoSlidesData, tmpdir: Path, deploy_root: Path) -> FileData:
     output_file = _run_quarto_render(data, tmpdir, deploy_root)
-    html = output_file.read_text()
-    html = _bundle_js(html, output_file.parent)
-    html = _inline_css(html, output_file.parent)
-    html = _inline_assets(html, output_file.parent)
-    output_file.write_text(html)
 
     return FileData(
-        path=(p := to_relative_posix(output_file, deploy_root)),
+        path=(p := str(output_file)),
         checksum_paths=[p],
         canvas_folder=data.get('canvas_folder'),
         lock_at=data.get('lock_at'),
