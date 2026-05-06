@@ -2,8 +2,8 @@ from collections import defaultdict
 
 from canvasapi.quiz import Quiz
 
-from .. import __version__
 from .checksums import MD5Sums
+from .. import __version__
 from ..our_logging import get_logger
 
 logger = get_logger()
@@ -102,23 +102,25 @@ def _migrate_prune_stale_questions(course, md5s: MD5Sums):
 
 def migrate(course, md5s: MD5Sums):
     """Update the md5 data to match the latest schema"""
-    logger.info('Checking MDXCanvas version')
+    logger.debug('Checking MDXCanvas version')
 
     current_version = __version__
     stored_version = md5s.get_mdxcanvas_version()
 
     if stored_version == current_version:
-        logger.info('MDXCanvas version is up to date, no migration needed')
+        logger.debug('MDXCanvas version is up to date, no migration needed')
         return
 
     if stored_version is None:
-        logger.info('No version found — running all migrations')
+        logger.info('No MDXCanvas version found — using version 0.0.0')
         stored_ver = (0, 0, 0)
+
     elif stored_version > current_version:
         logger.warning(f'MDXCanvas version {stored_version} is newer than current version {current_version}. '
                        f'No migrations will be run to avoid potential data loss, but unexpected behavior may occur. '
                        f'Consider updating MDXCanvas to the latest version.')
         return
+
     else:
         logger.info(f'Migrating from {stored_version} to {current_version}')
         stored_ver = _parse_version(stored_version)

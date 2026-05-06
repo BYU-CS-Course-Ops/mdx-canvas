@@ -172,7 +172,7 @@ def main(
         # Track the input file in context for error messages
         with FileContext(input_file):
             # Load file
-            logger.info('Reading file: ' + str(input_file))
+            logger.debug('Reading file: ' + str(input_file))
             content_type, content = read_content(input_file)
             processed_content = process_file(
                 resources,
@@ -190,7 +190,6 @@ def main(
             resources = process_canvas_xml(resources, processed_content)
 
             # Deploy XML
-            logger.info('Deploying to Canvas')
             deploy_to_canvas(course, course_info['LOCAL_TIME_ZONE'], resources, report, dryrun=dryrun, cleanup=cleanup,
                             deploy_root=deploy_root)
 

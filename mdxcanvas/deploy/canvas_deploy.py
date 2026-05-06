@@ -495,9 +495,9 @@ def _log_completion(actions: list[str], elapsed: float):
 
 def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, str], CanvasResource],
                      report: DeploymentReport, deploy_root: Path, dryrun=False, cleanup=False):
-    resource_dependencies, resource_order = _prepare_deployment_order(resources)
-
     logger.info('Preparing resources for deployment to Canvas')
+
+    resource_dependencies, resource_order = _prepare_deployment_order(resources)
 
     actions = []
     start_time = time.perf_counter()
@@ -506,7 +506,8 @@ def deploy_to_canvas(course: Course, timezone: str, resources: dict[tuple[str, s
         migrate(course, md5s)
 
         if to_deploy := identify_modified_or_outdated(
-            resources, resource_order, resource_dependencies, md5s, deploy_root=deploy_root):
+            resources, resource_order, resource_dependencies, md5s, deploy_root=deploy_root
+        ):
             _deploy_resources(course, to_deploy, md5s, report, timezone,
                               resource_dependencies, resource_order, deploy_root=deploy_root, dryrun=dryrun)
             actions.append(f'{len(to_deploy)} resources deployed')
