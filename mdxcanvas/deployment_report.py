@@ -17,9 +17,9 @@ class DeploymentReport:
     def get_deployed_content(self):
         return self.report["deployed_content"]
 
-    def add_content_to_review(self, quiz_name: str, link_to_quiz: str):
+    def add_content_to_review(self, rtype: str, content_name: str, content_url: str | None = None):
         if [quiz_name, link_to_quiz] not in self.report["content_to_review"]:
-            self.report["content_to_review"].append([quiz_name, link_to_quiz])
+            self.report["content_to_review"].append([rtype, content_name, content_url])
 
     def get_content_to_review(self):
         return self.report["content_to_review"]
@@ -49,8 +49,8 @@ class DeploymentReport:
 
         if self.report['content_to_review']:
             print(' Content to Review '.center(60, '-'))
-            for name, url in self.report['content_to_review']:
-                print(f'{name}: {url}')
+            for rtype, name, url in self.report['content_to_review']:
+                print(f'{rtype}: {name} ({url})' if url else f'{rtype}: {name}')
 
         if self.report['error']:
             print(file=sys.stderr)

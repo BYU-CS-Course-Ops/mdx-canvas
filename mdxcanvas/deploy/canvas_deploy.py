@@ -460,8 +460,9 @@ def _deploy_resources(course: Course, to_deploy: dict, md5s: MD5Sums, report: De
                         report.add_deployed_content(rtype, rid, url)
 
             if info:
+                rname, link = info
                 with lock:
-                    report.add_content_to_review(*info)
+                    report.add_content_to_review(rtype, rname, link)
 
             if not is_shell:
                 with lock:
