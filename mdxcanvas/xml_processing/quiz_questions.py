@@ -66,20 +66,18 @@ def parse_true_false_question(tag: Tag):
     The earth is **flat**
 
     <correct-comments>
-    A nationwide survey in 2022 by researchers at the University of New Hampshire found that
-    10% of U.S. adults believed the earth was flat.
+    Regular folks who like math and stars rely on the curvature on the earth to track the motion
+    of heavenly bodies.
     </correct-comments>
 
     <incorrect-comments>
-    Regular folks who like math and stars rely on the curvature on the earth to track the motion
-    of heavenly bodies.
+    A nationwide survey in 2022 by researchers at the University of New Hampshire found that
+    10% of U.S. adults believed the earth was flat.
     </incorrect-comments>
     </question>
     """
     fields = [
         Attribute('answer', required=True, parser=parse_bool, default=False),
-        Attribute('true_answer_comments'),
-        Attribute('false_answer_comments')
     ]
     question = parse_settings(tag, mostly_common_fields + fields)
 
@@ -87,19 +85,16 @@ def parse_true_false_question(tag: Tag):
         "question_text": retrieve_contents(tag, question_children_names),
         "question_type": 'true_false_question',
         "answers": [
-            _maybe_add_answer_comments({
+            {
                 "answer_text": "True",
                 "answer_weight": FULL_POINTS if question["answer"] is True else NO_POINTS
-            }, answer_comments=question.get('true_answer_comments')),
-            _maybe_add_answer_comments({
+            },
+            {
                 "answer_text": "False",
                 "answer_weight": FULL_POINTS if question["answer"] is False else NO_POINTS
-            }, answer_comments=question.get('false_answer_comments'))
+            }
         ]
     })
-
-    question.pop('true_answer_comments', None)
-    question.pop('false_answer_comments', None)
 
     return [question]
 
