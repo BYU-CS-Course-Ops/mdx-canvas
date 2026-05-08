@@ -71,13 +71,13 @@ def test_multiple_answers_answer_comments_are_included():
     ]
 
 
-def test_true_false_answer_comments_are_included():
+def test_true_false_uses_question_level_feedback_fields():
     question = _parse_question("""
     <question id="q1"
               type="true-false"
               answer="true"
-              true_answer_comments="Correct"
-              false_answer_comments="False is not correct here">
+              correct-comments="Correct"
+              incorrect-comments="False is not correct here">
         The earth orbits the sun.
     </question>
     """)
@@ -88,14 +88,14 @@ def test_true_false_answer_comments_are_included():
         {
             'answer_text': 'True',
             'answer_weight': 100,
-            'comments_html': '<p>Correct</p>',
         },
         {
             'answer_text': 'False',
             'answer_weight': 0,
-            'comments_html': '<p>False is not correct here</p>',
         },
     ]
+    assert parsed['correct_comments'] == 'Correct'
+    assert parsed['incorrect_comments'] == 'False is not correct here'
 
 
 def test_existing_multiple_choice_without_answer_comments_still_parses():

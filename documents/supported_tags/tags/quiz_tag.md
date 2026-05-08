@@ -167,7 +167,7 @@ Each question must define a `type` and may include `<correct>`, `<incorrect>`, `
 
 Per-answer Canvas feedback is also supported for some question types:
 - `multiple-choice` / `multiple-answers`: `answer_comments` on `<correct>` / `<incorrect>`
-- `true-false`: `true_answer_comments` / `false_answer_comments` on `<question>`
+- `true-false`: use question-level `correct-comments` / `incorrect-comments`
 
 ## Section-Specific Dates
 
@@ -214,7 +214,7 @@ See the [`<override>` tag documentation](override_tag.md) for more details on se
 
     <questions>
         <question id="q1" type="true-false" answer="true"
-                  true_answer_comments="Correct" false_answer_comments="The sky is blue under normal daylight conditions.">
+                  correct-comments="Correct" incorrect-comments="The sky is blue under normal daylight conditions.">
             Is the sky blue?
         </question>
 

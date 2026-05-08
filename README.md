@@ -82,7 +82,7 @@ Example (`.xml` quiz):
         </question>
 
         <question type="true-false" answer="true"
-                  true_answer_comments="Correct" false_answer_comments="Harry is a wizard.">
+                  correct-comments="Correct" incorrect-comments="Harry is a wizard.">
             Is Harry Potter a wizard?
         </question>
     </questions>

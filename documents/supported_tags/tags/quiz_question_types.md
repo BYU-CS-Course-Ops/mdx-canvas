@@ -9,7 +9,7 @@ Each question has a `type` attribute and may include one or more child tags (e.g
 Some question types support per-answer feedback that maps directly to the Canvas API:
 
 - `multiple-choice` and `multiple-answers`: use `answer_comments="..."` on `<correct>` and `<incorrect>`
-- `true-false`: use `true_answer_comments="..."` and `false_answer_comments="..."` on `<question>`
+- `true-false`: use question-level `correct-comments` and `incorrect-comments`
 
 ## Question Types
 
@@ -26,12 +26,12 @@ Displays a block of instructional or contextual text. It does not require an ans
 ### `true-false`
 
 Presents a True/False question. Requires the `answer` attribute (`true` or `false`).
-Optional per-answer feedback may be provided with `true_answer_comments` and `false_answer_comments`.
+Feedback should be provided with the standard question-level `correct-comments` and `incorrect-comments` fields.
 
 ```xml
 <question id="tf_1" type="true-false" answer="true"
-          true_answer_comments="Correct"
-          false_answer_comments="The sky is blue under normal daylight conditions.">
+          correct-comments="Correct"
+          incorrect-comments="The sky is blue under normal daylight conditions.">
     Is the sky blue?
 </question>
 ```
