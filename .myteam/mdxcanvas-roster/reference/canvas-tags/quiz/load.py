@@ -1,4 +1,4 @@
-load.py  # !/usr/bin/env python3
+# !/usr/bin/env python3
 from __future__ import annotations
 
 from pathlib import Path

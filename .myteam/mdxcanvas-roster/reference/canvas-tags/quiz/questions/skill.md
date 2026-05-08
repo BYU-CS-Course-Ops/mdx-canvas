@@ -22,9 +22,14 @@ Use this reference when working with:
 
 ## Answer Feedback
 
-These question types support per-answer feedback:
-- `multiple-choice` and `multiple-answers`: use `answer_comments="..."` on `<correct>` / `<incorrect>`
-- `true-false`: use `true_answer_comments="..."` and `false_answer_comments="..."` on `<question>`
+Some question types support per-answer feedback that maps directly to the Canvas API:
+
+- `multiple-choice` and `multiple-answers`: use `answer_comments="..."` on `<correct>` and `<incorrect>`
+- `matching`: use `answer_comments="..."` on `<pair>`
+- `fill-in-the-blank` and `fill-in-multiple-blanks`: use `answer_comments="..."` on `<correct>`
+- `numerical`: use `answer_comments="..."` on `<correct>`
+- `multiple-tf`: use `answer_comments="..."` on `<correct>` and `<incorrect>` to populate `correct-comments` on each generated true/false subquestion
+- `true-false`: use question-level `correct-comments` and `incorrect-comments`
 
 ---
 
@@ -84,12 +89,12 @@ Displays a block of instructional or contextual text. Does not require an answer
 ## `true-false`
 
 Presents a True/False question. Requires the `answer` attribute (`true` or `false`).
-Optional per-answer feedback may be provided with `true_answer_comments` and `false_answer_comments`.
+Feedback should be provided with the standard question-level `correct-comments` and `incorrect-comments` fields.
 
 ```xml
 <question type="true-false" answer="true"
-          true_answer_comments="Correct"
-          false_answer_comments="The sky is blue under normal daylight conditions.">
+          correct-comments="Correct"
+          incorrect-comments="The sky is blue under normal daylight conditions.">
     Is the sky blue?
 </question>
 ```
@@ -133,15 +138,15 @@ Allows selection of multiple correct answers. Optional per-answer feedback may b
 ## `matching`
 
 Students match items from two columns. Use `<pair>` for correct matches and optionally `<distractors>` for extra
-wrong-side items.
+wrong-side items. Optional per-pair feedback may be provided with `answer_comments`.
 
 ```xml
 <question type="matching">
     Match the following countries with their capitals.
 
-    <pair left="France" right="Paris"/>
-    <pair left="Germany" right="Berlin"/>
-    <pair left="Spain" right="Madrid"/>
+    <pair left="France" right="Paris" answer_comments="Paris is the capital of France." />
+    <pair left="Germany" right="Berlin" />
+    <pair left="Spain" right="Madrid" />
 
     <distractors>
         London
@@ -155,14 +160,14 @@ wrong-side items.
 
 ## `multiple-tf`
 
-Presents multiple True/False statements. Students select which are true.
+Presents multiple True/False statements. Students select which are true. Optional `answer_comments` on each `<correct>` / `<incorrect>` child becomes question-level feedback on the generated true/false subquestion.
 
 ```xml
 <question type="multiple-tf">
     Which of the following statements are true?
 
-    <correct>Python is a programming language.</correct>
-    <incorrect>HTML is a programming language.</incorrect>
+    <correct answer_comments="Yes, Python is a programming language.">Python is a programming language.</correct>
+    <incorrect answer_comments="No, HTML is markup.">HTML is a programming language.</incorrect>
     <correct>JavaScript can be used for web development.</correct>
     <incorrect>CSS is a programming language.</incorrect>
 </question>
@@ -172,13 +177,13 @@ Presents multiple True/False statements. Students select which are true.
 
 ## `fill-in-the-blank`
 
-A single blank the student must fill in. Use `[blank]` in the sentence and `<correct text="..." />` for valid answers.
+A single blank the student must fill in. Use `[blank]` in the sentence and `<correct text="..." />` for valid answers. Optional per-answer feedback may be provided with `answer_comments`.
 
 ```xml
 <question type="fill-in-the-blank">
     The capital of France is [blank].
 
-    <correct text="Paris"/>
+    <correct text="Paris" answer_comments="Exactly right." />
 </question>
 ```
 
@@ -186,14 +191,14 @@ A single blank the student must fill in. Use `[blank]` in the sentence and `<cor
 
 ## `fill-in-multiple-blanks`
 
-Multiple named blanks. Each `<correct>` must specify the matching `blank` name.
+Multiple named blanks. Each `<correct>` must specify the matching `blank` name. Optional per-answer feedback may be provided with `answer_comments`.
 
 ```xml
 <question type="fill-in-multiple-blanks">
     The U.S. flag has [stripes] stripes and [stars] stars.
 
-    <correct text="13" blank="stripes"/>
-    <correct text="50" blank="stars"/>
+    <correct text="13" blank="stripes" answer_comments="There are 13 original colonies." />
+    <correct text="50" blank="stars" />
 </question>
 ```
 
@@ -237,7 +242,7 @@ Prompts the student to upload a file as their response.
 
 ## `numerical`
 
-Accepts a numerical answer. Supports three modes via `numerical_answer_type`.
+Accepts a numerical answer. Supports three modes via `numerical_answer_type`. Optional per-answer feedback may be provided with `answer_comments` on each `<correct>` tag.
 
 ### Exact Answer
 
@@ -245,7 +250,7 @@ Accepts a numerical answer. Supports three modes via `numerical_answer_type`.
 <question type="numerical" numerical_answer_type="exact">
     What is π?
 
-    <correct answer_exact="3.14159" answer_error_margin="0.0001"/>
+    <correct answer_exact="3.14159" answer_error_margin="0.0001" answer_comments="Rounded correctly." />
 </question>
 ```
 
@@ -255,7 +260,7 @@ Accepts a numerical answer. Supports three modes via `numerical_answer_type`.
 <question type="numerical" numerical_answer_type="range">
     Give a value for x such that 1 ≤ x ≤ 10.
 
-    <correct answer_range_start="1" answer_range_end="10"/>
+    <correct answer_range_start="1" answer_range_end="10" answer_comments="Any value in this interval is accepted." />
 </question>
 ```
 
@@ -265,6 +270,6 @@ Accepts a numerical answer. Supports three modes via `numerical_answer_type`.
 <question type="numerical" numerical_answer_type="precision">
     What is the value of π?
 
-    <correct answer_approximate="3.14159" answer_precision="5"/>
+    <correct answer_approximate="3.14159" answer_precision="5" answer_comments="At least five digits are required." />
 </question>
 ```

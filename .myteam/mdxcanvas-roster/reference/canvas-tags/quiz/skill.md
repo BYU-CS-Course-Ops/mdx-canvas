@@ -32,7 +32,7 @@ The `<quiz>` tag contains two child elements:
 - `<description>` — optional instructions shown to students before they begin
 - `<questions>` — required; contains one or more `<question>` tags
 - Some question types support per-answer feedback:
-  `answer_comments` on `<correct>` / `<incorrect>`, and `true_answer_comments` / `false_answer_comments` on `true-false`
+  `answer_comments` on `<correct>` / `<incorrect>`, `answer_comments` on `<pair>`, `answer_comments` on `<correct>` for fill-in and numerical questions, `answer_comments` on `<correct>` / `<incorrect>` for `multiple-tf`, and question-level `correct-comments` / `incorrect-comments` on `true-false`
 
 ```xml
 <quiz title="Chapter 1 Quiz"
@@ -226,7 +226,7 @@ Use `<overrides>` to set different due dates per course section:
 
     <questions>
         <question type="true-false" answer="true"
-                  true_answer_comments="Correct" false_answer_comments="The sky is blue under normal daylight conditions.">
+                  correct-comments="Correct" incorrect-comments="The sky is blue under normal daylight conditions.">
             Is the sky blue?
         </question>
 
@@ -262,7 +262,7 @@ A minimal working quiz:
 
     <questions>
         <question type="true-false" answer="true"
-                  true_answer_comments="Correct" false_answer_comments="Python variable names are case-sensitive.">
+                  correct-comments="Correct" incorrect-comments="Python variable names are case-sensitive.">
             Python variable names are case-sensitive.
         </question>
 
