@@ -167,6 +167,10 @@ Each question must define a `type` and may include `<correct>`, `<incorrect>`, `
 
 Per-answer Canvas feedback is also supported for some question types:
 - `multiple-choice` / `multiple-answers`: `answer_comments` on `<correct>` / `<incorrect>`
+- `matching`: `answer_comments` on `<pair>`
+- `fill-in-the-blank` / `fill-in-multiple-blanks`: `answer_comments` on `<correct>`
+- `numerical`: `answer_comments` on `<correct>`
+- `multiple-tf`: `answer_comments` on `<correct>` / `<incorrect>` becomes `correct-comments` on each generated true/false subquestion
 - `true-false`: use question-level `correct-comments` / `incorrect-comments`
 
 ## Section-Specific Dates
