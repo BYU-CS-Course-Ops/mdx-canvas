@@ -35,6 +35,16 @@ mostly_common_fields = [
 ]
 
 
+def _add_answer_comments(answer: dict, tag: Tag | None = None, answer_comments: str | None = None):
+    if answer_comments is None and tag is not None:
+        answer_comments = tag.get('answer_comments')
+
+    if answer_comments:
+        answer['comments_html'] = f"<p>{answer_comments}</p>"
+
+    return answer
+
+
 def parse_text_question(tag: Tag):
     question_text = retrieve_contents(tag)
     question = {
@@ -56,18 +66,18 @@ def parse_true_false_question(tag: Tag):
     The earth is **flat**
 
     <correct-comments>
-    A nationwide survey in 2022 by researchers at the University of New Hampshire found that
-    10% of U.S. adults believed the earth was flat.
+    Regular folks who like math and stars rely on the curvature on the earth to track the motion
+    of heavenly bodies.
     </correct-comments>
 
     <incorrect-comments>
-    Regular folks who like math and stars rely on the curvature on the earth to track the motion
-    of heavenly bodies.
+    A nationwide survey in 2022 by researchers at the University of New Hampshire found that
+    10% of U.S. adults believed the earth was flat.
     </incorrect-comments>
     </question>
     """
     fields = [
-        Attribute('answer', required=True, parser=parse_bool, default=False)
+        Attribute('answer', required=True, parser=parse_bool, default=False),
     ]
     question = parse_settings(tag, mostly_common_fields + fields)
 
@@ -117,16 +127,15 @@ def parse_multiple_answers_question(tag: Tag):
 
 
 def _parse_multiple_option_question(question_type, tag):
-    corrects = parse_children_tag_contents(tag, 'correct')
-    answers = parse_children_tag_contents(tag, re.compile(r'correct|incorrect'))
+    answers = tag.find_all(['correct', 'incorrect'], recursive=False)
     question = {
         "question_text": retrieve_contents(tag, question_children_names),
         "question_type": question_type,
         "answers": [
-            {
-                "answer_html": answer,
-                "answer_weight": FULL_POINTS if answer in corrects else NO_POINTS
-            } for answer in answers
+            _add_answer_comments({
+                "answer_html": retrieve_contents(answer),
+                "answer_weight": FULL_POINTS if answer.name == 'correct' else NO_POINTS
+            }, answer) for answer in answers
         ]
     }
     question.update(parse_settings(tag, mostly_common_fields))
@@ -149,11 +158,17 @@ def parse_matching_question(tag: Tag):
     """
     left_field = Attribute('left', required=True)
     right_field = Attribute('right', required=True)
-    pairs = [
-        parse_settings(answer, [left_field, right_field]) for answer in tag.find_all('pair')
-    ]
+    pairs = tag.find_all('pair')
     distractors = '\n'.join(parse_children_tag_contents(tag, 'distractors'))
     distractors = '\n'.join(line for line in distractors.splitlines() if line.split())
+    parsed_pairs = []
+    for pair_tag in pairs:
+        pair = parse_settings(pair_tag, [left_field, right_field])
+        parsed_pairs.append(_add_answer_comments({
+            "answer_match_left": pair['left'],
+            "answer_match_right": pair['right'],
+            "answer_weight": FULL_POINTS
+        }, pair_tag))
 
     question = parse_settings(tag, mostly_common_fields)
 
@@ -161,13 +176,7 @@ def parse_matching_question(tag: Tag):
         "question_text": retrieve_contents(tag, question_children_names + ['pair', 'distractors']),
         "question_type": 'matching_question',
         "points_possible": parse_int(tag.get('points') or len(pairs)),
-        "answers": [
-            {
-                "answer_match_left": answer['left'],
-                "answer_match_right": answer['right'],
-                "answer_weight": FULL_POINTS
-            } for answer in pairs
-        ],
+        "answers": parsed_pairs,
         "matching_answer_incorrect_matches": distractors
     })
 
@@ -214,7 +223,7 @@ def parse_multiple_true_false_question(tag: Tag):
 
     qid = settings['question_id']
     for index, child in enumerate(answers):
-        resulting_questions.append({
+        question = {
             "question_text": retrieve_contents(child),
             "question_type": 'true_false_question',
             "question_id": f'{qid}_{index}',
@@ -229,7 +238,12 @@ def parse_multiple_true_false_question(tag: Tag):
                     "answer_weight": FULL_POINTS if child.name == 'incorrect' else NO_POINTS
                 }
             ]
-        })
+        }
+
+        if answer_comments := child.get('answer_comments'):
+            question['correct_comments'] = answer_comments
+
+        resulting_questions.append(question)
 
     return resulting_questions
 
@@ -325,7 +339,8 @@ def parse_fill_in_the_blank_question(tag: Tag):
         "question_text": retrieve_contents(tag, question_children_names),
         "question_type": 'fill_in_multiple_blanks_question',
         "answers": [
-            parse_settings(answer, answer_attributes) for answer in tag.find_all('correct')
+            _add_answer_comments(parse_settings(answer, answer_attributes), answer)
+            for answer in tag.find_all('correct')
         ]
     }
 
@@ -354,7 +369,8 @@ def parse_fill_in_multiple_blanks_question(tag: Tag):
         "question_text": retrieve_contents(tag, question_children_names),
         "question_type": 'fill_in_multiple_blanks_question',
         "answers": [
-            parse_settings(answer, answer_attributes) for answer in answers
+            _add_answer_comments(parse_settings(answer, answer_attributes), answer)
+            for answer in answers
         ]
     }
 
@@ -471,7 +487,8 @@ def parse_numerical_question(tag: Tag):
         "question_text": question_text,
         "question_type": 'numerical_question',
         "answers": [
-            parse_settings(answer, answer_attributes) for answer in tag.find_all('correct')
+            _add_answer_comments(parse_settings(answer, answer_attributes), answer)
+            for answer in tag.find_all('correct')
         ]
     }
 
