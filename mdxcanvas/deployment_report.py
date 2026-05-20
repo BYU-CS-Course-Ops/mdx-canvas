@@ -18,7 +18,7 @@ class DeploymentReport:
         return self.report["deployed_content"]
 
     def add_content_to_review(self, rtype: str, content_name: str, content_url: str | None = None):
-        if [quiz_name, link_to_quiz] not in self.report["content_to_review"]:
+        if [content_name, content_url] not in self.report["content_to_review"]:
             self.report["content_to_review"].append([rtype, content_name, content_url])
 
     def get_content_to_review(self):
