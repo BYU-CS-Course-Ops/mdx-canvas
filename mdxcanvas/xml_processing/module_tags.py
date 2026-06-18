@@ -31,7 +31,7 @@ class ModuleTagProcessor:
         fields = [
             Attribute('id', required=True),
             Attribute('title', required=True, new_name='name'),
-            Attribute('position'),
+            Attribute('position', parser=parse_int),
             Attribute('published', parser=parse_bool),
             Attribute('previous-module'),
             Attribute('prerequisite_module_ids', parser=make_id_list_parser('module'))
