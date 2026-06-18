@@ -5,6 +5,10 @@ from canvasapi.course import Course
 from ..resources import AssignmentGroupInfo
 
 
+def _should_enable_weighted_grades(group_data: dict) -> bool:
+    return 'group_weight' in group_data
+
+
 def deploy_group(course: Course, group_data: dict, _: Path) -> tuple[AssignmentGroupInfo, None]:
     if group_id := group_data.get('canvas_id'):
         group = course.get_assignment_group(group_id)
@@ -12,7 +16,7 @@ def deploy_group(course: Course, group_data: dict, _: Path) -> tuple[AssignmentG
         group = course.create_assignment_group(name=group_data["name"])
 
     group.edit(**group_data)
-    if group_data.get('rules'):
+    if _should_enable_weighted_grades(group_data):
         course.update(course={
             'apply_assignment_group_weights': True,
         })
