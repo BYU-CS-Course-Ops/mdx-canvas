@@ -5,6 +5,7 @@ from bs4.element import Tag
 
 from .processing_context import get_current_file_str
 
+
 @no_type_check
 def get_tag_source_file(tag: Tag) -> Path | None:
     if tag and (source := tag.get('data-source')):
@@ -27,7 +28,7 @@ def get_file_path(tag: Tag) -> Path:
     raise ValueError("No file context available")
 
 
-def format_tag(tag: Tag, max_length: int = 80) -> str:
+def format_tag(tag: Tag) -> str:
     if not tag:
         return "<unknown tag>"
 
@@ -45,25 +46,12 @@ def format_tag(tag: Tag, max_length: int = 80) -> str:
     # Build full tag
     full_tag = f"<{tag_name} {attrs_formatted}>" if has_children else f"<{tag_name} {attrs_formatted} />"
 
-    if len(full_tag) <= max_length:
-        return full_tag
-
-    # Truncate if too long (show first few attributes, then indicate more, thanks to Claude)
-    shown_attrs = []
-    for attr_str in attr_strs[:3]:
-        shown_attrs.append(attr_str)
-        if len(f"<{tag_name} {' '.join(shown_attrs)} ...>") > max_length - 15:
-            shown_attrs.pop()
-            break
-
-    remaining = len(attr_strs) - len(shown_attrs)
-    if shown_attrs:
-        return f"<{tag_name} {' '.join(shown_attrs)} ... +{remaining} more>"
-    return f"<{tag_name}> ({len(attr_strs)} attributes)"
+    return full_tag
 
 
 def validate_required_attribute(tag: Tag, attr_name: str, tag_display_name: str | None = None) -> str | Any:
     if not (value := tag.get(attr_name)):
         display_name = tag_display_name if tag_display_name else tag.name
-        raise ValueError(f'Required field "{attr_name}" missing from {display_name} tag {format_tag(tag)}\n  in {get_file_path(tag)}')
+        raise ValueError(
+            f'Required field "{attr_name}" missing from {display_name} tag {format_tag(tag)}\n  in {get_file_path(tag)}')
     return value

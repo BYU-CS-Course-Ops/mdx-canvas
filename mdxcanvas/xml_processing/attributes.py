@@ -4,10 +4,10 @@ from typing import Callable, Any
 
 from bs4.element import Tag
 
-from ..our_logging import get_logger
-from ..util import retrieve_contents
-from ..resources import get_key
 from ..error_helpers import format_tag, get_file_path
+from ..our_logging import get_logger
+from ..resources import get_key
+from ..util import retrieve_contents
 
 logger = get_logger()
 
@@ -136,11 +136,8 @@ def parse_settings(tag: Tag, attributes: list[Attribute]):
                 value = attribute.parser(field)
             except (ValueError, TypeError) as e:
                 raise ValueError(
-                    f"Invalid '{
-                        attribute.name}' value '{field}' for {
-                        tag.name} tag {
-                        format_tag(tag)}\n  in {
-                        get_file_path(tag)}"
+                    f"Invalid '{attribute.name}' value '{field}' for {tag.name} tag {format_tag(tag)}\n"
+                    f" in {get_file_path(tag)}"
                 ) from e
             settings[name] = value
 
@@ -151,11 +148,8 @@ def parse_settings(tag: Tag, attributes: list[Attribute]):
                     settings[name] = attribute.parser(value)
                 except (ValueError, TypeError) as e:
                     raise ValueError(
-                        f"Invalid '{
-                            attribute.name}' value for {
-                            tag.name} tag {
-                            format_tag(tag)}\n  in {
-                            get_file_path(tag)}"
+                        f"Invalid '{attribute.name}' value for {tag.name} tag {format_tag(tag)}\n"
+                        f" in {get_file_path(tag)}"
                     ) from e
 
         elif attribute.default:
