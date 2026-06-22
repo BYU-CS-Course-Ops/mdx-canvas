@@ -33,6 +33,20 @@ Use an explicit `id` when you need to:
 
 **Legacy scenario:** If you have an existing module without an `id` and want to rename it, add an `id` attribute with the value of the old title before changing the title.
 
+### `position` (optional)
+
+Sets the 1-indexed position of this module within the course. If omitted, Canvas places new modules at the end.
+
+Useful when adding a new module to an existing course — without `position`, Canvas appends the module at the bottom regardless of its location in the template.
+
+```xml
+<module id="course-resources" title="Course Resources" position="1">
+    ...
+</module>
+```
+
+**Note:** If multiple modules specify the same position, Canvas resolves conflicts by the order they are deployed — results may be unpredictable. Use unique position values across all modules.
+
 ### `prerequisite_module_ids` (optional)
 
 Takes a comma separated list module `id` tags that must have all of their items `completion_requirement` attributes met before this module will unlock.
