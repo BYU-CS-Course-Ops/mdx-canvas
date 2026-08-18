@@ -218,7 +218,7 @@ def entry():
         '--cleanup',
         action='store_true',
         help='Remove all Canvas resources not present in the input file. '
-             'Stale quizzes and module items are removed by default.'
+             'Stale quiz questions and module items are removed by default.'
     )
     parser.add_argument('--output-file', type=str, default=None)
     args = parser.parse_args()

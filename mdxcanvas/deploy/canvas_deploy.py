@@ -36,7 +36,7 @@ from ..resources import CanvasResource, iter_keys, ResourceInfo
 
 logger = get_logger()
 
-DEFAULT_STALE_RESOURCE_TYPES = frozenset({'quiz', 'module_item'})
+DEFAULT_STALE_RESOURCE_TYPES = frozenset({'quiz_question', 'module_item'})
 
 SHELL_DEPLOYERS: dict[str, Callable[[Course, dict, Path], tuple[ResourceInfo, tuple[str, str] | None]]] = {
     # Current known resources that need shell deployments

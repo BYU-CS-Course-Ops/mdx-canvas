@@ -46,7 +46,7 @@ def test_get_stale_resources_filters_allowed_types_and_priority():
 
     assert stale == [
         ('module_item', 'stale-module-item', {'id': '20', 'module_id': '200'}),
-        ('quiz', 'stale-quiz', {'id': '30'}),
+        ('quiz_question', 'stale-question', {'id': '40', 'quiz_id': '30'}),
     ]
 
 
