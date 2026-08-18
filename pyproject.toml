@@ -32,7 +32,7 @@ enabled = "true"
 file="mdxcanvas/VERSION"
 
 [tool.poetry.scripts]
-mdxcanvas = "mdxcanvas.main:entry"
+mdxcanvas = "mdxcanvas.cli:entry"
 erasecanvas = "mdxcanvas.erasecanvas.main:entry"
 
 [build-system]
