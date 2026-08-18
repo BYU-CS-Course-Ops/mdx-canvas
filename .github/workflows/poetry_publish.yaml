@@ -4,18 +4,18 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-  pull_request:
-    branches: [main]
-    types: [merged]
 
 jobs:
-  mdxcanvas_publish:
-    uses: BYU-CS-Course-Ops/utils/.github/workflows/poetry_publish.yaml@main
+  publish:
+    uses: BYU-CS-Course-Ops/utils/.github/workflows/publish.yaml@main
     with:
       pypi_package: "mdxcanvas"
+      publisher: "poetry"
+      project_name: "MDXCanvas"
+      version_source: "file"
+      version_path: "mdxcanvas/VERSION"
+      changelog_path: "CHANGELOG.md"
     secrets:
-      pypi_user: ${{ secrets.PYPI_USER }}
-      pypi_password: ${{ secrets.PYPI_PASSWORD }}
+      pypi_token: ${{ secrets.PYPI_TOKEN }}
       discord_webhook_url: ${{ secrets.GHA_DISCORD_WEBHOOK }}
       discord_role: ${{ secrets.CICD_NOTIFY_DISCORD_ROLE }}
-
