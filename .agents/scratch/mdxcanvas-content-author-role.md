@@ -11,7 +11,7 @@ This role handles **formatting, templating, resource representation, and other e
 ### Content Author owns
 
 - Faithfully formatting instructor-approved prose, questions, answer choices, correct-answer designations, rubrics, policies, dates, and instructions as Markdown/HTML and MDXCanvas source.
-- Advising how desired material can fit available Canvas resources—for example, whether a prompt should be represented as multiple choice, multiple answers, matching, fill-in-the-blank, numerical, essay, file upload, or supporting text.
+- Advising how desired material can fit available Canvas resources, including whether it can be represented faithfully by a supported quiz question style.
 - Canvas resource tags and helper tags.
 - Existing Jinja templates, macros, args/metadata files, includes, and generated-resource conditions.
 - Stable source IDs and every source reference to them.
@@ -137,15 +137,26 @@ Module `content_id`, `<course-link id>`, assignment-group references, prerequisi
 
 ### Identity rules
 
-1. Give every resource and quiz question an explicit, unique, stable ID.
-2. Do not derive a long-lived ID from mutable prose when an existing semantic ID can be preserved.
-3. Never change the title of a legacy resource that lacks an explicit ID in the same update that introduces its ID.
-4. Before renaming such a resource, first set `id` equal to the resource's **current title** while leaving the title unchanged. Only after that identity migration has been deployed successfully may a later update change the title while preserving the ID.
-5. Update `content_id`, `<course-link id>`, prerequisites, `never_drop`, and macros only when the target **ID** changes. A display-title-only rename should not alter references.
-6. Treat path-, filename-, heading-, and regex-derived IDs as public interfaces. Moving or renaming source can create a new Canvas resource and orphan the old one.
-7. Check generated ID uniqueness. Duplicate `(resource type, id)` pairs may overwrite one another during processing rather than producing a clear duplicate error.
-8. Quiz question IDs must be stable and unique within their quiz.
-9. Module-item IDs should be stable even when the target or display title changes.
+As an authoring rule, every MDXCanvas tag must carry an explicit, unique, stable `id` unless it belongs to an exception category below. This rule applies to MDXCanvas tags, not ordinary HTML. Tags that require `id` include `<group>`, `<assignment>`, `<quiz>`, `<question>`, `<page>`, `<md-page>`, `<module>`, `<item>`, `<announcement>`, and `<course-link>` (whose `id` identifies its target rather than the link itself).
+
+The exceptions are tags for which an authored resource ID is not meaningful or supported:
+
+- `<syllabus>` has the fixed identity `syllabus`;
+- `<override>` identity is derived from its parent resource and `section_id`;
+- `<course-settings>` is singleton course configuration;
+- `<file>`, `<img>`, `<zip>`, `<quarto-slides>`, and `<mermaid>` use filename-, `name`-, or content-derived asset identity in the current implementation;
+- `<include>` and `<timestamp>` are transformations rather than independently managed resources; and
+- structural, content, and ordinary HTML tags such as `<course>`, `<content>`, `<div>`, `<assignment-groups>`, `<description>`, `<questions>`, `<overrides>`, `<correct>`, `<incorrect>`, `<pair>`, and `<distractors>` do not have independent resource identity.
+
+Do not add an unsupported `id` to an exception merely to satisfy the general rule; unknown attributes may be ignored. For generated-identity assets, treat the filename, `name`, or other derivation input as a stable identity contract.
+
+1. Do not derive a long-lived ID from mutable prose when an existing semantic ID can be preserved.
+2. Never change the title of a legacy resource that lacks an explicit ID in the same update that introduces its ID.
+3. Before renaming such a resource, first set `id` equal to the resource's **current title** while leaving the title unchanged. Only after that identity migration has been deployed successfully may a later update change the title while preserving the ID.
+4. Update `content_id`, `<course-link id>`, prerequisites, `never_drop`, and macros only when the target **ID** changes. A display-title-only rename should not alter references.
+5. Treat path-, filename-, heading-, and regex-derived IDs as public interfaces. Moving or renaming source can create a new Canvas resource and orphan the old one.
+6. Check generated ID uniqueness. Duplicate `(resource type, id)` pairs may overwrite one another during processing rather than producing a clear duplicate error.
+7. Module-item IDs should be stable even when the target or display title changes.
 
 Safe rename after identity is established:
 
@@ -214,7 +225,7 @@ Common injected helpers include:
 
 Paths passed to Jinja file functions are relative to the template being rendered. An `<include args="...">` path is relative to the file containing the include. Paths stored inside args are interpreted by the consuming template's context.
 
-Keep repeated dates and term values in established global args. Course-instance args may inject section-specific prose, settings, lists, or other term data. Preserve existing variable names and casing; near-duplicate names with different capitalization are distinct.
+Use [Course-info and Global-args Principles](course-info-and-args-principles.md) as the source of truth for deciding whether a value belongs in curriculum source, local metadata, standalone global args, top-level course-info, or course-info `GLOBAL_ARGS`. Preserve existing variable names and casing; near-duplicate names with different capitalization are distinct.
 
 ## Choosing a Canvas representation
 
@@ -229,20 +240,19 @@ Help the instructor map desired material to available Canvas resources without d
 - Use the **syllabus** resource for the instructor-approved course syllabus body.
 - Use files, images, zips, and internal links to support those resources without duplicating content unnecessarily.
 
-For quiz prompts, explain the representational tradeoffs and recommend the closest faithful encoding:
+For quiz and question representation, use [Representing Quizzes and Questions in MDXCanvas](quiz-design-principles.md) as the single source of syntax, supported question styles, composition patterns, implementation limits, and validation guidance. Do not convert a prompt to a different question type, invent answer material, infer accepted answers, choose scoring tolerances, or mark answers correct without instructor approval.
 
-- `multiple-choice` for exactly one correct option;
-- `multiple-answers` for zero or more selectable correct options;
-- `true-false` for one binary claim;
-- `multiple-tf` for several independently evaluated claims;
-- `matching` for paired concepts with optional distractors;
-- `fill-in-the-blank` or `fill-in-multiple-blanks` for text responses with exact accepted answers;
-- `numerical` for exact, range, or precision-based numeric grading;
-- `essay` for instructor-reviewed free response;
-- `file-upload` for a file submitted inside the quiz;
-- `text` for context that should not collect or score a response.
+## Publication controls in authored source
 
-Do not convert a prompt to a different question type, invent distractors, infer accepted answers, choose scoring tolerances, or mark answers correct without instructor approval.
+Deployment and publication are separate stages. As the normal authoring convention, **omit `published`** from resources and module items. New content is then normally deployed unpublished, reviewed in the target course, and published later as a separate, deliberate operation owned by the Deployment Engineer or performed by the instructor in Canvas. A request to prepare or deploy content is not approval to make it visible to students.
+
+Omission is not an instruction to unpublish. For updates to existing Canvas resources, an omitted `published` value generally preserves the existing publication state; in particular, current module updates explicitly preserve it. Therefore, do not claim that omission guarantees an existing resource is unpublished, and identify existing-state uncertainty in the deployment handoff.
+
+Treat an explicit `published="true"` or `published="false"` as persistent source-controlled visibility intent, not as a convenient way to perform a one-time release or withdrawal. Add, remove, or change it only when the instructor has approved that ongoing synchronization behavior and the target MDXCanvas version supports it for that tag. Before editing a shared template, args value, or conditional, trace every resource that can inherit the value. Preserve pre-existing explicit publication controls unless the requested change includes them; removing one can preserve the current Canvas state rather than reverse it.
+
+Other source fields that control release or visibility—such as page `publish_at`, announcement `publish_date`, availability windows, file lock/unlock dates, and module or item publication state—also require instructor-approved intent. They are not interchangeable with the ordinary post-deployment publication step. Parent modules, module items, and their target resources can have independent visibility state, so source authoring must not assume that publishing one publishes the others.
+
+At handoff, call out every explicit or inherited publication/visibility control affected by the source, the expected initial visibility of new resources, and any existing-resource state that deployment must verify. Do not add `published="true"` merely to save the deployment operator or instructor a separate publication action. Detailed deploy/publish sequencing and operational safeguards belong to the Deployment Engineer role.
 
 ## Canvas resource tags
 
@@ -266,7 +276,7 @@ Important optional attributes:
 - `never_drop`, a comma-separated list of assignment IDs;
 - `position`.
 
-Assignments and quizzes use the **group ID** in `assignment_group`, not necessarily the group's display name.
+Assignments use the **group ID** in `assignment_group`, not necessarily the group's display name. Quiz assignment-group representation is covered by [Representing Quizzes and Questions in MDXCanvas](quiz-design-principles.md).
 
 ### Assignments
 
@@ -302,170 +312,7 @@ Markdown or HTML inside the assignment becomes its description. Use `submission_
 
 ### Quizzes
 
-```xml
-<quiz id="quiz-1"
-      title="Quiz 1"
-      assignment_group="quizzes"
-      due_at="Jan 15, 2026, 11:59 PM"
-      allowed_attempts="2"
-      shuffle_answers="true">
-  <description>
-    Complete all questions.
-  </description>
-  <questions>
-    <question id="q1" type="true-false" answer="true">
-      The statement is correct.
-    </question>
-  </questions>
-</quiz>
-```
-
-Required: `id`, `title`. Always author a `<questions>` block. Top-level prose outside `<description>` is not quiz description content.
-
-Important optional attributes:
-
-- `quiz_type`;
-- `assignment_group`;
-- `time_limit`;
-- `shuffle_answers`;
-- `hide_results`;
-- `show_correct_answers`, `show_correct_answers_last_attempt`, `show_correct_answers_at`, `hide_correct_answers_at`;
-- `allowed_attempts`, with `-1` meaning unlimited;
-- `scoring_policy`;
-- `one_question_at_a_time` and `cant_go_back`;
-- due and availability dates;
-- `access_code`;
-- `position`, `published`, `one_time_results`, and `only_visible_to_overrides`;
-- `points_possible`.
-
-Do not assume defaults. Set attempts, answer shuffling, visibility, and scoring policy explicitly when they matter.
-
-### Quiz questions
-
-Every `<question>` requires `id` and `type`. Use `points="N"` for a question-level score unless the installed version explicitly documents another accepted field.
-
-Supported types and essential syntax:
-
-#### Text block
-
-```xml
-<question id="intro" type="text">
-  Use the following information for the next questions.
-</question>
-```
-
-#### True/false
-
-```xml
-<question id="q1" type="true-false" answer="true" points="1"
-          correct-comments="Correct."
-          incorrect-comments="Review the definition.">
-  The statement is correct.
-</question>
-```
-
-#### Multiple choice
-
-```xml
-<question id="q2" type="multiple-choice" points="2">
-  Which option is correct?
-  <correct answer_comments="Correct.">Option A</correct>
-  <incorrect>Option B</incorrect>
-  <incorrect>Option C</incorrect>
-</question>
-```
-
-#### Multiple answers
-
-```xml
-<question id="q3" type="multiple-answers" points="2">
-  Select every correct option.
-  <correct>Option A</correct>
-  <correct>Option B</correct>
-  <incorrect>Option C</incorrect>
-</question>
-```
-
-#### Matching
-
-```xml
-<question id="q4" type="matching" points="2">
-  Match each term to its definition.
-  <pair left="Term A" right="Definition A"/>
-  <pair left="Term B" right="Definition B"/>
-  <distractors>
-    Unused definition
-  </distractors>
-</question>
-```
-
-#### Multiple true/false
-
-```xml
-<question id="q5" type="multiple-tf" points="2">
-  Determine whether each statement is true.
-  <correct>Statement A</correct>
-  <incorrect>Statement B</incorrect>
-</question>
-```
-
-Each child becomes a separate true/false question.
-
-#### Fill in one blank
-
-```xml
-<question id="q6" type="fill-in-the-blank" points="1">
-  The answer is [blank].
-  <correct text="value"/>
-</question>
-```
-
-#### Fill in multiple blanks
-
-```xml
-<question id="q7" type="fill-in-multiple-blanks" points="2">
-  There are [stripes] stripes and [stars] stars.
-  <correct blank="stripes" text="13"/>
-  <correct blank="stars" text="50"/>
-</question>
-```
-
-#### Filled-answer shorthand
-
-```xml
-<question id="q8" type="fill-in-multiple-blanks-filled-answers" points="2">
-  There are [[13]] stripes and [[50]] stars.
-</question>
-```
-
-#### Essay and file upload
-
-```xml
-<question id="q9" type="essay" points="5">
-  Explain your reasoning.
-</question>
-
-<question id="q10" type="file-upload">
-  Upload your written work.
-</question>
-```
-
-#### Numerical
-
-```xml
-<question id="q11" type="numerical" points="1" numerical_answer_type="exact">
-  What is the value?
-  <correct answer_exact="3.14" answer_error_margin="0.01"/>
-</question>
-```
-
-Numerical modes:
-
-- `exact`: `answer_exact` and `answer_error_margin`;
-- `range`: `answer_range_start` and `answer_range_end`;
-- `precision`: `answer_approximate` and `answer_precision`.
-
-`answer_comments` is supported on choice answers, matching pairs, blank answers, and numerical answers. Set points deliberately rather than relying on defaults. Matching and multi-blank question types may derive defaults from their child counts; most other scored types default to one point.
+Use a quiz for Canvas-collected or Canvas-scored questions. At a high level, a quiz has stable identity and display metadata, optional quiz-level instructions, and an ordered collection of questions; every quiz and question needs a stable explicit ID. Question types, answer structures, settings, includes, generation patterns, limitations, and representation checks are defined only in [Representing Quizzes and Questions in MDXCanvas](quiz-design-principles.md).
 
 ### Pages and generated Markdown pages
 
@@ -528,7 +375,7 @@ Common item types are:
 
 Type values are case-insensitive. Page, assignment, quiz, and file items require `content_id`. Subheaders require `id` and `title`. External URLs require `id` and `external_url`; title is optional. Syllabus items require `id` and may supply a title.
 
-Common item options:
+Every `<item>` must have an explicit stable `id`. Common item options are:
 
 - `position`;
 - `indent`;
@@ -569,7 +416,7 @@ All local paths are relative to the file containing the helper tag, with relativ
 
 ```xml
 <include path="instructions.md"/>
-<include path="questions.canvas.md.xml" usediv="false"/>
+<include path="resource-fragment.canvas.md.xml" usediv="false"/>
 <include path="catalog.canvas.md.xml.jinja" args="catalog-args.md.jinja"/>
 <include path="example.py" fenced="true" include_filename="true" lines="10:25"/>
 ```
@@ -583,7 +430,7 @@ Attributes:
 - `fenced` — boolean that wraps included content in a code fence;
 - `include_filename` — boolean that adds the filename to a fenced include.
 
-The code-fence language is inferred from the included file suffix. Use `usediv="false"` when a parent requires specific direct children, such as `<questions>` containing `<question>` or `<quiz>` containing `<description>` and `<questions>`.
+The code-fence language is inferred from the included file suffix. Use `usediv="false"` when a parent requires specific direct children. Quiz-specific include structure is documented in [Representing Quizzes and Questions in MDXCanvas](quiz-design-principles.md).
 
 ### `<course-link>`
 
@@ -677,11 +524,9 @@ Use a consistent authoring format:
 Jan 15, 2026, 11:59 PM
 ```
 
-Keep recurring term dates in global args and compose full dates consistently in templates. Avoid hard-coded dates in modules or prose when an event already has an arg. During a date change, search resource attributes, module subheaders, announcements, and student-facing prose.
+Follow [Course-info and Global-args Principles](course-info-and-args-principles.md) when assigning ownership to dates, section data, and timezone or target configuration. Compose full dates consistently in templates and avoid hard-coded dates in modules or prose when an event already has an authoritative arg. During a date change, search resource attributes, module subheaders, announcements, and student-facing prose.
 
-Do not manage timezone configuration in content source. The deployment configuration supplies the course timezone.
-
-Assignments and quizzes support section overrides:
+Assignments support section overrides as shown below. Quiz overrides follow the resource-specific guidance in [Representing Quizzes and Questions in MDXCanvas](quiz-design-principles.md):
 
 ```xml
 <assignment id="hw-1" title="Homework 1"
@@ -808,7 +653,7 @@ Hazard: source location does not enforce Canvas audience visibility.
 
 ### Identity and graph integrity
 
-- Every resource and question has an explicit stable ID.
+- Every MDXCanvas tag has an explicit stable ID unless it belongs to a documented fixed-, derived-, asset-, transformation-, or structural-tag exception.
 - No title-only legacy resource was renamed without a two-step identity migration.
 - Module `content_id`, `<course-link id>`, assignment-group, prerequisite, and `never_drop` references target included IDs of the correct type.
 - Every intended resource has its intended module placement.
@@ -824,9 +669,10 @@ Hazard: source location does not enforce Canvas audience visibility.
 - Availability windows surround due dates as approved.
 - Assignment groups and point values match approved grading intent.
 - Section overrides cover approved section IDs and visibility behavior.
-- Quiz descriptions and questions use the required child containers.
-- Every question has a stable ID, instructor-approved type, valid answer children, approved points, and approved answer/feedback semantics.
-- Attempt, access-code, publication, answer-visibility, and scoring settings are instructor-approved.
+- `published` is omitted by default; every explicit or inherited publication/visibility control is supported, intentional, and instructor-approved.
+- No explicit publication value was added merely to combine deployment with release, and omission is not represented as unpublishing an existing resource.
+- Parent modules, module items, and target resources are handed off as independently verifiable visibility states.
+- Every changed quiz passes the representation checks in [Representing Quizzes and Questions in MDXCanvas](quiz-design-principles.md) and matches the instructor-approved content and behavior.
 
 ### Assets and sensitive content
 
@@ -845,6 +691,7 @@ Provide the Deployment Engineer:
 - affected stable IDs and current display titles;
 - expected resource additions, updates, removals, and module-placement changes;
 - changed date and section behavior;
+- every affected explicit or inherited publication/visibility control, expected new-resource visibility, and existing-state uncertainty requiring verification;
 - reviewed assets and sensitive-content checks;
 - source/render validation results;
 - the instructor approval or supplied source governing student-facing changes;

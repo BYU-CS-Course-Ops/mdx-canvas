@@ -205,22 +205,7 @@ Use concise local metadata for facts reused within a bundle. Keep long explanati
 
 ### Separate stable curriculum from offerings and deployments
 
-**Stable curriculum** commonly includes outcomes, topic sequence, explanations, assignment intent and instructions, questions, rubrics, starter material, and stable IDs.
-
-**Offering-specific information** includes term and year, dates, sections, instructors and assistants, rooms, office hours, temporary service links, exam windows, and section overrides.
-
-**Deployment configuration** includes Canvas API URL, Canvas course ID, time zone, deployment root, target-specific course settings, and credentials.
-
-Keep these boundaries explicit:
-
-- stable source in unit, lesson, project, or shared curriculum bundles;
-- offering data in a finite global args file and, when useful, small local offering metadata;
-- Canvas target data in course-info or configuration files;
-- secrets outside version control.
-
-Not every date must be global. A lesson-local offering file is reasonable when only that lesson owns the date. There must never be two competing sources of truth.
-
-Term rollover should have a finite checklist: select the matching course-info and args files, update offering data, inspect hard-coded dates, links, and names, verify section overrides and exam windows, and then hand off for validation and test deployment.
+Use [Course-info and Global-args Principles](course-info-and-args-principles.md) as the source of truth for data ownership across curriculum source, local metadata, standalone global args, top-level course-info, and course-info `GLOBAL_ARGS`. Apply its synchronization-based decision rule, pairing requirements, and term-rollover process. Record the resulting boundaries in the architecture's data ownership map, and never create competing sources of truth.
 
 ### Use stable IDs and human-readable names
 
@@ -537,41 +522,7 @@ Caution:
 
 ### Offering and target configuration
 
-A global args file should contain offering-wide facts rather than stable curriculum:
-
-```yaml
-TERM: Fall
-YEAR: 2027
-COURSE_START: Aug 30
-COURSE_END: Dec 10
-LESSON_1A_DATE: Sep 1
-FIELD_NOTE_DUE: Sep 8
-```
-
-A separate target file should identify the Canvas destination:
-
-```yaml
-CANVAS_API_URL: https://example.instructure.com/
-CANVAS_COURSE_ID: 12345
-LOCAL_TIME_ZONE: America/Denver
-DEPLOY_ROOT: ..
-GLOBAL_ARGS:
-  COURSE_SETTINGS: |
-    <course-settings
-        name="Introduction to Inquiry (Fall 2027)"
-        code="INQ 101 (F27)"
-        image="course-info/course-image.png"
-    />
-```
-
-Guide:
-
-- Name or document valid target-and-args pairings.
-- Keep credentials outside both files and outside version control.
-
-Caution:
-
-- A valid parser run can still deploy the wrong term's dates to the wrong Canvas course if files are mismatched.
+Follow [Course-info and Global-args Principles](course-info-and-args-principles.md) for the configuration layers, representative examples, valid course-info/global-args pairings, target-bound render data, credentials boundary, and mismatch hazards. Document the exact supported pairs in the architecture and deployment handoff.
 
 ## Choosing representations
 
@@ -599,7 +550,7 @@ Use for flat catalogs whose rows truly have the same fields. Do not put long pro
 
 ### Global args
 
-Use for offering-wide facts shared broadly. Keep deployment target settings in course-info configuration. Avoid giant global files that combine stable curriculum, schedules, section overrides, staffing prose, and temporary links without clear ownership.
+Use [Course-info and Global-args Principles](course-info-and-args-principles.md) to choose among standalone global args, course-info `GLOBAL_ARGS`, top-level course-info, and local metadata. Do not infer ownership merely from a value being student-facing or term-varying.
 
 ### Generated discovery with `glob`
 
