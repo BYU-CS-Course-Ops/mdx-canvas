@@ -1,3 +1,8 @@
+---
+type: skill
+description: Load when deciding where MDXCanvas curriculum, offering, target, or term-rollover data belongs. This document describes the course-info and global-args YAML files with a guide on deciding what information goes in each source of configuration.
+---
+
 # Course-info and Global-args Principles
 
 ## Purpose
@@ -99,7 +104,7 @@ Determine ownership from the repository's actual deployment model and consumers 
 
 ## Observed repository patterns
 
-The established course repositories illustrate these boundaries:
+Example course repositories illustrate these boundaries:
 
 - **CS 110:** the standalone global-args file owns its instructional calendar. Course-info `GLOBAL_ARGS` owns course branding, Canvas section IDs, section descriptions, TA schedules, and final-exam details that vary with the combined Canvas shell.
 - **CS 301R:** the standalone global-args file owns dates, shared links, and TA information. Production and testing course-info profiles primarily vary destination settings and `COURSE_SETTINGS` branding.

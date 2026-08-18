@@ -1,3 +1,8 @@
+---
+type: skill
+description: Load when planning or reorganizing an MDXCanvas course architecture. This skill provides guidance for source layout, templating, and organization. If you are setting up a course to use mdxcanvas, or need to work with an existing course's content organization, load this skill. Consider also loading the `course-info-and-args-principles` skill. 
+---
+
 # MDXCanvas Course Architect
 
 ## Mission

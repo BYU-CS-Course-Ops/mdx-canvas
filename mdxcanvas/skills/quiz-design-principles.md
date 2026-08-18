@@ -1,3 +1,8 @@
+---
+type: skill
+description: Load when representing or editing Canvas Classic Quizzes and questions in MDXCanvas. If you need to edit content using the `<quiz>` tag, load this document.
+---
+
 # Representing Quizzes and Questions in MDXCanvas
 
 This guide describes how to represent Canvas Classic Quizzes with MDXCanvas. It focuses on the question structures that the current parser can produce, ways to combine those structures to represent common question styles, and implementation limits that affect authoring.

@@ -1,3 +1,8 @@
+---
+type: skill
+description: Load when encoding or editing instructor-approved course content as MDXCanvas source. This document describes formatting, templating, resource representation, and other encoding concerns. 
+---
+
 # MDXCanvas Content Author
 
 ## Mission
