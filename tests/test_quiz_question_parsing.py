@@ -1,3 +1,6 @@
+import logging
+
+import pytest
 from bs4 import BeautifulSoup
 
 from mdxcanvas.xml_processing.quiz_questions import (
@@ -251,3 +254,76 @@ def test_numerical_answer_comments_are_included():
             'comments_html': '<p>Rounded correctly.</p>',
         },
     ]
+
+
+# The three question types below run parse_settings over their <correct> tags,
+# so answer_comments has to be declared there or it gets reported as an
+# unprocessed field. The comments themselves are applied by _add_answer_comments
+# regardless, which is why the assertions above cannot catch a regression here.
+ANSWER_COMMENT_CASES = [
+    pytest.param(
+        parse_fill_in_the_blank_question,
+        """
+        <question id="q1" type="fill-in-the-blank">
+            The capital of France is [blank].
+            <correct text="Paris" answer_comments="Exactly right" />
+        </question>
+        """,
+        id='fill-in-the-blank',
+    ),
+    pytest.param(
+        parse_fill_in_multiple_blanks_question,
+        """
+        <question id="q1" type="fill-in-multiple-blanks">
+            The U.S. flag has [stripes] stripes and [stars] stars.
+            <correct text="13" blank="stripes" answer_comments="There are 13 original colonies." />
+            <correct text="50" blank="stars" answer_comments="One star per state." />
+        </question>
+        """,
+        id='fill-in-multiple-blanks',
+    ),
+    pytest.param(
+        parse_numerical_question,
+        """
+        <question id="q1" type="numerical" numerical_answer_type="exact">
+            What is pi to 5 decimal places?
+            <correct answer_exact="3.14159" answer_error_margin="0.00001" answer_comments="Rounded correctly." />
+        </question>
+        """,
+        id='numerical',
+    ),
+]
+
+
+def _unprocessed_field_warnings(caplog):
+    return [
+        record.getMessage()
+        for record in caplog.records
+        if 'Unprocessed_fields' in record.getMessage()
+    ]
+
+
+@pytest.mark.parametrize('parser, xml', ANSWER_COMMENT_CASES)
+def test_answer_comments_do_not_warn_about_unprocessed_fields(parser, xml, caplog):
+    with caplog.at_level(logging.WARNING, logger='MDXCANVAS'):
+        parser(_parse_question(xml))
+
+    assert _unprocessed_field_warnings(caplog) == []
+
+
+def test_genuinely_unknown_answer_attributes_still_warn(caplog):
+    """Guards the test above: it must fail if the warning is ever silenced wholesale."""
+    question = _parse_question("""
+    <question id="q1" type="fill-in-the-blank">
+        The capital of France is [blank].
+        <correct text="Paris" answer_comments="Exactly right" not_a_real_attribute="x" />
+    </question>
+    """)
+
+    with caplog.at_level(logging.WARNING, logger='MDXCANVAS'):
+        parse_fill_in_the_blank_question(question)
+
+    warnings = _unprocessed_field_warnings(caplog)
+    assert len(warnings) == 1
+    assert 'not_a_real_attribute' in warnings[0]
+    assert 'answer_comments' not in warnings[0]
