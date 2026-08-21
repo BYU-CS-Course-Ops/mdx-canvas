@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.7.8 - 2026-08-21
+
+### Fixed
+
+- Stopped reporting `answer_comments` as an unprocessed field on fill-in-the-blank, fill-in-multiple-blanks, and numerical answers. The attribute was always applied -- `_add_answer_comments` reads it directly from the tag -- but the three question types that also run `parse_settings` over their `<correct>` tags did not list it, so every answer carrying feedback logged a spurious warning. Parsed answers are unchanged.
+
 ## 0.7.7 - 2026-08-18
 
 ### Added
