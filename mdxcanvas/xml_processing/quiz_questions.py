@@ -35,6 +35,13 @@ mostly_common_fields = [
 ]
 
 
+# `answer_comments` is read straight off the answer tag by _add_answer_comments,
+# not through parse_settings. Declaring it as an ignored attribute keeps
+# parse_settings from reporting it as an unprocessed field, without adding
+# anything to the parsed answer.
+ANSWER_COMMENTS_ATTRIBUTE = Attribute('answer_comments', ignore=True)
+
+
 def _add_answer_comments(answer: dict, tag: Tag | None = None, answer_comments: str | None = None):
     if answer_comments is None and tag is not None:
         answer_comments = tag.get('answer_comments')
@@ -339,7 +346,7 @@ def parse_fill_in_the_blank_question(tag: Tag):
         "question_text": retrieve_contents(tag, question_children_names),
         "question_type": 'fill_in_multiple_blanks_question',
         "answers": [
-            _add_answer_comments(parse_settings(answer, answer_attributes), answer)
+            _add_answer_comments(parse_settings(answer, [*answer_attributes, ANSWER_COMMENTS_ATTRIBUTE]), answer)
             for answer in tag.find_all('correct')
         ]
     }
@@ -369,7 +376,7 @@ def parse_fill_in_multiple_blanks_question(tag: Tag):
         "question_text": retrieve_contents(tag, question_children_names),
         "question_type": 'fill_in_multiple_blanks_question',
         "answers": [
-            _add_answer_comments(parse_settings(answer, answer_attributes), answer)
+            _add_answer_comments(parse_settings(answer, [*answer_attributes, ANSWER_COMMENTS_ATTRIBUTE]), answer)
             for answer in answers
         ]
     }
@@ -487,7 +494,7 @@ def parse_numerical_question(tag: Tag):
         "question_text": question_text,
         "question_type": 'numerical_question',
         "answers": [
-            _add_answer_comments(parse_settings(answer, answer_attributes), answer)
+            _add_answer_comments(parse_settings(answer, [*answer_attributes, ANSWER_COMMENTS_ATTRIBUTE]), answer)
             for answer in tag.find_all('correct')
         ]
     }
