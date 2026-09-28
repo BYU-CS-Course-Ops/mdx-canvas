@@ -18,6 +18,7 @@ Use this reference when working with:
 - An `<assignment>` joins a category by the **`id` you declared**, not by the
   category's Canvas name. `group_category` is resolved the same way
   `assignment_group` is.
+- Declare categories inside a `<group-categories>` block, as `<assignment-groups>` does.
 - `auto_leader` requires `self_signup`. Canvas rejects it on its own.
 - Membership is not declared here. See below.
 
@@ -72,10 +73,12 @@ mid-project.
 ## Example
 
 ```xml
-<group-category id="project-teams"
-                name="Project Teams"
-                self_signup="enabled"
-                group_limit="4" />
+<group-categories>
+    <group-category id="project-teams"
+                    name="Project Teams"
+                    self_signup="enabled"
+                    group_limit="4" />
+</group-categories>
 
 <assignment id="final-project"
             title="Final Project"
@@ -88,7 +91,9 @@ mid-project.
 An instructor-assigned category, with no self sign-up:
 
 ```xml
-<group-category id="lab-pairs" name="Lab Pairs" />
+<group-categories>
+    <group-category id="lab-pairs" name="Lab Pairs" />
+</group-categories>
 ```
 
 ---
@@ -96,7 +101,9 @@ An instructor-assigned category, with no self sign-up:
 ## Skeleton Template
 
 ```xml
-<group-category id="[STABLE ID]" name="[CATEGORY NAME]" />
+<group-categories>
+    <group-category id="[STABLE ID]" name="[CATEGORY NAME]" />
+</group-categories>
 
 <assignment id="[ASSIGNMENT ID]"
             title="[ASSIGNMENT TITLE]"

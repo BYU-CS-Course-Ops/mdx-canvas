@@ -9,7 +9,8 @@ from .quarto_slides_preprocessor import make_quarto_slides_preprocessor
 from .syllabus_tags import SyllabusTagProcessor
 from ..resources import ResourceManager
 from ..util import parse_soup_from_xml
-from ..xml_processing.group_tags import AssignmentGroupTagProcessor, GroupCategoryTagProcessor
+from ..xml_processing.assignment_group_tags import AssignmentGroupTagProcessor
+from ..xml_processing.group_category_tags import GroupCategoryTagProcessor
 from ..xml_processing.module_tags import ModuleTagProcessor
 from ..xml_processing.page_tags import PageTagProcessor
 from ..xml_processing.quiz_tags import QuizTagProcessor

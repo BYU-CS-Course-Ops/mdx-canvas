@@ -15,7 +15,7 @@ from bs4 import BeautifulSoup
 from mdxcanvas.deploy.group import deploy_group_category
 from mdxcanvas.resources import ResourceManager, get_key
 from mdxcanvas.xml_processing.assignment_tags import AssignmentTagProcessor
-from mdxcanvas.xml_processing.group_tags import GroupCategoryTagProcessor
+from mdxcanvas.xml_processing.group_category_tags import GroupCategoryTagProcessor
 
 
 def _tag(xml: str, name: str):
@@ -59,6 +59,25 @@ def test_a_declared_category_becomes_a_resource():
         'self_signup': 'enabled',
         'group_limit': 4,
     }
+
+
+def test_categories_are_declared_inside_a_group_categories_block():
+    """Same convention as <assignment-groups>. The wrapper carries no meaning of
+    its own -- the walker recurses into it -- but keeping the two tags alike
+    means a course author learns one shape, not two."""
+    from mdxcanvas.xml_processing.xml_processing import process_canvas_xml
+
+    resources = process_canvas_xml(ResourceManager(), """
+    <div>
+      <group-categories>
+        <group-category id="teams" name="Project Teams" group_limit="4" />
+        <group-category id="pairs" name="Lab Pairs" />
+      </group-categories>
+    </div>
+    """)
+
+    assert sorted(resources) == [('group_category', 'pairs'),
+                                 ('group_category', 'teams')]
 
 
 def test_an_assignment_references_the_category_by_source_id():
